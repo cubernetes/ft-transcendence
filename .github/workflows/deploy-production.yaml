@@ -40,19 +40,19 @@ jobs:
         # Also, git stash --include-untracked will leave stuff that is in .gitignore, most importantly, .env
         run: |
           ssh \
-            -o IdentitiesOnly=yes                                                                    \
-            -i ~/.ssh/id_ed25519                                                                     \
-            -o UserKnownHostsFile=~/.ssh/known_hosts                                                 \
-            -T                                                                                       \
-            -p ${{ secrets.PRODUCTION_SSH_PORT }}                                                    \
-            ${{ secrets.PRODUCTION_SSH_USER }}@${{ secrets.PRODUCTION_SSH_HOST }}                    \
-            ": GH_ACTIONS_PRODUCTION ;                                                               \
-             set -Eeuxo pipefail ;                                                                   \
-             cd ${{ secrets.PRODUCTION_WORK_DIR }} ;                                                 \
-             git stash --include-untracked ;                                                         \
-             git checkout --force ${{ secrets.PRODUCTION_BRANCH }} ;                                 \
-             git pull --rebase --force ${{ secrets.REMOTE_NAME }} ${{ secrets.PRODUCTION_BRANCH }} ; \
-             make clean ;                                                                            \
+            -o IdentitiesOnly=yes                                                                             \
+            -i ~/.ssh/id_ed25519                                                                              \
+            -o UserKnownHostsFile=~/.ssh/known_hosts                                                          \
+            -T                                                                                                \
+            -p ${{ secrets.PRODUCTION_SSH_PORT }}                                                             \
+            ${{ secrets.PRODUCTION_SSH_USER }}@${{ secrets.PRODUCTION_SSH_HOST }}                             \
+            ": GH_ACTIONS_PRODUCTION ;                                                                        \
+             set -Eeuxo pipefail ;                                                                            \
+             cd ${{ secrets.PRODUCTION_WORK_DIR }} ;                                                          \
+             git stash --include-untracked || : ; : 'git stash may fail (if it does, prolly docker related' ; \
+             git checkout --force ${{ secrets.PRODUCTION_BRANCH }} ;                                          \
+             git pull --rebase --force ${{ secrets.REMOTE_NAME }} ${{ secrets.PRODUCTION_BRANCH }} ;          \
+             make clean ;                                                                                     \
              make prod"
 
       - name: Cleanup
