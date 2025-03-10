@@ -29,8 +29,8 @@ dev: check-env
 	HTTP_PORT="$(DEV_HTTP_PORT)"   \
 	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
 	DOMAINS="$(DEV_DOMAINS)"       \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="auto_https disable_redirects" \
-	CADDY_EXTRA_SITE_DIRECTIVES="tls internal" \
+	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
+	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
 	$(DC) up --build -d
 
 .PHONY: prod
@@ -41,6 +41,8 @@ prod: check-env
 	HTTP_PORT="$(PROD_HTTP_PORT)"   \
 	HTTPS_PORT="$(PROD_HTTPS_PORT)" \
 	DOMAINS="$(PROD_DOMAINS)"       \
+	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
+	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
 	$(DC) up --build -d
 
 .PHONY: down
