@@ -6,8 +6,10 @@
 
 ## Build and Run
 
-- Set appropriate options in .env (cp from .env.example)
-- make dev or make prod
+- Ensure `docker` and `docker compose` are working
+- Run `cp .env.example .env`
+- Adjust secrets in `.env`, possibly also in `config.env` if you have port issues
+- Run `make` or `make prod`
 
 ## Advanced/Configuration
 
