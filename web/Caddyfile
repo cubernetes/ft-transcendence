@@ -1,10 +1,9 @@
 {
-	acme_ca https://acme.zerossl.com/v2/DV90
-	email nobody@nobody.org
 	skip_install_trust # caddy is running as non-root, therefore CA trust installation won't work (and isn't needed anyway inside the container)
 	http_port 8080
 	https_port 8443
 	order coraza_waf first
+	{$CADDY_EXTRA_GLOBAL_DIRECTIVES}
 }
 
 (waf) {
@@ -19,7 +18,9 @@
 	}
 }
 
-{$DOMAINS:http://localhost} {
+{$DOMAINS:localhost} {
+	{$CADDY_EXTRA_SITE_DIRECTIVES}
+	log
 	handle {
 		import waf
 		root * /srv
