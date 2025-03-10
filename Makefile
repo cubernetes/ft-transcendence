@@ -74,9 +74,9 @@ deepclean:
 
 .PHONY: re
 re: clean
-	$(MAKE) dev
+	$(MAKE)
 
-.PHONY: install
-install:
+.PHONY: npm-install
+npm-install:
 	npm --prefix=web install
 	npm --prefix=backend install
