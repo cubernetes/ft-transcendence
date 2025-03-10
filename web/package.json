@@ -1,22 +1,26 @@
 {
-    "name": "ft-transcendence",
-    "version": "1.0.0",
-    "scripts": {
-        "compile": "tsc",
-        "build": "npm run build:css && webpack --mode production",
-        "build:css": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/styles/output.css"
-    },
-    "devDependencies": {
-        "babylonjs": "^7.51.0",
-        "css-loader": "^7.1.2",
-        "style-loader": "^4.0.0",
-        "tailwindcss": "3.4.17",
-        "ts-loader": "^9.5.2",
-        "typescript": "^5.7.3",
-        "webpack": "^5.98.0",
-        "webpack-cli": "^6.0.1"
-    },
-    "optionalDependencies": {
-        "@parcel/watcher-linux-x64-glibc": "^2.5.1"
-    }
+  "name": "ft-transcendence",
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "tsc",
+    "build": "npm run build:css && webpack --mode production",
+    "build:css": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/styles/output.css",
+    "dev": "npm install && npm run compile && npm run build && webpack serve --mode development"
+  },
+  "dependencies": {
+    "@types/earcut": "^3.0.0",
+    "babylonjs": "^7.51.3",
+    "css-loader": "^7.1.2",
+    "earcut": "^3.0.1",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "3.4.17",
+    "ts-loader": "^9.5.2",
+    "typescript": "^5.7.3",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1",
+    "copy-webpack-plugin": "^11.0.0"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^5.2.0"
+  }
 }

@@ -1,142 +1,269 @@
-export const createGameSection = (): HTMLElement => {
-    const section = document.createElement("section");
-    section.className = "p-4";
+import { Engine, Scene, ArcRotateCamera, Vector3, MeshBuilder, CreateText, Mesh } from 'babylonjs'
+import earcut from 'earcut';
 
-    const title = document.createElement("h2");
-    title.className = "text-2xl font-bold mb-4";
-    title.textContent = "Pong Game";
+(window as any).earcut = earcut;
 
-    const gameContainer = document.createElement("div");
-    gameContainer.className = "bg-black h-80 rounded-lg flex items-center justify-center relative";
-    gameContainer.id = "game-container";
+// Game constants
+const PADDLE_WIDTH = 0.2;
+const PADDLE_HEIGHT = 0.3;
+const PADDLE_DEPTH = 5;
+const PADDLE_SPEED = 0.3;
+const BALL_RADIUS = 0.3;
+const BOARD_WIDTH = 20;
+const BOARD_HEIGHT = 0.1;
+const BOARD_DEPTH = 15;
+const BALL_SPEED = 0.2;
+const SCORE_POSITION = new Vector3(0, 0, 8);
 
-    // Create a ball element for the Pong game
-    const ball = document.createElement("div");
-    ball.className = "absolute bg-white rounded-full";
-    ball.style.width = "20px";
-    ball.style.height = "20px";
-    ball.style.top = "50%"; // Center the ball vertically
-    ball.style.left = "50%"; // Center the ball horizontally
-    gameContainer.appendChild(ball);
+// Game state
+let score = { player1: 0, player2: 0 };
+let scoreText: Mesh;
+let ball: Mesh;
+let paddle1: Mesh;
+let paddle2: Mesh;
+let ballDirection = new Vector3(BALL_SPEED, 0, BALL_SPEED);
+let keysPressed: { [key: string]: boolean } = {};
+let fontData: any = null;
 
-    // Create paddles
-    const playerPaddle = document.createElement("div");
-    playerPaddle.className = "absolute bg-white";
-    playerPaddle.style.width = "10px";
-    playerPaddle.style.height = "80px";
-    playerPaddle.style.left = "10px"; // Example left position for player paddle
-    gameContainer.appendChild(playerPaddle);
-
-    const opponentPaddle = document.createElement("div");
-    opponentPaddle.className = "absolute bg-white";
-    opponentPaddle.style.width = "10px";
-    opponentPaddle.style.height = "80px";
-    opponentPaddle.style.right = "10px"; // Example right position for opponent paddle
-    gameContainer.appendChild(opponentPaddle);
-
-    // WebSocket setup
-    const socket = new WebSocket("/ws");
-
-    socket.onopen = () => {
-        console.log("WebSocket connection established");
-        socket.send("Join player-1"); // Join the game as player-1;
+export async function createGameSection(): Promise<HTMLElement> {
+  const container = document.createElement('div');
+  container.className = "w-full h-[600px] relative"; // Set explicit height
+  
+  const gameSection = document.createElement('canvas');
+  gameSection.className = "w-full h-full";
+  gameSection.id = "renderCanvas"; // Add an ID for easier reference
+  
+  container.appendChild(gameSection);
+  
+  // Wait for the canvas to be added to the DOM before initializing Babylon
+  setTimeout(() => {
+    const engine = new Engine(gameSection);
+    
+    const createScene = async function() {
+      const scene = new Scene(engine);
+      
+      scene.createDefaultLight();
+      setCamera(scene);
+      createGameObjects(scene);
+      await addScore(scene);
+      setupKeyboardControls(scene);
+      
+      scene.onBeforeRenderObservable.add(() => {
+        updateGame(scene);
+      });
+      
+      return scene;
     };
-
-    socket.onmessage = (event) => {
-        console.log("Message from server:", event.data);
-
-        const gameState = JSON.parse(event.data);
-
-        if (gameState) {
-            console.log("Updated game state received:", gameState);
-
-            // Update ball position
-            if (gameState.ballPosition) {
-                ball.style.top = `${gameState.ballPosition.y}px`;
-                ball.style.left = `${gameState.ballPosition.x}px`;
-            }
-
-            // Update player paddle position
-            if (gameState.paddlePosition) {
-                const player1PaddlePos = gameState.paddlePosition["player-1"].y;
-                playerPaddle.style.top = `${player1PaddlePos}px`; // Move player paddle
-
-                const opponentPaddlePos = gameState.paddlePosition["player-2"].y;
-                opponentPaddle.style.top = `${opponentPaddlePos}px`; // Move opponent paddle
-            }
-
-            // Update the score
-            if (gameState.score) {
-                console.log(
-                    `Score: Player 1: ${gameState.score.player1}, Player 2: ${gameState.score.player2}`
-                );
-            }
-        }
-    };
-
-    socket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-    };
-
-    socket.onclose = () => {
-        console.log("WebSocket connection closed");
-    };
-
-    let lastDirection: "up" | "down" | "stop" = "stop";
-
-    function sendDirection(direction: "up" | "down" | "stop") {
-        if (direction !== lastDirection && socket.readyState === WebSocket.OPEN) {
-            socket.send(`move ${direction}`);
-            lastDirection = direction;
-        }
-    }
-
-    // Add event listeners for keyboard input (arrow keys)
-    document.addEventListener("keydown", (event) => {
-        console.log(`Key pressed: ${event.key}`);
-        if (event.key === "ArrowUp") {
-            sendDirection("up");
-        } else if (event.key === "ArrowDown") {
-            sendDirection("down");
-        }
+    
+    createScene().then(scene => {
+      engine.runRenderLoop(() => {
+        scene.render();
+      });
+      
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        engine.resize();
+      });
     });
+  }, 0);
+  
+  return container;
+}
 
-    document.addEventListener("keyup", (event) => {
-        console.log(`Key released: ${event.key}`);
-        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-            sendDirection("stop");
-        }
-    });
+function setCamera(scene: Scene): ArcRotateCamera {
+  const camera = new ArcRotateCamera(
+      "pongCamera",
+      -Math.PI / 2,           // alpha - side view (fixed)
+      0,        // beta - slightly above (fixed)
+      25,                   // radius - distance from center
+      Vector3.Zero(),// target - looking at center
+      scene
+  );
+  camera.lowerRadiusLimit = 10;
+  camera.upperRadiusLimit = 30;
+  
+  // Disable keyboard controls
+  camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
+  
+  // Keep only mouse wheel zoom
+  camera.inputs.clear();
+  camera.inputs.addMouseWheel();
+  
+  return camera;
+}
 
-    // Button to send a test message
-    const startButton = document.createElement("button");
-    startButton.className = "bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600";
-    startButton.textContent = "Start Game";
-    startButton.addEventListener("click", () => {
-        console.log("Start game clicked");
+function createGameObjects(scene: Scene) {
+  // Create game board
+  const board = MeshBuilder.CreateBox("board", {
+      width: BOARD_WIDTH,
+      height: BOARD_HEIGHT,
+      depth: BOARD_DEPTH
+  }, scene);
+  board.position.y = -0.5;
+  
+  // Create paddles
+  paddle1 = MeshBuilder.CreateBox("paddle1", {
+      width: PADDLE_WIDTH,
+      height: PADDLE_HEIGHT,
+      depth: PADDLE_DEPTH
+  }, scene);
+  paddle1.position = new Vector3(-BOARD_WIDTH/2 + 0.5, 0.5, 0);
+  paddle1.rotation.x = Math.PI;
+  
+  paddle2 = MeshBuilder.CreateBox("paddle2", {
+      width: PADDLE_WIDTH,
+      height: PADDLE_HEIGHT,
+      depth: PADDLE_DEPTH
+  }, scene);
+  paddle2.position = new Vector3(BOARD_WIDTH/2 - 0.5, 0.5, 0);
+  paddle2.rotation.x = Math.PI;
+  
+  // Create ball
+  ball = MeshBuilder.CreateSphere("ball", {
+      diameter: BALL_RADIUS * 2
+  }, scene);
+  ball.position = new Vector3(0, 0.5, 0);
+}
 
-        // Prevent layout shift by updating existing elements
-        const startMessage = document.createElement("p");
-        startMessage.className = "text-white";
-        startMessage.textContent = "Game started! Use arrow keys to move your paddle.";
+async function addScore(scene: Scene) {
+  // Load font data once and cache it
+  fontData = await((await fetch('assets/Montserrat_Regular.json')).json());
+  
+  // Create initial score text
+  const text = CreateText(
+      "scoreText",
+      `Score: ${score.player1} - ${score.player2}`,
+      fontData,
+      {
+          size: 0.5,    // text size
+          depth: 0.1,   // extrusion depth
+          resolution: 32 // curve resolution
+      }
+  );
+  
+  if (!text) throw new Error("Failed to create score text");
+  scoreText = text;
+  scoreText.position = SCORE_POSITION;
+  scoreText.rotation.x = Math.PI / 2;
+}
 
-        // Remove any existing messages or buttons
-        const existingStartButton = gameContainer.querySelector("button");
-        if (existingStartButton) existingStartButton.remove();
+function setupKeyboardControls(scene: Scene) {
+  // Setup keyboard event listeners
+  window.addEventListener("keydown", (event) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+          event.preventDefault();
+      }
+      keysPressed[event.key] = true;
+  });
+  window.addEventListener("keyup", (event) => {
+      keysPressed[event.key] = false;
+  });
+}
 
-        gameContainer.appendChild(startMessage);
+function updateGame(scene: Scene) {
+  // Handle paddle movement
+  if (keysPressed["w"]) {
+      paddle1.position.z += PADDLE_SPEED;
+      if (paddle1.position.z > BOARD_DEPTH/2 - PADDLE_DEPTH/2) {
+          paddle1.position.z = BOARD_DEPTH/2 - PADDLE_DEPTH/2;
+      }
+  }
+  
+  if (keysPressed["s"]) {
+      paddle1.position.z -= PADDLE_SPEED;
+      if (paddle1.position.z < -BOARD_DEPTH/2 + PADDLE_DEPTH/2) {
+          paddle1.position.z = -BOARD_DEPTH/2 + PADDLE_DEPTH/2;
+      }
+  }
+  
+  if (keysPressed["ArrowUp"]) {
+      paddle2.position.z += PADDLE_SPEED;
+      if (paddle2.position.z > BOARD_DEPTH/2 - PADDLE_DEPTH/2) {
+          paddle2.position.z = BOARD_DEPTH/2 - PADDLE_DEPTH/2;
+      }
+  }
+  
+  if (keysPressed["ArrowDown"]) {
+      paddle2.position.z -= PADDLE_SPEED;
+      if (paddle2.position.z < -BOARD_DEPTH/2 + PADDLE_DEPTH/2) {
+          paddle2.position.z = -BOARD_DEPTH/2 + PADDLE_DEPTH/2;
+      }
+  }
+  
+  // Update ball position
+  ball.position.x += ballDirection.x;
+  ball.position.z += ballDirection.z;
+  
+  // Ball collision with paddles
+  if (ball.position.x <= paddle1.position.x + PADDLE_WIDTH/2 + BALL_RADIUS && 
+      ball.position.x >= paddle1.position.x &&
+      ball.position.z <= paddle1.position.z + PADDLE_DEPTH/2 + BALL_RADIUS &&
+      ball.position.z >= paddle1.position.z - PADDLE_DEPTH/2 - BALL_RADIUS) {
+      ballDirection.x = Math.abs(ballDirection.x); // Reverse x direction
+  }
+  
+  if (ball.position.x >= paddle2.position.x - PADDLE_WIDTH/2 - BALL_RADIUS && 
+      ball.position.x <= paddle2.position.x &&
+      ball.position.z <= paddle2.position.z + PADDLE_DEPTH/2 + BALL_RADIUS &&
+      ball.position.z >= paddle2.position.z - PADDLE_DEPTH/2 - BALL_RADIUS) {
+      ballDirection.x = -Math.abs(ballDirection.x); // Reverse x direction
+  }
+  
+  // Ball collision with top and bottom walls
+  if (ball.position.z >= BOARD_DEPTH/2 - BALL_RADIUS || 
+      ball.position.z <= -BOARD_DEPTH/2 + BALL_RADIUS) {
+      ballDirection.z = -ballDirection.z; // Reverse z direction
+  }
+  
+  // Ball out of bounds (scoring)
+  if (ball.position.x < -BOARD_WIDTH/2) {
+      // Player 2 scores
+      score.player2++;
+      resetBall();
+      updateScoreDisplay();
+  } else if (ball.position.x > BOARD_WIDTH/2) {
+      // Player 1 scores
+      score.player1++;
+      resetBall();
+      updateScoreDisplay();
+  }
+}
 
-        if (socket.readyState === WebSocket.OPEN) {
-            console.log("Sending startPong");
-            socket.send("startPong"); // Start the game
-        } else {
-            console.error("WebSocket is not open.");
-        }
-    });
+function resetBall() {
+  ball.position = new Vector3(0, 0.5, 0);
+  
+  // Randomize ball direction
+  const randomAngle = Math.random() * Math.PI * 2;
+  ballDirection.x = BALL_SPEED * Math.cos(randomAngle);
+  ballDirection.z = BALL_SPEED * Math.sin(randomAngle);
+  
+  // Ensure the ball moves toward one of the players
+  if (Math.abs(ballDirection.x) < 0.3 * BALL_SPEED) {
+      ballDirection.x = ballDirection.x > 0 ? 0.3 * BALL_SPEED : -0.3 * BALL_SPEED;
+  }
+}
 
-    gameContainer.appendChild(startButton);
-    section.appendChild(title);
-    section.appendChild(gameContainer);
-
-    return section;
-};
+async function updateScoreDisplay() {
+  // Instead of recreating the text mesh, we'll just update the existing one
+  if (scoreText) {
+      // Remove the old score text
+      scoreText.dispose();
+      
+      // Create new text with updated score
+      const text = CreateText(
+          "scoreText",
+          `Score: ${score.player1} - ${score.player2}`,
+          fontData, // Use the cached font data
+          {
+              size: 0.5,
+              depth: 0.1,
+              resolution: 32
+          }
+      );
+      
+      if (!text) throw new Error("Failed to create score text");
+      scoreText = text;
+      scoreText.position = SCORE_POSITION;
+      scoreText.rotation.x = Math.PI / 2;
+  }
+}
