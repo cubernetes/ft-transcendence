@@ -50,22 +50,27 @@ down:
 .PHONY: clean
 clean: down
 	[ -n "$(DB_PATH)" ] && $(RM) backend/$(DB_PATH)
-	$(D) system prune -f
-
-.PHONY: deepclean
-deepclean: clean
-	$(D) ps -aq | xargs -r docker stop || true
-	$(D) ps -aq | xargs -r docker rm || true
-	$(D) images -q | xargs -r docker rmi || true
-	$(D) volume prune -f || true
-	$(D) network prune -f || true
-	$(D) system prune -a --volumes -f || true
-	$(DC) down -v || true
-
-.PHONY: fclean
-fclean: deepclean
+	$(D) system prune --force
 	$(RM) -r backend/node_modules/ backend/dist/
 	$(RM) -r web/node_modules/ web/dist/
+
+.PHONY: deepclean
+deepclean:
+	@printf '\033[33mWarning: %b\033[m' \
+		"You're about the delete ALL:\n" \
+		" - containers (running or not)\n" \
+		" - docker images (dangling and unused)\n" \
+		" - volumes (named or unnamed)\n" \
+		" - networks\n" \
+		" - build caches\n" \
+		"This is VERY, VERY LIKELY not needed. Images, containers, networks\n" \
+		"volumes, and build caches NOT related to this project WILL BE LOST.\n" \
+		"Please make sure you fully understand what you're about to do\n" \
+		"and consider 'make clean' instead.\n" \
+		"Press ENTER to continue anyway..." && read c
+	$(MAKE) clean
+	$(D) rm --force $$($(D) ps --quiet -all) # non-graceful shutdown because wdgaf
+	$(D) system prune --all --volumes --force # dangerous
 
 .PHONY: re
 re: clean
