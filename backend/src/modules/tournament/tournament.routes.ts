@@ -1,15 +1,25 @@
-// import { FastifyInstance } from "fastify";
-// import type { ServiceInstance } from "../../services";
-// import TournamentController from "./tournament.controller";
+import type { FastifyPluginAsync } from "fastify";
+import {
+    createTournamentSchema,
+    tournamentIdSchema,
+    tournamentNameSchema,
+} from "./tournament.type";
+import {
+    createTournamentHandler,
+    getAllTournamentsHandler,
+    getTournamentByIdHandler,
+    getTournamentByNameHandler,
+} from "./tournament.controller";
+import { withZod } from "../../utils/zod-validate";
 
-// const tournamentRoutes = async (
-//     fastify: FastifyInstance,
-//     options: { service: ServiceInstance }
-// ) => {
-//     const controller = new TournamentController(options.service.tournament);
+const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
+    fastify.post("/create", withZod({ body: createTournamentSchema }, createTournamentHandler));
+    fastify.get("/id/:id", withZod({ params: tournamentIdSchema }, getTournamentByIdHandler));
+    fastify.get(
+        "/name/:name",
+        withZod({ params: tournamentNameSchema }, getTournamentByNameHandler)
+    );
+    fastify.get("/all", getAllTournamentsHandler);
+};
 
-//     fastify.get(`/all`, controller.getAllTournaments.bind(controller));
-//     fastify.get(`/:id`, controller.getTournamentById.bind(controller));
-// };
-
-// export default tournamentRoutes;
+export default tournamentRoutes;

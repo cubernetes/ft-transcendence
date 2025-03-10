@@ -1,42 +1,35 @@
-// import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-// import { eq } from "drizzle-orm";
-// import { tournaments } from "../plugins/db/schema";
+import type { FastifyInstance } from "fastify";
+import { tournaments } from "../db/db.schema";
+import { NewTournament, Tournament } from "./tournament.type";
+import { eq } from "drizzle-orm";
 
-// export default class TournamentService {
-//     constructor(private readonly db: BetterSQLite3Database) {}
+export const createTournamentService = (fastify: FastifyInstance) => {
+    const db = fastify.db;
 
-//     async findAll() {
-//         try {
-//             return await this.db.select().from(tournaments);
-//         } catch (error) {
-//             console.error(`Error fetching all tournaments:`, error);
-//             throw new Error(`Failed to fetch tournaments`);
-//         }
-//     }
+    const create = async (data: NewTournament): Promise<Tournament | null> =>
+        (await db.insert(tournaments).values(data).returning())?.[0] || null;
 
-//     async findById(id: number) {
-//         try {
-//             const tournament = await this.db
-//                 .select()
-//                 .from(tournaments)
-//                 .where(eq(tournaments.id, id));
-//             if (!tournament || tournament.length === 0) {
-//                 throw new Error(`Tournament not found`);
-//             }
-//             return tournament[0];
-//         } catch (error) {
-//             console.error(`Error fetching tournament ${id}:`, error);
-//             throw error;
-//         }
-//     }
+    const findById = async (id: number): Promise<Tournament | null> =>
+        (await db.select().from(tournaments).where(eq(tournaments.id, id)))?.[0] || null;
 
-//     async create() {}
+    const findByName = async (name: string): Promise<Tournament | null> =>
+        (await db.select().from(tournaments).where(eq(tournaments.name, name)))?.[0] || null;
 
-//     async update(id: number) {
-//         id;
-//     }
+    const findAll = async (): Promise<Tournament[]> => await db.select().from(tournaments);
 
-//     async delete(id: number) {
-//         id;
-//     }
-// }
+    const update = async (id: number, data: Partial<Tournament>): Promise<Tournament | null> =>
+        (await db.update(tournaments).set(data).where(eq(tournaments.id, id)).returning())?.[0] ||
+        null;
+
+    const remove = async (id: number): Promise<Tournament | null> =>
+        (await db.delete(tournaments).where(eq(tournaments.id, id)).returning())?.[0] || null;
+
+    return {
+        create,
+        findById,
+        findByName,
+        findAll,
+        update,
+        remove,
+    };
+};
