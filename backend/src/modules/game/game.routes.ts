@@ -1,12 +1,12 @@
-// import { FastifyInstance } from "fastify";
-// import type { ServiceInstance } from "../../services";
-// import GameController from "./game.controller";
+import type { FastifyPluginAsync } from "fastify";
+import { createGameSchema, gameIdSchema } from "./game.type";
+import { createGameHandler, getAllGamesHandler, getGameByIdHandler } from "./game.controller";
+import { withZod } from "../../utils/zod-validate";
 
-// const gameRoutes = async (fastify: FastifyInstance, options: { service: ServiceInstance }) => {
-//     const controller = new GameController(options.service.game);
+const gameRoutes: FastifyPluginAsync = async (fastify) => {
+    fastify.post("/create", withZod({ body: createGameSchema }, createGameHandler));
+    fastify.get("/id/:id", withZod({ params: gameIdSchema }, getGameByIdHandler));
+    fastify.get("/all", getAllGamesHandler);
+};
 
-//     fastify.get(`/all`, controller.getAllGames.bind(controller));
-//     fastify.get(`/:id`, controller.getGameById.bind(controller));
-// };
-
-// export default gameRoutes;
+export default gameRoutes;

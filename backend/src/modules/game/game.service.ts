@@ -1,39 +1,30 @@
-// import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-// import { eq } from "drizzle-orm";
-// import { games } from "../plugins/db/schema";
+import type { FastifyInstance } from "fastify";
+import { games } from "../db/db.schema";
+import { NewGame, Game } from "./game.type";
+import { eq } from "drizzle-orm";
 
-// export default class GameService {
-//     constructor(private readonly db: BetterSQLite3Database) {}
+export const createGameService = (fastify: FastifyInstance) => {
+    const db = fastify.db;
 
-//     async findAll() {
-//         try {
-//             return await this.db.select().from(games);
-//         } catch (error) {
-//             console.error(`Error fetching all games:`, error);
-//             throw new Error(`Failed to fetch games`);
-//         }
-//     }
+    const create = async (data: NewGame): Promise<Game | null> =>
+        (await db.insert(games).values(data).returning())?.[0] || null;
 
-//     async findById(id: number) {
-//         try {
-//             const game = await this.db.select().from(games).where(eq(games.id, id));
-//             if (!game || game.length === 0) {
-//                 throw new Error(`Game not found`);
-//             }
-//             return game[0];
-//         } catch (error) {
-//             console.error(`Error fetching game ${id}:`, error);
-//             throw error;
-//         }
-//     }
+    const findById = async (id: number): Promise<Game | null> =>
+        (await db.select().from(games).where(eq(games.id, id)))?.[0] || null;
 
-//     async create() {}
+    const findAll = async (): Promise<Game[]> => await db.select().from(games);
 
-//     async update(id: number) {
-//         id;
-//     }
+    const update = async (id: number, data: Partial<Game>): Promise<Game | null> =>
+        (await db.update(games).set(data).where(eq(games.id, id)).returning())?.[0] || null;
 
-//     async delete(id: number) {
-//         id;
-//     }
-// }
+    const remove = async (id: number): Promise<Game | null> =>
+        (await db.delete(games).where(eq(games.id, id)).returning())?.[0] || null;
+
+    return {
+        create,
+        findById,
+        findAll,
+        update,
+        remove,
+    };
+};

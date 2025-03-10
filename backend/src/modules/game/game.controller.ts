@@ -1,31 +1,43 @@
-// import type { FastifyReply, FastifyRequest } from "fastify";
-// import GameService from "../services/game.service";
-// import { CustomError } from "../../utils/errors";
-// import { validateId } from "../../utils/zod-validate";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import { CreateGameDTO, GameIdDTO } from "./game.type";
 
-// export default class GameController {
-//     constructor(private gameService: GameService) {}
+export const createGameHandler = async (
+    { body }: { body: CreateGameDTO },
+    req: FastifyRequest,
+    reply: FastifyReply
+) => {
+    try {
+        //const game = await req.server.gameService.create(body);
+        const game = body; // TODO
+        if (!game) return reply.code(400).send({ error: "Failed to create game" });
+        return reply.code(201).send(game);
+    } catch (error) {
+        req.log.error({ err: error }, "Failed to create game");
+        return reply.code(500).send({ error: "Internal server error" });
+    }
+};
 
-//     async getAllGames(_request: FastifyRequest, reply: FastifyReply) {
-//         try {
-//             const games = await this.gameService.findAll();
-//             return reply.send(games);
-//         } catch (error) {
-//             return error instanceof CustomError
-//                 ? error.send(reply)
-//                 : new CustomError(`Failed to fetch all games`).send(reply);
-//         }
-//     }
+export const getGameByIdHandler = async (
+    { params }: { params: GameIdDTO },
+    req: FastifyRequest,
+    reply: FastifyReply
+) => {
+    try {
+        const game = await req.server.gameService.findById(params.id);
+        if (!game) return reply.code(404).send({ error: "Game not found" });
+        return reply.send(game);
+    } catch (error) {
+        req.log.error({ err: error }, "Failed to get game by ID");
+        return reply.code(500).send({ error: "Internal server error" });
+    }
+};
 
-//     async getGameById(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
-//         try {
-//             const id = validateId(request.params.id);
-//             const game = await this.gameService.findById(id);
-//             return reply.send(game);
-//         } catch (error) {
-//             return error instanceof CustomError
-//                 ? error.send(reply)
-//                 : new CustomError(`Failed to fetch game by ID`).send(reply);
-//         }
-//     }
-// }
+export const getAllGamesHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+        const games = await req.server.gameService.findAll();
+        return reply.send(games);
+    } catch (error) {
+        req.log.error({ err: error }, "Failed to get all games");
+        return reply.code(500).send({ error: "Internal server error" });
+    }
+};
