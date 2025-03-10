@@ -7,7 +7,7 @@ import fs from "fs";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { FastifyInstance } from "fastify/types/instance";
 
-type DbClient = BetterSQLite3Database<typeof schema> & { $client: Database.Database };
+export type DbClient = BetterSQLite3Database<typeof schema> & { $client: Database.Database };
 
 const dbPlugin = async (fastify: FastifyInstance) => {
     try {

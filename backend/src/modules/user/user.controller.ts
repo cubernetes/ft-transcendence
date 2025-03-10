@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserDTO, UserIdDTO, UsernameDTO } from "./user.type";
+import { CreateUserDTO, UserIdDTO, UserNameDTO } from "./user.type";
 import { toPublicUser } from "./user.helpers";
 
 export const createUserHandler = async (
@@ -20,6 +20,7 @@ export const createUserHandler = async (
             passwordHash: hashedPassword,
         });
 
+        if (!user) return reply.code(400).send({ error: "Failed to create user" });
         return reply.code(201).send(toPublicUser(user));
     } catch (error) {
         req.log.error({ err: error }, "Failed to create user");
@@ -43,7 +44,7 @@ export const getUserByIdHandler = async (
 };
 
 export const getUserByUsernameHandler = async (
-    { params }: { params: UsernameDTO },
+    { params }: { params: UserNameDTO },
     req: FastifyRequest,
     reply: FastifyReply
 ) => {

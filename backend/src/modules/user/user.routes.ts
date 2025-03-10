@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createUserSchema, userIdSchema, usernameSchema } from "./user.type";
+import { createUserSchema, userIdSchema, userNameSchema } from "./user.type";
 import {
     createUserHandler,
     getAllUsersHandler,
@@ -13,7 +13,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.get("/id/:id", withZod({ params: userIdSchema }, getUserByIdHandler));
     fastify.get(
         "/username/:username",
-        withZod({ params: usernameSchema }, getUserByUsernameHandler)
+        withZod({ params: userNameSchema }, getUserByUsernameHandler)
     );
     fastify.get("/all", getAllUsersHandler);
     // fastify.put(
