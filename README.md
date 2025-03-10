@@ -15,7 +15,7 @@
 
 - [administrative commands regarding app management]
 - [basic steps for configuration]
-- Refer to the [Wiki](https://github.com/cubernetes/ft-transcendence/wiki) for more Documentation
+- Refer to the [Wiki](https://github.com/cubernetes/ft-transcendence/wiki) for more documentation
 
 ## Demo
 
@@ -27,12 +27,11 @@
 - Interactive webapp to play 3D pong - Front-End (John) && Back-End (Ben & Darren)
 - Account management (TBD)
 - Join matches via the a CLI client (or maybe [SSH](https://github.com/charmbracelet/wish), let's see) (TBD)
-- Overkill security measures (ModSecurity, HashiCorp Vault, 2FA, JWT) - Timo
+- Overkill security measures (ModSecurity, HashiCorp Vault, 2FA, JWT) (Timo)
 - AI opponent (TBD)
 - Some accessibility features (TBD)
-- Log management and observability (ELK + Grafana) - Sonia
-- Game statistics also on Blockchain - John
-
+- Log management and observability (ELK + Grafana) (Sonia)
+- Game statistics also on Blockchain (John)
 
 ## Debug
 - Websockets: Use wscat to connect to frontend (or backend via container IP):
