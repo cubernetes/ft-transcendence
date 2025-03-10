@@ -71,5 +71,4 @@
 
 ## License
 
-- [CC0 1.0 Universal](COPYING)
-
+- [CC0 1.0 Universal](LICENSE)
