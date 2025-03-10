@@ -1,12 +1,12 @@
 {
-  "printWidth": 100,
-  "tabWidth": 4,
-  "useTabs": false,
-  "semi": true,
-  "trailingComma": "es5",
-  "arrowParens": "always",
-  "overrides": [
-    { "files": "*.json", "options": {} },
-    { "files": "*.ts", "options": {} }
-  ]
+    "printWidth": 100,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "trailingComma": "es5",
+    "arrowParens": "always",
+    "overrides": [
+        { "files": "*.json", "options": {} },
+        { "files": "*.ts", "options": {} }
+    ]
 }

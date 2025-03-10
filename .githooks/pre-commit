@@ -37,4 +37,4 @@ format_staged () (
 	fi
 )
 
-format_staged ts json
+format_staged ts js json css html md yaml

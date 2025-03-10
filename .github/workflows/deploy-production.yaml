@@ -1,59 +1,59 @@
 name: Deploy to prod by SSH'ing to a host and running make prod
 
 on:
-  push:
-    branches:
-      - main # should be ${{ secrets.PRODUCTION_BRANCH }}
+    push:
+        branches:
+            - main # should be ${{ secrets.PRODUCTION_BRANCH }}
 
 jobs:
-  # Expects the host to have this
-  #  - ssh-keyscan
-  #  - git
-  #  - make
-  #  - dig
-  #  - rm
-  #  - grep
-  #  - install
-  #  - sed (GNU version)
-  #  - bash (as default shell for the ssh user)
-  # On ubuntu, this might require installing the following apt packages:
-  #  - dnsutils (dig)
-  #  - openssh-client (ssh-keyscan)
-  #  - make
-  #  - git
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # Expects the host to have this
+    #  - ssh-keyscan
+    #  - git
+    #  - make
+    #  - dig
+    #  - rm
+    #  - grep
+    #  - install
+    #  - sed (GNU version)
+    #  - bash (as default shell for the ssh user)
+    # On ubuntu, this might require installing the following apt packages:
+    #  - dnsutils (dig)
+    #  - openssh-client (ssh-keyscan)
+    #  - make
+    #  - git
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
 
-      - name: Write SSH keys
-        run: |
-          install --mode=600 -D /dev/null ~/.ssh/id_ed25519
-          printf '%s' '${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}' > ~/.ssh/id_ed25519
-          host='${{ secrets.PRODUCTION_SSH_HOST }}'
-          hosts="$(dig +short "$host" | grep --invert-match '\.$' | sed --null-data 's|\n|,|g')$host"
-          ssh-keyscan -H -p ${{ secrets.PRODUCTION_SSH_PORT }} "$hosts" > ~/.ssh/known_hosts
+            - name: Write SSH keys
+              run: |
+                  install --mode=600 -D /dev/null ~/.ssh/id_ed25519
+                  printf '%s' '${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}' > ~/.ssh/id_ed25519
+                  host='${{ secrets.PRODUCTION_SSH_HOST }}'
+                  hosts="$(dig +short "$host" | grep --invert-match '\.$' | sed --null-data 's|\n|,|g')$host"
+                  ssh-keyscan -H -p ${{ secrets.PRODUCTION_SSH_PORT }} "$hosts" > ~/.ssh/known_hosts
 
-      - name: Connect, Pull, Make
-        # the GH_ACTIONS_PRODUCTION no-op is just so you can find the process easily on the host
-        # Also, git stash --include-untracked will leave stuff that is in .gitignore, most importantly, .env
-        run: |
-          ssh \
-            -o IdentitiesOnly=yes                                                                             \
-            -i ~/.ssh/id_ed25519                                                                              \
-            -o UserKnownHostsFile=~/.ssh/known_hosts                                                          \
-            -T                                                                                                \
-            -p ${{ secrets.PRODUCTION_SSH_PORT }}                                                             \
-            ${{ secrets.PRODUCTION_SSH_USER }}@${{ secrets.PRODUCTION_SSH_HOST }}                             \
-            ": GH_ACTIONS_PRODUCTION ;                                                                        \
-             set -Eeuxo pipefail ;                                                                            \
-             cd ${{ secrets.PRODUCTION_WORK_DIR }} ;                                                          \
-             git stash --include-untracked || : ; : 'git stash may fail (if it does, prolly docker related' ; \
-             git checkout --force ${{ secrets.PRODUCTION_BRANCH }} ;                                          \
-             git pull --rebase --force ${{ secrets.REMOTE_NAME }} ${{ secrets.PRODUCTION_BRANCH }} ;          \
-             make clean ;                                                                                     \
-             make prod"
+            - name: Connect, Pull, Make
+              # the GH_ACTIONS_PRODUCTION no-op is just so you can find the process easily on the host
+              # Also, git stash --include-untracked will leave stuff that is in .gitignore, most importantly, .env
+              run: |
+                  ssh \
+                    -o IdentitiesOnly=yes                                                                             \
+                    -i ~/.ssh/id_ed25519                                                                              \
+                    -o UserKnownHostsFile=~/.ssh/known_hosts                                                          \
+                    -T                                                                                                \
+                    -p ${{ secrets.PRODUCTION_SSH_PORT }}                                                             \
+                    ${{ secrets.PRODUCTION_SSH_USER }}@${{ secrets.PRODUCTION_SSH_HOST }}                             \
+                    ": GH_ACTIONS_PRODUCTION ;                                                                        \
+                     set -Eeuxo pipefail ;                                                                            \
+                     cd ${{ secrets.PRODUCTION_WORK_DIR }} ;                                                          \
+                     git stash --include-untracked || : ; : 'git stash may fail (if it does, prolly docker related' ; \
+                     git checkout --force ${{ secrets.PRODUCTION_BRANCH }} ;                                          \
+                     git pull --rebase --force ${{ secrets.REMOTE_NAME }} ${{ secrets.PRODUCTION_BRANCH }} ;          \
+                     make clean ;                                                                                     \
+                     make prod"
 
-      - name: Cleanup
-        run: rm --recursive --force ~/.ssh
+            - name: Cleanup
+              run: rm --recursive --force ~/.ssh
