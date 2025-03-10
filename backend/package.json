@@ -14,6 +14,7 @@
         "test:watch": "tap -w"
     },
     "dependencies": {
+        "@faker-js/faker": "^9.6.0",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
         "@fastify/websocket": "^11.0.2",
@@ -26,7 +27,6 @@
         "zod": "^3.24.2"
     },
     "devDependencies": {
-        "@faker-js/faker": "^9.6.0",
         "@types/bcrypt": "^5.0.2",
         "@types/better-sqlite3": "^7.6.12",
         "@types/node": "^20.11.24",
