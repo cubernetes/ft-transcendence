@@ -1,7 +1,7 @@
-import fp from "fastify-plugin";
+import type { FastifyInstance } from "fastify";
 import { createUserService } from "./user.service";
 import userRoutes from "./user.routes";
-import type { FastifyInstance } from "fastify";
+import fp from "fastify-plugin";
 
 const userPlugin = async (fastify: FastifyInstance) => {
     fastify.decorate("userService", createUserService(fastify));
