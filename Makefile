@@ -3,13 +3,23 @@ D := docker
 
 .DEFAULT_GOAL := dev
 
-include .env
+-include .env
 include config.env
 .EXPORT_ALL_VARIABLES:
 
 .PHONY: check-env
 check-env:
-	@test -f .env || cp .env.example .env
+	@test -e .env || { \
+		printf '\033[33m%s \033[42;30m%s\033[m\033[33m\n%s\n%s\n%s\n%s\n%s\033[m' \
+			"Warning: .env doesn't exist, trying to run" "cp .env.example .env" \
+			"Warning: Since the file didn't exist, no environment variables from" \
+			"Warning: that file will be included/exposed inside this Makefile." \
+			"Warning: It is STRONGLY recommended you abort this step, manually" \
+			"Warning: copy the file, adjust its contents, and then run make again." \
+			"Warning: Press ENTER to continue (run the cp command) or CTRL-C to abort..."; \
+		read c; \
+		cp .env.example .env; \
+	}
 
 .PHONY: dev
 dev: check-env
