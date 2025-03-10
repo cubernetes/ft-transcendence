@@ -6,6 +6,7 @@
     "scripts": {
         "start": "node dist/index.js",
         "start:dev": "npx nodemon dist/index.js --watch",
+        "dev": "DB_PATH=./drizzle/db.sqlite JWT_SECRET=secret NODE_ENV=development npx tsx watch src/index.ts",
         "db:migrate": "npx drizzle-kit migrate",
         "build": "tsc --noEmit && node esbuild.config.js",
         "build:dev": "node esbuild.config.js --watch",
@@ -20,9 +21,12 @@
         "better-sqlite3": "^11.8.1",
         "drizzle-orm": "^0.40.0",
         "fastify": "^5.2.1",
-        "pino-pretty": "^13.0.0"
+        "fastify-plugin": "^5.0.1",
+        "pino-pretty": "^13.0.0",
+        "zod": "^3.24.2"
     },
     "devDependencies": {
+        "@faker-js/faker": "^9.6.0",
         "@types/bcrypt": "^5.0.2",
         "@types/better-sqlite3": "^7.6.12",
         "@types/node": "^20.11.24",
@@ -30,9 +34,9 @@
         "@types/ws": "^8.18.0",
         "drizzle-kit": "^0.30.5",
         "esbuild": "^0.20.1",
-        "nodemon": "^3.1.9",
         "prettier": "3.5.3",
         "tap": "^18.8.0",
+        "tsx": "^4.19.3",
         "typescript": "^5.3.3"
     }
 }

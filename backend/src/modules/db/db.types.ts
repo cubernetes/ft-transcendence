@@ -1,12 +1,5 @@
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { friends, games, tournaments, users } from "./schema";
-
-export type User = InferSelectModel<typeof users>;
-export type UserInsert = InferInsertModel<typeof users>;
-export type UserInsertBody = Omit<UserInsert, "passwordHash"> & {
-    password: string;
-};
-export type UserLoginBody = Pick<UserInsertBody, "username" | "password">;
+import { friends, games, tournaments, users } from "./db.schema";
 
 export type Game = InferSelectModel<typeof games>;
 export type GameInsert = InferInsertModel<typeof games>;
