@@ -34,11 +34,14 @@
 - Game statistics also on Blockchain (John)
 
 ## Debugging
-- Websockets: Use `wscat` to connect to the websocket server via Caddy:
+
+### Websockets
+
+- Use `wscat` to connect to the websocket server via Caddy:
   - `wscat -c ws://localhost:8080/ws`
   - `wscat -c localhost:8080/ws`
   - `wscat -nc wss://localhost:8443/ws`
-- Or connect via the backend, by changing `compose.yaml`
+- Or connect directly via the backend, by patching `compose.yaml`
   ```diff
 
       backend:
@@ -49,6 +52,24 @@
   ```
   - `wscat -c localhost:3000/ws` (no wss)
 
+### Coraza Web Application Firewall (WAF)
+
+- Checking it it's enabled
+  - `curl -vk https://localhost:8443/?exec=/bin/bash` should return `403 Forbidden`
+- Disabling it
+  ```Caddy
+      handle {
+  -       import waf
+          root * /srv
+          file_server
+      }
+      handle_path /api/* {
+  -       import waf
+          reverse_proxy http://backend:3000
+      }
+  ```
+
 ## License
 
 - [CC0 1.0 Universal](COPYING)
+
