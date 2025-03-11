@@ -31,6 +31,7 @@ dev: check-env
 	DOMAINS="$(DEV_DOMAINS)" \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="auto_https disable_redirects" \
 	CADDY_EXTRA_SITE_DIRECTIVES="tls internal" \
+	NODE_ENV="development" \
 	$(DC) up -d --build
 
 .PHONY: prod
@@ -41,6 +42,7 @@ prod: check-env
 	HTTP_PORT="$(PROD_HTTP_PORT)" \
 	HTTPS_PORT="$(PROD_HTTPS_PORT)" \
 	DOMAINS="$(PROD_DOMAINS)" \
+	NODE_ENV="production" \
 	$(DC) up -d --build
 
 .PHONY: down

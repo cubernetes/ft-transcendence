@@ -2,6 +2,9 @@ FROM node:23.9.0-alpine3.21 AS builder
 
 WORKDIR /app
 
+# Docker compose env needs to be manually set at build stage
+ENV NODE_ENV=${NODE_ENV}
+
 COPY ./package*.json ./
 RUN npm install
 COPY . .
