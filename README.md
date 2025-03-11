@@ -46,7 +46,7 @@
 
       backend:
   +       ports:
-  +           - "3000:3000"
+  +           - "3000:${BACKEND_PORT:3000}"
           build:
               context: "./backend/"
   ```
@@ -65,7 +65,7 @@
       }
       handle_path /api/* {
   -       import waf
-          reverse_proxy http://backend:3000
+          reverse_proxy http://backend:{$BACKEND_PORT:3000}
       }
   ```
 
