@@ -10,7 +10,7 @@ const wsPlugin = async (fastify: FastifyInstance) => {
 
     fastify.get("/ws", { websocket: true }, (conn: WebSocket, req: FastifyRequest) => {
         req.server.log.info("New WebSocket connection");
-        conn.send("Welcome to the game!");
+        conn.send('"Welcome to the game!"');
 
         conn.on("message", (message: string) => {
             fastify.wsService.handleMessage(conn, message);
