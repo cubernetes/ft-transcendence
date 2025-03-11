@@ -78,5 +78,5 @@ install:
 	npm --prefix=backend install
 
 .PHONY: test
-test:
+test: install
 	npm --prefix=backend test
