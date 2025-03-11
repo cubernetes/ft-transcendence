@@ -1,7 +1,7 @@
 import { createHeader } from "../components/Header";
 import { createFooter } from "../components/Footer";
 
-export function createProfilePage(): HTMLElement {
+export async function createProfilePage(): Promise<HTMLElement> {
     const fragment = document.createDocumentFragment();
 
     const header = createHeader();

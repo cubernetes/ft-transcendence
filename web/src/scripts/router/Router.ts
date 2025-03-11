@@ -4,8 +4,7 @@ import { createProfilePage } from "../pages/ProfilePage";
 import { createLeaderboardPage } from "../pages/LeaderboardPage";
 
 export function createRouter(container: HTMLElement): void {
-    const routes: { [key: string]: () => Promise<HTMLElement> | HTMLElement } = {
-        "": createHomePage,
+    const routes: { [key: string]: () => Promise<HTMLElement> } = {
         home: createHomePage,
         game: createGamePage,
         profile: createProfilePage,
