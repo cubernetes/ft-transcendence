@@ -1,44 +1,38 @@
 import type { FastifyRequest } from "fastify";
 import { WebSocket } from "ws";
 import WebsocketService from "../services/websocket.service";
+
 // import { validateId } from "../utils/validator";
 
-export type Player = {
-    socket: WebSocket;
-    playerId: string;
-};
-
-export type GameState = {
-    ballPosition: { x: number; y: number };
-    score: { player1: number; player2: number };
-    paddlePosition: { [playerId: string]: { y: number } }; // Optional, depending on your logic
-};
-
-export type GameSession = {
-    gameId: string;
-    players: { [playerId: string]: Player };
-    state: GameState;
-};
-
 export default class WebsocketController {
+
     constructor(private readonly websocketService: WebsocketService) {}
 
     handleConnection(conn: WebSocket, request: FastifyRequest) {
-        // Testing
-        let gameState = {
-            ballPosition: { x: 50, y: 50 }, // Example ball position (center of the field)
-            paddlePosition: {
-                "player-1": { y: 50 }, // Example initial position for player 1
-                "player-2": { y: 50 }, // Example initial position for player 2
-            },
-            score: { player1: 0, player2: 0 },
-        };
-
         request.log.info("New WebSocket connection");
+
+        const gameId = "some-unique-game-id"; // You should generate this dynamically
+        const userId = Math.floor(Math.random() * 1000); // Replace with actual user ID
+        
+        this.websocketService.registerConnection(conn, userId, gameId);
+
+        // Retrieve the existing game state
+        let gameState = this.websocketService.getGameState(gameId);
+
+        if (!gameState) {
+            request.log.error("Game state could not be retrieved.");
+            conn.close();
+            return;
+        }
+        
         conn.send(JSON.stringify(gameState));
 
         conn.on("message", (message: string) => {
-            this.websocketService.handleMessage(conn, message, gameState);
+            // Handle the message, which updates the game state
+            this.websocketService.handleMessage(conn, message, gameId);
+
+            // Retrieve the updated game state
+            gameState = this.websocketService.getGameState(gameId);
         });
 
         conn.on("ping", () => {
@@ -47,7 +41,8 @@ export default class WebsocketController {
         });
 
         conn.on("close", () => {
-            request.log.info("WebSocket connection closed");
+            request.log.info(`WebSocket connection closed for player ${userId}`);
+            this.websocketService.removePlayerFromGame(gameId, userId); // Clean up when the player disconnects
         });
         // Full steps: check id -> register ->
 
