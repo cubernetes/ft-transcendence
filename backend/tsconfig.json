@@ -15,5 +15,6 @@
         "allowImportingTsExtensions": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true
-    }
+    },
+    "exclude": ["node_modules", "**/__tests__/**", "**/*.test.ts"]
 }
