@@ -1,12 +1,14 @@
 import { test } from "tap";
 import { createUserSchema } from "../user.type.ts";
+import { faker } from "@faker-js/faker";
 
 test("createUserSchema - valid data passes", (t) => {
+    const pw = faker.internet.password();
     const result = createUserSchema.safeParse({
-        username: "darren",
-        displayName: "Darren Dev",
-        password: "dummy_password",
-        confirmPassword: "dummy_password",
+        username: faker.internet.username(),
+        displayName: faker.person.firstName(),
+        password: pw,
+        confirmPassword: pw,
     });
 
     t.ok(result.success, "Valid user data should pass");
