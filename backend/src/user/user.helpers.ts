@@ -1,4 +1,4 @@
-import { User } from "./user.type";
+import { User } from "./user.type.ts";
 
 /** Remove sensitive fields from user before sending response to themselves. */
 export const toPersonalUser = (user: User): Omit<User, "passwordHash"> => {

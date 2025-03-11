@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { tournaments } from "../db/db.schema";
-import { NewTournament, Tournament } from "./tournament.type";
+import { tournaments } from "../db/db.schema.ts";
+import { NewTournament, Tournament } from "./tournament.type.ts";
 import { eq } from "drizzle-orm";
 
 export const createTournamentService = (fastify: FastifyInstance) => {

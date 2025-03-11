@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { users } from "../db/db.schema";
-import { NewUser, User } from "./user.type";
+import { users } from "../db/db.schema.ts";
+import { NewUser, User } from "./user.type.ts";
 import { eq } from "drizzle-orm";
 
 export const createUserService = (fastify: FastifyInstance) => {

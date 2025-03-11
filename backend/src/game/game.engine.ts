@@ -1,4 +1,4 @@
-import { GameState } from "./game.types";
+import { GameState } from "./game.type.ts";
 
 export default class GameEngine {
     private playerInputs: Record<string, "up" | "down" | "stop"> = {
@@ -7,9 +7,9 @@ export default class GameEngine {
     };
 
     private ballVelocity: { x: number; y: number } = { x: 2, y: 2 };
-    
+
     constructor(private state: GameState) {}
-    
+
     setInput(playerKey: string, direction: "up" | "down" | "stop") {
         if (playerKey in this.playerInputs) {
             this.playerInputs[playerKey] = direction;
@@ -59,10 +59,20 @@ export default class GameEngine {
         const player2Paddle = this.state.paddlePosition["player-2"];
 
         // Check for paddle collisions (simple version)
-        if (ball.x <= 20 && ball.x >= 10 && ball.y >= player1Paddle.y && ball.y <= player1Paddle.y + 80) {
+        if (
+            ball.x <= 20 &&
+            ball.x >= 10 &&
+            ball.y >= player1Paddle.y &&
+            ball.y <= player1Paddle.y + 80
+        ) {
             this.ballVelocity.x = -this.ballVelocity.x; // Ball hits player 1's paddle
         }
-        if (ball.x >= 780 && ball.x <= 790 && ball.y >= player2Paddle.y && ball.y <= player2Paddle.y + 80) {
+        if (
+            ball.x >= 780 &&
+            ball.x <= 790 &&
+            ball.y >= player2Paddle.y &&
+            ball.y <= player2Paddle.y + 80
+        ) {
             this.ballVelocity.x = -this.ballVelocity.x; // Ball hits player 2's paddle
         }
     }

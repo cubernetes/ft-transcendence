@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserDTO, UserIdDTO, UserNameDTO } from "./user.type";
-import { toPublicUser } from "./user.helpers";
+import { CreateUserDTO, UserIdDTO, UserNameDTO } from "./user.type.ts";
+import { toPublicUser } from "./user.helpers.ts";
 
 export const createUserHandler = async (
     { body }: { body: CreateUserDTO },

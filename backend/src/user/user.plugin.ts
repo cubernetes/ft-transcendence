@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { createUserService } from "./user.service";
-import userRoutes from "./user.routes";
+import { createUserService } from "./user.service.ts";
+import userRoutes from "./user.routes.ts";
 import fp from "fastify-plugin";
 
 const userPlugin = async (fastify: FastifyInstance) => {

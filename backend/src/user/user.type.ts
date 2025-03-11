@@ -1,4 +1,4 @@
-import { users } from "../db/db.schema";
+import { users } from "../db/db.schema.ts";
 import { z } from "zod";
 
 export const createUserSchema = z

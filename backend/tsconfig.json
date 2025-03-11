@@ -12,6 +12,7 @@
         "isolatedModules": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
+        "allowImportingTsExtensions": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true
     }

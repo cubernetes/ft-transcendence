@@ -1,15 +1,15 @@
-import type { DbClient } from "./db/db.plugin";
-import type { Config } from "./config";
-import type { createWsService } from "./ws/ws.service";
-import type { createAuthService } from "./auth/auth.service";
-import type { createUserService } from "./user/user.service";
-import type { createGameService } from "./game/game.service";
-import type { createTournamentService } from "./tournament/tournament.service";
+import type { DbClient } from "./db/db.plugin.ts";
+import type { Config } from "./utils/config.ts";
+import type { createWsService } from "./ws/ws.service.ts";
+import type { createAuthService } from "./auth/auth.service.ts";
+import type { createUserService } from "./user/user.service.ts";
+import type { createGameService } from "./game/game.service.ts";
+import type { createTournamentService } from "./tournament/tournament.service.ts";
 // import type { createFriendService } from "./friend/friend.service";
 // import type authRoutes from "./auth/auth.routes";
-import type userRoutes from "./user/user.routes";
-import type gameRoutes from "./game/game.routes";
-import type tournamentRoutes from "./tournament/tournament.routes";
+import type userRoutes from "./user/user.routes.ts";
+import type gameRoutes from "./game/game.routes.ts";
+import type tournamentRoutes from "./tournament/tournament.routes.ts";
 // import friendRoutes from "./friend/friend.routes";
 
 /** Global plugin types decorations for fastify */

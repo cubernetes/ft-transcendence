@@ -3,14 +3,14 @@ import {
     createTournamentSchema,
     tournamentIdSchema,
     tournamentNameSchema,
-} from "./tournament.type";
+} from "./tournament.type.ts";
 import {
     createTournamentHandler,
     getAllTournamentsHandler,
     getTournamentByIdHandler,
     getTournamentByNameHandler,
-} from "./tournament.controller";
-import { withZod } from "../utils/zod-validate";
+} from "./tournament.controller.ts";
+import { withZod } from "../utils/zod-validate.ts";
 
 const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post("/create", withZod({ body: createTournamentSchema }, createTournamentHandler));

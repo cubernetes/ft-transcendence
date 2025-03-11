@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
-import { games } from "../db/db.schema";
-import { NewGame, Game } from "./game.type";
+import { games } from "../db/db.schema.ts";
+import { NewGame, Game } from "./game.type.ts";
 import { eq } from "drizzle-orm";
 
 export const createGameService = (fastify: FastifyInstance) => {

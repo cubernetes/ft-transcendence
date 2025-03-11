@@ -1,5 +1,5 @@
 import fp from "fastify-plugin";
-import { createAuthService } from "./auth.service";
+import { createAuthService } from "./auth.service.ts";
 import type { FastifyInstance } from "fastify";
 
 const authPlugin = async (fastify: FastifyInstance) => {

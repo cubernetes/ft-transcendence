@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { tournaments } from "../db/db.schema";
+import { tournaments } from "../db/db.schema.ts";
 export const createTournamentSchema = z.object({});
 export const tournamentIdSchema = z.object({ id: z.coerce.number().int().gt(0) });
 export const tournamentNameSchema = z.object({ name: z.string().min(3) });

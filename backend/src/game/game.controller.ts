@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { CreateGameDTO, GameIdDTO } from "./game.type";
+import { CreateGameDTO, GameIdDTO } from "./game.type.ts";
 
 export const createGameHandler = async (
     { body }: { body: CreateGameDTO },

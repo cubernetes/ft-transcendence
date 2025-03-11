@@ -1,7 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createGameSchema, gameIdSchema } from "./game.type";
-import { createGameHandler, getAllGamesHandler, getGameByIdHandler } from "./game.controller";
-import { withZod } from "../utils/zod-validate";
+import { createGameSchema, gameIdSchema } from "./game.type.ts";
+import { createGameHandler, getAllGamesHandler, getGameByIdHandler } from "./game.controller.ts";
+import { withZod } from "../utils/zod-validate.ts";
 
 const gameRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post("/create", withZod({ body: createGameSchema }, createGameHandler));

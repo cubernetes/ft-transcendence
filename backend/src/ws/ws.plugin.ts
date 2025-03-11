@@ -1,7 +1,7 @@
 import fp from "fastify-plugin";
 import websocket from "@fastify/websocket";
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { createWsService } from "./ws.service";
+import { createWsService } from "./ws.service.ts";
 import { WebSocket } from "ws";
 
 const wsPlugin = async (fastify: FastifyInstance) => {

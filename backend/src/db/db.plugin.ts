@@ -1,7 +1,7 @@
 import fp from "fastify-plugin";
 import Database from "better-sqlite3";
 import { drizzle, BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import * as schema from "./db.schema";
+import * as schema from "./db.schema.ts";
 import path from "path";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { FastifyInstance } from "fastify/types/instance";
