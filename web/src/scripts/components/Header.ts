@@ -1,4 +1,4 @@
-export function createHeader(): HTMLElement {
+export const createHeader = (): HTMLElement => {
     const header = document.createElement("header");
     header.className = "bg-blue-500 p-4 text-white";
 
@@ -31,4 +31,4 @@ export function createHeader(): HTMLElement {
     header.appendChild(nav);
 
     return header;
-}
+};

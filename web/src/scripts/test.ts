@@ -1,6 +1,6 @@
 const API_BASE_URL = "/api";
 
-export async function fetchTestData() {
+export const fetchTestData = async () => {
     try {
         const response = await fetch(`${API_BASE_URL}/users/all`);
         if (!response.ok) {
@@ -29,4 +29,4 @@ export async function fetchTestData() {
 
         throw error;
     }
-}
+};

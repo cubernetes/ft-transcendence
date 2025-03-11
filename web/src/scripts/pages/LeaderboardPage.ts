@@ -2,7 +2,7 @@ import { createHeader } from "../components/Header";
 import { createFooter } from "../components/Footer";
 import { fetchTestData } from "../test";
 
-export async function createLeaderboardPage(): Promise<HTMLElement> {
+export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
     const header = createHeader();
@@ -86,4 +86,4 @@ export async function createLeaderboardPage(): Promise<HTMLElement> {
     container.appendChild(fragment);
 
     return container;
-}
+};

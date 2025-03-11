@@ -1,4 +1,4 @@
-export function createGameSection(): HTMLElement {
+export const createGameSection = (): HTMLElement => {
     const section = document.createElement("section");
     section.className = "p-4";
 
@@ -139,4 +139,4 @@ export function createGameSection(): HTMLElement {
     section.appendChild(gameContainer);
 
     return section;
-}
+};

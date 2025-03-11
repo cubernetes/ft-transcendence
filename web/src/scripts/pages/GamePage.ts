@@ -2,7 +2,7 @@ import { createHeader } from "../components/Header";
 import { createFooter } from "../components/Footer";
 import { createGameSection } from "../components/GameSection";
 
-export async function createGamePage(): Promise<HTMLElement> {
+export const createGamePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
     const header = createHeader();
@@ -23,4 +23,4 @@ export async function createGamePage(): Promise<HTMLElement> {
     container.appendChild(fragment);
 
     return container;
-}
+};

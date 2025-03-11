@@ -1,7 +1,7 @@
 import { createHeader } from "../components/Header";
 import { createFooter } from "../components/Footer";
 
-export async function createProfilePage(): Promise<HTMLElement> {
+export const createProfilePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
     const header = createHeader();
@@ -42,4 +42,4 @@ export async function createProfilePage(): Promise<HTMLElement> {
     container.appendChild(fragment);
 
     return container;
-}
+};
