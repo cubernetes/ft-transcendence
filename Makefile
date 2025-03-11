@@ -63,7 +63,7 @@ deepclean: clean
 
 .PHONY: fclean
 fclean: deepclean
-	$(RM) -r backend/node_modules/ backend/dist/
+	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
 	$(RM) -r web/node_modules/ web/dist/
 
 .PHONY: re
@@ -74,3 +74,7 @@ re: clean
 install:
 	npm --prefix=web install
 	npm --prefix=backend install
+
+.PHONY: test
+test:
+	npm --prefix=backend test

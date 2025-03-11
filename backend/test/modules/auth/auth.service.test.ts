@@ -1,9 +1,9 @@
-import t from "tap";
+import { test } from "tap";
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import { createAuthService } from "../../../src/modules/auth/auth.service.ts";
 
-t.test("authService - hashPassword + comparePassword", async (t) => {
+test("authService - hashPassword + comparePassword", async (t) => {
     const app = Fastify();
     await app.ready();
     const authService = createAuthService(app);
@@ -22,7 +22,7 @@ t.test("authService - hashPassword + comparePassword", async (t) => {
     t.end();
 });
 
-t.test("authService - jwt sign + verify", async (t) => {
+test("authService - jwt sign + verify", async (t) => {
     const app = Fastify();
     await app.register(fastifyJwt, { secret: "super-secret-for-tests" });
     await app.ready();
