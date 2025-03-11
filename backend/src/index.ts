@@ -18,7 +18,7 @@ try {
     /** Register configs, check integrity of the env variables */
     await app.register(configPlugin);
 
-    // CORS
+    /** Register CORS */
     // TODO: When in production what should the origin be? SITES? are env vars loaded?
     await app.register(cors, {
         origin: process.env.NODE_ENV === "production" ? "placeholder" : "*",
@@ -34,10 +34,10 @@ try {
     await app.register(gamePlugin); // Register game plugin
     await app.register(tournamentPlugin); // Register tournament plugin
 
-    // Seed database if not in production
+    /** Seed database if not in production */
     if (process.env.NODE_ENV !== "production") await seed(app);
 
-    // Start server
+    /** Start server */
     await app.listen({ port: app.config.port, host: "0.0.0.0" });
     app.log.info(`Server running at port ${app.config.port}!`);
 } catch (error) {
@@ -47,7 +47,8 @@ try {
     }
 
     app.log.error({ err: error }, "Failed to start server");
-    // Safely close the server, trigger all onClose hooks
+
+    /** Safely close the server, trigger all onClose hooks */
     app.close();
 
     process.exit(1);
