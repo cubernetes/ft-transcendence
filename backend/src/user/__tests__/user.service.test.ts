@@ -1,5 +1,4 @@
 import { test } from "tap";
-import { createUserService } from "../user.service.ts";
 import { createUserSchema } from "../user.type.ts";
 
 test("createUserSchema - valid data passes", async (t) => {
