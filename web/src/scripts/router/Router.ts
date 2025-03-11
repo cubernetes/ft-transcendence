@@ -17,7 +17,7 @@ export function createRouter(container: HTMLElement): void {
 
         // Redirect to home upon invalid route
         if (!(route in routes)) {
-            window.location.href = "/#home";
+            window.location.href = "#home";
             return;
         }
 
