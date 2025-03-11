@@ -8,8 +8,8 @@ test("createUserSchema - valid data passes", async (t) => {
     const result = createUserSchema.safeParse({
         username: "darren",
         displayName: "Darren Dev",
-        password: "hunter222",
-        confirmPassword: "hunter222",
+        password: "dummy_password",
+        confirmPassword: "dummy_password",
     });
 
     t.ok(result.success, "Valid user data should pass");
