@@ -81,6 +81,13 @@ const configPlugin = async (fastify: FastifyInstance) => {
     fastify.decorate("config", config);
 };
 
+export type Config = {
+    port: number;
+    jwtSecret: string;
+    dbPath: string;
+    dbDir: string;
+};
+
 export default fp(configPlugin, {
     name: "config-plugin",
 });

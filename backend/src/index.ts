@@ -20,7 +20,9 @@ try {
 
     // CORS
     // TODO: When in production what should the origin be? SITES? are env vars loaded?
-    await app.register(cors, { origin: app.config.isProd ? "placeholder" : "*" });
+    await app.register(cors, {
+        origin: process.env.NODE_ENV === "production" ? "placeholder" : "*",
+    });
 
     // TODO: Add more options here for JWT, see: https://github.com/fastify/fastify-jwt
     await app.register(jwt, { secret: app.config.jwtSecret }); // Register jwt plugin
@@ -33,7 +35,7 @@ try {
     await app.register(tournamentPlugin); // Register tournament plugin
 
     // Seed database if not in production
-    if (!app.config.isProd) await seed(app);
+    if (process.env.NODE_ENV !== "production") await seed(app);
 
     // Start server
     await app.listen({ port: app.config.port, host: "0.0.0.0" });
