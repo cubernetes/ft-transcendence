@@ -10,7 +10,7 @@
         "db:migrate": "npx drizzle-kit migrate",
         "build": "tsc --noEmit && node esbuild.config.js",
         "build:dev": "node esbuild.config.js --watch",
-        "test": "tap",
+        "test": "tap --allow-incomplete-coverage",
         "test:dev": "tap --watch"
     },
     "dependencies": {

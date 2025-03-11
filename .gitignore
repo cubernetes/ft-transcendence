@@ -1,10 +1,11 @@
 **/.env
 **/node_modules/
 **/dist/
+**/.tap/
 
 **/pnpm-lock.yaml
 **/.DS_Store
 **/.vscode/
 **/compile_commands.json
 
-**/.tap/
+backend/drizzle/db.sqlite
