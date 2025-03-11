@@ -10,7 +10,7 @@ import {
     getTournamentByIdHandler,
     getTournamentByNameHandler,
 } from "./tournament.controller";
-import { withZod } from "../../utils/zod-validate";
+import { withZod } from "../utils/zod-validate";
 
 const tournamentRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post("/create", withZod({ body: createTournamentSchema }, createTournamentHandler));

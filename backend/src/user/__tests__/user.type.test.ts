@@ -1,5 +1,6 @@
 import { test } from "tap";
-import { createUserSchema } from "../../../src/modules/user/user.type.ts";
+// @ts-ignore tap requires ts extension to work
+import { createUserSchema } from "../user.type.ts";
 
 test("createUserSchema - valid data passes", (t) => {
     const result = createUserSchema.safeParse({

@@ -4,7 +4,7 @@ import type { FastifyInstance } from "fastify";
 export const createAuthService = (fastify: FastifyInstance) => {
     const jwt = fastify.jwt;
 
-    const hashPassword = (password: string) => bcrypt.hash(password, 10); // SaltRounds??
+    const hashPassword = (password: string) => bcrypt.hash(password, 10); // Salt rounds?
 
     const comparePassword = (password: string, hash: string) => bcrypt.compare(password, hash);
 

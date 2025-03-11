@@ -1,7 +1,8 @@
 import { test } from "tap";
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
-import { createAuthService } from "../../../src/modules/auth/auth.service.ts";
+// @ts-ignore tap requires ts extension to work
+import { createAuthService } from "../auth.service.ts";
 
 test("authService - hashPassword + comparePassword", async (t) => {
     const app = Fastify();

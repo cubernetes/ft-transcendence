@@ -1,12 +1,18 @@
-import type { Config } from "./index.d";
 import type { FastifyServerOptions } from "fastify";
 import type { PinoLoggerOptions } from "fastify/types/logger";
 
-const isDev = process.env.NODE_ENV === "development";
+export type Config = {
+    isProd: boolean;
+    port: number;
+    jwtSecret: string | null;
+    opts: FastifyServerOptions;
+};
+
+const isProd = process.env.NODE_ENV === "production";
 const port = process.env.BACKEND_PORT ? +process.env.BACKEND_PORT : 3000;
 const jwtSecret = process.env.JWT_SECRET ?? null;
 
-export const devLoggerConfig: PinoLoggerOptions = {
+const devLoggerConfig: PinoLoggerOptions = {
     level: "debug", // More detailed logs in dev
     transport: {
         target: "pino-pretty",
@@ -25,12 +31,12 @@ export const devLoggerConfig: PinoLoggerOptions = {
     },
 };
 
-export const prodLoggerConfig: PinoLoggerOptions = {
+const prodLoggerConfig: PinoLoggerOptions = {
     level: "info",
 };
 
 const appOpts: FastifyServerOptions = {
-    logger: isDev ? devLoggerConfig : prodLoggerConfig,
+    logger: isProd ? prodLoggerConfig : devLoggerConfig,
 };
 
-export const config: Config = { isDev, port, jwtSecret, opts: appOpts };
+export const config: Config = { isProd, port, jwtSecret, opts: appOpts };

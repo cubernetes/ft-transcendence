@@ -6,7 +6,7 @@ import {
     getUserByIdHandler,
     getUserByUsernameHandler,
 } from "./user.controller";
-import { withZod } from "../../utils/zod-validate";
+import { withZod } from "../utils/zod-validate";
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post("/create", withZod({ body: createUserSchema }, createUserHandler));
