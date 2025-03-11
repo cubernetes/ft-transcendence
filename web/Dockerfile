@@ -36,7 +36,7 @@ COPY                ./Caddyfile /etc/caddy/Caddyfile
 RUN rm -rf /srv/ && mkdir -p /srv/.local/share/caddy/
 
 # Copy built site from Node.js build stage
-COPY --from=web-builder --chown=caddy:caddy /app/dist/ /app/public/ /srv/
+COPY --from=web-builder --chown=caddy:caddy /app/dist/ /srv/
 
 RUN chown -R caddy:caddy /srv/
 
