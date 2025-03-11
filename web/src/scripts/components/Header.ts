@@ -1,10 +1,13 @@
-export function createHeader(): HTMLElement {
+export const createHeader = (): HTMLElement => {
     const header = document.createElement("header");
     header.className = "bg-blue-500 p-4 text-white";
 
     const title = document.createElement("h1");
-    title.className = "text-2xl font-bold";
-    title.textContent = "ft-transcendence";
+    const a = document.createElement("a");
+    a.href = "#home";
+    a.textContent = "ft-transcendence";
+    a.className = "text-2xl font-bold";
+    title.appendChild(a);
 
     const nav = document.createElement("nav");
     nav.className = "mt-2";
@@ -28,4 +31,4 @@ export function createHeader(): HTMLElement {
     header.appendChild(nav);
 
     return header;
-}
+};
