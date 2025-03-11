@@ -61,7 +61,8 @@ export const getUserByUsernameHandler = async (
 export const getAllUsersHandler = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
         const users = await req.server.userService.findAll();
-        return reply.send(users);
+        const publicUsers = users.map((user) => toPublicUser(user));
+        return reply.send(publicUsers);
     } catch (error) {
         req.log.error({ err: error }, "Failed to get all users");
         return reply.code(500).send({ error: "Internal server error" });
