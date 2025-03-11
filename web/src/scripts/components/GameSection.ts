@@ -38,9 +38,8 @@ export function createGameSection(): HTMLElement {
     const socket = new WebSocket("/ws");
 
     socket.onopen = () => {
-        console.log("WebSocket connection established.");
-        // socket.send("ping"); // Send a test message
-        socket.send("join player-1"); // Join the game as player 1);
+        console.log("WebSocket connection established");
+        socket.send("Join player-1"); // Join the game as player-1;
     };
 
     socket.onmessage = (event) => {
@@ -50,6 +49,7 @@ export function createGameSection(): HTMLElement {
 
         if (gameState) {
             console.log("Updated game state received:", gameState);
+
             // Update ball position
             if (gameState.ballPosition) {
                 ball.style.top = `${gameState.ballPosition.y}px`;
@@ -68,7 +68,7 @@ export function createGameSection(): HTMLElement {
             // Update the score
             if (gameState.score) {
                 console.log(
-                    `Score: Player 1 - ${gameState.score.player1}, Player 2 - ${gameState.score.player2}`
+                    `Score: Player 1: ${gameState.score.player1}, Player 2: ${gameState.score.player2}`
                 );
             }
         }
@@ -79,7 +79,7 @@ export function createGameSection(): HTMLElement {
     };
 
     socket.onclose = () => {
-        console.log("WebSocket connection closed.");
+        console.log("WebSocket connection closed");
     };
 
     let lastDirection: "up" | "down" | "stop" = "stop";
