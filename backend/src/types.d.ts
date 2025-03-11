@@ -1,4 +1,5 @@
 import type { DbClient } from "./db/db.plugin";
+import type { config } from "./config";
 import type { createWsService } from "./ws/ws.service";
 import type { createAuthService } from "./auth/auth.service";
 import type { createUserService } from "./user/user.service";
@@ -15,6 +16,7 @@ import type tournamentRoutes from "./tournament/tournament.routes";
 declare module "fastify" {
     interface FastifyInstance {
         db: DbClient;
+        config: typeof config;
         wsService: ReturnType<typeof createWsService>;
         authService: ReturnType<typeof createAuthService>;
         userService: ReturnType<typeof createUserService>;
