@@ -15,11 +15,17 @@ export function createRouter(container: HTMLElement): void {
         // Get the route from the URL hash (without the #)
         const route = window.location.hash.slice(1);
 
+        // Redirect to home upon invalid route
+        if (!(route in routes)) {
+            window.location.href = "/#home";
+            return;
+        }
+
         // Clear the container
         container.innerHTML = "";
 
         // Render the appropriate page
-        const createPage = routes[route] || routes[""];
+        const createPage = routes[route];
         const pageEl = await createPage();
         container.appendChild(pageEl);
     }
