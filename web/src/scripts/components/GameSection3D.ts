@@ -38,7 +38,7 @@ let ballDirection = new Vector3(BALL_SPEED, 0, BALL_SPEED);
 let keysPressed: { [key: string]: boolean } = {};
 let fontData: any = null;
 
-export async function createGameSection(): Promise<HTMLElement> {
+export async function create3DGameSection(): Promise<HTMLElement> {
     const container = document.createElement("div");
     container.className = "w-full h-[600px] relative"; // Set explicit height
 
