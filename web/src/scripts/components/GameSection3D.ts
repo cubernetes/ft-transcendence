@@ -9,7 +9,6 @@ import {
     StandardMaterial,
     Color3,
     Texture,
-    Color4,
     Sound,
 } from "@babylonjs/core";
 import { Inspector } from "@babylonjs/inspector";
@@ -34,9 +33,11 @@ let scoreText: Mesh;
 let ball: Mesh;
 let paddle1: Mesh;
 let paddle2: Mesh;
-let ballDirection = new Vector3(BALL_SPEED, 0, BALL_SPEED);
-let keysPressed: { [key: string]: boolean } = {};
+// let ballDirection = new Vector3(BALL_SPEED, 0, BALL_SPEED);
+// let keysPressed: { [key: string]: boolean } = {};
 let fontData: any = null;
+let socket: WebSocket;
+let gameRunning = false;
 
 export async function create3DGameSection(): Promise<HTMLElement> {
     const container = document.createElement("div");
@@ -54,11 +55,33 @@ export async function create3DGameSection(): Promise<HTMLElement> {
     container.appendChild(playButton);
     container.appendChild(gameSection);
 
+    socket = new WebSocket("/ws");
+
+    socket.onopen = () => {
+        console.log("WebSocket connection established.");
+        socket.send("join player-1"); // Join the game as player 1);
+    };
+
     // Initialize game only after user interaction
     playButton.addEventListener("click", () => {
         playButton.remove();
+        if (socket.readyState === WebSocket.OPEN) {
+            console.log("Sending startPong");
+            socket.send("startPong"); // Start the game
+        } else {
+            console.error("WebSocket is not open.");
+        }
+        gameRunning = true;
         initialiseGame(gameSection, container);
     });
+
+    socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+
+    socket.onclose = () => {
+        console.log("WebSocket connection closed.");
+    };
 
     return container;
 }
@@ -69,19 +92,27 @@ function initialiseGame(gameSection: HTMLCanvasElement, container: HTMLElement) 
     const createScene = async function () {
         const scene = new Scene(engine);
 
+        // Set up the scene first
         setScene(scene);
         setCamera(scene);
+
+        // Then create game objects
         createGameObjects(scene);
+
+        // Add score and music
         await addScore(scene);
         await addMusic(scene);
+
+        // Set up controls
         setupKeyboardControls(scene);
 
-        scene.registerBeforeRender(() => {
-            updateGame(scene);
-        });
+        // Set up WebSocket message handler AFTER everything is initialized
+        socket.onmessage = (event) => {
+            updateGameObjects(event.data, scene);
+        };
 
-        //Inspector tool for debugging
-        //Inspector.Show(scene, {});
+        // Enable inspector for debugging
+        Inspector.Show(scene, {});
 
         return scene;
     };
@@ -190,7 +221,7 @@ function createGameObjects(scene: Scene) {
         },
         scene
     );
-    ball.position = new Vector3(0, 0.5, 0);
+    ball.position = new Vector3(0, 0, 0);
     const ballMaterial = new StandardMaterial("ball", scene);
     ballMaterial.diffuseColor = new Color3(1, 0, 0);
     ball.material = ballMaterial;
@@ -241,116 +272,58 @@ async function addScore(scene: Scene) {
 }
 
 function setupKeyboardControls(scene: Scene) {
-    // Setup keyboard event listeners
-    window.addEventListener("keydown", (event) => {
-        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
-            event.preventDefault();
+    let lastDirection: "up" | "down" | "stop" = "stop";
+
+    document.addEventListener("keydown", (event) => {
+        console.log(`Key pressed: ${event.key}`);
+        if (event.key === "ArrowUp" || event.key === "w") {
+            sendDirection("up");
+        } else if (event.key === "ArrowDown" || event.key === "s") {
+            sendDirection("down");
         }
-        keysPressed[event.key] = true;
     });
+
     window.addEventListener("keyup", (event) => {
-        keysPressed[event.key] = false;
+        console.log(`Key released: ${event.key}`);
+        if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
+            sendDirection("stop");
+        }
     });
-}
 
-function updateGame(scene: Scene) {
-    // Handle paddle movement
-    if (keysPressed["w"]) {
-        paddle1.position.z += PADDLE_SPEED;
-        if (paddle1.position.z > BOARD_DEPTH / 2 - PADDLE_DEPTH / 2) {
-            paddle1.position.z = BOARD_DEPTH / 2 - PADDLE_DEPTH / 2;
+    function sendDirection(direction: "up" | "down" | "stop") {
+        if (direction !== lastDirection && socket.readyState === WebSocket.OPEN) {
+            socket.send(`move ${direction}`);
+            lastDirection = direction;
         }
-    }
-
-    if (keysPressed["s"]) {
-        paddle1.position.z -= PADDLE_SPEED;
-        if (paddle1.position.z < -BOARD_DEPTH / 2 + PADDLE_DEPTH / 2) {
-            paddle1.position.z = -BOARD_DEPTH / 2 + PADDLE_DEPTH / 2;
-        }
-    }
-
-    if (keysPressed["ArrowUp"]) {
-        paddle2.position.z += PADDLE_SPEED;
-        if (paddle2.position.z > BOARD_DEPTH / 2 - PADDLE_DEPTH / 2) {
-            paddle2.position.z = BOARD_DEPTH / 2 - PADDLE_DEPTH / 2;
-        }
-    }
-
-    if (keysPressed["ArrowDown"]) {
-        paddle2.position.z -= PADDLE_SPEED;
-        if (paddle2.position.z < -BOARD_DEPTH / 2 + PADDLE_DEPTH / 2) {
-            paddle2.position.z = -BOARD_DEPTH / 2 + PADDLE_DEPTH / 2;
-        }
-    }
-
-    // Update ball position
-    ball.position.x += ballDirection.x;
-    ball.position.z += ballDirection.z;
-
-    // Ball collision with paddles
-    if (
-        ball.position.x <= paddle1.position.x + PADDLE_WIDTH / 2 + BALL_RADIUS &&
-        ball.position.x >= paddle1.position.x - PADDLE_WIDTH / 2 - BALL_RADIUS &&
-        ball.position.z <= paddle1.position.z + PADDLE_DEPTH / 2 + BALL_RADIUS &&
-        ball.position.z >= paddle1.position.z - PADDLE_DEPTH / 2 - BALL_RADIUS
-    ) {
-        ballDirection.x = Math.abs(ballDirection.x); // Reverse x direction
-        // Play bounce sound if available
-        if (scene.metadata?.sounds?.bounce) scene.metadata.sounds.bounce.play();
-    }
-
-    if (
-        ball.position.x >= paddle2.position.x - PADDLE_WIDTH / 2 - BALL_RADIUS &&
-        ball.position.x <= paddle2.position.x + PADDLE_WIDTH / 2 + BALL_RADIUS &&
-        ball.position.z <= paddle2.position.z + PADDLE_DEPTH / 2 + BALL_RADIUS &&
-        ball.position.z >= paddle2.position.z - PADDLE_DEPTH / 2 - BALL_RADIUS
-    ) {
-        ballDirection.x = -Math.abs(ballDirection.x); // Reverse x direction
-        // Play bounce sound if available
-        if (scene.metadata?.sounds?.bounce) scene.metadata.sounds.bounce.play();
-    }
-
-    // Ball collision with top and bottom walls
-    if (
-        ball.position.z >= BOARD_DEPTH / 2 - BALL_RADIUS ||
-        ball.position.z <= -BOARD_DEPTH / 2 + BALL_RADIUS
-    ) {
-        ballDirection.z = -ballDirection.z; // Reverse z direction
-        if (scene.metadata?.sounds?.bounce) scene.metadata.sounds.bounce.play();
-    }
-
-    // Ball out of bounds (scoring)
-    if (ball.position.x < -BOARD_WIDTH / 2) {
-        // Player 2 scores
-        if (scene.metadata?.sounds?.hit) scene.metadata.sounds.hit.play();
-        score.player2++;
-        resetBall();
-        addScore(scene);
-    } else if (ball.position.x > BOARD_WIDTH / 2) {
-        // Player 1 scores
-        if (scene.metadata?.sounds?.hit) scene.metadata.sounds.hit.play();
-        score.player1++;
-        resetBall();
-        addScore(scene);
     }
 }
 
-function resetBall() {
-    // Reset ball position immediately
-    ball.position = new Vector3(0, 0.5, 0);
+function updateGameObjects(eventData: any, scene: Scene) {
+    const gameState = JSON.parse(eventData);
+    if (!gameState || !gameRunning) return;
+    console.log("Updated game state received:", gameState);
+    // Update ball position if it exists
+    if (gameState.ballPosition && ball) {
+        ball.position.x = gameState.ballPosition.x;
+        ball.position.z = gameState.ballPosition.z;
+    }
 
-    // Stop the ball temporarily
-    ballDirection.x = 0;
-    ballDirection.z = 0;
-
-    setTimeout(() => {
-        // Randomize ball direction
-        const randomAngle = Math.random() * Math.PI * 2;
-        ballDirection.x = BALL_SPEED * Math.cos(randomAngle);
-        ballDirection.z = BALL_SPEED * Math.sin(randomAngle);
-
-        if (Math.abs(ballDirection.x) < 0.3 * BALL_SPEED) {
-            ballDirection.x = ballDirection.x > 0 ? 0.3 * BALL_SPEED : -0.3 * BALL_SPEED;
+    // Update paddle positions
+    if (gameState.paddlePosition) {
+        if (paddle1) {
+            paddle1.position.z = gameState.paddlePosition["player-1"].z;
         }
-    }, 1500);
+        if (paddle2) {
+            paddle2.position.z = gameState.paddlePosition["player-2"].z;
+        }
+    }
+
+    // Update score if needed
+    if (
+        gameState.score &&
+        (score.player1 !== gameState.score.player1 || score.player2 !== gameState.score.player2)
+    ) {
+        score = gameState.score;
+        addScore(scene);
+    }
 }

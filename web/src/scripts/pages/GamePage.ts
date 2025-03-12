@@ -12,9 +12,9 @@ export const createGamePage = async (): Promise<HTMLElement> => {
     main.className = "container mx-auto p-4";
 
     const game3DSection = await create3DGameSection();
-    const game2DSection = createGameSection();
+    // const game2DSection = createGameSection();
     main.appendChild(game3DSection);
-    main.appendChild(game2DSection);
+    // main.appendChild(game2DSection);
 
     const footer = createFooter();
 
