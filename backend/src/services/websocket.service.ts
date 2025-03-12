@@ -3,9 +3,11 @@ import { FastifyBaseLogger } from "fastify";
 import type { Player, GameSession, GameState } from "../game/game.types";
 import GameEngine from "../game/game.engine";
 
+const BOARD_WIDTH = 20;
+
 export default class WebsocketService {
     private activeConnections: Map<number, WebSocket>;
-    private gameSessions: Map<string, GameSession>;  // Track game sessions
+    private gameSessions: Map<string, GameSession>; // Track game sessions
 
     constructor(private readonly log: FastifyBaseLogger) {
         this.activeConnections = new Map();
@@ -19,14 +21,14 @@ export default class WebsocketService {
         // Ensure a game session exists
         if (!this.gameSessions.has(gameId)) {
             const state: GameState = {
-                ballPosition: { x: 50, y: 50 },
+                ballPosition: { x: 0, y: 0, z: 0 },
                 paddlePosition: {
-                    "player-1": { y: 50 },
-                    "player-2": { y: 50 },
+                    "player-1": { x: -BOARD_WIDTH / 2 + 0.5, y: 0.5, z: 0 },
+                    "player-2": { x: BOARD_WIDTH / 2 - 0.5, y: 0.5, z: 0 },
                 },
                 score: { player1: 0, player2: 0 },
             };
-        
+
             this.gameSessions.set(gameId, {
                 gameId,
                 players: new Map<string, Player>(),
@@ -37,20 +39,23 @@ export default class WebsocketService {
 
         // Add the player to the session
         const session = this.gameSessions.get(gameId)!;
-        
+
         // Assign player-1 or player-2 dynamically based on the number of players
-        const playerKey = session.players.size === 0 ? "player-1" : "player-2"; // First player gets "player-1", second gets "player-2"
+        // const playerKey = session.players.size === 0 ? "player-1" : "player-2"; // First player gets "player-1", second gets "player-2"
 
         session.players.set(id.toString(), { socket: conn, playerId: id.toString() });
 
         // Initialize paddle position based on the player assigned
-        session.state.paddlePosition[playerKey] = { y: 50 };
+        // session.state.paddlePosition[playerKey] = session.state.ballPosition
 
         // Log the game state and player IDs
-        this.log.info(`Game state after registering player ${id}: ${JSON.stringify(session.state)}`);
+        this.log.info(
+            `Game state after registering player ${id}: ${JSON.stringify(session.state)}`
+        );
         this.log.info(`Players in game ${gameId}: ${[...session.players.keys()].join(", ")}`);
 
-        if (session.players.size === 1) {   // Start the game loop if there's only one player (for now)
+        if (session.players.size === 1) {
+            // Start the game loop if there's only one player (for now)
             this.startGameLoop(gameId);
         }
     }
@@ -100,9 +105,10 @@ export default class WebsocketService {
         this.log.info(`gameState for game ${gameId}: ${JSON.stringify(session.state)}`);
 
         const gameState = session.state;
-        const playerId = [...session.players.entries()]
-            .find(([_, player]) => player.socket === conn)?.[0];
-        
+        const playerId = [...session.players.entries()].find(
+            ([_, player]) => player.socket === conn
+        )?.[0];
+
         if (!playerId) {
             this.log.warn("Unrecognized player tried to send a message.");
             return;
@@ -114,18 +120,21 @@ export default class WebsocketService {
         // Log the playerId for debugging
         this.log.info(`Player ID for the connection: ${playerId}`);
 
-
         // Log paddle position for this player
         this.log.info(`Paddle positions in gameState: ${JSON.stringify(gameState.paddlePosition)}`);
         this.log.info(`Checking if playerKey ${playerKey} exists in paddlePosition`);
 
         // Check if the playerKey exists in paddlePosition
         if (!gameState.paddlePosition[playerKey]) {
-            this.log.error(`Paddle position for player ${playerKey} not found in gameState.paddlePosition.`);
+            this.log.error(
+                `Paddle position for player ${playerKey} not found in gameState.paddlePosition.`
+            );
             return;
         }
 
-        this.log.info(`Player ${playerKey} paddle position: ${JSON.stringify(gameState.paddlePosition[playerKey])}`);
+        this.log.info(
+            `Player ${playerKey} paddle position: ${JSON.stringify(gameState.paddlePosition[playerKey])}`
+        );
 
         const engine = session.engine!;
 
@@ -151,11 +160,11 @@ export default class WebsocketService {
     private startGameLoop(gameId: string, intervalMs: number = 25) {
         const session = this.gameSessions.get(gameId);
         if (!session || session.loop) return;
-    
+
         session.loop = setInterval(() => {
             const newState = session.engine!.update();
             session.state = newState;
-    
+
             // Broadcast to all players
             session.players.forEach((player) => {
                 player.socket.send(JSON.stringify(session.state));
