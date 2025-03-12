@@ -18,7 +18,7 @@
 	}
 }
 
-{$DOMAINS:localhost} {
+:8080 {$DOMAINS:localhost} {
 	{$CADDY_EXTRA_SITE_DIRECTIVES}
 	log
 	handle {
@@ -28,10 +28,9 @@
 	}
 	handle_path /api/* {
 		import waf
-		reverse_proxy http://backend:3000
+		reverse_proxy http://backend:{$BACKEND_PORT:3000}
 	}
 	handle /ws { # websocket route must not use coraza WAF, otherwise it breaks
-		reverse_proxy backend:3000
+		reverse_proxy backend:{$BACKEND_PORT:3000}
 	}
 }
-
