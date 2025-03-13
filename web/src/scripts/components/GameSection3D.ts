@@ -15,16 +15,19 @@ import { Inspector } from "@babylonjs/inspector";
 import earcut from "earcut";
 (window as any).earcut = earcut;
 
-// Game constants
-const PADDLE_WIDTH = 0.2;
-const PADDLE_HEIGHT = 0.3;
-const PADDLE_DEPTH = 5;
-const PADDLE_SPEED = 0.3;
-const BALL_RADIUS = 0.3;
-const BOARD_WIDTH = 20;
-const BOARD_HEIGHT = 0.1;
-const BOARD_DEPTH = 15;
-const BALL_SPEED = 0.2;
+// Default game constants (will be overridden by server values)
+let GAME_CONSTANTS = {
+    PADDLE_WIDTH: 0.2,
+    PADDLE_HEIGHT: 0.3,
+    PADDLE_DEPTH: 5,
+    BALL_RADIUS: 0.3,
+    BOARD_WIDTH: 20,
+    BOARD_HEIGHT: 0.1,
+    BOARD_DEPTH: 15,
+    PADDLE_SPEED: 0.3,
+    BALL_SPEED: 0.2,
+};
+
 const SCORE_POSITION = new Vector3(0, 0, 8);
 
 // Game state
@@ -33,15 +36,17 @@ let scoreText: Mesh;
 let ball: Mesh;
 let paddle1: Mesh;
 let paddle2: Mesh;
-// let ballDirection = new Vector3(BALL_SPEED, 0, BALL_SPEED);
-// let keysPressed: { [key: string]: boolean } = {};
 let fontData: any = null;
 let socket: WebSocket;
 let gameRunning = false;
+let lastCollisionEvents: any[] = []; // Track last collision events to avoid duplicate sounds
 
 export async function create3DGameSection(): Promise<HTMLElement> {
     const container = document.createElement("div");
     container.className = "w-full h-[600px] relative"; // Set explicit height
+
+    // Simple path debugging
+    debugPaths();
 
     const gameSection = document.createElement("canvas");
     gameSection.className = "w-full h-full";
@@ -54,6 +59,19 @@ export async function create3DGameSection(): Promise<HTMLElement> {
 
     container.appendChild(playButton);
     container.appendChild(gameSection);
+
+    // Fetch game constants first
+    // try {
+    //     const response = await fetch('/api/game/constants');
+    //     if (response.ok) {
+    //         GAME_CONSTANTS = await response.json();
+    //         console.log("Game constants loaded:", GAME_CONSTANTS);
+    //     } else {
+    //         console.error("Failed to load game constants, using defaults");
+    //     }
+    // } catch (error) {
+    //     console.error("Error loading game constants:", error);
+    // }
 
     socket = new WebSocket("/ws");
 
@@ -72,6 +90,7 @@ export async function create3DGameSection(): Promise<HTMLElement> {
             console.error("WebSocket is not open.");
         }
         gameRunning = true;
+
         initialiseGame(gameSection, container);
     });
 
@@ -84,6 +103,36 @@ export async function create3DGameSection(): Promise<HTMLElement> {
     };
 
     return container;
+}
+
+// Simple function to debug paths
+function debugPaths() {
+    console.log("=== PATH DEBUGGING ===");
+    console.log("Window location:", window.location.href);
+    console.log("Document base URI:", document.baseURI);
+
+    // Test a few paths with fetch to see which ones work
+    const testPaths = [
+        "/assets/neon-gaming.mp3",
+        "assets/neon-gaming.mp3",
+        "../assets/neon-gaming.mp3",
+        "../../assets/neon-gaming.mp3",
+        "/web/src/assets/neon-gaming.mp3",
+        "/src/assets/neon-gaming.mp3",
+    ];
+
+    console.log("Testing asset paths...");
+    testPaths.forEach((path) => {
+        fetch(path)
+            .then((response) => {
+                console.log(
+                    `Path ${path}: ${response.ok ? "SUCCESS" : "FAILED"} (${response.status})`
+                );
+            })
+            .catch((error) => {
+                console.log(`Path ${path}: ERROR`, error);
+            });
+    });
 }
 
 function initialiseGame(gameSection: HTMLCanvasElement, container: HTMLElement) {
@@ -172,9 +221,9 @@ function createGameObjects(scene: Scene) {
     const board = MeshBuilder.CreateBox(
         "board",
         {
-            width: BOARD_WIDTH,
-            height: BOARD_HEIGHT,
-            depth: BOARD_DEPTH,
+            width: GAME_CONSTANTS.BOARD_WIDTH,
+            height: GAME_CONSTANTS.BOARD_HEIGHT,
+            depth: GAME_CONSTANTS.BOARD_DEPTH,
         },
         scene
     );
@@ -190,26 +239,26 @@ function createGameObjects(scene: Scene) {
     paddle1 = MeshBuilder.CreateBox(
         "paddle1",
         {
-            width: PADDLE_WIDTH,
-            height: PADDLE_HEIGHT,
-            depth: PADDLE_DEPTH,
+            width: GAME_CONSTANTS.PADDLE_WIDTH,
+            height: GAME_CONSTANTS.PADDLE_HEIGHT,
+            depth: GAME_CONSTANTS.PADDLE_DEPTH,
         },
         scene
     );
-    paddle1.position = new Vector3(-BOARD_WIDTH / 2 + 0.5, 0.5, 0);
+    paddle1.position = new Vector3(-GAME_CONSTANTS.BOARD_WIDTH / 2 + 0.5, 0.5, 0);
     paddle1.rotation.x = Math.PI;
     paddle1.material = paddleMaterial;
 
     paddle2 = MeshBuilder.CreateBox(
         "paddle2",
         {
-            width: PADDLE_WIDTH,
-            height: PADDLE_HEIGHT,
-            depth: PADDLE_DEPTH,
+            width: GAME_CONSTANTS.PADDLE_WIDTH,
+            height: GAME_CONSTANTS.PADDLE_HEIGHT,
+            depth: GAME_CONSTANTS.PADDLE_DEPTH,
         },
         scene
     );
-    paddle2.position = new Vector3(BOARD_WIDTH / 2 - 0.5, 0.5, 0);
+    paddle2.position = new Vector3(GAME_CONSTANTS.BOARD_WIDTH / 2 - 0.5, 0.5, 0);
     paddle2.rotation.x = Math.PI;
     paddle2.material = paddleMaterial;
 
@@ -217,7 +266,7 @@ function createGameObjects(scene: Scene) {
     ball = MeshBuilder.CreateSphere(
         "ball",
         {
-            diameter: BALL_RADIUS * 2,
+            diameter: GAME_CONSTANTS.BALL_RADIUS * 2,
         },
         scene
     );
@@ -228,22 +277,19 @@ function createGameObjects(scene: Scene) {
 }
 
 async function addMusic(scene: Scene) {
-    // Background music
-    const backgroundMusic = new Sound("backgroundMusic", "assets/neon-gaming.mp3", scene, null, {
+    const backgroundMusic = new Sound("backgroundMusic", "/assets/neon-gaming.mp3", scene, null, {
         loop: true,
         autoplay: true,
-        volume: 1.0,
+        volume: 0.5,
     });
-    // Add hit sound for collisions
-    const hitSound = new Sound("hit", "assets/hit.mp3", scene, null, {
+    const hitSound = new Sound("hit", "/assets/hit.mp3", scene, null, {
         loop: false,
         autoplay: false,
     });
-    const bounceSound = new Sound("bounce", "assets/bounce.mp3", scene, null, {
+    const bounceSound = new Sound("bounce", "/assets/bounce.mp3", scene, null, {
         loop: false,
         autoplay: false,
     });
-    // Store sounds on scene for later use
     scene.metadata = {
         sounds: {
             background: backgroundMusic,
@@ -301,10 +347,12 @@ function setupKeyboardControls(scene: Scene) {
 function updateGameObjects(eventData: any, scene: Scene) {
     const gameState = JSON.parse(eventData);
     if (!gameState || !gameRunning) return;
-    console.log("Updated game state received:", gameState);
+    //console.log("Updated game state received:", gameState);
+
     // Update ball position if it exists
     if (gameState.ballPosition && ball) {
         ball.position.x = gameState.ballPosition.x;
+        ball.position.y = gameState.ballPosition.y;
         ball.position.z = gameState.ballPosition.z;
     }
 
@@ -325,5 +373,31 @@ function updateGameObjects(eventData: any, scene: Scene) {
     ) {
         score = gameState.score;
         addScore(scene);
+    }
+
+    // Play sounds based on collision events
+    if (gameState.collisionEvents && gameState.collisionEvents.length > 0) {
+        // Get only new events by comparing timestamps
+        const newEvents = gameState.collisionEvents.filter(
+            (event: any) => !lastCollisionEvents.some((e: any) => e.timestamp === event.timestamp)
+        );
+
+        if (newEvents.length > 0) {
+            console.log("New collision events:", newEvents);
+
+            // Play sounds for each new event
+            newEvents.forEach((event: any) => {
+                if (event.type === "paddle") {
+                    scene.metadata.sounds.bounce.play();
+                } else if (event.type === "wall") {
+                    scene.metadata.sounds.bounce.play();
+                } else if (event.type === "score") {
+                    scene.metadata.sounds.hit.play();
+                }
+            });
+
+            // Update last collision events
+            lastCollisionEvents = gameState.collisionEvents;
+        }
     }
 }

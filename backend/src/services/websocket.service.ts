@@ -1,9 +1,7 @@
 import { WebSocket } from "ws";
 import { FastifyBaseLogger } from "fastify";
 import type { Player, GameSession, GameState } from "../game/game.types";
-import GameEngine from "../game/game.engine";
-
-const BOARD_WIDTH = 20;
+import GameEngine, { GAME_CONSTANTS } from "../game/game.engine";
 
 export default class WebsocketService {
     private activeConnections: Map<number, WebSocket>;
@@ -23,10 +21,11 @@ export default class WebsocketService {
             const state: GameState = {
                 ballPosition: { x: 0, y: 0, z: 0 },
                 paddlePosition: {
-                    "player-1": { x: -BOARD_WIDTH / 2 + 0.5, y: 0.5, z: 0 },
-                    "player-2": { x: BOARD_WIDTH / 2 - 0.5, y: 0.5, z: 0 },
+                    "player-1": { x: -GAME_CONSTANTS.BOARD_WIDTH / 2 + 0.5, y: 0.5, z: 0 },
+                    "player-2": { x: GAME_CONSTANTS.BOARD_WIDTH / 2 - 0.5, y: 0.5, z: 0 },
                 },
                 score: { player1: 0, player2: 0 },
+                collisionEvents: [],
             };
 
             this.gameSessions.set(gameId, {
@@ -40,13 +39,7 @@ export default class WebsocketService {
         // Add the player to the session
         const session = this.gameSessions.get(gameId)!;
 
-        // Assign player-1 or player-2 dynamically based on the number of players
-        // const playerKey = session.players.size === 0 ? "player-1" : "player-2"; // First player gets "player-1", second gets "player-2"
-
         session.players.set(id.toString(), { socket: conn, playerId: id.toString() });
-
-        // Initialize paddle position based on the player assigned
-        // session.state.paddlePosition[playerKey] = session.state.ballPosition
 
         // Log the game state and player IDs
         this.log.info(
