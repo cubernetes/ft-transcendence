@@ -6,14 +6,16 @@
 
 ## Build and Run
 
-- Set appropriate options in .env (cp from .env.example)
-- make dev or make prod
+- Ensure `docker` and `docker compose` are working
+- Run `cp .env.example .env`
+- Adjust secrets in `.env`, possibly also in `config.env` if you have port issues
+- Run `make` or `make prod`
 
 ## Advanced/Configuration
 
 - [administrative commands regarding app management]
 - [basic steps for configuration]
-- Refer to the [Wiki](https://github.com/cubernetes/ft-transcendence/wiki) for more Documentation
+- Refer to the [Wiki](https://github.com/cubernetes/ft-transcendence/wiki) for more documentation
 
 ## Demo
 
@@ -26,18 +28,47 @@
 - Interactive webapp to play 3D pong - Front-End (John) && Back-End (Ben & Darren)
 - Account management (TBD)
 - Join matches via the a CLI client (or maybe [SSH](https://github.com/charmbracelet/wish), let's see) (TBD)
-- Overkill security measures (ModSecurity, HashiCorp Vault, 2FA, JWT) - Timo
+- Overkill security measures (ModSecurity, HashiCorp Vault, 2FA, JWT) (Timo)
 - AI opponent (TBD)
 - Some accessibility features (TBD)
-- Log management and observability (ELK + Grafana) - Sonia
-- Game statistics also on Blockchain - John
+- Log management and observability (ELK + Grafana) (Sonia)
+- Game statistics also on Blockchain (John)
 
-## Debug
+## Debugging
 
-- Websockets: Use wscat to connect to frontend (or backend via container IP):
-  wscat -c ws://localhost:8080/ws
-  wscat -c localhost:8080/ws
-  `backend via container IP` will only work if the backend exposes a port, which it doesn't by default
+### Websockets
+
+- Use `wscat` to connect to the websocket server via Caddy:
+  - `wscat -c ws://localhost:8080/ws`
+  - `wscat -c localhost:8080/ws`
+  - `wscat -nc wss://localhost:8443/ws`
+- Or connect directly via the backend, by patching `compose.yaml`
+  ```diff
+
+      backend:
+  +       ports:
+  +           - "3000:${BACKEND_PORT:3000}"
+          build:
+              context: "./backend/"
+  ```
+  - `wscat -c localhost:3000/ws` (no wss)
+
+### Coraza Web Application Firewall (WAF)
+
+- Checking it it's enabled
+  - `curl -vk https://localhost:8443/?exec=/bin/bash` should return `403 Forbidden`
+- Disabling it
+  ```Caddy
+      handle {
+  -       import waf
+          root * /srv
+          file_server
+      }
+      handle_path /api/* {
+  -       import waf
+          reverse_proxy http://backend:{$BACKEND_PORT:3000}
+      }
+  ```
 
 ## License
 
