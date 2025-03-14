@@ -45,9 +45,6 @@ export async function create3DGameSection(): Promise<HTMLElement> {
     const container = document.createElement("div");
     container.className = "w-full h-[600px] relative"; // Set explicit height
 
-    // Simple path debugging
-    debugPaths();
-
     const gameSection = document.createElement("canvas");
     gameSection.className = "w-full h-full";
     gameSection.id = "renderCanvas"; // Add an ID for easier reference
@@ -57,7 +54,12 @@ export async function create3DGameSection(): Promise<HTMLElement> {
     playButton.textContent = "Click to Start Game";
     playButton.className = "container mx-auto";
 
+    const musicButton = document.createElement("button");
+    musicButton.textContent = "Toggle Music";
+    musicButton.className = "container mx-auto";
+
     container.appendChild(playButton);
+    container.appendChild(musicButton);
     container.appendChild(gameSection);
 
     // Fetch game constants first
@@ -91,7 +93,30 @@ export async function create3DGameSection(): Promise<HTMLElement> {
         }
         gameRunning = true;
 
-        initialiseGame(gameSection, container);
+        initialiseGame(gameSection, container).then((scene) => {
+            musicButton.addEventListener("click", () => {
+                console.log("Music button clicked");
+                const music = scene.metadata.sounds.background;
+                console.log("Music ready state:", music.isReadyToPlay);
+
+                if (!music.isReadyToPlay) {
+                    console.log("Music not ready yet");
+                    return;
+                }
+
+                try {
+                    if (music.isPlaying) {
+                        music.stop();
+                        console.log("Music stopped");
+                    } else {
+                        music.play();
+                        console.log("Music started");
+                    }
+                } catch (error) {
+                    console.error("Error toggling music:", error);
+                }
+            });
+        });
     });
 
     socket.onerror = (error) => {
@@ -105,37 +130,10 @@ export async function create3DGameSection(): Promise<HTMLElement> {
     return container;
 }
 
-// Simple function to debug paths
-function debugPaths() {
-    console.log("=== PATH DEBUGGING ===");
-    console.log("Window location:", window.location.href);
-    console.log("Document base URI:", document.baseURI);
-
-    // Test a few paths with fetch to see which ones work
-    const testPaths = [
-        "/assets/neon-gaming.mp3",
-        "assets/neon-gaming.mp3",
-        "../assets/neon-gaming.mp3",
-        "../../assets/neon-gaming.mp3",
-        "/web/src/assets/neon-gaming.mp3",
-        "/src/assets/neon-gaming.mp3",
-    ];
-
-    console.log("Testing asset paths...");
-    testPaths.forEach((path) => {
-        fetch(path)
-            .then((response) => {
-                console.log(
-                    `Path ${path}: ${response.ok ? "SUCCESS" : "FAILED"} (${response.status})`
-                );
-            })
-            .catch((error) => {
-                console.log(`Path ${path}: ERROR`, error);
-            });
-    });
-}
-
-function initialiseGame(gameSection: HTMLCanvasElement, container: HTMLElement) {
+async function initialiseGame(
+    gameSection: HTMLCanvasElement,
+    container: HTMLElement
+): Promise<Scene> {
     const engine = new Engine(gameSection);
 
     const createScene = async function () {
@@ -150,7 +148,7 @@ function initialiseGame(gameSection: HTMLCanvasElement, container: HTMLElement) 
 
         // Add score and music
         await addScore(scene);
-        await addMusic(scene);
+        await loadMusic(scene);
 
         // Set up controls
         setupKeyboardControls(scene);
@@ -166,7 +164,7 @@ function initialiseGame(gameSection: HTMLCanvasElement, container: HTMLElement) 
         return scene;
     };
 
-    createScene().then((scene) => {
+    return createScene().then((scene) => {
         engine.runRenderLoop(() => {
             scene.render();
         });
@@ -175,6 +173,8 @@ function initialiseGame(gameSection: HTMLCanvasElement, container: HTMLElement) 
         window.addEventListener("resize", () => {
             engine.resize();
         });
+
+        return scene;
     });
 }
 
@@ -276,25 +276,23 @@ function createGameObjects(scene: Scene) {
     ball.material = ballMaterial;
 }
 
-async function addMusic(scene: Scene) {
-    const backgroundMusic = new Sound("backgroundMusic", "/assets/neon-gaming.mp3", scene, null, {
-        loop: true,
-        autoplay: true,
-        volume: 0.5,
-    });
-    const hitSound = new Sound("hit", "/assets/hit.mp3", scene, null, {
-        loop: false,
-        autoplay: false,
-    });
-    const bounceSound = new Sound("bounce", "/assets/bounce.mp3", scene, null, {
-        loop: false,
-        autoplay: false,
-    });
+async function loadMusic(scene: Scene) {
+    // Store the sound in scene metadata
     scene.metadata = {
         sounds: {
-            background: backgroundMusic,
-            hit: hitSound,
-            bounce: bounceSound,
+            background: new Sound("background", "/assets/neon-gaming.mp3", scene, null, {
+                loop: true,
+                autoplay: false,
+                volume: 0.5,
+            }),
+            hit: new Sound("hit", "/assets/hit.mp3", scene, null, {
+                loop: false,
+                autoplay: false,
+            }),
+            bounce: new Sound("bounce", "/assets/bounce.mp3", scene, null, {
+                loop: false,
+                autoplay: false,
+            }),
         },
     };
 }
