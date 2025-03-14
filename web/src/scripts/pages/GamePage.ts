@@ -1,7 +1,6 @@
 import { createHeader } from "../components/Header";
 import { createFooter } from "../components/Footer";
-import { create3DGameSection } from "../components/GameSection3D";
-import { createGameSection } from "../components/GameSection";
+import { create3DGameSection } from "../game/GameSection3D";
 
 export async function createGamePage(): Promise<HTMLElement> {
     const fragment = document.createDocumentFragment();
@@ -23,7 +22,7 @@ export async function createGamePage(): Promise<HTMLElement> {
     const container = document.createElement("div");
     container.appendChild(fragment);
 
-    container.addEventListener('destroy', () => {
+    container.addEventListener("destroy", () => {
         game3DSection.dispatchEvent(new Event("destroy"));
     });
 
