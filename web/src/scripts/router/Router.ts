@@ -12,13 +12,18 @@ export function createRouter(container: HTMLElement): void {
     };
 
     async function handleRouteChange() {
-        // Get the route from the URL hash (without the #)
+
         const route = window.location.hash.slice(1);
 
         // Redirect to home upon invalid route
         if (!(route in routes)) {
             window.location.href = "#home";
             return;
+        }
+
+        const currentPage = container.firstElementChild
+        if (currentPage) {
+            currentPage.dispatchEvent(new Event('destroy'))
         }
 
         // Clear the container
