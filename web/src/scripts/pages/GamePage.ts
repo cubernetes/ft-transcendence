@@ -12,9 +12,7 @@ export async function createGamePage(): Promise<HTMLElement> {
     main.className = "container mx-auto p-4";
 
     const game3DSection = await create3DGameSection();
-    // const game2DSection = createGameSection();
     main.appendChild(game3DSection);
-    // main.appendChild(game2DSection);
 
     const footer = createFooter();
 
@@ -24,6 +22,10 @@ export async function createGamePage(): Promise<HTMLElement> {
 
     const container = document.createElement("div");
     container.appendChild(fragment);
+
+    container.addEventListener('destroy', () => {
+        game3DSection.dispatchEvent(new Event("destroy"));
+    });
 
     return container;
 }

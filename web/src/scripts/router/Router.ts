@@ -13,13 +13,16 @@ export function createRouter(container: HTMLElement): void {
     };
 
     async function handleRouteChange() {
-        // Get the route from the URL hash (without the #)
-        const route = window.location.hash.slice(1);
+        const currentPage = container.firstElementChild
+        if (currentPage) {
+            currentPage.dispatchEvent(new Event('destroy'))
+        }
 
         // Clear the container
         container.innerHTML = "";
 
         // Render the appropriate page
+        const route = window.location.hash.slice(1);
         const createPage = routes[route] || routes[""];
         const pageEl = await createPage();
         container.appendChild(pageEl);

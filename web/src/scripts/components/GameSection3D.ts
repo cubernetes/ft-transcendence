@@ -9,7 +9,6 @@ import {
     StandardMaterial,
     Color3,
     Texture,
-    Sound,
 } from "@babylonjs/core";
 import { Inspector } from "@babylonjs/inspector";
 import earcut from "earcut";
@@ -39,7 +38,7 @@ let paddle2: Mesh;
 let fontData: any = null;
 let socket: WebSocket;
 let gameRunning = false;
-let lastCollisionEvents: any[] = []; // Track last collision events to avoid duplicate sounds
+let lastCollisionEvents: any[] = [];
 
 export async function create3DGameSection(): Promise<HTMLElement> {
     const container = document.createElement("div");
@@ -54,37 +53,39 @@ export async function create3DGameSection(): Promise<HTMLElement> {
     playButton.textContent = "Click to Start Game";
     playButton.className = "container mx-auto";
 
-    const musicButton = document.createElement("button");
-    musicButton.textContent = "Toggle Music";
-    musicButton.className = "container mx-auto";
-
+    // Add Sound effects
+    const backgroundMusic = document.createElement("audio");
+    backgroundMusic.src = "assets/neon-gaming.mp3"
+    backgroundMusic.loop = true
+    const bounceMusic = document.createElement("audio");
+    bounceMusic.src = "assets/bounce.mp3"
+    const hitMusic = document.createElement("audio");
+    hitMusic.src = "assets/hit.mp3"
+    const soundEffects = [backgroundMusic, bounceMusic, hitMusic]
+    
     container.appendChild(playButton);
-    container.appendChild(musicButton);
     container.appendChild(gameSection);
-
-    // Fetch game constants first
-    // try {
-    //     const response = await fetch('/api/game/constants');
-    //     if (response.ok) {
-    //         GAME_CONSTANTS = await response.json();
-    //         console.log("Game constants loaded:", GAME_CONSTANTS);
-    //     } else {
-    //         console.error("Failed to load game constants, using defaults");
-    //     }
-    // } catch (error) {
-    //     console.error("Error loading game constants:", error);
-    // }
 
     socket = new WebSocket("/ws");
 
     socket.onopen = () => {
         console.log("WebSocket connection established.");
-        socket.send("join player-1"); // Join the game as player 1);
     };
+
+    container.addEventListener('destroy', () => {
+        console.log("received destroy");
+        if (backgroundMusic) {
+            backgroundMusic.pause();
+            backgroundMusic.currentTime = 0;
+        }
+        if (bounceMusic) bounceMusic.pause();
+        if (hitMusic) hitMusic.pause();
+    });
 
     // Initialize game only after user interaction
     playButton.addEventListener("click", () => {
         playButton.remove();
+        socket.send("join player-1");
         if (socket.readyState === WebSocket.OPEN) {
             console.log("Sending startPong");
             socket.send("startPong"); // Start the game
@@ -92,31 +93,8 @@ export async function create3DGameSection(): Promise<HTMLElement> {
             console.error("WebSocket is not open.");
         }
         gameRunning = true;
-
-        initialiseGame(gameSection, container).then((scene) => {
-            musicButton.addEventListener("click", () => {
-                console.log("Music button clicked");
-                const music = scene.metadata.sounds.background;
-                console.log("Music ready state:", music.isReadyToPlay);
-
-                if (!music.isReadyToPlay) {
-                    console.log("Music not ready yet");
-                    return;
-                }
-
-                try {
-                    if (music.isPlaying) {
-                        music.stop();
-                        console.log("Music stopped");
-                    } else {
-                        music.play();
-                        console.log("Music started");
-                    }
-                } catch (error) {
-                    console.error("Error toggling music:", error);
-                }
-            });
-        });
+        backgroundMusic.play();
+        initialiseGame(gameSection, soundEffects);
     });
 
     socket.onerror = (error) => {
@@ -132,8 +110,8 @@ export async function create3DGameSection(): Promise<HTMLElement> {
 
 async function initialiseGame(
     gameSection: HTMLCanvasElement,
-    container: HTMLElement
-): Promise<Scene> {
+    soundEffects: HTMLAudioElement[]
+) {
     const engine = new Engine(gameSection);
 
     const createScene = async function () {
@@ -148,14 +126,13 @@ async function initialiseGame(
 
         // Add score and music
         await addScore(scene);
-        await loadMusic(scene);
 
         // Set up controls
         setupKeyboardControls(scene);
 
         // Set up WebSocket message handler AFTER everything is initialized
         socket.onmessage = (event) => {
-            updateGameObjects(event.data, scene);
+            updateGameObjects(event.data, scene, soundEffects);
         };
 
         // Enable inspector for debugging
@@ -164,34 +141,29 @@ async function initialiseGame(
         return scene;
     };
 
-    return createScene().then((scene) => {
+    createScene().then((scene) => {
         engine.runRenderLoop(() => {
             scene.render();
         });
-
         // Handle window resize
         window.addEventListener("resize", () => {
             engine.resize();
         });
-
-        return scene;
     });
 }
 
+
 function setScene(scene: Scene) {
     // Create a skybox
-    const skybox = MeshBuilder.CreateBox("skybox", { size: 1000 }, scene);
+    const skybox = MeshBuilder.CreateBox("skybox", {
+        width: 100,
+        height: 0.1,
+        depth: 100
+    }, scene);
+    skybox.position.y = -1
     const skyboxMaterial = new StandardMaterial("skyboxMaterial", scene);
-    skyboxMaterial.backFaceCulling = false;
-
-    skyboxMaterial.diffuseTexture = new Texture("assets/sky-clouds-background.jpg", scene);
-    skyboxMaterial.diffuseColor = new Color3(1, 1, 1);
-
-    // Make sure the skybox is rendered behind everything else
-    skyboxMaterial.disableLighting = true;
+    skyboxMaterial.diffuseTexture = new Texture("./assets/sky-clouds-background.jpg", scene);    
     skybox.material = skyboxMaterial;
-    skybox.infiniteDistance = true;
-
     // Create default lighting
     scene.createDefaultLight();
 }
@@ -205,15 +177,9 @@ function setCamera(scene: Scene) {
         Vector3.Zero(), // target - looking at center
         scene
     );
-    camera.lowerRadiusLimit = 10;
-    camera.upperRadiusLimit = 30;
-
     // Disable keyboard controls
     camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
-
-    // Keep only mouse wheel zoom
     camera.inputs.clear();
-    camera.inputs.addMouseWheel();
 }
 
 function createGameObjects(scene: Scene) {
@@ -276,27 +242,6 @@ function createGameObjects(scene: Scene) {
     ball.material = ballMaterial;
 }
 
-async function loadMusic(scene: Scene) {
-    // Store the sound in scene metadata
-    scene.metadata = {
-        sounds: {
-            background: new Sound("background", "/assets/neon-gaming.mp3", scene, null, {
-                loop: true,
-                autoplay: false,
-                volume: 0.5,
-            }),
-            hit: new Sound("hit", "/assets/hit.mp3", scene, null, {
-                loop: false,
-                autoplay: false,
-            }),
-            bounce: new Sound("bounce", "/assets/bounce.mp3", scene, null, {
-                loop: false,
-                autoplay: false,
-            }),
-        },
-    };
-}
-
 async function addScore(scene: Scene) {
     // Load font data once and cache it
     if (!fontData) fontData = await (await fetch("assets/Montserrat_Regular.json")).json();
@@ -342,7 +287,7 @@ function setupKeyboardControls(scene: Scene) {
     }
 }
 
-function updateGameObjects(eventData: any, scene: Scene) {
+function updateGameObjects(eventData: any, scene: Scene, soundEffects: HTMLAudioElement[]) {
     const gameState = JSON.parse(eventData);
     if (!gameState || !gameRunning) return;
     //console.log("Updated game state received:", gameState);
@@ -386,11 +331,11 @@ function updateGameObjects(eventData: any, scene: Scene) {
             // Play sounds for each new event
             newEvents.forEach((event: any) => {
                 if (event.type === "paddle") {
-                    scene.metadata.sounds.bounce.play();
+                    soundEffects.at(1)?.play()
                 } else if (event.type === "wall") {
-                    scene.metadata.sounds.bounce.play();
+                    soundEffects.at(1)?.play()
                 } else if (event.type === "score") {
-                    scene.metadata.sounds.hit.play();
+                    soundEffects.at(2)?.play()
                 }
             });
 
