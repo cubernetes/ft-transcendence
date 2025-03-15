@@ -1,5 +1,5 @@
 # Build Stage: TypeScript + Webpack
-FROM node:23.9.0-alpine3.21 AS app-builder
+FROM node:23.9.0-alpine3.21
 
 WORKDIR /app/
 
@@ -14,6 +14,6 @@ COPY ./ ./
 
 RUN npm run build
 
-#ENV WATCH $WATCH
+ENV WATCH 0
 
 CMD if [ "$WATCH" = "1" ]; then npm run build:dev; fi
