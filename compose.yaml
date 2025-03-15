@@ -52,7 +52,7 @@ services:
         networks:
             - ft-transcendence-net
         environment:
-            - "NODE_ENV=development"
+            - "NODE_ENV=${NODE_ENV:-development}"
             - "BACKEND_PORT=${BACKEND_PORT:-3000}"
             - "DB_PATH=${DB_PATH:-}"
             - "JWT_SECRET=${JWT_SECRET:-}"
