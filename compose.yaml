@@ -32,6 +32,9 @@ services:
         build: "./app/"
         container_name: app
         restart: unless-stopped
+        environment:
+            - "WATCH=${WATCH:-0}"
+            - "BACKEND_PORT=${BACKEND_PORT:-3000}"
         volumes:
             - "app:/app/dist/"
         develop:
