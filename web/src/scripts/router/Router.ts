@@ -12,7 +12,6 @@ export function createRouter(container: HTMLElement): void {
     };
 
     async function handleRouteChange() {
-
         const route = window.location.hash.slice(1);
 
         // Redirect to home upon invalid route
@@ -21,9 +20,9 @@ export function createRouter(container: HTMLElement): void {
             return;
         }
 
-        const currentPage = container.firstElementChild
+        const currentPage = container.firstElementChild;
         if (currentPage) {
-            currentPage.dispatchEvent(new Event('destroy'))
+            currentPage.dispatchEvent(new Event("destroy"));
         }
 
         // Clear the container
