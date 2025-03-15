@@ -1,52 +1,48 @@
-// import type { FastifyRequest } from "fastify";
-// import { WebSocket } from "ws";
-// import WebsocketService from "../services/websocket.service";
-// // import { validateId } from "../utils/validator";
+import type { FastifyRequest } from "fastify";
+import { WebSocket } from "ws";
 
-// export type Player = {
-//     socket: WebSocket;
-//     playerId: string;
-// };
+export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
+    const { server } = req;
 
-// export type GameState = {
-//     ballPosition: { x: number; y: number };
-//     score: { player1: number; player2: number };
-//     paddlePosition: { [playerId: string]: { y: number } }; // Optional, depending on your logic
-// };
+    server.log.info("New WebSocket connection");
 
-// export type GameSession = {
-//     gameId: string;
-//     players: { [playerId: string]: Player };
-//     state: GameState;
-// };
+    const gameId = "some-unique-game-id"; // You should generate this dynamically
+    const userId = Math.floor(Math.random() * 1000); // Replace with actual user ID
 
-// export default class WebsocketController {
-//     constructor(private readonly websocketService: WebsocketService) {}
+    server.wsService.createGame(conn, userId, gameId);
 
-//     handleConnection(conn: WebSocket, request: FastifyRequest) {
-//         // Testing
-//         let gameState = {
-//             ballPosition: { x: 50, y: 50 }, // Example ball position (center of the field)
-//             paddlePosition: {
-//                 "player-1": { y: 50 }, // Example initial position for player 1
-//                 "player-2": { y: 50 }, // Example initial position for player 2
-//             },
-//             score: { player1: 0, player2: 0 },
-//         };
+    /** Retrieve the existing game state from the websocket service */
+    let gameState = server.wsService.getGameState(gameId);
 
-//         request.log.info("New WebSocket connection");
-//         conn.send(JSON.stringify(gameState));
+    if (!gameState) {
+        server.log.error("Game state could not be retrieved.");
+        return conn.close();
+    }
 
-//         conn.on("message", (message: string) => {
-//             this.websocketService.handleMessage(conn, message, gameState);
-//         });
+    conn.send(JSON.stringify(gameState));
 
-//         // Full steps: check id -> register ->
+    conn.on("message", (message: string) => {
+        /** Handle the message, which updates the game state */
+        server.wsService.handleMessage(conn, message, gameId);
 
-//         // try {
-//         //   const userId = validateId(request.params.id);
-//         //   // Maybe more validation, check user does exist etc.
-//         //   this.websocketService.registerConnection(conn, userId);
-//         // } catch (error) {}
-//     }
-// }
+        /** Retrieve the updated game state */
+        gameState = server.wsService.getGameState(gameId);
+    });
+
+    conn.on("ping", () => {
+        server.log.info("Ping received!");
+        conn.pong();
+    });
+
+    conn.on("close", () => {
+        server.log.info(`WebSocket connection closed for player ${userId}`);
+        server.wsService.removePlayerFromGame(gameId, userId); // Clean up when the player disconnects
+    });
+    // Full steps: check id -> register ->
+
+    // try {
+    //   const userId = validateId(request.params.id);
+    //   // Maybe more validation, check user does exist etc.
+    //   this.websocketService.registerConnection(conn, userId);
+    // } catch (error) {}
+};
