@@ -20,7 +20,10 @@ export const createUserHandler = async (
             passwordHash: hashedPassword,
         });
 
-        if (!user) return reply.code(400).send({ error: "Failed to create user" });
+        if (!user) {
+            return reply.code(400).send({ error: "Failed to create user" });
+        }
+
         return reply.code(201).send(toPublicUser(user));
     } catch (error) {
         req.log.error({ err: error }, "Failed to create user");
@@ -35,7 +38,11 @@ export const getUserByIdHandler = async (
 ) => {
     try {
         const user = await req.server.userService.findById(params.id);
-        if (!user) return reply.code(404).send({ error: "User not found" });
+
+        if (!user) {
+            return reply.code(404).send({ error: "User not found" });
+        }
+
         return reply.send(toPublicUser(user));
     } catch (error) {
         req.log.error({ err: error }, "Failed to get user by ID");
@@ -50,7 +57,11 @@ export const getUserByUsernameHandler = async (
 ) => {
     try {
         const user = await req.server.userService.findByUsername(params.username);
-        if (!user) return reply.code(404).send({ error: "User not found" });
+
+        if (!user) {
+            return reply.code(404).send({ error: "User not found" });
+        }
+
         return reply.send(toPublicUser(user));
     } catch (error) {
         req.log.error({ err: error }, "Failed to get user by username");
