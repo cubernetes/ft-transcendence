@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { WebSocket } from "ws";
 import type { GameSession, GameState, Player } from "../game/game.types.ts";
-import GameEngine, { GAME_CONSTANTS } from "../game/game.engine";
+import GameEngine, { GAME_CONSTANTS } from "../game/game.engine.ts";
 
 export const createWsService = (fastify: FastifyInstance) => {
     const connections = new Map<number, WebSocket>();

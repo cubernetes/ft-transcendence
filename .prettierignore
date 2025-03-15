@@ -1,1 +1,2 @@
 web/src/assets/*
+**/package-lock.json
