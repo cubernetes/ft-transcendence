@@ -2,6 +2,7 @@ import { test } from "tap";
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import { createAuthService } from "../auth.service.ts";
+import { faker } from "@faker-js/faker";
 
 test("authService - hashPassword + comparePassword", async (t) => {
     const app = Fastify();
@@ -24,7 +25,7 @@ test("authService - hashPassword + comparePassword", async (t) => {
 
 test("authService - jwt sign + verify", async (t) => {
     const app = Fastify();
-    await app.register(fastifyJwt, { secret: "super-secret-for-tests" });
+    await app.register(fastifyJwt, { secret: faker.string.alphanumeric(32) });
     await app.ready();
     const authService = createAuthService(app);
 
