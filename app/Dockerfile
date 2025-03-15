@@ -12,8 +12,8 @@ RUN npm clean-install
 
 COPY ./ ./
 
-#RUN npm run build
+RUN test "$WATCH" = "0" && npm run build || true
 
-COPY ./public/ /app/dist/
+#ENV WATCH $WATCH
 
-CMD npm run build:dev
+CMD test "$WATCH" = "l" && npm run build:dev || true

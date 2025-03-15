@@ -61,9 +61,9 @@ services:
             - "drizzle:/app/drizzle/"
         develop:
             watch:
-                - path: "./app/"
+                - path: "./backend/"
                   action: sync
-                  target: "/app/"
+                  target: "/backend/"
         env_file:
             - .env
             - config.env
