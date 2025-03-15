@@ -1,0 +1,37 @@
+{
+	skip_install_trust # caddy is running as non-root, therefore CA trust installation won't work (and isn't needed anyway inside the container)
+	http_port 8080
+	https_port 8443
+	order coraza_waf first
+	{$CADDY_EXTRA_GLOBAL_DIRECTIVES}
+}
+
+(waf) {
+	coraza_waf {
+		load_owasp_crs
+		directives `
+		Include @coraza.conf-recommended
+		Include @crs-setup.conf.example
+		Include @owasp_crs/*.conf
+		SecRuleEngine on
+		`
+	}
+}
+
+{$DOMAINS:localhost} {
+	{$CADDY_EXTRA_SITE_DIRECTIVES}
+	log
+	handle {
+		import waf
+		root * /srv/app/
+		file_server
+	}
+	handle_path /api/* {
+		import waf
+		reverse_proxy http://backend:3000
+	}
+	handle /ws { # websocket route must not use coraza WAF, otherwise it breaks
+		reverse_proxy backend:3000
+	}
+}
+

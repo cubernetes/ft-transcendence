@@ -1,10 +1,9 @@
 name: ft-transcendence
 
 services:
-    web:
-        build:
-            context: "./web/"
-        container_name: web
+    caddy:
+        build: "./caddy/"
+        container_name: caddy
         restart: unless-stopped
         ports:
             - "${HTTP_PORT:-8080}:8080"
@@ -13,6 +12,7 @@ services:
             - ft-transcendence-net
         volumes:
             - "caddy_data:/srv/.local/share/caddy/"
+            - "./app/dist/:/srv/app/:ro"
         environment:
             - DOMAINS=${DOMAINS:-localhost}
             - CADDY_EXTRA_GLOBAL_DIRECTIVES=${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
@@ -20,12 +20,21 @@ services:
             - BACKEND_PORT=${BACKEND_PORT:-3000}
         develop:
             watch: # will reload caddy when changing Caddyfile in the host system
-                - path: "./web/Caddyfile"
+                - path: "./caddy/Caddyfile"
                   action: rebuild
                   target: "/etc/caddy/Caddyfile"
         env_file:
-            - .env
-            - config.env
+          - .env
+          - config.env
+    app:
+      build: "./app/"
+      container_name: app
+      restart: unless-stopped
+      volumes:
+        - "./app/dist/:/app/dist/:ro"
+      env_file:
+        - .env
+        - config.env
 
     backend:
         build:
