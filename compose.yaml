@@ -41,6 +41,9 @@ services:
                 - path: "./app/"
                   action: sync
                   target: "/app/"
+                - path: "./app/package.json"
+                  action: sync+restart
+                  target: "/app/package.json"
         env_file:
             - .env
             - config.env
@@ -64,6 +67,9 @@ services:
                 - path: "./backend/"
                   action: sync
                   target: "/backend/"
+                - path: "./backend/package.json"
+                  action: sync+restart
+                  target: "/backend/package.json"
         env_file:
             - .env
             - config.env
