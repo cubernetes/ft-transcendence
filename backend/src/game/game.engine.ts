@@ -1,4 +1,4 @@
-import { GameState, GameConstants, CollisionEvent } from "./game.types";
+import { GameState, GameConstants, CollisionEvent } from "./game.types.ts";
 
 // Define game constants in one place
 export const GAME_CONSTANTS: GameConstants = {

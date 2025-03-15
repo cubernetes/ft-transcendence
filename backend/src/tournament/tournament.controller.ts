@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { CreateTournamentDTO, TournamentIdDTO, TournamentNameDTO } from "./tournament.type.ts";
+import { CreateTournamentDTO, TournamentIdDTO, TournamentNameDTO } from "./tournament.types.ts";
 
 export const createTournamentHandler = async (
     { body }: { body: CreateTournamentDTO },

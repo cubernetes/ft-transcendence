@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createUserSchema, userIdSchema, userNameSchema } from "./user.type.ts";
+import { createUserSchema, userIdSchema, userNameSchema } from "./user.types.ts";
 import {
     createUserHandler,
     getAllUsersHandler,

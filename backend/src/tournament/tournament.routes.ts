@@ -3,7 +3,7 @@ import {
     createTournamentSchema,
     tournamentIdSchema,
     tournamentNameSchema,
-} from "./tournament.type.ts";
+} from "./tournament.types.ts";
 import {
     createTournamentHandler,
     getAllTournamentsHandler,

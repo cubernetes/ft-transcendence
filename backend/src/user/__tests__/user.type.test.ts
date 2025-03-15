@@ -1,5 +1,5 @@
 import { test } from "tap";
-import { createUserSchema } from "../user.type.ts";
+import { createUserSchema } from "../user.types.ts";
 import { faker } from "@faker-js/faker";
 
 test("createUserSchema - valid data passes", (t) => {
