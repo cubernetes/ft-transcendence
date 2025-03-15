@@ -1,14 +1,9 @@
-import App from "./app";
+import { buildApp } from "./utils/app";
+import { appOpts } from "./utils/config";
 
-const main = async () => {
-    try {
-        const app = new App();
-        const port = process.env.BACKEND_PORT ? +process.env.BACKEND_PORT : 3000;
-        await app.start(port);
-    } catch (error) {
-        console.error(`Failed to start server: `, error);
-        process.exit(1);
-    }
-};
-
-main();
+try {
+    await buildApp(appOpts);
+} catch (error) {
+    /** No need to log error because it's extremely likely to be logged by Fastify */
+    process.exit(1);
+}

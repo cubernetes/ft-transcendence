@@ -1,8 +1,8 @@
 import { createHeader } from "../components/Header";
 import { createFooter } from "../components/Footer";
-import { createGameSection } from "../components/GameSection";
+import { create3DGameSection } from "../game/GameSection3D";
 
-export function createGamePage(): HTMLElement {
+export const createGamePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
     const header = createHeader();
@@ -10,8 +10,8 @@ export function createGamePage(): HTMLElement {
     const main = document.createElement("main");
     main.className = "container mx-auto p-4";
 
-    const gameSection = createGameSection();
-    main.appendChild(gameSection);
+    const game3DSection = await create3DGameSection();
+    main.appendChild(game3DSection);
 
     const footer = createFooter();
 
@@ -22,5 +22,9 @@ export function createGamePage(): HTMLElement {
     const container = document.createElement("div");
     container.appendChild(fragment);
 
+    container.addEventListener("destroy", () => {
+        game3DSection.dispatchEvent(new Event("destroy"));
+    });
+
     return container;
-}
+};

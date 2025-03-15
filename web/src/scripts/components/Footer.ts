@@ -1,4 +1,4 @@
-export function createFooter(): HTMLElement {
+export const createFooter = (): HTMLElement => {
     const footer = document.createElement("footer");
     footer.className = "bg-gray-200 p-4 text-center mt-8";
 
@@ -7,4 +7,4 @@ export function createFooter(): HTMLElement {
 
     footer.appendChild(text);
     return footer;
-}
+};

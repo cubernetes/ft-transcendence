@@ -29,6 +29,7 @@ dev: check-env
 	HTTP_PORT="$(DEV_HTTP_PORT)"   \
 	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
 	DOMAINS="$(DEV_DOMAINS)"       \
+	NODE_ENV="development"         \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
 	$(DC) up --build -d
@@ -41,6 +42,7 @@ prod: check-env
 	HTTP_PORT="$(PROD_HTTP_PORT)"   \
 	HTTPS_PORT="$(PROD_HTTPS_PORT)" \
 	DOMAINS="$(PROD_DOMAINS)"       \
+	NODE_ENV="production"           \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
 	$(DC) up --build -d
@@ -51,13 +53,12 @@ down:
 
 .PHONY: clean
 clean: down
-	[ -n "$(DB_PATH)" ] && $(RM) backend/$(DB_PATH)
 	$(D) system prune --force
-	$(RM) -r backend/node_modules/ backend/dist/
-	$(RM) -r web/node_modules/ web/dist/
 
 .PHONY: deepclean
 deepclean:
+	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
+	$(RM) -r web/node_modules/ web/dist/
 	@printf '\033[33mWarning: %b\033[m'                                         \
 		"You're about the delete ALL:\n"                                        \
 		" - containers (running or not)\n"                                      \
@@ -82,3 +83,7 @@ re: clean
 npm-install:
 	npm --prefix=web install
 	npm --prefix=backend install
+
+.PHONY: test
+test: npm-install
+	npm --prefix=backend test

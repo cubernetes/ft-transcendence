@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es2020",
-        "module": "es2022",
+        "target": "ES2022",
+        "module": "ESNext",
         "moduleResolution": "Bundler",
         "strict": true,
         "esModuleInterop": true,
@@ -12,7 +12,9 @@
         "isolatedModules": true,
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
+        "allowImportingTsExtensions": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true
-    }
+    },
+    "exclude": ["node_modules", "**/__tests__/**", "**/*.test.ts"]
 }

@@ -24,8 +24,8 @@ services:
                   action: rebuild
                   target: "/etc/caddy/Caddyfile"
         env_file:
-          - .env
-          - config.env
+            - .env
+            - config.env
 
     backend:
         build:
@@ -35,15 +35,15 @@ services:
         networks:
             - ft-transcendence-net
         environment:
-            - NODE_ENV=development
+            - NODE_ENV=${NODE_ENV:-development}
             - BACKEND_PORT=${BACKEND_PORT:-3000}
             - DB_PATH=${DB_PATH:-}
             - JWT_SECRET=${JWT_SECRET:-}
         volumes:
             - "drizzle:/app/drizzle/"
         env_file:
-          - .env
-          - config.env
+            - .env
+            - config.env
 
 volumes:
     caddy_data:

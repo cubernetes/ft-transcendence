@@ -24,6 +24,7 @@
 - [opt: alt text: a gif showcasing the administrative features]
 
 ## Core Features
+
 - Interactive webapp to play 3D pong - Front-End (John) && Back-End (Ben & Darren)
 - Account management (TBD)
 - Join matches via the a CLI client (or maybe [SSH](https://github.com/charmbracelet/wish), let's see) (TBD)
@@ -38,36 +39,38 @@
 ### Websockets
 
 - Use `wscat` to connect to the websocket server via Caddy:
-  - `wscat -c ws://localhost:8080/ws`
-  - `wscat -c localhost:8080/ws`
-  - `wscat -nc wss://localhost:8443/ws`
+    - `wscat -c ws://localhost:8080/ws`
+    - `wscat -c localhost:8080/ws`
+    - `wscat -nc wss://localhost:8443/ws`
 - Or connect directly via the backend, by patching `compose.yaml`
-  ```diff
 
-      backend:
-  +       ports:
-  +           - "3000:${BACKEND_PORT:3000}"
-          build:
-              context: "./backend/"
-  ```
-  - `wscat -c localhost:3000/ws` (no wss)
+    ```diff
+
+        backend:
+    +       ports:
+    +           - "3000:${BACKEND_PORT:3000}"
+            build:
+                context: "./backend/"
+    ```
+
+    - `wscat -c localhost:3000/ws` (no wss)
 
 ### Coraza Web Application Firewall (WAF)
 
 - Checking it it's enabled
-  - `curl -vk https://localhost:8443/?exec=/bin/bash` should return `403 Forbidden`
+    - `curl -vk https://localhost:8443/?exec=/bin/bash` should return `403 Forbidden`
 - Disabling it
-  ```Caddy
-      handle {
-  -       import waf
-          root * /srv
-          file_server
-      }
-      handle_path /api/* {
-  -       import waf
-          reverse_proxy http://backend:{$BACKEND_PORT:3000}
-      }
-  ```
+    ```Caddy
+        handle {
+    -       import waf
+            root * /srv
+            file_server
+        }
+        handle_path /api/* {
+    -       import waf
+            reverse_proxy http://backend:{$BACKEND_PORT:3000}
+        }
+    ```
 
 ## License
 
