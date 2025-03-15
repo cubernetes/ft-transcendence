@@ -54,11 +54,11 @@ down:
 .PHONY: clean
 clean: down
 	$(D) system prune --force
-	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
-	$(RM) -r web/node_modules/ web/dist/
 
 .PHONY: deepclean
 deepclean:
+	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
+	$(RM) -r web/node_modules/ web/dist/
 	@printf '\033[33mWarning: %b\033[m'                                         \
 		"You're about the delete ALL:\n"                                        \
 		" - containers (running or not)\n"                                      \
