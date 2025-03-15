@@ -3,7 +3,7 @@ import { createGamePage } from "../pages/GamePage";
 import { createProfilePage } from "../pages/ProfilePage";
 import { createLeaderboardPage } from "../pages/LeaderboardPage";
 
-export function createRouter(container: HTMLElement): void {
+export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {
         home: createHomePage,
         game: createGamePage,
@@ -39,4 +39,4 @@ export function createRouter(container: HTMLElement): void {
 
     // Initial route
     handleRouteChange();
-}
+};
