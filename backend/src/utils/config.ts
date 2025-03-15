@@ -4,6 +4,7 @@ import path from "path";
 import type { FastifyInstance, FastifyServerOptions } from "fastify";
 import type { PinoLoggerOptions } from "fastify/types/logger";
 import { z, ZodError } from "zod";
+import { GameState } from "../game/game.types";
 
 const configSchema = z.object({
     BACKEND_PORT: z.coerce
@@ -41,6 +42,15 @@ const formatError = (error: unknown) => {
     };
 };
 
+const formatGameState = (state: GameState) => {
+    return {
+        ballPosition: `x: ${state.ballPosition.x}, y: ${state.ballPosition.y}, z: ${state.ballPosition.z}`,
+        paddle1Position: `x: ${state.paddlePosition["player-1"].x}, y: ${state.paddlePosition["player-1"].y}, z: ${state.paddlePosition["player-1"].z}`,
+        paddle2Position: `x: ${state.paddlePosition["player-2"].x}, y: ${state.paddlePosition["player-2"].y}, z: ${state.paddlePosition["player-2"].z}`,
+        score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,
+    };
+};
+
 const devLoggerConfig: PinoLoggerOptions = {
     level: "debug", // More detailed logs in dev
     transport: {
@@ -51,7 +61,7 @@ const devLoggerConfig: PinoLoggerOptions = {
             ignore: "pid,hostname", // Hides unnecessary fields
         },
     },
-    serializers: { err: formatError },
+    serializers: { err: formatError, gameState: formatGameState },
 };
 
 const prodLoggerConfig: PinoLoggerOptions = { level: "info" };
