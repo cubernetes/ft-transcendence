@@ -12,7 +12,7 @@ services:
             - ft-transcendence-net
         volumes:
             - "caddy_data:/srv/.local/share/caddy/"
-            - "./app/dist/:/srv/app/:ro"
+            - "app:/srv/app/:ro"
         environment:
             - "DOMAINS=${DOMAINS:-localhost}"
             - "CADDY_EXTRA_GLOBAL_DIRECTIVES=${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
@@ -33,7 +33,7 @@ services:
       container_name: app
       restart: unless-stopped
       volumes:
-        - "./app/dist/:/app/dist/:ro"
+        - "app:/app/dist/"
       env_file:
         - .env
         - config.env
@@ -59,6 +59,7 @@ services:
 volumes:
     caddy_data:
     drizzle:
+    app:
 
 networks:
     ft-transcendence-net:

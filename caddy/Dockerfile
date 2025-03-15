@@ -8,7 +8,7 @@ RUN apk update && apk add build-base
 RUN CGO_ENABLED=1 XCADDY_GO_BUILD_FLAGS="-ldflags='-linkmode external -extldflags -static'" \
 	xcaddy build --with github.com/corazawaf/coraza-caddy/v2
 
-# always try to make PID 1 unprivileged
+# make PID 1 unprivileged
 RUN addgroup caddy
 RUN adduser -h /srv/ -S caddy -G caddy
 
@@ -21,9 +21,6 @@ COPY                ./Caddyfile /etc/caddy/Caddyfile
 
 RUN rm -rf /srv/ && mkdir -p /srv/.local/share/caddy/
 
-# Copy built site from Node.js build stage
-# COPY --from=web-builder --chown=caddy:caddy /app/dist/ /app/public/ /srv/
-
 RUN chown -R caddy:caddy /srv/
 
 WORKDIR /srv/
@@ -31,7 +28,7 @@ WORKDIR /srv/
 EXPOSE 8080
 EXPOSE 8443
 
-VOLUME ["/srv/.local/share/caddy/"]
+VOLUME /srv/.local/share/caddy/ /srv/app/
 
 USER caddy
 
