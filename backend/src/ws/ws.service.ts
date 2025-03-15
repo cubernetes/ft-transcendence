@@ -42,6 +42,7 @@ export const createWsService = (fastify: FastifyInstance) => {
         if (!gameSessions.has(gameId)) {
             const state: GameState = {
                 ballPosition: { x: 0, y: 0, z: 0 },
+                // TODO: GAME_CONSTANTS defeinitely shouldn't be here, pull from service if needed?
                 paddlePosition: {
                     "player-1": { x: -GAME_CONSTANTS.BOARD_WIDTH / 2 + 0.5, y: 0.5, z: 0 },
                     "player-2": { x: GAME_CONSTANTS.BOARD_WIDTH / 2 - 0.5, y: 0.5, z: 0 },

@@ -8,7 +8,7 @@ import {
     Vector3,
     Color3,
 } from "@babylonjs/core";
-import { GAME_CONFIG } from "./GameConfig";
+import { getObjectConfigs, gameConfig, ObjectConfig } from "./GameConfig";
 
 export class SceneSetup {
     static setupScene(scene: Scene): void {
@@ -45,17 +45,18 @@ export class SceneSetup {
         camera.inputs.clear();
     }
 
-    static createGameObjects(scene: Scene): {
+    static async createGameObjects(scene: Scene): Promise<{
         board: Mesh;
         paddle1: Mesh;
         paddle2: Mesh;
         ball: Mesh;
-    } {
+    }> {
+        const objectConfigs = (await (await getObjectConfigs()).json()) as unknown as ObjectConfig;
+
         // Define consts
-        const objectConfigs = GAME_CONFIG.objectConfigs;
-        const positions = GAME_CONFIG.positions;
-        const rotations = GAME_CONFIG.rotations;
-        const materials = GAME_CONFIG.materials;
+        const positions = gameConfig.positions;
+        const rotations = gameConfig.rotations;
+        const materials = gameConfig.materials;
         const boardMaterial = new StandardMaterial("board", scene);
         const paddleMaterial = new StandardMaterial("paddle", scene);
         const ballMaterial = new StandardMaterial("ball", scene);

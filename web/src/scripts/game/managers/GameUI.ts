@@ -47,14 +47,14 @@ export class GameUIManager {
         });
     }
 
-    initGame() {
+    async initGame() {
         const engine = new Engine(this.gameSection);
         const scene = new Scene(engine);
 
         SceneSetup.setupScene(scene);
         SceneSetup.setCamera(scene);
 
-        const { board, paddle1, paddle2, ball } = SceneSetup.createGameObjects(scene);
+        const { board, paddle1, paddle2, ball } = await SceneSetup.createGameObjects(scene);
         this.gameStateManager.setBall(ball);
         this.gameStateManager.setPaddles(paddle1, paddle2);
 

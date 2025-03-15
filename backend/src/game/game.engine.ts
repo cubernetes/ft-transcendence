@@ -1,7 +1,6 @@
-import { GameState, GameConstants, CollisionEvent } from "./game.types.ts";
+import { GameState, GameConfig, CollisionEvent } from "./game.types.ts";
 
-// Define game constants in one place
-export const GAME_CONSTANTS: GameConstants = {
+export const GAME_CONSTANTS: GameConfig = {
     BOARD_WIDTH: 20,
     BOARD_HEIGHT: 0.1,
     BOARD_DEPTH: 15,

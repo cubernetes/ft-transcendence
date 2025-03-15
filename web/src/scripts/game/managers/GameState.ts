@@ -1,7 +1,7 @@
 import { IBabylonGameState, IServerGameState, ICollisionEvent } from "../game.types";
 import { AudioManager } from "./Audio";
 import { SceneSetup } from "../SceneSetup";
-import { GAME_CONFIG } from "../GameConfig";
+import { gameConfig } from "../GameConfig";
 import { CreateText, Mesh, Scene, Vector3 } from "@babylonjs/core";
 
 export class GameStateManager {
@@ -78,8 +78,8 @@ export class GameStateManager {
 
         if (!text) throw new Error("Failed to create score text");
         this.state.scoreText = text;
-        this.state.scoreText.position = GAME_CONFIG.positions.SCORE;
-        this.state.scoreText.rotation.x = GAME_CONFIG.rotations.SCORE;
+        this.state.scoreText.position = gameConfig.positions.SCORE;
+        this.state.scoreText.rotation.x = gameConfig.rotations.SCORE;
     }
 
     handleCollisionEvents(gameState: IServerGameState) {

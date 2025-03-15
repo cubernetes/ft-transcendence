@@ -22,7 +22,7 @@ export type GameState = {
     collisionEvents?: CollisionEvent[];
 };
 
-export type GameConstants = {
+export type GameConfig = {
     BOARD_WIDTH: number;
     BOARD_HEIGHT: number;
     BOARD_DEPTH: number;

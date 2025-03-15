@@ -2,18 +2,22 @@
 //TODO: These variables should be set by the back-end not here. Maybe via an API call?
 import { Vector3, Color3 } from "@babylonjs/core";
 
-export let GAME_CONFIG = {
-    objectConfigs: {
-        PADDLE_WIDTH: 0.2,
-        PADDLE_HEIGHT: 0.3,
-        PADDLE_DEPTH: 5,
-        BALL_RADIUS: 0.3,
-        BOARD_WIDTH: 20,
-        BOARD_HEIGHT: 0.1,
-        BOARD_DEPTH: 15,
-        PADDLE_SPEED: 0.3,
-        BALL_SPEED: 0.2,
-    },
+// TODO: Maybe set up shared types for the front and back end
+export type ObjectConfig = {
+    BOARD_WIDTH: number;
+    BOARD_HEIGHT: number;
+    BOARD_DEPTH: number;
+    PADDLE_WIDTH: number;
+    PADDLE_HEIGHT: number;
+    PADDLE_DEPTH: number;
+    BALL_RADIUS: number;
+    PADDLE_SPEED: number;
+    BALL_SPEED: number;
+};
+
+export const getObjectConfigs = () => fetch("/api/games/config");
+
+export const gameConfig = {
     positions: {
         SCORE: new Vector3(0, 0, 8),
         //TODO: The 20 is hardcoded. This should be calculated based on the board width
