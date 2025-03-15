@@ -1,29 +1,27 @@
 {
     "name": "ft-transcendence",
     "version": "1.0.0",
+    "type": "module",
     "scripts": {
+        "build": "tsc --noEmit && npm run build:css && npm run build:js",
+        "build:dev": "concurrently \"npm run build:css:dev\" \"npm run build:js:dev\"",
+        "build:css": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/output.css --minify",
+        "build:css:dev": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/output.css --watch --verbose",
+        "build:js": "node esbuild.config.js",
+        "build:js:dev": "node esbuild.config.js --watch",
         "compile": "tsc",
-        "build": "npm run build:css && webpack --mode production",
-        "build:dev": "npm run build:css && webpack --watch",
-        "build:css": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/styles/output.css",
-        "dev": "npm install && npm run compile && npm run build && webpack serve --mode development",
-        "clean": "rm -rf dist && rm -rf node_modules"
+        "dev": "npm install && npm run compile && npm run build && webpack serve --mode development"
     },
     "dependencies": {
-        "@types/earcut": "^3.0.0",
         "@babylonjs/core": "^7.51.3",
-        "css-loader": "^7.1.2",
+        "@types/earcut": "^3.0.0",
         "earcut": "^3.0.1",
-        "style-loader": "^4.0.0",
         "tailwindcss": "3.4.17",
-        "ts-loader": "^9.5.2",
-        "typescript": "^5.7.3",
-        "webpack": "^5.98.0",
-        "webpack-cli": "^6.0.1",
-        "copy-webpack-plugin": "^11.0.0"
+        "typescript": "^5.7.3"
     },
     "devDependencies": {
         "@babylonjs/inspector": "^7.52.2",
-        "webpack-dev-server": "^5.2.0"
+        "concurrently": "^9.1.2",
+        "esbuild": "^0.25.1"
     }
 }

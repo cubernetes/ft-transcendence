@@ -1,4 +1,3 @@
-import "../../dist/styles/output.css";
 import { createRouter } from "./router/Router";
 
 const launchSite = (): void => {

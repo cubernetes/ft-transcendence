@@ -12,6 +12,9 @@ RUN npm clean-install
 
 COPY ./ ./
 
+COPY ./src/public ./dist
+COPY ./src/assets ./dist/assets
+
 RUN npm run build
 
 ENV WATCH 0
