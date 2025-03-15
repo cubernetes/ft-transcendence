@@ -33,8 +33,22 @@ dev: check-env
 	WATCH="1"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build -d
-	$(DC) up -d --build
+	$(DC) up --build --detach
+
+# Not sure how to deduplicate this...
+.PHONY: watch
+watch: check-env
+	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
+	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
+	[ -n "$(DEV_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(DEV_HTTP_PORT)"   \
+	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
+	DOMAINS="$(DEV_DOMAINS)"       \
+	NODE_ENV="development"         \
+	WATCH="1"                      \
+	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
+	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
+	$(DC) up --build --watch
 
 .PHONY: prod
 prod: check-env
@@ -45,10 +59,10 @@ prod: check-env
 	HTTPS_PORT="$(PROD_HTTPS_PORT)" \
 	DOMAINS="$(PROD_DOMAINS)"       \
 	NODE_ENV="production"           \
+	WATCH="0"                       \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	WATCH="0" \
-	$(DC) up --build -d
+	$(DC) up --build --detach
 
 .PHONY: down
 down:
@@ -57,6 +71,7 @@ down:
 .PHONY: clean
 clean: down
 	$(D) system prune --force
+	$(D) volume rm --force ft-transcendence_app
 
 .PHONY: deepclean
 deepclean:

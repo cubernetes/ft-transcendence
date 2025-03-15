@@ -25,22 +25,26 @@ services:
                   action: sync
                   target: "/etc/caddy/Caddyfile"
         env_file:
-          - .env
-          - config.env
+            - .env
+            - config.env
 
     app:
-      build: "./app/"
-      container_name: app
-      restart: unless-stopped
-      volumes:
-        - "app:/app/dist/"
-      env_file:
-        - .env
-        - config.env
+        build: "./app/"
+        container_name: app
+        restart: unless-stopped
+        volumes:
+            - "app:/app/dist/"
+        develop:
+            watch:
+                - path: "./app/"
+                  action: sync
+                  target: "/app/"
+        env_file:
+            - .env
+            - config.env
 
     backend:
-        build:
-            context: "./backend/"
+        build: "./backend/"
         container_name: backend
         restart: unless-stopped
         networks:

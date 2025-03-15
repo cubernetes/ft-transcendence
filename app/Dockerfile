@@ -12,4 +12,8 @@ RUN npm clean-install
 
 COPY ./ ./
 
-RUN npm run build
+#RUN npm run build
+
+COPY ./public/ /app/dist/
+
+CMD npm run build:dev
