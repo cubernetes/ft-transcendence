@@ -30,21 +30,6 @@ dev: check-env
 	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
 	DOMAINS="$(DEV_DOMAINS)"       \
 	NODE_ENV="development"         \
-	WATCH="0"                      \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
-	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build --detach
-
-# Not sure how to deduplicate this...
-.PHONY: watch
-watch: check-env
-	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
-	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
-	[ -n "$(DEV_DOMAINS)" ]    &&  \
-	HTTP_PORT="$(DEV_HTTP_PORT)"   \
-	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
-	DOMAINS="$(DEV_DOMAINS)"       \
-	NODE_ENV="development"         \
 	WATCH="1"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
