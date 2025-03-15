@@ -12,7 +12,7 @@ RUN npm clean-install
 
 COPY ./ ./
 
-RUN if [ "$WATCH" = "0" ]; then npm run build; fi
+RUN npm run build
 
 #ENV WATCH $WATCH
 
