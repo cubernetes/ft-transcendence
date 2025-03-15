@@ -32,4 +32,9 @@ COPY . .
 
 ### RUN npm install --production
 
-CMD if [ "$WATCH" = "0" ]; then { npm run build && npm start; }; else npm run start:dev; fi
+CMD if [ "$WATCH" = "0" ]; then \
+		npm run build && \
+		npm start; \
+	else \
+		npm run start:dev; \
+	fi
