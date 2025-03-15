@@ -4,6 +4,7 @@
     "scripts": {
         "compile": "tsc",
         "build": "npm run build:css && webpack --mode production",
+        "build:dev": "npm run build:css && webpack --watch --mode production",
         "build:css": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/styles/output.css",
         "dev": "npm install && npm run compile && npm run build && webpack serve --mode development",
         "clean": "rm -rf dist && rm -rf node_modules"
