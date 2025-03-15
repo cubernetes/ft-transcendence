@@ -6,7 +6,6 @@
     "scripts": {
         "start": "node dist/index.js",
         "start:dev": "npx nodemon dist/index.js --watch",
-        "dev": "DB_PATH=./drizzle/db.sqlite JWT_SECRET=secret NODE_ENV=development npx tsx watch src/index.ts",
         "db:migrate": "npx drizzle-kit migrate",
         "build": "tsc --noEmit && node esbuild.config.js",
         "build:dev": "node esbuild.config.js --watch",
