@@ -30,9 +30,11 @@ dev: check-env
 	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
 	DOMAINS="$(DEV_DOMAINS)"       \
 	NODE_ENV="development"         \
+	WATCH="1"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
 	$(DC) up --build -d
+	$(DC) up -d --build
 
 .PHONY: prod
 prod: check-env
@@ -45,6 +47,7 @@ prod: check-env
 	NODE_ENV="production"           \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
+	WATCH="0" \
 	$(DC) up --build -d
 
 .PHONY: down

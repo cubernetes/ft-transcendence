@@ -35,6 +35,9 @@ VOLUME ["/srv/.local/share/caddy/"]
 
 USER caddy
 
-CMD ["/usr/bin/caddy", "run", \
-	"--adapter", "caddyfile", \
-	"--config", "/etc/caddy/Caddyfile"]
+ENV WATCH 0
+
+CMD /usr/bin/caddy run  \
+	--watch=$WATCH      \
+	--adapter caddyfile \
+	--config /etc/caddy/Caddyfile

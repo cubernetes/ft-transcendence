@@ -18,14 +18,16 @@ services:
             - "CADDY_EXTRA_GLOBAL_DIRECTIVES=${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
             - "CADDY_EXTRA_SITE_DIRECTIVES=${CADDY_EXTRA_SITE_DIRECTIVES:-}"
             - "BACKEND_PORT=${BACKEND_PORT:-3000}"
+            - "WATCH=${WATCH:-0}"
         develop:
             watch:
                 - path: "./caddy/Caddyfile"
-                  action: rebuild
+                  action: sync
                   target: "/etc/caddy/Caddyfile"
         env_file:
           - .env
           - config.env
+
     app:
       build: "./app/"
       container_name: app
