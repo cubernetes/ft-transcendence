@@ -88,7 +88,7 @@ re: clean
 
 .PHONY: npm-install
 npm-install:
-	npm --prefix=web install
+	npm --prefix=app install
 	npm --prefix=backend install
 
 .PHONY: test
