@@ -18,7 +18,7 @@
 	}
 }
 
-{$DOMAINS:localhost} {
+:8080 {$DOMAINS:localhost} {
 	{$CADDY_EXTRA_SITE_DIRECTIVES}
 	log
 	handle {
