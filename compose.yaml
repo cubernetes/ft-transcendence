@@ -66,10 +66,10 @@ services:
             watch:
                 - path: "./backend/"
                   action: sync
-                  target: "/backend/"
+                  target: "/app/"
                 - path: "./backend/package.json"
                   action: sync+restart
-                  target: "/backend/package.json"
+                  target: "/app/package.json"
         env_file:
             - .env
             - config.env
