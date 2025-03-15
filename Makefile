@@ -58,10 +58,14 @@ clean: down
 	$(D) system prune --force
 	$(D) volume rm --force ft-transcendence_app
 
-.PHONY: deepclean
-deepclean:
+.PHONY: fclean
+fclean: clean
 	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
-	$(RM) -r web/node_modules/ web/dist/
+	$(RM) -r app/node_modules/ app/dist/
+	$(D) volume rm --force ft-transcendence_drizzle
+
+.PHONY: deepclean
+deepclean: fclean
 	@printf '\033[33mWarning: %b\033[m'                                         \
 		"You're about the delete ALL:\n"                                        \
 		" - containers (running or not)\n"                                      \
