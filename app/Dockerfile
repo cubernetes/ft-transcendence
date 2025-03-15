@@ -12,8 +12,8 @@ RUN npm clean-install
 
 COPY ./ ./
 
-RUN test "$WATCH" = "0" && npm run build || true
+RUN if [ "$WATCH" = "0" ]; then npm run build; fi
 
 #ENV WATCH $WATCH
 
-CMD test "$WATCH" = "l" && npm run build:dev || true
+CMD if [ "$WATCH" = "1" ]; then npm run build:dev; fi
