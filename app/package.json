@@ -4,13 +4,11 @@
     "type": "module",
     "scripts": {
         "build": "tsc --noEmit && npm run build:css && npm run build:js",
-        "build:dev": "concurrently \"npm run build:css:dev\" \"npm run build:js:dev\"",
+        "build:dev": "tsc --noEmit && concurrently \"npm run build:css:dev\" \"npm run build:js:dev\"",
         "build:css": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/output.css --minify",
         "build:css:dev": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/output.css --watch --verbose",
         "build:js": "node esbuild.config.js",
-        "build:js:dev": "node esbuild.config.js --watch",
-        "compile": "tsc",
-        "dev": "npm install && npm run compile && npm run build && webpack serve --mode development"
+        "build:js:dev": "node esbuild.config.js --watch"
     },
     "dependencies": {
         "@babylonjs/core": "^7.51.3",
