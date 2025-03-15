@@ -30,7 +30,7 @@ dev: check-env
 	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
 	DOMAINS="$(DEV_DOMAINS)"       \
 	NODE_ENV="development"         \
-	WATCH="1"                      \
+	WATCH="0"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
 	$(DC) up --build --detach
