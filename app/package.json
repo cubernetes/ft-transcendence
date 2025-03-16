@@ -4,11 +4,12 @@
     "type": "module",
     "scripts": {
         "build": "tsc --noEmit && npm run build:css && npm run build:js",
-        "build:dev": "tsc --noEmit && concurrently \"npm run build:css:dev\" \"npm run build:js:dev\"",
+        "build:dev": "tsc --noEmit && concurrently \"npm run build:css:dev\" \"npm run build:js:dev\" \"npm run reload\"",
         "build:css": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/output.css --minify",
         "build:css:dev": "npx tailwindcss -i ./src/styles/styles.css -o ./dist/output.css --watch",
         "build:js": "node esbuild.config.js",
-        "build:js:dev": "node esbuild.config.js --watch"
+        "build:js:dev": "node esbuild.config.js --watch",
+        "reload": "node reload-server.js"
     },
     "dependencies": {
         "@babylonjs/core": "^7.51.3",
@@ -19,7 +20,10 @@
     },
     "devDependencies": {
         "@babylonjs/inspector": "^7.52.2",
+        "chokidar": "^4.0.3",
         "concurrently": "^9.1.2",
-        "esbuild": "^0.25.1"
+        "esbuild": "^0.25.1",
+        "fs-extra": "^11.3.0",
+        "ws": "^8.18.1"
     }
 }

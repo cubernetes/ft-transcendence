@@ -33,6 +33,8 @@ services:
         build: "./app/"
         container_name: app
         restart: no
+        ports:
+            - "35729:35729" # Live-reload port
         environment:
             - "WATCH=${WATCH:-0}"
         volumes:
@@ -46,6 +48,12 @@ services:
                 - path: "./app/package.json"
                   action: rebuild
                   target: "/app/package.json"
+                - path: "./app/esbuild.config.js"
+                  action: rebuild
+                  target: "/app/esbuild.config.js"
+                - path: "./app/reload-server.js"
+                  action: rebuild
+                  target: "/app/reload-server.js"
         env_file:
             - .env
             - config.env
@@ -72,6 +80,9 @@ services:
                 - path: "./backend/package.json"
                   action: rebuild
                   target: "/app/package.json"
+                - path: "./backend/esbuild.config.js"
+                  action: rebuild
+                  target: "/app/esbuild.config.js"
         env_file:
             - .env
             - config.env
