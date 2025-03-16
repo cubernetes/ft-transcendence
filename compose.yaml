@@ -41,6 +41,8 @@ services:
                 - path: "./app/"
                   action: rebuild # Sync is the perferred choice
                   target: "/app/"
+                  ignore:
+                      - node_modules/
                 - path: "./app/package.json"
                   action: rebuild
                   target: "/app/package.json"
@@ -67,6 +69,8 @@ services:
                 - path: "./backend/"
                   action: rebuild # Sync is the perferred choice
                   target: "/app/"
+                  ignore:
+                      - node_modules/
                 - path: "./backend/package.json"
                   action: rebuild
                   target: "/app/package.json"
