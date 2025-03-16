@@ -1,4 +1,5 @@
 import { SoundType } from "../game.types";
+import { ASSETS_DIR } from "../../config";
 
 export class AudioManager {
     private sounds: {
@@ -8,11 +9,11 @@ export class AudioManager {
     } = {};
 
     constructor() {
-        this.sounds.background = new Audio("assets/neon-gaming.mp3");
+        this.sounds.background = new Audio(`${ASSETS_DIR}/neon-gaming.mp3`);
         this.sounds.background.loop = true;
 
-        this.sounds.bounce = new Audio("assets/bounce.mp3");
-        this.sounds.hit = new Audio("assets/hit.mp3");
+        this.sounds.bounce = new Audio(`${ASSETS_DIR}/bounce.mp3`);
+        this.sounds.hit = new Audio(`${ASSETS_DIR}/hit.mp3`);
     }
 
     playSound(type: SoundType): void {
