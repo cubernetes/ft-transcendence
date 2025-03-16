@@ -25,12 +25,10 @@ export const createRouter = (container: HTMLElement): void => {
             currentPage.dispatchEvent(new Event("destroy"));
         }
 
-        // Clear the container
-        container.innerHTML = "";
-
         // Render the appropriate page
         const createPage = routes[route];
         const pageEl = await createPage();
+        container.innerHTML = "";
         container.appendChild(pageEl);
     }
 
