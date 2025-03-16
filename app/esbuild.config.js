@@ -13,7 +13,8 @@ const context = await esbuild.context({
     minify: isProd, // Minify in production
     sourcemap: !isProd, // Disable sourcemaps in production
     define: {
-        "process.env.WATCH": watch ? "1" : "0",
+        "process.env.WATCH": JSON.stringify(watch ? "1" : "0"),
+        "process.env.NODE_ENV": JSON.stringify(isProd ? "production" : "development"),
     },
 });
 

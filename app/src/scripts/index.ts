@@ -11,9 +11,9 @@ document.addEventListener("DOMContentLoaded", launchSite);
 
 /** Register WebSocket for live reload */
 declare const process: { env: { WATCH: string } };
-if (process.env.WATCH == "1") {
+if (process.env.WATCH === "1") {
     const ws = new WebSocket("ws://localhost:35729");
-    console.log("WebSocket for live reloadconnected");
+    console.log("WebSocket for live reload connected");
     ws.onmessage = (msg) => {
         if (msg.data === "reload") {
             location.reload();
