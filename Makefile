@@ -88,8 +88,8 @@ re: clean
 
 .PHONY: npm-install
 npm-install:
-	npm --prefix=app install
-	npm --prefix=backend install
+	npm --prefix=app clean-install
+	npm --prefix=backend clean-install
 
 .PHONY: test
 test: npm-install
