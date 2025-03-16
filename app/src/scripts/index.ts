@@ -8,3 +8,14 @@ const launchSite = (): void => {
 };
 
 document.addEventListener("DOMContentLoaded", launchSite);
+
+/** Register WebSocket for live reload */
+declare const process: { env: { WATCH: string } };
+if (process.env.WATCH === "1") {
+    const ws = new WebSocket("ws://localhost:35729");
+    ws.onmessage = (msg) => {
+        if (msg.data === "reload") {
+            location.reload();
+        }
+    };
+}
