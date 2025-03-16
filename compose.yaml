@@ -39,10 +39,10 @@ services:
         develop:
             watch:
                 - path: "./app/"
-                  action: sync
+                  action: rebuild # Sync is the perferred choice
                   target: "/app/"
                 - path: "./app/package.json"
-                  action: sync+restart
+                  action: rebuild
                   target: "/app/package.json"
         env_file:
             - .env
@@ -65,10 +65,10 @@ services:
         develop:
             watch:
                 - path: "./backend/"
-                  action: sync
+                  action: rebuild # Sync is the perferred choice
                   target: "/app/"
                 - path: "./backend/package.json"
-                  action: sync+restart
+                  action: rebuild
                   target: "/app/package.json"
         env_file:
             - .env
