@@ -22,7 +22,7 @@ check-env:
 	}
 
 .PHONY: dev
-dev: check-env
+dev: check-env rm_app_vol
 	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
 	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
 	[ -n "$(DEV_DOMAINS)" ]    &&  \
@@ -36,7 +36,8 @@ dev: check-env
 	$(DC) up --build --watch
 
 .PHONY: prod
-prod: check-env
+prod: check-env rm_app_vol
+	$(MAKE) rm_app_vol
 	[ -n "$(PROD_HTTP_PORT)" ]  &&  \
 	[ -n "$(PROD_HTTPS_PORT)" ] &&  \
 	[ -n "$(PROD_DOMAINS)" ]    &&  \
@@ -53,10 +54,14 @@ prod: check-env
 down:
 	$(DC) down
 
-.PHONY: clean
-clean: down
-	$(D) system prune --force
+.PHONY: rm_app_vol
+rm_app_vol: down
 	$(D) volume rm --force ft-transcendence_app
+
+.PHONY: clean
+clean:
+	$(MAKE) rm_app_vol
+	$(D) system prune --force
 
 .PHONY: fclean
 fclean: clean
