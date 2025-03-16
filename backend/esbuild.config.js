@@ -10,8 +10,8 @@ const context = await esbuild.context({
     target: ["node23"],
     outdir: "dist",
     format: "esm",
-    minify: isProd, // minify in production
-    sourcemap: !isProd, // disable sourcemaps in production
+    minify: isProd, // Minify in production
+    sourcemap: !isProd, // Disable sourcemaps in production
     packages: "external",
     define: {
         /** Define process.env.NODE_ENV to eliminate dead code in production */

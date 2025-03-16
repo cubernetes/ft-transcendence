@@ -3,6 +3,7 @@ import { AudioManager } from "./Audio";
 import { SceneSetup } from "../SceneSetup";
 import { gameConfig } from "../GameConfig";
 import { CreateText, Mesh, Scene, Vector3 } from "@babylonjs/core";
+import { ASSETS_DIR } from "../../config";
 
 export class GameStateManager {
     private state: IBabylonGameState = {
@@ -60,7 +61,9 @@ export class GameStateManager {
         this.state.score = gameState.score;
 
         if (!this.state.fontData)
-            this.state.fontData = await (await fetch("assets/Montserrat_Regular.json")).json();
+            this.state.fontData = await (
+                await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
+            ).json();
         if (this.state.scoreText) this.state.scoreText.dispose();
 
         // Create initial score text

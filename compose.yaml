@@ -1,10 +1,9 @@
 name: ft-transcendence
 
 services:
-    web:
-        build:
-            context: "./web/"
-        container_name: web
+    caddy:
+        build: "./caddy/"
+        container_name: caddy
         restart: unless-stopped
         ports:
             - "${HTTP_PORT:-8080}:8080"
@@ -12,35 +11,67 @@ services:
         networks:
             - ft-transcendence-net
         volumes:
-            - "caddy_data:/srv/.local/share/caddy/"
+            - "caddy_data:/app/.local/share/caddy/"
+            - "app:/app/dist/:ro"
+            # - "public:/app/src/public/:ro"
         environment:
-            - DOMAINS=${DOMAINS:-localhost}
-            - CADDY_EXTRA_GLOBAL_DIRECTIVES=${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
-            - CADDY_EXTRA_SITE_DIRECTIVES=${CADDY_EXTRA_SITE_DIRECTIVES:-}
-            - BACKEND_PORT=${BACKEND_PORT:-3000}
+            - "DOMAINS=${DOMAINS:-localhost}"
+            - "CADDY_EXTRA_GLOBAL_DIRECTIVES=${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
+            - "CADDY_EXTRA_SITE_DIRECTIVES=${CADDY_EXTRA_SITE_DIRECTIVES:-}"
+            - "BACKEND_PORT=${BACKEND_PORT:-3000}"
+            - "WATCH=${WATCH:-0}"
         develop:
-            watch: # will reload caddy when changing Caddyfile in the host system
-                - path: "./web/Caddyfile"
-                  action: rebuild
+            watch:
+                - path: "./caddy/Caddyfile"
+                  action: sync
                   target: "/etc/caddy/Caddyfile"
         env_file:
             - .env
             - config.env
 
+    app:
+        build: "./app/"
+        container_name: app
+        restart: no
+        environment:
+            - "WATCH=${WATCH:-0}"
+        volumes:
+            - "app:/app/dist/"
+            # - "public:/app/src/public/"
+        develop:
+            watch:
+                - path: "./app/"
+                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
+                  target: "/app/"
+                - path: "./app/package.json"
+                  action: rebuild
+                  target: "/app/package.json"
+        env_file:
+            - .env
+            - config.env
+
     backend:
-        build:
-            context: "./backend/"
+        build: "./backend/"
         container_name: backend
         restart: unless-stopped
         networks:
             - ft-transcendence-net
         environment:
-            - NODE_ENV=${NODE_ENV:-development}
-            - BACKEND_PORT=${BACKEND_PORT:-3000}
-            - DB_PATH=${DB_PATH:-}
-            - JWT_SECRET=${JWT_SECRET:-}
+            - "NODE_ENV=${NODE_ENV:-development}"
+            - "BACKEND_PORT=${BACKEND_PORT:-3000}"
+            - "DB_PATH=${DB_PATH:-}"
+            - "JWT_SECRET=${JWT_SECRET:-}"
+            - "WATCH=${WATCH:-0}"
         volumes:
             - "drizzle:/app/drizzle/"
+        develop:
+            watch:
+                - path: "./backend/"
+                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
+                  target: "/app/"
+                - path: "./backend/package.json"
+                  action: rebuild
+                  target: "/app/package.json"
         env_file:
             - .env
             - config.env
@@ -48,6 +79,8 @@ services:
 volumes:
     caddy_data:
     drizzle:
+    app:
+    # public: # TODO: @timo: Remove later
 
 networks:
     ft-transcendence-net:

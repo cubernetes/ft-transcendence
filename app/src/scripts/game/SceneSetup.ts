@@ -9,6 +9,7 @@ import {
     Color3,
 } from "@babylonjs/core";
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./GameConfig";
+import { ASSETS_DIR } from "../config";
 
 export class SceneSetup {
     static setupScene(scene: Scene): void {
@@ -23,7 +24,10 @@ export class SceneSetup {
             scene
         );
         const skyboxMaterial = new StandardMaterial("skyboxMaterial", scene);
-        skyboxMaterial.diffuseTexture = new Texture("./assets/sky-clouds-background.jpg", scene);
+        skyboxMaterial.diffuseTexture = new Texture(
+            `${ASSETS_DIR}/sky-clouds-background.jpg`,
+            scene
+        );
         skybox.material = skyboxMaterial;
         skybox.position.y = -1;
 

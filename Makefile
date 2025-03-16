@@ -22,7 +22,7 @@ check-env:
 	}
 
 .PHONY: dev
-dev: check-env
+dev: check-env rm_app_volumes
 	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
 	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
 	[ -n "$(DEV_DOMAINS)" ]    &&  \
@@ -30,12 +30,14 @@ dev: check-env
 	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
 	DOMAINS="$(DEV_DOMAINS)"       \
 	NODE_ENV="development"         \
+	WATCH="1"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build -d
+	$(DC) up --build --watch
 
 .PHONY: prod
-prod: check-env
+prod: check-env rm_app_volumes
+	$(MAKE) rm_app_volumes
 	[ -n "$(PROD_HTTP_PORT)" ]  &&  \
 	[ -n "$(PROD_HTTPS_PORT)" ] &&  \
 	[ -n "$(PROD_DOMAINS)" ]    &&  \
@@ -43,22 +45,33 @@ prod: check-env
 	HTTPS_PORT="$(PROD_HTTPS_PORT)" \
 	DOMAINS="$(PROD_DOMAINS)"       \
 	NODE_ENV="production"           \
+	WATCH="0"                       \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build -d
+	$(DC) up --build --detach
 
 .PHONY: down
 down:
 	$(DC) down
 
+.PHONY: rm_app_volumes
+rm_app_volumes: down
+	$(D) volume rm --force ft-transcendence_app
+	# $(D) volume rm --force ft-transcendence_public # TODO: @timo: Remove later
+
 .PHONY: clean
-clean: down
+clean:
+	$(MAKE) rm_app_volumes
 	$(D) system prune --force
 
-.PHONY: deepclean
-deepclean:
+.PHONY: fclean
+fclean: clean
 	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
-	$(RM) -r web/node_modules/ web/dist/
+	$(RM) -r app/node_modules/ app/dist/
+	$(D) volume rm --force ft-transcendence_drizzle
+
+.PHONY: deepclean
+deepclean: fclean
 	@printf '\033[33mWarning: %b\033[m'                                         \
 		"You're about the delete ALL:\n"                                        \
 		" - containers (running or not)\n"                                      \
@@ -72,8 +85,8 @@ deepclean:
 		"and consider 'make clean' instead.\n"                                  \
 		"Press ENTER to continue anyway..." && read c
 	$(MAKE) clean
-	$(D) ps --quiet -all | xargs -r $(D) rm --force # non-graceful shutdown because wdgaf
-	$(D) system prune --all --volumes --force       # dangerous
+	$(D) ps --quiet --all | xargs -r $(D) rm --force # non-graceful shutdown because wdgaf
+	$(D) system prune --all --volumes --force        # dangerous
 
 .PHONY: re
 re: clean
@@ -81,8 +94,8 @@ re: clean
 
 .PHONY: npm-install
 npm-install:
-	npm --prefix=web install
-	npm --prefix=backend install
+	npm --prefix=app clean-install
+	npm --prefix=backend clean-install
 
 .PHONY: test
 test: npm-install
