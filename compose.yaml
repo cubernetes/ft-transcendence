@@ -13,7 +13,7 @@ services:
         volumes:
             - "caddy_data:/app/.local/share/caddy/"
             - "app:/app/dist/:ro"
-            - "public:/app/src/public/:ro"
+            # - "public:/app/src/public/:ro"
         environment:
             - "DOMAINS=${DOMAINS:-localhost}"
             - "CADDY_EXTRA_GLOBAL_DIRECTIVES=${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
@@ -37,14 +37,12 @@ services:
             - "WATCH=${WATCH:-0}"
         volumes:
             - "app:/app/dist/"
-            - "public:/app/src/public/"
+            # - "public:/app/src/public/"
         develop:
             watch:
                 - path: "./app/"
-                  action: rebuild # Sync is the perferred choice
+                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
                   target: "/app/"
-                  ignore:
-                      - node_modules/
                 - path: "./app/package.json"
                   action: rebuild
                   target: "/app/package.json"
@@ -69,10 +67,8 @@ services:
         develop:
             watch:
                 - path: "./backend/"
-                  action: rebuild # Sync is the perferred choice
+                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
                   target: "/app/"
-                  ignore:
-                      - node_modules/
                 - path: "./backend/package.json"
                   action: rebuild
                   target: "/app/package.json"
@@ -84,7 +80,7 @@ volumes:
     caddy_data:
     drizzle:
     app:
-    public:
+    # public: # TODO: @timo: Remove later
 
 networks:
     ft-transcendence-net:

@@ -12,9 +12,10 @@ RUN npm clean-install
 
 COPY ./ ./
 
-RUN rm -rf ./dist/ && mkdir -p ./dist/ && \
-	ln -sf /app/src/public/index.html ./dist/index.html && \
-	ln -sf /app/src/public/assets/    ./dist/assets
+#TODO: @timo: remove later, not really needed anymore
+#RUN rm -rf ./dist/ && mkdir -p ./dist/ && \
+#	ln -sf /app/src/public/index.html ./dist/index.html && \
+#	ln -sf /app/src/public/assets/    ./dist/assets
 
 RUN npm run build
 
