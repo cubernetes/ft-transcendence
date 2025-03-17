@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",           // Use ESNext modules
+        "moduleResolution": "NodeNext", // Ensure Node's next-gen module resolution
+        "target": "ES2020",           // For compatibility
+        "esModuleInterop": true,      // Interoperability between CJS and ESM
+        "skipLibCheck": true,         // Skip checking library files for performance
+        "allowJs": true,               // Allow JavaScript alongside TypeScript
+        "allowImportingTsExtensions": true // Enable importing .ts extensions
+    },
+    "include": ["src/**/*.ts"]      // Ensure the correct directory is included
+}
+  
