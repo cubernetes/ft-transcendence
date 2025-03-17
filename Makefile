@@ -33,7 +33,7 @@ dev: check-env clean-app-volumes
 	WATCH="1"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build --watch
+	$(DC) up --build --watch $(ARGS)
 
 .PHONY: prod
 prod: check-env clean-app-volumes
