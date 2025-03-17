@@ -95,9 +95,9 @@ re: clean
 
 .PHONY: install
 install:
-	npm --prefix=frontend clean-install
-	npm --prefix=backend clean-install
-
+	npm --prefix=frontend install
+	npm --prefix=backend install
+	
 .PHONY: test
 test: install
 	npm --prefix=backend test
