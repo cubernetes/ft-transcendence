@@ -1,20 +1,7 @@
-import { connectWS, sendInput } from './ws.ts';
-import { startKeyListener } from './input.ts';
-import { startRenderLoop } from './render.ts';
+import { CLIControl } from './CLIControl';
 
-async function main() {
-  console.clear();
-  console.log("Starting Pong CLI...");
+const serverUrl = 'ws://localhost:8080/ws';
+const cliControl = new CLIControl(serverUrl);
 
-  const ws = await connectWS();
-
-  startKeyListener((direction) => {
-    sendInput(ws, direction);
-  });
-
-  startRenderLoop(ws);
-}
-
-main().catch(err => {
-  console.error("Fatal:", err);
-});
+console.log("Pong CLI Game Started!");
+console.log("Use 'w' and 's' to move the paddle up and down. Arrow keys work too.");
