@@ -22,7 +22,7 @@ check-env:
 	}
 
 .PHONY: dev
-dev: check-env rm_frontend_volumes
+dev: check-env clean-app-volumes
 	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
 	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
 	[ -n "$(DEV_DOMAINS)" ]    &&  \
@@ -36,8 +36,7 @@ dev: check-env rm_frontend_volumes
 	$(DC) up --build --watch
 
 .PHONY: prod
-prod: check-env rm_frontend_volumes
-	$(MAKE) rm_frontend_volumes
+prod: check-env clean-app-volumes
 	[ -n "$(PROD_HTTP_PORT)" ]  &&  \
 	[ -n "$(PROD_HTTPS_PORT)" ] &&  \
 	[ -n "$(PROD_DOMAINS)" ]    &&  \
@@ -54,21 +53,23 @@ prod: check-env rm_frontend_volumes
 down:
 	$(DC) down
 
-.PHONY: rm_frontend_volumes
-rm_frontend_volumes: down
+.PHONY: clean-app-volumes
+clean-app-volumes: down
 	$(D) volume rm --force ft-transcendence_frontend
-	# $(D) volume rm --force ft-transcendence_public # TODO: @timo: Remove later
 
 .PHONY: clean
 clean:
-	$(MAKE) rm_frontend_volumes
+	$(MAKE) clean-app-volumes
 	$(D) system prune --force
 
+.PHONY: cleandb
+cleandb: clean
+	$(D) volume rm --force ft-transcendence_drizzle
+
 .PHONY: fclean
-fclean: clean
+fclean: clean cleandb
 	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
 	$(RM) -r frontend/node_modules/ frontend/dist/
-	$(D) volume rm --force ft-transcendence_drizzle
 
 .PHONY: deepclean
 deepclean: fclean
@@ -92,11 +93,11 @@ deepclean: fclean
 re: clean
 	$(MAKE)
 
-.PHONY: npm-install
-npm-install:
+.PHONY: install
+install:
 	npm --prefix=frontend clean-install
 	npm --prefix=backend clean-install
 
 .PHONY: test
-test: npm-install
+test: install
 	npm --prefix=backend test
