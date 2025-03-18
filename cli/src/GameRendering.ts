@@ -1,49 +1,62 @@
-import { Vec2D, Score, ICLIGameState } from './game.types';
+import { Vec2D, ICLIGameState, GameConfig } from './game.types';
+
+let GAME_CONFIG: GameConfig | null = null;
+
+export function setGameConfig(config: GameConfig) {
+	GAME_CONFIG = config;
+}
 
 export function renderGameState(state: ICLIGameState) {
+	if (!GAME_CONFIG) {
+		throw new Error("Game config not set. Call setGameConfig() before rendering.");
+	}
 	const { ball, paddle1, paddle2, score } = state;
-	const width = 80;
-	const height = 30;
-	const paddleHeight = 6;
-	
-	// Clamp and round positions
-	const clamp = (value: number, min: number, max: number) =>
-		Math.max(min, Math.min(max, Math.round(value)));
+	const config = GAME_CONFIG;
 
-	// Create empty field
-	const field: string[][] = Array.from({ length: height }, () =>
-		Array.from({ length: width }, () => ' ')
+	// Terminal dimensions (characters)
+	const TERM_WIDTH = 160;
+	const TERM_HEIGHT = 40;
+
+	// Projection factors
+	const scaleX = TERM_WIDTH / config.BOARD_WIDTH;
+	const scaleY = TERM_HEIGHT / config.BOARD_DEPTH;
+
+	// Project world coordinates to terminal grid
+	const project = (v: Vec2D): { x: number; y: number } => ({
+		x: Math.min(TERM_WIDTH - 1, Math.max(0, Math.round(v.x * scaleX + TERM_WIDTH / 2))),
+		y: Math.min(TERM_HEIGHT - 1, Math.max(0, Math.round(v.y * scaleY + TERM_HEIGHT / 2))),
+	});
+
+	const ballPos = project(ball);
+	const pad1Pos = project(paddle1);
+	const pad2Pos = project(paddle2);
+
+	const paddleHeight = Math.max(1, Math.round(config.PADDLE_DEPTH * scaleY));
+
+	// Empty field
+	const field: string[][] = Array.from({ length: TERM_HEIGHT }, () =>
+		Array.from({ length: TERM_WIDTH }, () => ' ')
 	);
-
-	// Convert float positions to integers
-    const ballX = clamp(Math.round(ball.x), 0, width - 1);
-    const ballY = clamp(Math.round(ball.y), 0, height - 1);
-
-    const pad1X = clamp(Math.round(paddle1.x), 0, width - 1);
-    const pad1Y = clamp(Math.round(paddle1.y), 0, height - paddleHeight);
-
-    const pad2X = clamp(Math.round(paddle2.x), 0, width - 1);
-    const pad2Y = clamp(Math.round(paddle2.y), 0, height - paddleHeight);
 
 	// Draw paddles
 	for (let i = 0; i < paddleHeight; i++) {
-		const y1 = clamp(pad1Y + i, 0, height - 1);
-		const y2 = clamp(pad2Y + i, 0, height - 1);
-		field[y1][pad1X] = '|';
-		field[y2][pad2X] = '|';
+		const y1 = Math.min(TERM_HEIGHT - 1, pad1Pos.y + i - Math.floor(paddleHeight / 2));
+		const y2 = Math.min(TERM_HEIGHT - 1, pad2Pos.y + i - Math.floor(paddleHeight / 2));
+		field[y1][pad1Pos.x] = '|';
+		field[y2][pad2Pos.x] = '|';
 	}
 
 	// Draw ball
-	field[ballY][ballX] = 'O';
+	field[ballPos.y][ballPos.x] = 'O';
 
 	// Clear and print
 	console.clear();
 	console.log(`Score: Player 1 - ${score.player1} : ${score.player2} - Player 2`);
 	
-	const topBorder = '+' + '-'.repeat(width) + '+';
-	console.log(topBorder);
+	const border = '+' + '-'.repeat(TERM_WIDTH) + '+';
+	console.log(border);
 	for (const row of field) {
 		console.log('|' + row.join('') + '|');
 	}
-	console.log(topBorder);
+	console.log(border);
 }
