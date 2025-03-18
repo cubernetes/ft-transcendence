@@ -60,7 +60,7 @@
 - Checking it it's enabled
     - `curl -vk https://localhost:8443/?exec=/bin/bash` should return `403 Forbidden`
 - Disabling it
-    ```Caddy
+    ```diff
         handle {
     -       import waf
             root * /srv
