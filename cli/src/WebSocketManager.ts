@@ -1,4 +1,4 @@
-import { ICLIGameState, IServerGameState, Vec2D } from './game.types';
+import { ICLIGameState, IServerGameState } from './game.types';
 import WebSocket from 'ws';
 import { renderGameState } from './GameRendering';
 import { vec3ToVec2D } from './utils';

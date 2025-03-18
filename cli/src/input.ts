@@ -19,13 +19,13 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
       if (key.name === 'up' && !upPressed) {
         upPressed = true;
         downPressed = false;
-        onDir('up');
+        onDir('down');
       } 
 
       else if (key.name === 'down' && !downPressed) {
         downPressed = true;
         upPressed = false;
-        onDir('down');
+        onDir('up');
       }
 
       if (key.name === 'space') {
@@ -41,8 +41,3 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
     }
   });
 }
-
-// Example usage
-startKeyListener((d) => {
-  console.log(`Direction: ${d}`);
-});
