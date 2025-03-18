@@ -24,8 +24,11 @@ services:
         networks:
             - ft-transcendence-net
         volumes:
-            - "caddy_data:/app/.local/share/caddy/"
-            - "app:/app/dist/:ro"
+            - "caddy_data:/frontend/.local/share/caddy/"
+            - "frontend:/frontend/dist/:ro"
+            # - "public:/frontend/src/public/:ro"
+            - "caddy_data:/frontend/.local/share/caddy/"
+            - "frontend:/frontend/dist/:ro"
         environment:
             <<: *env-common
             DOMAINS: ${DOMAINS:-localhost}
@@ -38,29 +41,29 @@ services:
                   target: "/etc/caddy/Caddyfile"
         env_file: *env-files
 
-    app:
-        build: "./app/"
-        container_name: app
+    frontend:
+        build: "./frontend/"
+        container_name: frontend
         restart: no
         ports:
             - "35729:35729" # Live-reload port
         environment: *watch-common
         volumes:
-            - "app:/app/dist/"
+            - "frontend:/frontend/dist/"
         develop:
             watch:
-                - path: "./app/"
+                - path: "./frontend/"
                   action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
-                  target: "/app/"
-                - path: "./app/package.json"
+                  target: "/frontend/"
+                - path: "./frontend/package.json"
                   action: rebuild
-                  target: "/app/package.json"
-                - path: "./app/esbuild.config.js"
+                  target: "/frontend/package.json"
+                - path: "./frontend/esbuild.config.js"
                   action: rebuild
-                  target: "/app/esbuild.config.js"
-                - path: "./app/reload-server.js"
+                  target: "/frontend/esbuild.config.js"
+                - path: "./frontend/reload-server.js"
                   action: rebuild
-                  target: "/app/reload-server.js"
+                  target: "/frontend/reload-server.js"
         env_file: *env-files
 
     backend:
@@ -75,24 +78,24 @@ services:
             DB_PATH: ${DB_PATH:-}
             JWT_SECRET: ${JWT_SECRET:-}
         volumes:
-            - "drizzle:/app/drizzle/"
+            - "drizzle:/frontend/drizzle/"
         develop:
             watch:
                 - path: "./backend/"
                   action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
-                  target: "/app/"
+                  target: "/frontend/"
                 - path: "./backend/package.json"
                   action: rebuild
-                  target: "/app/package.json"
+                  target: "/frontend/package.json"
                 - path: "./backend/esbuild.config.js"
                   action: rebuild
-                  target: "/app/esbuild.config.js"
+                  target: "/frontend/esbuild.config.js"
         env_file: *env-files
 
 volumes:
     caddy_data:
     drizzle:
-    app:
+    frontend:
 
 networks:
     ft-transcendence-net:

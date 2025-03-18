@@ -1,9 +1,9 @@
 # Build Stage: TypeScript + Webpack
 FROM node:23.9.0-alpine3.21
 
-WORKDIR /app/
+WORKDIR /frontend/
 
-VOLUME /app/dist/
+VOLUME /frontend/dist/
 
 # Install dependencies and build
 COPY ./package*.json ./
@@ -14,8 +14,8 @@ COPY ./ ./
 
 #TODO: @timo: remove later, not really needed anymore
 #RUN rm -rf ./dist/ && mkdir -p ./dist/ && \
-#	ln -sf /app/src/public/index.html ./dist/index.html && \
-#	ln -sf /app/src/public/assets/    ./dist/assets
+#	ln -sf /frontend/src/public/index.html ./dist/index.html && \
+#	ln -sf /frontend/src/public/assets/    ./dist/assets
 
 RUN npm run build
 

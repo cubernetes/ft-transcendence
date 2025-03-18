@@ -23,7 +23,7 @@
 	log
 	handle {
 		import waf
-		root * /app/dist/
+		root * /frontend/dist/
 		file_server
 	}
 	handle_path /api/* {
