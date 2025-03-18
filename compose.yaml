@@ -1,4 +1,17 @@
+---
 name: ft-transcendence
+
+# https://github.com/docker/compose/pull/5140
+x-watch-common: &watch-common
+    WATCH: ${WATCH:-0}
+
+x-env-common: &env-common
+    <<: *watch-common
+    BACKEND_PORT: ${BACKEND_PORT:-3000}
+
+x-env-files: &env-files
+    - .env
+    - config.env
 
 services:
     caddy:
@@ -13,21 +26,17 @@ services:
         volumes:
             - "caddy_data:/app/.local/share/caddy/"
             - "app:/app/dist/:ro"
-            # - "public:/app/src/public/:ro"
         environment:
-            - "DOMAINS=${DOMAINS:-localhost}"
-            - "CADDY_EXTRA_GLOBAL_DIRECTIVES=${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
-            - "CADDY_EXTRA_SITE_DIRECTIVES=${CADDY_EXTRA_SITE_DIRECTIVES:-}"
-            - "BACKEND_PORT=${BACKEND_PORT:-3000}"
-            - "WATCH=${WATCH:-0}"
+            <<: *env-common
+            DOMAINS: ${DOMAINS:-localhost}
+            CADDY_EXTRA_GLOBAL_DIRECTIVES: ${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
+            CADDY_EXTRA_SITE_DIRECTIVES: ${CADDY_EXTRA_SITE_DIRECTIVES:-}
         develop:
             watch:
                 - path: "./caddy/Caddyfile"
                   action: sync
                   target: "/etc/caddy/Caddyfile"
-        env_file:
-            - .env
-            - config.env
+        env_file: *env-files
 
     app:
         build: "./app/"
@@ -35,11 +44,9 @@ services:
         restart: no
         ports:
             - "35729:35729" # Live-reload port
-        environment:
-            - "WATCH=${WATCH:-0}"
+        environment: *watch-common
         volumes:
             - "app:/app/dist/"
-            # - "public:/app/src/public/"
         develop:
             watch:
                 - path: "./app/"
@@ -54,9 +61,7 @@ services:
                 - path: "./app/reload-server.js"
                   action: rebuild
                   target: "/app/reload-server.js"
-        env_file:
-            - .env
-            - config.env
+        env_file: *env-files
 
     backend:
         build: "./backend/"
@@ -65,11 +70,10 @@ services:
         networks:
             - ft-transcendence-net
         environment:
-            - "NODE_ENV=${NODE_ENV:-development}"
-            - "BACKEND_PORT=${BACKEND_PORT:-3000}"
-            - "DB_PATH=${DB_PATH:-}"
-            - "JWT_SECRET=${JWT_SECRET:-}"
-            - "WATCH=${WATCH:-0}"
+            <<: *env-common
+            NODE_ENV: ${NODE_ENV:-development}
+            DB_PATH: ${DB_PATH:-}
+            JWT_SECRET: ${JWT_SECRET:-}
         volumes:
             - "drizzle:/app/drizzle/"
         develop:
@@ -83,15 +87,12 @@ services:
                 - path: "./backend/esbuild.config.js"
                   action: rebuild
                   target: "/app/esbuild.config.js"
-        env_file:
-            - .env
-            - config.env
+        env_file: *env-files
 
 volumes:
     caddy_data:
     drizzle:
     app:
-    # public: # TODO: @timo: Remove later
 
 networks:
     ft-transcendence-net:
