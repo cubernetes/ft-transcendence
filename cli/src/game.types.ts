@@ -1,14 +1,24 @@
 // Game state received from the server
 export interface IServerGameState {
-    ballPosition: Vec2D;
-    paddlePosition: { [playerId: string]: Vec2D };
-    score: { player1: number; player2: number };
+    ballPosition: Vec3D;
+    paddlePosition: { [playerId: string]: Vec3D };
+    score: Score;
     collisionEvents?: ICollisionEvent[];
 }
-
 export interface Vec2D {
     x: number;
     y: number;
+}
+
+export interface Vec3D {
+    x: number;
+    y: number;
+    z: number;
+}
+
+export interface Score {
+	player1: number;
+	player2: number;
 }
 
 export interface ICollisionEvent {

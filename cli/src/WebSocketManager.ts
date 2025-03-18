@@ -1,5 +1,7 @@
+import { ICLIGameState, IServerGameState, Vec2D } from './game.types';
 import WebSocket from 'ws';
 import { renderGameState } from './GameRendering';
+import { vec3ToVec2D } from './utils';
 
 export class WebSocketManager {
     private ws: WebSocket;
@@ -18,24 +20,21 @@ export class WebSocketManager {
 
     // Method to send a direction change to the server
     sendDirection(direction: string) {
-        const message = JSON.stringify({ type: 'move', direction });
-        this.ws.send(message);
+        console.log(`[SEND] ${direction}`);
+        this.ws.send(direction);
     }
 
     // Handle the server's game state updates
     onMessage(data: WebSocket.Data) {
-        const gameState = JSON.parse(data.toString());
-        this.updateGameState(gameState);
-    }
-
-    // Method to update the game state in the CLI
-    updateGameState(gameState: any) {
-        const ballPosition = gameState.ballPosition;
-        const paddlePosition1 = gameState.paddlePosition["player-1"];
-        const paddlePosition2 = gameState.paddlePosition["player-2"];
-        const score = gameState.score;
-
-        // Call function to render game state to CLI
-        renderGameState(ballPosition, paddlePosition1, paddlePosition2, score);
+        const rawGameState: IServerGameState = JSON.parse(data.toString());
+        const cliGameState: ICLIGameState = {
+            ball: vec3ToVec2D(rawGameState.ballPosition),
+            paddle1: vec3ToVec2D(rawGameState.paddlePosition["player-1"]),
+            paddle2: vec3ToVec2D(rawGameState.paddlePosition["player-2"]),
+            score: rawGameState.score,
+            gameRunning: true,
+            lastCollisionEvents: rawGameState.collisionEvents
+        };
+        renderGameState(cliGameState);
     }
 }
