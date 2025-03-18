@@ -27,8 +27,6 @@ services:
             - "caddy_data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
             # - "public:/frontend/src/public/:ro"
-            - "caddy_data:/frontend/.local/share/caddy/"
-            - "frontend:/frontend/dist/:ro"
         environment:
             <<: *env-common
             DOMAINS: ${DOMAINS:-localhost}
