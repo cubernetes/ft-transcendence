@@ -11,9 +11,19 @@ export class AudioManager {
     constructor() {
         this.sounds.background = new Audio(`${ASSETS_DIR}/neon-gaming.mp3`);
         this.sounds.background.loop = true;
+        this.sounds.background.onloadeddata = () => {
+            this.sounds.background!.volume = 0.1;
+        };
 
         this.sounds.bounce = new Audio(`${ASSETS_DIR}/bounce.mp3`);
+        this.sounds.bounce.onloadeddata = () => {
+            this.sounds.bounce!.volume = 0.1;
+        };
+
         this.sounds.hit = new Audio(`${ASSETS_DIR}/hit.mp3`);
+        this.sounds.hit.onloadeddata = () => {
+            this.sounds.hit!.volume = 0.1;
+        };
     }
 
     playSound(type: SoundType): void {

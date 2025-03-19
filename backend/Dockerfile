@@ -1,6 +1,6 @@
 FROM node:23.9.0-alpine3.21
 
-WORKDIR /app/
+WORKDIR /frontend/
 
 COPY ./package*.json ./
 

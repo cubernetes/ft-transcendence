@@ -10,7 +10,7 @@ RUN CGO_ENABLED=1 XCADDY_GO_BUILD_FLAGS="-ldflags='-linkmode external -extldflag
 
 # make PID 1 unprivileged
 RUN addgroup caddy
-RUN adduser -h /app/ -S caddy -G caddy
+RUN adduser -h /frontend/ -S caddy -G caddy
 
 FROM alpine:3.21.3
 
@@ -19,16 +19,16 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 COPY                ./Caddyfile /etc/caddy/Caddyfile
 
-RUN rm -rf /app/ && mkdir -p /app/.local/share/caddy/
+RUN rm -rf /frontend/ && mkdir -p /frontend/.local/share/caddy/
 
-RUN chown -R caddy:caddy /app/
+RUN chown -R caddy:caddy /frontend/
 
-WORKDIR /app/
+WORKDIR /frontend/
 
 EXPOSE 8080
 EXPOSE 8443
 
-VOLUME ["/app/.local/share/caddy/", "/app/dist/", "/app/src/public/"]
+VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/", "/frontend/src/public/"]
 
 USER caddy
 
