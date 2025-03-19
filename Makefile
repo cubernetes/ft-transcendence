@@ -22,6 +22,54 @@ check-env:
 	}
 
 .PHONY: dev
+dev-old-compose: check-env clean-app-volumes
+	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
+	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
+	[ -n "$(DEV_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(DEV_HTTP_PORT)"   \
+	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
+	DOMAINS="$(DEV_DOMAINS)"       \
+	NODE_ENV="development"         \
+	WATCH="1"                      \
+	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
+	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
+	$(DC) build
+	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
+	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
+	[ -n "$(DEV_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(DEV_HTTP_PORT)"   \
+	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
+	DOMAINS="$(DEV_DOMAINS)"       \
+	NODE_ENV="development"         \
+	WATCH="1"                      \
+	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
+	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
+	$(DC) up
+	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
+	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
+	[ -n "$(DEV_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(DEV_HTTP_PORT)"   \
+	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
+	DOMAINS="$(DEV_DOMAINS)"       \
+	NODE_ENV="development"         \
+	WATCH="1"                      \
+	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
+	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
+	$(DC) logs -f &
+	@sleep .5
+	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
+	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
+	[ -n "$(DEV_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(DEV_HTTP_PORT)"   \
+	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
+	DOMAINS="$(DEV_DOMAINS)"       \
+	NODE_ENV="development"         \
+	WATCH="1"                      \
+	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
+	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
+	$(DC) watch
+
+.PHONY: dev
 dev: check-env clean-app-volumes
 	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
 	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
