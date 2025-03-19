@@ -6,6 +6,7 @@
 //     const z = parseFloat(matches[5]);
 //     return { x, y: z }; // z becomes y in CLI (2D vertical axis)
 // }
+import { Vec2D } from './game.types';
 
 export function vec3ToVec2D(vec3: { x: number; y: number; z: number }): Vec2D {
     return {
