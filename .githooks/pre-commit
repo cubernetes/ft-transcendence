@@ -12,7 +12,7 @@ die () {
 format_staged () (
 	[ "$#" -lt 1 ] && die "format_staged function expects at least 1 extension as an argument"
 	command -v npx 1>/dev/null 2>&1 || die "Please install npx to run pre-commit hooks"
-	npx prettier -v 1>/dev/null 2>&1 || die "Please install prettier through npx to run pre-commit hooks"
+	npx prettier --version 1>/dev/null 2>&1 || die "Please install prettier through npx to run pre-commit hooks"
 
 	IFS='|'
 	if git diff --name-only --cached --diff-filter=d | \
