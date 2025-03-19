@@ -134,7 +134,7 @@ deepclean: fclean
 		"and consider 'make clean' instead.\n"                                  \
 		"Press ENTER to continue anyway..." && read c
 	$(MAKE) clean
-	$(D) ps --quiet --all | xargs -r $(D) rm --force # non-graceful shutdown because wdgaf
+	$(D) ps --quiet --all | xargs -r $(D) rm -f # non-graceful shutdown because wdgaf
 	$(D) system prune --all --volumes --force        # dangerous
 
 .PHONY: re
