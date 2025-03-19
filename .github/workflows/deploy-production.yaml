@@ -3,7 +3,7 @@ name: Deploy to prod by SSH'ing to a host and running make prod
 on:
     push:
         branches:
-            - main # should be ${{ secrets.PRODUCTION_BRANCH }}
+            - main # should be ${{ secrets.PRODUCTION_BRANCH }}, but workflows apparently don't allow it here
 
 jobs:
     # Expects the host to have this
