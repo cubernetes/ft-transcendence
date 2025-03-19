@@ -21,8 +21,7 @@ check-env:
 		cp .env.example .env; \
 	}
 
-.PHONY: dev
-dev-old-compose: check-env rm_frontend_volumes
+define dev-env
 	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
 	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
 	[ -n "$(DEV_DOMAINS)" ]    &&  \
@@ -33,59 +32,10 @@ dev-old-compose: check-env rm_frontend_volumes
 	WATCH="1"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) build
-	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
-	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
-	[ -n "$(DEV_DOMAINS)" ]    &&  \
-	HTTP_PORT="$(DEV_HTTP_PORT)"   \
-	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
-	DOMAINS="$(DEV_DOMAINS)"       \
-	NODE_ENV="development"         \
-	WATCH="1"                      \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
-	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up
-	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
-	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
-	[ -n "$(DEV_DOMAINS)" ]    &&  \
-	HTTP_PORT="$(DEV_HTTP_PORT)"   \
-	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
-	DOMAINS="$(DEV_DOMAINS)"       \
-	NODE_ENV="development"         \
-	WATCH="1"                      \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
-	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) logs -f &
-	@sleep .5
-	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
-	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
-	[ -n "$(DEV_DOMAINS)" ]    &&  \
-	HTTP_PORT="$(DEV_HTTP_PORT)"   \
-	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
-	DOMAINS="$(DEV_DOMAINS)"       \
-	NODE_ENV="development"         \
-	WATCH="1"                      \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
-	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) watch
+	$(DC) $(1)
+endef
 
-.PHONY: dev
-dev: check-env rm_frontend_volumes
-	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
-	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
-	[ -n "$(DEV_DOMAINS)" ]    &&  \
-	HTTP_PORT="$(DEV_HTTP_PORT)"   \
-	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
-	DOMAINS="$(DEV_DOMAINS)"       \
-	NODE_ENV="development"         \
-	WATCH="1"                      \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
-	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build --watch
-
-.PHONY: prod
-prod: check-env rm_frontend_volumes
-	$(MAKE) rm_frontend_volumes
+define prod-env
 	[ -n "$(PROD_HTTP_PORT)" ]  &&  \
 	[ -n "$(PROD_HTTPS_PORT)" ] &&  \
 	[ -n "$(PROD_DOMAINS)" ]    &&  \
@@ -96,7 +46,34 @@ prod: check-env rm_frontend_volumes
 	WATCH="0"                       \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build --detach
+	$(DC) $(1)
+endef
+
+define wait-progress
+	printf '\033[33m%s\033[m\n' \
+		"INFO: Starting to watch for filesystem changes in $(1) second(s)"
+	sleep 1
+endef
+
+.PHONY: dev
+dev-old-compose: check-env rm_frontend_volumes
+	@$(call dev-env,build)
+	@$(call dev-env,up --remove-orphans --detach)
+	@$(call dev-env,logs --follow &)
+	@$(call wait-progress,5)
+	@$(call wait-progress,4)
+	@$(call wait-progress,3)
+	@$(call wait-progress,2)
+	@$(call wait-progress,1)
+	@$(call dev-env,watch --no-up)
+
+.PHONY: dev
+dev: check-env rm_frontend_volumes
+	@$(call dev-env,up --remove-orphans --build --watch)
+
+.PHONY: prod
+prod: check-env rm_frontend_volumes
+	@$(call prod-env,up --remove-orphans --build --detach)
 
 .PHONY: down
 down:
