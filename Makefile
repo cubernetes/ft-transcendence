@@ -105,7 +105,6 @@ down:
 .PHONY: rm_frontend_volumes
 rm_frontend_volumes: down
 	$(D) volume rm --force ft-transcendence_frontend
-	# $(D) volume rm --force ft-transcendence_public # TODO: @timo: Remove later
 
 .PHONY: clean
 clean:
