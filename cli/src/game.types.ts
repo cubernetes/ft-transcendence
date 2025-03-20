@@ -17,13 +17,19 @@ export interface Vec3D {
 }
 
 export interface Score {
-	player1: number;
-	player2: number;
+    player1: number;
+    player2: number;
 }
 
 export interface ICollisionEvent {
     type: "paddle" | "wall" | "score";
     timestamp: number;
+}
+
+export interface FieldConfig {
+    scaleX: number;
+    scaleY: number;
+    paddleHeight: number;
 }
 
 export interface GameConfig {
