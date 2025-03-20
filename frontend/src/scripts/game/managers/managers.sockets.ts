@@ -1,5 +1,5 @@
 import { Direction } from "../game.types";
-import { GameStateManager } from "./GameState";
+import { GameStateManager } from "./managers.state";
 import { Scene } from "@babylonjs/core";
 
 export class WebSocketManager {

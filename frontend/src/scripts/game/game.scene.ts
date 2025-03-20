@@ -8,7 +8,7 @@ import {
     Vector3,
     Color3,
 } from "@babylonjs/core";
-import { getObjectConfigs, gameConfig, ObjectConfig } from "./GameConfig";
+import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
 import { ASSETS_DIR } from "../config";
 
 export class SceneSetup {
