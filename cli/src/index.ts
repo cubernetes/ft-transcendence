@@ -115,9 +115,8 @@ async function startRemoteGame() {
 
         // Start listening for user input to send directions to the server
         startKeyListener((dir) => {
-            console.log(`Direction: ${dir}`);
             if (wsManager) {
-                wsManager.sendDirection(`move ${dir}`);
+                wsManager.sendMessage(`move ${dir}`);
             }
         });
     } catch (err) {

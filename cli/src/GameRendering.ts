@@ -6,6 +6,12 @@ let FIELD_CONFIG: FieldConfig | null = null;
 let TERM_WIDTH = 160;
 let TERM_HEIGHT = 40;
 
+let FIELD_BUFFER: string[][] | null = null;
+
+function initFieldBuffer() {
+    FIELD_BUFFER = Array.from({ length: TERM_HEIGHT }, () => Array(TERM_WIDTH).fill(" "));
+}
+
 export function setGameConfig(config: GameConfig) {
     GAME_CONFIG = config;
     FIELD_CONFIG = {
@@ -13,67 +19,98 @@ export function setGameConfig(config: GameConfig) {
         scaleY: TERM_HEIGHT / config.BOARD_DEPTH,
         paddleHeight: (config.PADDLE_DEPTH * TERM_HEIGHT) / config.BOARD_DEPTH,
     };
+    initFieldBuffer();
+}
+
+function drawPaddle(field: string[][], padYMin: number, padLen: number, padX: number): void {
+    const yBeginFrac = padYMin - Math.floor(padYMin);
+    const yEndFrac = padYMin + padLen - Math.floor(padYMin + padLen);
+
+    const rowTop = Math.floor(padYMin);
+    const rowBottom = Math.floor(padYMin + padLen) - 1;
+
+    // Top cap
+    if (rowTop >= 0 && rowTop < field.length) {
+        if (yBeginFrac < 0.25) {
+            field[rowTop][padX] = "█";
+        } else if (yBeginFrac < 0.75) {
+            field[rowTop][padX] = "▄";
+        }
+    }
+    // Full body
+    const yStart = Math.ceil(padYMin);
+    const yEnd = Math.floor(padYMin + padLen - 1);
+    for (let y = yStart; y <= yEnd; y++) {
+        if (y >= 0 && y < field.length) {
+            field[y][padX] = "█";
+        }
+    }
+    // Bottom cap
+    if (rowBottom >= 0 && rowBottom < field.length) {
+        if (yEndFrac >= 0.25 && yEndFrac < 0.75) {
+            field[rowBottom][padX] = "▀";
+        } else if (yEndFrac >= 0.75) {
+            field[rowBottom][padX] = "█";
+        }
+    }
+}
+
+function clamp(val: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, val));
+}
+
+function clearField() {
+    FIELD_BUFFER?.forEach((row) => row.fill(" "));
+}
+
+// Draw ball with clamping handled in a utility function for reusability
+function drawBall(field: string[][], ballPos: Vec2D): void {
+    const ballX = clamp(
+        Math.round(ballPos.x * FIELD_CONFIG!.scaleX + TERM_WIDTH / 2 - 1),
+        0,
+        TERM_WIDTH - 1
+    );
+    const ballY = clamp(
+        Math.round(ballPos.y * FIELD_CONFIG!.scaleY + TERM_HEIGHT / 2 - 1),
+        0,
+        TERM_HEIGHT - 1
+    );
+    field[ballY][ballX] = "◯";
 }
 
 export function renderGameState(state: ICLIGameState) {
-    if (!GAME_CONFIG || !FIELD_CONFIG) {
+    if (!GAME_CONFIG || !FIELD_CONFIG || !FIELD_BUFFER) {
         throw new Error("Game config not set. Call setGameConfig() before rendering.");
     }
     const { ball, paddle1, paddle2, score } = state;
-    const config = GAME_CONFIG;
-    const { scaleX, scaleY, paddleHeight } = FIELD_CONFIG;
+    const { scaleX, scaleY } = FIELD_CONFIG;
 
-    // Project world coordinates to terminal grid
-    const project = (v: Vec2D): { x: number; y: number } => ({
-        x: Math.round(v.x * scaleX + TERM_WIDTH / 2 - 0.5),
-        y: Math.round(v.y * scaleY + TERM_HEIGHT / 2 - 0.5),
-    });
+    // Clear the field buffer
+    clearField();
 
-    const ballPos = project(ball);
-    // const pad1Y = paddle1.y - config.PADDLE_DEPTH / 2;
-    // const pad2Y = paddle2.y - config.PADDLE_DEPTH / 2;
-    // const pad1Pos = project({ x: paddle1.x, y: pad1Y });
-    // const pad2Pos = project({ x: paddle2.x, y: pad2Y });
-
-    // Empty field
-    const field: string[][] = Array.from({ length: TERM_HEIGHT }, () =>
-        Array.from({ length: TERM_WIDTH }, () => " ")
-    );
-
-    const pad1YMin = (paddle1.y - config.PADDLE_DEPTH / 2) * scaleY + TERM_HEIGHT / 2;
-    const pad1YMax = (paddle1.y + config.PADDLE_DEPTH / 2) * scaleY + TERM_HEIGHT / 2;
-    const pad1begin = pad1YMin - Math.floor(pad1YMin);
-    const pad1end = pad1YMax - Math.floor(pad1YMax);
-    // Draw paddle 1
-    if (pad1begin < 0.25) {
-        field[Math.floor(pad1YMin)][1] = "█";
-    } else if (pad1begin < 0.75) {
-        field[Math.floor(pad1YMin)][1] = "▄";
-    }
-    for (let i = Math.ceil(pad1YMin); i < Math.floor(pad1YMax - 1); i++) {
-        field[i][1] = "█";
-    }
-    if (pad1end >= 0.25 && pad1end < 0.75) {
-        field[Math.floor(pad1YMax) - 1][1] = "▀";
-    } else if (pad1end >= 0.75) {
-        field[Math.floor(pad1YMax) - 1][1] = "█";
-    }
+    // Draw paddles
+    const pad1X = paddle1.x * scaleX + TERM_WIDTH / 2 - 1;
+    const pad2X = paddle2.x * scaleX + TERM_WIDTH / 2 - 1;
+    const padLen = GAME_CONFIG.PADDLE_DEPTH * scaleY;
+    const pad1YMin = paddle1.y * scaleY + TERM_HEIGHT / 2 - padLen / 2;
+    const pad2YMin = paddle2.y * scaleY + TERM_HEIGHT / 2 - padLen / 2;
+    drawPaddle(FIELD_BUFFER, pad1YMin, padLen, pad1X); // Left paddle
+    drawPaddle(FIELD_BUFFER, pad2YMin, padLen, pad2X); // Right paddle
 
     // Draw ball
-    field[ballPos.y][ballPos.x] = "◯";
+    drawBall(FIELD_BUFFER, ball);
 
-    // Clear and print
+    // Print all the elements
     console.clear();
     console.log(`Score: Player 1 - ${score.player1} : ${score.player2} - Player 2`);
-
-    const border = "+" + "-".repeat(TERM_WIDTH) + "+";
+    const border = `+${"-".repeat(TERM_WIDTH)}+`;
     console.log(border);
-    for (const row of field) {
-        console.log("|" + row.join("") + "|");
+    for (const row of FIELD_BUFFER) {
+        console.log(`|${row.join("")}|`);
     }
     console.log(border);
 }
 
-// Characters to use ╭ ╮ ╰╯ ◯◯
+// Characters to use ╭ ╮ ╰╯ ◯ ◉ 🔴
 // █ ▄ ▀
 // ▖ ▗ ▘ ▝

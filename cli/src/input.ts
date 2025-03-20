@@ -43,7 +43,6 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
 
         // Exit the game with Ctrl+C
         else if (keyName === "\u0003") {
-            // Ctrl+C only exits the game
             // cleanup();
             process.exit(); // hard exit
         }

@@ -1,8 +1,8 @@
-import { ICLIGameState, IServerGameState } from './game.types';
-import WebSocket from 'ws';
-import { renderGameState } from './GameRendering';
-import { vec3ToVec2D } from './utils';
-import { mainMenu, getGameActive } from './index';
+import { ICLIGameState, IServerGameState } from "./game.types";
+import WebSocket from "ws";
+import { renderGameState } from "./GameRendering";
+import { vec3ToVec2D } from "./utils";
+import { mainMenu, getGameActive } from "./index";
 
 export class WebSocketManager {
     private ws: WebSocket;
@@ -10,20 +10,20 @@ export class WebSocketManager {
 
     constructor(private serverUrl: string) {
         this.ws = new WebSocket(this.serverUrl);
-        
+
         // WebSocket connection open
-        this.ws.on('open', () => {
+        this.ws.on("open", () => {
             console.log("Connected to the server");
         });
 
         // Handle incoming messages from the server
-        this.ws.on('message', this.onMessage.bind(this));
+        this.ws.on("message", this.onMessage.bind(this));
     }
 
     // Method to send a direction change to the server
-    sendDirection(direction: string) {
-        console.log(`[SEND] ${direction}`);
-        this.ws.send(direction);
+    sendMessage(response: string) {
+        // console.log(`[SEND] ${response}`);
+        this.ws.send(response);
     }
 
     // Handle the server's game state updates
@@ -38,7 +38,7 @@ export class WebSocketManager {
             paddle2: vec3ToVec2D(rawGameState.paddlePosition["player-2"]),
             score: rawGameState.score,
             gameRunning: true,
-            lastCollisionEvents: rawGameState.collisionEvents
+            lastCollisionEvents: rawGameState.collisionEvents,
         };
         renderGameState(cliGameState);
     }
@@ -68,7 +68,7 @@ export class WebSocketManager {
     closeConnection() {
         if (this.ws) {
             this.ws.close();
-            console.log('WebSocket connection closed.');
+            console.log("WebSocket connection closed.");
         }
     }
 }
