@@ -15,6 +15,8 @@
         "@faker-js/faker": "^9.6.0",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
+        "@fastify/swagger": "^9.4.2",
+        "@fastify/swagger-ui": "^5.2.2",
         "@fastify/websocket": "^11.0.2",
         "bcrypt": "^5.1.1",
         "better-sqlite3": "^11.8.1",
