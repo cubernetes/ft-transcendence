@@ -1,10 +1,13 @@
 import readline from "readline";
-import { setGameActive, getGameActive, mainMenu } from "./index";
+import { setGameActive, mainMenu } from "./index";
+import { audioManager } from "./audio";
 
 // Function to start listening for key presses
 export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
     let upPressed = false;
     let downPressed = false;
+
+    audioManager.startMusic();
 
     // Create an interface to read from stdin
     const rl = readline.createInterface({
@@ -43,7 +46,8 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
 
         // Exit the game with Ctrl+C
         else if (keyName === "\u0003") {
-            // cleanup();
+            // cleanup:
+            audioManager.stopMusic();
             process.exit(); // hard exit
         }
 
@@ -57,6 +61,7 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
             // Set isGameActive to false and return to menu
             setGameActive(false);
 
+            audioManager.stopMusic();
             mainMenu();
         }
     };
