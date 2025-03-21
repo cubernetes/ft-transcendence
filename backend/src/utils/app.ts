@@ -21,6 +21,8 @@ export const buildApp = async (
     test: boolean = false
 ): Promise<FastifyInstance> => {
     const app = fastify(opts);
+    app.setValidatorCompiler(() => () => true); // Disable ajv validation
+
     try {
         /** Register configs, check integrity of the env variables */
         await app.register(configPlugin);
@@ -34,7 +36,9 @@ export const buildApp = async (
         // TODO: Add more options here for JWT, see: https://github.com/fastify/fastify-jwt
         await app.register(jwt, { secret: app.config.jwtSecret }); // Register jwt plugin
 
-        await app.register(swaggerPlugin); // Register swagger plugin
+        if (process.env.NODE_ENV !== "production") {
+            await app.register(swaggerPlugin); // Register swagger plugin
+        }
 
         await app.register(dbPlugin); // Register database plugin
         await app.register(wsPlugin); // Register websocket plugin
@@ -49,8 +53,9 @@ export const buildApp = async (
 
         if (!test) {
             /** Seed database if not in production */
-            if (process.env.NODE_ENV !== "production") await seed(app);
-
+            if (process.env.NODE_ENV !== "production") {
+                await seed(app);
+            }
             /** Start server not needed in test mode with tap*/
             await app.listen({ port: app.config.port, host: "0.0.0.0" });
             app.log.info(`Server running at port ${app.config.port}!`);
