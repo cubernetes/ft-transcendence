@@ -76,18 +76,18 @@ services:
             DB_PATH: ${DB_PATH:-}
             JWT_SECRET: ${JWT_SECRET:-}
         volumes:
-            - "drizzle:/frontend/drizzle/"
+            - "drizzle:/backend/drizzle/"
         develop:
             watch:
                 - path: "./backend/"
                   action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
-                  target: "/frontend/"
+                  target: "/backend/"
                 - path: "./backend/package.json"
                   action: rebuild
-                  target: "/frontend/package.json"
+                  target: "/backend/package.json"
                 - path: "./backend/esbuild.config.js"
                   action: rebuild
-                  target: "/frontend/esbuild.config.js"
+                  target: "/backend/esbuild.config.js"
         env_file: *env-files
 
 volumes:
