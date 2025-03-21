@@ -25,8 +25,8 @@ export const createUserHandler = async (
         }
 
         return reply.code(201).send(toPublicUser(user));
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to create user");
+    } catch (err) {
+        req.log.error({ err }, "Failed to create user");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -44,8 +44,8 @@ export const getUserByIdHandler = async (
         }
 
         return reply.send(toPublicUser(user));
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to get user by ID");
+    } catch (err) {
+        req.log.error({ err }, "Failed to get user by ID");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -63,8 +63,8 @@ export const getUserByUsernameHandler = async (
         }
 
         return reply.send(toPublicUser(user));
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to get user by username");
+    } catch (err) {
+        req.log.error({ err }, "Failed to get user by username");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -74,8 +74,8 @@ export const getAllUsersHandler = async (req: FastifyRequest, reply: FastifyRepl
         const users = await req.server.userService.findAll();
         const publicUsers = users.map((user) => toPublicUser(user));
         return reply.send(publicUsers);
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to get all users");
+    } catch (err) {
+        req.log.error({ err }, "Failed to get all users");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
