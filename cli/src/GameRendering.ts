@@ -1,4 +1,10 @@
 import { Vec2D, ICLIGameState, GameConfig, FieldConfig } from "./game.types";
+import { userOptions } from "./options.js";
+import { audioManager } from "./audio";
+
+if (userOptions.playStyle === "crazy") {
+    // paddle in rainbow / ball animation / flashing colors / ball trail
+}
 
 let TERM_WIDTH = 160;
 let TERM_HEIGHT = 40;

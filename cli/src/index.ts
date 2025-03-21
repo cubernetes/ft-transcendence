@@ -3,6 +3,10 @@ import { WebSocketManager } from "./WebSocketManager";
 import { startKeyListener } from "./input";
 import { setGameConfig } from "./GameRendering";
 import { GameConfig } from "./game.types";
+import { optionsMenu } from "./options.js";
+import { audioManager } from "./audio";
+
+console.log(audioManager); // Should log the instance of AudioManager
 
 let wsManager: WebSocketManager | null = null;
 let token: string | null = null;
@@ -24,7 +28,7 @@ export async function mainMenu(): Promise<void> {
             type: "list",
             name: "mode",
             message: "Welcome to Pong CLI!",
-            choices: ["Play Locally", "Connect to Server", "Exit"],
+            choices: ["Play Locally", "Connect to Server", "Options", "Exit"],
         },
     ]);
 
@@ -35,13 +39,15 @@ export async function mainMenu(): Promise<void> {
         case "Connect to Server":
             handleServerLogin();
             break;
+        case "Options":
+            optionsMenu();
+            break;
         case "Exit":
             console.log("Goodbye!");
             if (wsManager) {
                 wsManager.closeConnection(); // Close the WebSocket connection on exit
             }
             process.exit(0);
-            break;
     }
 }
 
@@ -102,6 +108,7 @@ async function startRemoteGame() {
         // Fetch game config from the server
         const config = await fetchGameConfig();
         console.log("Fetched game config:", config);
+        console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         setGameConfig(config);
 
         if (!wsManager) {
