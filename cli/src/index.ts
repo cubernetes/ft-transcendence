@@ -5,8 +5,8 @@ import { setGameConfig } from "./GameRendering";
 import { GameConfig } from "./game.types";
 import { optionsMenu } from "./options.js";
 import { audioManager } from "./audio";
-
-console.log(audioManager); // Should log the instance of AudioManager
+import chalk from "chalk";
+import figlet from "figlet";
 
 let wsManager: WebSocketManager | null = null;
 let token: string | null = null;
@@ -23,31 +23,48 @@ export function getGameActive(): boolean {
 // --- Menu Setup ---
 
 export async function mainMenu(): Promise<void> {
-    const { mode } = await inquirer.prompt([
-        {
-            type: "list",
-            name: "mode",
-            message: "Welcome to Pong CLI!",
-            choices: ["Play Locally", "Connect to Server", "Options", "Exit"],
-        },
-    ]);
+    try {
+        console.clear();
 
-    switch (mode) {
-        case "Play Locally":
-            startLocalGame();
-            break;
-        case "Connect to Server":
-            handleServerLogin();
-            break;
-        case "Options":
-            optionsMenu();
-            break;
-        case "Exit":
-            console.log("Goodbye!");
-            if (wsManager) {
-                wsManager.closeConnection(); // Close the WebSocket connection on exit
-            }
-            process.exit(0);
+        const title = figlet.textSync("P O N G     C L I", { font: "Slant" });
+        console.log(chalk.green(title));
+
+        const choices = [
+            chalk.magenta("Play Locally"),
+            chalk.magenta("Connect to Server"),
+            chalk.magenta("Options"),
+            chalk.red("Exit"),
+        ];
+        // Now prompt for menu options
+        const { mode } = await inquirer.prompt([
+            {
+                type: "list",
+                name: "mode",
+                message: chalk.cyan("Welcome to Pong CLI! Choose an option:"),
+                choices,
+            },
+        ]);
+
+        switch (mode) {
+            case choices[0]:
+                startLocalGame();
+                break;
+            case choices[1]:
+                handleServerLogin();
+                break;
+            case choices[2]:
+                optionsMenu();
+                break;
+            case choices[3]:
+                console.log(chalk.red("See you soon - good luck for your next game!"));
+                if (wsManager) {
+                    wsManager.closeConnection(); // Close the WebSocket connection on exit
+                }
+                process.exit(0);
+        }
+    } catch (err) {
+        console.error(chalk.red("Error in main menu: "), err);
+        process.exit(1);
     }
 }
 
@@ -64,7 +81,7 @@ async function fetchGameConfig(): Promise<GameConfig> {
 async function handleServerLogin() {
     // Only log in if the user isn't already logged in
     if (wsManager) {
-        console.log("Already logged in and connected to server.");
+        console.log(chalk.yellow("Already logged in and connected to server."));
         return startRemoteGame(); // Skip login if connection is already established
     }
 
@@ -78,7 +95,7 @@ async function handleServerLogin() {
         token = "dummy"; // Dummy token for now
 
         if (!token) {
-            console.error("Login failed.");
+            console.error(chalk.red("Login failed."));
             return mainMenu();
         }
     }
@@ -135,8 +152,8 @@ async function startRemoteGame() {
 // --- Local Flow (stub for now) ---
 
 async function startLocalGame() {
-    console.log("Local play not implemented yet.");
-    // You can integrate local game engine logic here later.
+    console.log(chalk.yellow("Local play not implemented yet."));
+    // TODO: integrate local game engine
     mainMenu();
 }
 

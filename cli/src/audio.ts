@@ -41,8 +41,8 @@ export class AudioManager {
      * Start playing background music based on the current play style
      */
     startMusic(): void {
-        console.log(userOptions.music); // This should print `true`
-        console.log(userOptions.playStyle); // Should print "normal", "stylish", or "crazy"
+        // console.log(userOptions.music); // This should print `true`
+        // console.log(userOptions.playStyle); // Should print "normal", "stylish", or "crazy"
 
         if (!userOptions.music) return;
 
@@ -55,7 +55,6 @@ export class AudioManager {
         }
 
         const musicPath = path.resolve(this.musicTracks.get(trackName)!);
-        console.log(`Selected track: ${musicPath}`);
 
         // Play music with looping if possible
         this.playAudio(musicPath, true);
@@ -67,7 +66,7 @@ export class AudioManager {
      * @param loop - Whether the audio should loop or not
      */
     private playAudio(audioPath: string, loop: boolean): void {
-        console.log(`Playing audio: ${audioPath}, Loop: ${loop}`);
+        // console.log(`Playing audio: ${audioPath}, Loop: ${loop}`);
 
         // Clear any existing music
         this.currentMusic = null;
@@ -82,7 +81,6 @@ export class AudioManager {
         // If looping is required, restart the music when it finishes
         if (loop) {
             this.currentMusic.on("end", () => {
-                console.log("Music ended, restarting...");
                 this.playAudio(audioPath, loop); // Restart the music
             });
         }

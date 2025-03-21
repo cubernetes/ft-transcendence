@@ -68,7 +68,6 @@ export class WebSocketManager {
     closeConnection() {
         if (this.ws) {
             this.ws.close();
-            console.log("WebSocket connection closed.");
         }
     }
 }
