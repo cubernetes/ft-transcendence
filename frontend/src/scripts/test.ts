@@ -10,7 +10,7 @@ export const fetchTestData = async () => {
         const data = await response.json();
 
         // Process data into how it's typed on the leaderboard page
-        const processedData = data
+        const processedData = data.data
             .map((p: Record<string, any>) => ({
                 id: p.id,
                 name: p.username,
