@@ -1,5 +1,4 @@
 import type { FastifyPluginAsync } from "fastify";
-import { createUserSchema, userIdSchema, userNameSchema } from "./user.types.ts";
 import {
     createUserHandler,
     getAllUsersHandler,
@@ -7,15 +6,25 @@ import {
     getUserByUsernameHandler,
 } from "./user.controller.ts";
 import { withZod } from "../utils/zod-validate.ts";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import {
+    createRouteSchema,
+    createUserSchema,
+    getUserByIdRouteSchema,
+    userIdSchema,
+    userNameSchema,
+} from "./user.schema.ts";
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post(
         "/create",
-        { schema: { body: zodToJsonSchema(createUserSchema) } }, // Schema for swagger UI
+        createRouteSchema,
         withZod({ body: createUserSchema }, createUserHandler)
     );
-    fastify.get("/id/:id", withZod({ params: userIdSchema }, getUserByIdHandler));
+    fastify.get(
+        "/id/:id",
+        getUserByIdRouteSchema,
+        withZod({ params: userIdSchema }, getUserByIdHandler)
+    );
     fastify.get(
         "/username/:username",
         withZod({ params: userNameSchema }, getUserByUsernameHandler)
