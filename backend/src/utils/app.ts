@@ -10,6 +10,7 @@ import configPlugin from "./config.ts";
 import swaggerPlugin from "./swagger.ts";
 import dbPlugin from "../db/db.plugin.ts";
 import wsPlugin from "../ws/ws.plugin.ts";
+import resWrapperPlugin from "./response-wrapper.ts";
 import authPlugin from "../auth/auth.plugin.ts";
 import userPlugin from "../user/user.plugin.ts";
 import gamePlugin from "../game/game.plugin.ts";
@@ -43,6 +44,7 @@ export const buildApp = async (
         await app.register(dbPlugin); // Register database plugin
         await app.register(wsPlugin); // Register websocket plugin
         await app.register(authPlugin); // Register auth plugin
+        await app.register(resWrapperPlugin); // Register response wrapper plugin
         await app.register(userPlugin); // Register user plugin
         await app.register(gamePlugin); // Register game plugin
         await app.register(tournamentPlugin); // Register tournament plugin
