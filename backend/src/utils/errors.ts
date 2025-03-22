@@ -1,62 +1,24 @@
-import type { FastifyReply } from "fastify";
+export const ErrorCodes = {
+    VALIDATION_ERROR: "VALIDATION_ERROR",
+    USERNAME_TAKEN: "USERNAME_TAKEN",
+    NOT_FOUND: "NOT_FOUND",
+    UNAUTHORIZED: "UNAUTHORIZED",
+    INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
+} as const;
 
-export class CustomError extends Error {
-    statusCode: number;
-    payload: Record<string, any>;
+export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
 
+export class ApiError extends Error {
     constructor(
-        message: string,
-        statusCode: number = 500,
-        name: string = "Error",
-        payload: Record<string, any> = {}
+        public code: ErrorCode,
+        public statusCode: number,
+        public message: string,
+        public details?: unknown
     ) {
         super(message);
-        this.name = name;
-        this.statusCode = statusCode;
-
-        // To be sent to the client via fastify reply
-        this.payload = { error: message, ...payload };
-    }
-
-    send(reply: FastifyReply) {
-        reply.status(this.statusCode).send(this.payload);
+        this.name = "ApiError";
     }
 }
 
-export class BadRequestError extends CustomError {
-    constructor(message = "Bad request") {
-        super(message, 400, "Bad request");
-    }
-}
-
-export class UnauthorizedError extends CustomError {
-    constructor(message = "Unauthorized") {
-        super(message, 401, "Unauthorized");
-    }
-}
-
-export class ForbiddenError extends CustomError {
-    constructor(message = "Forbidden") {
-        super(message, 403, "Forbidden");
-    }
-}
-
-export class NotFoundError extends CustomError {
-    constructor(message = "Resource not found") {
-        super(message, 404, "Resource not found");
-    }
-}
-
-export class MethodNotAllowedError extends CustomError {
-    constructor(message = "Method not allowed") {
-        super(message, 405, "Method not allowed");
-    }
-}
-
-export class InternalServerError extends CustomError {
-    constructor(message = "Internal server error") {
-        super(message, 500, "Internal server error");
-    }
-}
-
-// There are much more, can be added as we need them
+export const errUniqueConstraintOn = (err: unknown, column: string): boolean =>
+    err instanceof Error && err.message.includes(`UNIQUE constraint failed: ${column}`);
