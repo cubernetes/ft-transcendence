@@ -8,7 +8,7 @@ const wsPlugin = async (fastify: FastifyInstance) => {
     await fastify.register(websocket, { options: { maxPayload: 1048576 } });
     fastify.decorate("wsService", createWsService(fastify));
 
-    fastify.get("/ws", { websocket: true }, handleConnection);
+    fastify.get("/ws", { websocket: true, schema: { hide: true } }, handleConnection);
 };
 
 export default fp(wsPlugin, {

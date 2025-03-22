@@ -1,34 +1,26 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { CreateUserDTO, UserIdDTO, UserNameDTO } from "./user.types.ts";
 import { toPublicUser } from "./user.helpers.ts";
+import { ApiError } from "../utils/errors.ts";
 
 export const createUserHandler = async (
     { body }: { body: CreateUserDTO },
     req: FastifyRequest,
     reply: FastifyReply
 ) => {
-    try {
-        // Remove confirmPassword from data
-        const { confirmPassword, ...userData } = body;
+    // Remove confirmPassword from data
+    const { confirmPassword, ...userData } = body;
 
-        // Use authService to hash the password
-        const hashedPassword = await req.server.authService.hashPassword(userData.password);
+    // Use authService to hash the password
+    const hashedPassword = await req.server.authService.hashPassword(userData.password);
 
-        // Create user with hashed password
-        const user = await req.server.userService.create({
-            ...userData,
-            passwordHash: hashedPassword,
-        });
+    // Create user with hashed password
+    const user = await req.server.userService.create({
+        ...userData,
+        passwordHash: hashedPassword,
+    });
 
-        if (!user) {
-            return reply.code(400).send({ error: "Failed to create user" });
-        }
-
-        return reply.code(201).send(toPublicUser(user));
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to create user");
-        return reply.code(500).send({ error: "Internal server error" });
-    }
+    reply.code(201).send(toPublicUser(user));
 };
 
 export const getUserByIdHandler = async (
@@ -36,18 +28,13 @@ export const getUserByIdHandler = async (
     req: FastifyRequest,
     reply: FastifyReply
 ) => {
-    try {
-        const user = await req.server.userService.findById(params.id);
+    const user = await req.server.userService.findById(params.id);
 
-        if (!user) {
-            return reply.code(404).send({ error: "User not found" });
-        }
-
-        return reply.send(toPublicUser(user));
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to get user by ID");
-        return reply.code(500).send({ error: "Internal server error" });
+    if (!user) {
+        throw new ApiError("NOT_FOUND", 404, "User not found");
     }
+
+    reply.send(toPublicUser(user));
 };
 
 export const getUserByUsernameHandler = async (
@@ -55,29 +42,20 @@ export const getUserByUsernameHandler = async (
     req: FastifyRequest,
     reply: FastifyReply
 ) => {
-    try {
-        const user = await req.server.userService.findByUsername(params.username);
+    const user = await req.server.userService.findByUsername(params.username);
 
-        if (!user) {
-            return reply.code(404).send({ error: "User not found" });
-        }
-
-        return reply.send(toPublicUser(user));
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to get user by username");
-        return reply.code(500).send({ error: "Internal server error" });
+    if (!user) {
+        throw new ApiError("NOT_FOUND", 404, "User not found");
     }
+
+    reply.send(toPublicUser(user));
 };
 
 export const getAllUsersHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    try {
-        const users = await req.server.userService.findAll();
-        const publicUsers = users.map((user) => toPublicUser(user));
-        return reply.send(publicUsers);
-    } catch (error) {
-        req.log.error({ err: error }, "Failed to get all users");
-        return reply.code(500).send({ error: "Internal server error" });
-    }
+    const users = await req.server.userService.findAll();
+    const publicUsers = users.map((user) => toPublicUser(user));
+
+    reply.send(publicUsers);
 };
 
 // export const updateUserHandler = async (

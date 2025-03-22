@@ -1,6 +1,6 @@
-import { GameState } from "../game/game.types";
-import type { PinoLoggerOptions } from "fastify/types/logger";
 import { ZodError } from "zod";
+import { GameState } from "../game/game.types.ts";
+import type { PinoLoggerOptions } from "fastify/types/logger.ts";
 
 const formatError = (error: unknown) => {
     if (error instanceof ZodError) {

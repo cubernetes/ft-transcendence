@@ -1,5 +1,6 @@
-import { z, ZodTypeAny } from "zod";
+import { z, ZodError, ZodTypeAny } from "zod";
 import { FastifyRequest, FastifyReply } from "fastify";
+import { ApiError } from "./errors";
 
 type ZodTarget = "body" | "query" | "params" | "headers";
 type SchemaMap = Partial<Record<ZodTarget, ZodTypeAny>>;
@@ -26,18 +27,23 @@ export const withZod =
     async (req: FastifyRequest, reply: FastifyReply) => {
         const parsed: Partial<Record<keyof Schemas, unknown>> = {};
 
+        const summarizeZodError = (error: ZodError): string => {
+            if (error.issues.length === 0) return "Validation failed";
+
+            return error.issues
+                .map((issue) => {
+                    const path = issue.path.join(".");
+                    return path ? `${path}: ${issue.message}` : issue.message;
+                })
+                .join("; ");
+        };
+
         for (const key of Object.keys(schemas) as (keyof Schemas)[]) {
             const schema = schemas[key] as ZodTypeAny;
             const result = schema.safeParse(req[key as ZodTarget]);
 
-            // Maybe validate one field at a time or all together
-            // TODO: Change what to send for validation failure? Depends on needs
             if (!result.success) {
-                return reply.status(400).send({
-                    error: "Validation failed",
-                    source: key,
-                    message: result.error.format(),
-                });
+                throw new ApiError("VALIDATION_ERROR", 400, summarizeZodError(result.error));
             }
 
             parsed[key] = result.data;
