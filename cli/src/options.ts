@@ -6,16 +6,25 @@ import { mainMenu } from "./index";
 export type PlayStyle = "normal" | "stylish" | "crazy";
 export type Resolution = "80x20" | "160x40" | "240x60" | "320x80";
 
+export interface PlayerControls {
+    player1Up: string;
+    player1Down: string;
+    player2Up: string;
+    player2Down: string;
+}
+
 export interface Options {
     music: boolean;
     playStyle: PlayStyle;
     resolution: Resolution;
+    playerControls: PlayerControls;
 }
 
 export const userOptions: Options = {
     music: true,
     playStyle: "normal",
     resolution: "160x40",
+    playerControls: { player1Up: "w", player1Down: "s", player2Up: "i", player2Down: "k" },
 };
 
 export async function optionsMenu(): Promise<void> {
@@ -32,11 +41,9 @@ export async function optionsMenu(): Promise<void> {
         const setString =
             `${chalk.cyan("\tMusic:     ")} ${userOptions.music ? chalk.greenBright("Enabled ✓") : chalk.redBright("Disabled ✘")}\n` +
             `${chalk.cyan("\tPlay Style:")} ${chalk.yellowBright(userOptions.playStyle)}\n` +
-            `${chalk.cyan("\tResolution:")} ${chalk.blueBright(userOptions.resolution)}\n\n`;
-
-        // console.log(`${chalk.cyan("\tMusic:     ")} ${userOptions.music ? chalk.greenBright("Enabled ✓") : chalk.redBright("Disabled ✘")}`);
-        // console.log(`${chalk.cyan("\tPlay Style:")} ${chalk.yellowBright(userOptions.playStyle)}`);
-        // console.log(`${chalk.cyan("\tResolution:")} ${chalk.blueBright(userOptions.resolution)}\n`);
+            `${chalk.cyan("\tResolution:")} ${chalk.blueBright(userOptions.resolution)}\n` +
+            `${chalk.cyan("\tControls:  ")} ${chalk.magenta(`P1: ↑ ${userOptions.playerControls.player1Up} ↓ ${userOptions.playerControls.player1Down}`)} | ` +
+            `${chalk.yellow(`P2: ↑ ${userOptions.playerControls.player2Up} ↓ ${userOptions.playerControls.player2Down}`)}\n\n`;
 
         const { option } = await inquirer.prompt([
             {
@@ -51,6 +58,8 @@ export async function optionsMenu(): Promise<void> {
                     { name: "🎮 Play Style", value: "playStyle" },
                     new inquirer.Separator(),
                     { name: "🖥️ Resolution", value: "resolution" },
+                    new inquirer.Separator(),
+                    { name: "⏳ Player Controls", value: "controls" },
                     new inquirer.Separator(),
                     { name: chalk.red("⬅  Main menu"), value: "exit" },
                 ],
@@ -112,6 +121,37 @@ export async function optionsMenu(): Promise<void> {
                     },
                 ]);
                 userOptions.resolution = resolution;
+                break;
+            }
+
+            case "controls": {
+                const { player1Up, player1Down, player2Up, player2Down } = await inquirer.prompt([
+                    {
+                        type: "input",
+                        name: "player1Up",
+                        message: chalk.cyan("Set Player 1   UP: ↑"),
+                        default: "w",
+                    },
+                    {
+                        type: "input",
+                        name: "player1Down",
+                        message: chalk.cyan("Set Player 1 DOWN: ↓"),
+                        default: "s",
+                    },
+                    {
+                        type: "input",
+                        name: "player2Up",
+                        message: chalk.cyan("Set Player 2   UP: ↑"),
+                        default: "i",
+                    },
+                    {
+                        type: "input",
+                        name: "player2Down",
+                        message: chalk.cyan("Set Player 2 DOWN: ↓"),
+                        default: "k",
+                    },
+                ]);
+                userOptions.playerControls = { player1Up, player1Down, player2Up, player2Down };
                 break;
             }
 
