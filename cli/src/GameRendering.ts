@@ -2,15 +2,12 @@ import { Vec2D, ICLIGameState, GameConfig, FieldConfig } from "./game.types";
 import { userOptions } from "./options.js";
 import { audioManager } from "./audio";
 
-if (userOptions.playStyle === "crazy") {
-    // paddle in rainbow / ball animation / flashing colors / ball trail
-}
-
 let TERM_WIDTH = 160;
 let TERM_HEIGHT = 40;
 let GAME_CONFIG: GameConfig | null = null;
 let FIELD_CONFIG: FieldConfig | null = null;
 let FIELD_BUFFER: string[][] | null = null;
+
 const BALL_TRAIL_LENGTH = 5;
 let ballTrail: Vec2D[] = [];
 let renderTick = 0;
@@ -34,18 +31,42 @@ function color(text: string, fg: string = "", bg: string = ""): string {
     return `${fg}${bg}${text}${RESET}`;
 }
 
-function initFieldBuffer() {
+function setTerminalSize(w: number, h: number): void {
+    TERM_WIDTH = w;
+    TERM_HEIGHT = h;
+}
+
+function applySettings(): void {
+    if (userOptions.resolution === "80x20") {
+        setTerminalSize(80, 20);
+    } else if (userOptions.resolution === "160x40") {
+        setTerminalSize(160, 40);
+    } else if (userOptions.resolution === "240x60") {
+        setTerminalSize(240, 60);
+    } else {
+        setTerminalSize(320, 80);
+    }
+    if (userOptions.playStyle === "crazy") {
+        // paddle in rainbow / ball animation / flashing colors / ball trail
+    } else if (userOptions.playStyle === "stylish") {
+        // paddle in gradient / ball animation / flashing colors
+    }
+}
+
+function setFieldConfig() {
+    FIELD_CONFIG = {
+        scaleX: TERM_WIDTH / GAME_CONFIG!.BOARD_WIDTH,
+        scaleY: TERM_HEIGHT / GAME_CONFIG!.BOARD_DEPTH,
+        paddleHeight: (GAME_CONFIG!.PADDLE_DEPTH * TERM_HEIGHT) / GAME_CONFIG!.BOARD_DEPTH,
+    };
+    // Initialize the field buffer
     FIELD_BUFFER = Array.from({ length: TERM_HEIGHT }, () => Array(TERM_WIDTH).fill(" "));
 }
 
 export function setGameConfig(config: GameConfig) {
     GAME_CONFIG = config;
-    FIELD_CONFIG = {
-        scaleX: TERM_WIDTH / config.BOARD_WIDTH,
-        scaleY: TERM_HEIGHT / config.BOARD_DEPTH,
-        paddleHeight: (config.PADDLE_DEPTH * TERM_HEIGHT) / config.BOARD_DEPTH,
-    };
-    initFieldBuffer();
+    applySettings();
+    setFieldConfig();
 }
 
 function drawPaddle(field: string[][], padYMin: number, padLen: number, padX: number): void {
