@@ -26,36 +26,39 @@ export async function mainMenu(): Promise<void> {
     try {
         console.clear();
 
-        const title = figlet.textSync("P O N G     C L I", { font: "Slant" });
+        const title = figlet.textSync(" PONG   CLI", { font: "Small Poison" });
         console.log(chalk.green(title));
 
-        const choices = [
-            chalk.magenta("Play Locally"),
-            chalk.magenta("Connect to Server"),
-            chalk.magenta("Options"),
-            chalk.red("Exit"),
-        ];
         // Now prompt for menu options
         const { mode } = await inquirer.prompt([
             {
                 type: "list",
                 name: "mode",
-                message: chalk.cyan("Welcome to Pong CLI! Choose an option:"),
-                choices,
+                message: figlet.textSync("MAIN MENU", { font: "Soft" }),
+                choices: [
+                    new inquirer.Separator(),
+                    { name: chalk.magenta("🏠  Play Locally"), value: 1 },
+                    new inquirer.Separator(),
+                    { name: chalk.magenta("🌐  Connect to Server"), value: 2 },
+                    new inquirer.Separator(),
+                    { name: chalk.magenta("⚙️  Options"), value: 3 },
+                    new inquirer.Separator(),
+                    { name: chalk.red("🚪  Exit"), value: 0 },
+                ],
             },
         ]);
 
         switch (mode) {
-            case choices[0]:
+            case 1:
                 startLocalGame();
                 break;
-            case choices[1]:
+            case 2:
                 handleServerLogin();
                 break;
-            case choices[2]:
+            case 3:
                 optionsMenu();
                 break;
-            case choices[3]:
+            case 0:
                 console.log(chalk.red("See you soon - good luck for your next game!"));
                 if (wsManager) {
                     wsManager.closeConnection(); // Close the WebSocket connection on exit
