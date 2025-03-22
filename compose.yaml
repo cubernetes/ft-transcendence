@@ -15,6 +15,21 @@ x-env-files: &env-files
     - config.env
 
 services:
+    vault:
+        build: "./vault/"
+        container_name: vault
+        restart: unless-stopped
+        networks:
+            - ft-transcendence-net
+        cap_add:
+            - IPC_LOCK
+        volumes:
+            - "vault:/vault/file"
+        develop:
+            watch:
+                - path: "./vault/config/"
+                  action: sync
+                  target: "/vault/config/"
     caddy:
         build: "./caddy/"
         container_name: caddy
