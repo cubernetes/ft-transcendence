@@ -55,7 +55,7 @@ define wait-progress
 	sleep 1
 endef
 
-.PHONY: dev
+.PHONY: dev-old-compose
 dev-old-compose: check-env clean-app-volumes
 	@$(call dev-env,build)
 	@$(call dev-env,up --remove-orphans --detach $(ARGS))
