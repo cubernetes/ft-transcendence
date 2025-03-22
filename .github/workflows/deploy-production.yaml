@@ -3,7 +3,7 @@ name: Deploy to prod by SSH'ing to a host and running make prod
 on:
     push:
         branches:
-            - main # should be ${{ secrets.PRODUCTION_BRANCH }}
+            - main # should be ${{ secrets.PRODUCTION_BRANCH }}, but workflows apparently don't allow it here
 
 jobs:
     # Expects the host to have this
@@ -29,10 +29,10 @@ jobs:
 
             - name: Write SSH keys
               run: |
-                  install --mode=600 -D /dev/null ~/.ssh/id_ed25519
+                  install -m=600 -D /dev/null ~/.ssh/id_ed25519
                   printf '%s' '${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}' > ~/.ssh/id_ed25519
                   host='${{ secrets.PRODUCTION_SSH_HOST }}'
-                  hosts="$(dig +short "$host" | grep --invert-match '\.$' | sed --null-data 's|\n|,|g')$host"
+                  hosts="$(dig +short "$host" | grep -v '\.$' | sed -z 's|\n|,|g')$host"
                   ssh-keyscan -H -p ${{ secrets.PRODUCTION_SSH_PORT }} "$hosts" > ~/.ssh/known_hosts
 
             - name: Connect, Pull, Make
@@ -56,4 +56,4 @@ jobs:
                      make prod"
 
             - name: Cleanup
-              run: rm --recursive --force ~/.ssh
+              run: rm -rf ~/.ssh
