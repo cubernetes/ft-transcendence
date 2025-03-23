@@ -43,24 +43,24 @@ export const devLoggerConfig: PinoLoggerOptions = {
                     colorize: true, // Enables colors for better readability
                     translateTime: "HH:MM:ss Z", // Formats timestamps
                     ignore: "pid,hostname", // Hides unnecessary fields
-                }
+                },
             },
-            {
-                target: "pino-socket",
-                level: "info",
-                options: {
-                    mode: "tcp",
-                    address: process.env.LOGSTASH_HOST || "logstash",
-                    port: parseInt(process.env.LOGSTASH_PORT || "5000"),
-                    reconnectTimeout: 1000,
-                }
-            }
-        ]
+            // {
+            //     target: "pino-socket",
+            //     level: "info",
+            //     options: {
+            //         mode: "tcp",
+            //         address: process.env.LOGSTASH_HOST || "logstash",
+            //         port: parseInt(process.env.LOGSTASH_PORT || "5000"),
+            //         reconnectTimeout: 1000,
+            //     }
+            // }
+        ],
     },
     serializers: { err: formatError, gameState: formatGameState },
 };
 
-export const prodLoggerConfig: PinoLoggerOptions = { 
+export const prodLoggerConfig: PinoLoggerOptions = {
     level: "info",
     transport: {
         targets: [
@@ -70,7 +70,7 @@ export const prodLoggerConfig: PinoLoggerOptions = {
                     colorize: true, // Enables colors for better readability
                     translateTime: "HH:MM:ss Z", // Formats timestamps
                     ignore: "pid,hostname", // Hides unnecessary fields
-                }
+                },
             },
             {
                 target: "pino-socket",
@@ -80,9 +80,9 @@ export const prodLoggerConfig: PinoLoggerOptions = {
                     address: process.env.LOGSTASH_HOST || "logstash",
                     port: parseInt(process.env.LOGSTASH_PORT || "5000"),
                     reconnectTimeout: 1000,
-                }
-            }
-        ]
+                },
+            },
+        ],
     },
     serializers: { err: formatError, gameState: formatGameState },
 };
