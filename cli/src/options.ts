@@ -2,29 +2,34 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
 import { mainMenu } from "./index";
+import { audioManager } from "./audio";
 
 export type PlayStyle = "normal" | "stylish" | "crazy";
 export type Resolution = "80x20" | "160x40" | "240x60" | "320x80";
 
-export interface PlayerControls {
-    player1Up: string;
-    player1Down: string;
-    player2Up: string;
-    player2Down: string;
-}
-
 export interface Options {
     music: boolean;
+    sfx: boolean;
     playStyle: PlayStyle;
     resolution: Resolution;
-    playerControls: PlayerControls;
+    controls: Controls;
+}
+
+export interface Controls {
+    p1Up: string;
+    p1Down: string;
+    p1Stop: string;
+    p2Up: string;
+    p2Down: string;
+    p2Stop: string;
 }
 
 export const userOptions: Options = {
     music: true,
+    sfx: true,
     playStyle: "normal",
     resolution: "160x40",
-    playerControls: { player1Up: "w", player1Down: "s", player2Up: "i", player2Down: "k" },
+    controls: { p1Up: "w", p1Down: "s", p1Stop: " ", p2Up: "i", p2Down: "k", p2Stop: "n" },
 };
 
 export async function optionsMenu(): Promise<void> {
@@ -40,31 +45,37 @@ export async function optionsMenu(): Promise<void> {
 
         const setString =
             `${chalk.cyan("\tMusic:     ")} ${userOptions.music ? chalk.greenBright("Enabled ✓") : chalk.redBright("Disabled ✘")}\n` +
+            `${chalk.cyan("\tSounds:    ")} ${userOptions.sfx ? chalk.greenBright("Enabled ✓") : chalk.redBright("Disabled ✘")}\n` +
             `${chalk.cyan("\tPlay Style:")} ${chalk.yellowBright(userOptions.playStyle)}\n` +
             `${chalk.cyan("\tResolution:")} ${chalk.blueBright(userOptions.resolution)}\n` +
-            `${chalk.cyan("\tControls:  ")} ${chalk.magenta(`P1: ↑ ${userOptions.playerControls.player1Up} ↓ ${userOptions.playerControls.player1Down}`)} | ` +
-            `${chalk.yellow(`P2: ↑ ${userOptions.playerControls.player2Up} ↓ ${userOptions.playerControls.player2Down}`)}\n\n`;
+            `${chalk.cyan("\tControls:  ")} ${chalk.magenta(`P1  ↑:${userOptions.controls.p1Up}  ↓:${userOptions.controls.p1Down}  ■: ${userOptions.controls.p1Stop}`)} | ` +
+            `${chalk.yellow(`P2  ↑:${userOptions.controls.p2Up}  ↓:${userOptions.controls.p2Down}  ■:${userOptions.controls.p2Stop}`)}\n\n`;
 
         const { option } = await inquirer.prompt([
             {
                 type: "list",
                 name: "option",
                 message: setString,
-                // message: chalk.cyan("Select an option to change:"),
                 choices: [
                     new inquirer.Separator(),
                     { name: "🎵 Music", value: "music" },
                     new inquirer.Separator(),
-                    { name: "🎮 Play Style", value: "playStyle" },
+                    { name: "💥 Sounds", value: "sfx" },
+                    new inquirer.Separator(),
+                    { name: "🕹️ Play Style", value: "playStyle" },
                     new inquirer.Separator(),
                     { name: "🖥️ Resolution", value: "resolution" },
                     new inquirer.Separator(),
-                    { name: "⏳ Player Controls", value: "controls" },
+                    { name: "🎮 Controls", value: "controls" },
                     new inquirer.Separator(),
                     { name: chalk.red("⬅  Main menu"), value: "exit" },
                 ],
             },
         ]);
+
+        if (userOptions.sfx) {
+            audioManager.playSoundEffect("blop");
+        }
 
         switch (option) {
             case "music": {
@@ -78,10 +89,28 @@ export async function optionsMenu(): Promise<void> {
                             { name: chalk.greenBright("Yes ✓"), value: true },
                             { name: chalk.redBright("No  ✘"), value: false },
                         ],
-                        default: userOptions.playStyle,
+                        default: userOptions.music,
                     },
                 ]);
                 userOptions.music = music;
+                break;
+            }
+
+            case "sfx": {
+                const { sfx } = await inquirer.prompt([
+                    {
+                        type: "list",
+                        name: "sfx",
+                        message: chalk.magentaBright("Enable Sounds?"),
+                        choices: [
+                            new inquirer.Separator(),
+                            { name: chalk.greenBright("Yes ✓"), value: true },
+                            { name: chalk.redBright("No  ✘"), value: false },
+                        ],
+                        default: userOptions.sfx,
+                    },
+                ]);
+                userOptions.sfx = sfx;
                 break;
             }
 
@@ -125,33 +154,45 @@ export async function optionsMenu(): Promise<void> {
             }
 
             case "controls": {
-                const { player1Up, player1Down, player2Up, player2Down } = await inquirer.prompt([
+                const { p1Up, p1Down, p1Stop, p2Up, p2Down, p2Stop } = await inquirer.prompt([
                     {
                         type: "input",
-                        name: "player1Up",
+                        name: "p1Up",
                         message: chalk.cyan("Set Player 1   UP: ↑"),
                         default: "w",
                     },
                     {
                         type: "input",
-                        name: "player1Down",
+                        name: "p1Down",
                         message: chalk.cyan("Set Player 1 DOWN: ↓"),
                         default: "s",
                     },
                     {
                         type: "input",
-                        name: "player2Up",
+                        name: "p1Stop",
+                        message: chalk.cyan("Set Player 1 STOP: X"),
+                        default: " ",
+                    },
+                    {
+                        type: "input",
+                        name: "p2Up",
                         message: chalk.cyan("Set Player 2   UP: ↑"),
                         default: "i",
                     },
                     {
                         type: "input",
-                        name: "player2Down",
+                        name: "p2Down",
                         message: chalk.cyan("Set Player 2 DOWN: ↓"),
                         default: "k",
                     },
+                    {
+                        type: "input",
+                        name: "p2Stop",
+                        message: chalk.cyan("Set Player 2 STOP: X"),
+                        default: "n",
+                    },
                 ]);
-                userOptions.playerControls = { player1Up, player1Down, player2Up, player2Down };
+                userOptions.controls = { p1Up, p1Down, p1Stop, p2Up, p2Down, p2Stop };
                 break;
             }
 

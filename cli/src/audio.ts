@@ -6,15 +6,17 @@ import { userOptions } from "./options";
 const audioPlayer = player({});
 
 export class AudioManager {
-    private currentMusic: any = null;
+    private musicProcess: any = null;
     private soundEffects: Map<string, string> = new Map();
     private musicTracks: Map<string, string> = new Map();
+    private loopMusic: boolean = false;
 
     constructor() {
         // Register sound effects
         this.soundEffects.set("paddle_hit", "src/content/hit.mp3");
         this.soundEffects.set("wall_hit", "src/content/bounce.mp3");
-        this.soundEffects.set("score", "src/content/score.wav");
+        this.soundEffects.set("score", "src/content/score.mp3");
+        this.soundEffects.set("blop", "src/content/blop.mp3");
 
         // Register background music tracks
         this.musicTracks.set("normal", "src/content/neon-gaming.mp3");
@@ -34,7 +36,7 @@ export class AudioManager {
         const soundPath = path.resolve(this.soundEffects.get(effectName)!);
 
         // Play sound without volume adjustment
-        this.playAudio(soundPath, false);
+        this.playAudio(soundPath, false, "effect");
     }
 
     /**
@@ -57,7 +59,7 @@ export class AudioManager {
         const musicPath = path.resolve(this.musicTracks.get(trackName)!);
 
         // Play music with looping if possible
-        this.playAudio(musicPath, true);
+        this.playAudio(musicPath, true, "music");
     }
 
     /**
@@ -65,24 +67,25 @@ export class AudioManager {
      * @param audioPath - Path to the audio file
      * @param loop - Whether the audio should loop or not
      */
-    private playAudio(audioPath: string, loop: boolean): void {
-        // console.log(`Playing audio: ${audioPath}, Loop: ${loop}`);
-
-        // Clear any existing music
-        this.currentMusic = null;
-
-        // Start the audio
-        this.currentMusic = audioPlayer.play(audioPath, (err) => {
-            if (err) {
-                console.error(`Error playing audio: ${err}`);
-            }
+    private playAudio(audioPath: string, loop: boolean, destination: "music" | "effect"): void {
+        const child = audioPlayer.play(audioPath, (err) => {
+            if (err) console.error(`Error playing audio: ${err}`);
         });
 
-        // If looping is required, restart the music when it finishes
-        if (loop) {
-            this.currentMusic.on("end", () => {
-                this.playAudio(audioPath, loop); // Restart the music
-            });
+        if (destination === "music") {
+            if (this.musicProcess && typeof this.musicProcess.kill === "function") {
+                this.musicProcess.kill();
+            }
+            this.musicProcess = child;
+
+            if (loop) {
+                this.loopMusic = true;
+                child.on("exit", () => {
+                    if (this.loopMusic) {
+                        this.playAudio(audioPath, loop, "music"); // restart loop
+                    }
+                });
+            }
         }
     }
 
@@ -90,12 +93,11 @@ export class AudioManager {
      * Stop the currently playing background music
      */
     stopMusic(): void {
-        if (this.currentMusic) {
-            if (typeof this.currentMusic.kill === "function") {
-                this.currentMusic.kill();
-            }
-            this.currentMusic = null;
+        this.loopMusic = false;
+        if (this.musicProcess && typeof this.musicProcess.kill === "function") {
+            this.musicProcess.kill();
         }
+        this.musicProcess = null;
     }
 
     /**

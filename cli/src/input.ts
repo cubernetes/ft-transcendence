@@ -1,13 +1,16 @@
 import readline from "readline";
 import { setGameActive, mainMenu } from "./index";
 import { audioManager } from "./audio";
+import { userOptions } from "./options";
 
 // Function to start listening for key presses
 export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
     let upPressed = false;
     let downPressed = false;
 
-    audioManager.startMusic();
+    if (userOptions.music) {
+        audioManager.startMusic();
+    }
 
     // Create an interface to read from stdin
     const rl = readline.createInterface({
@@ -48,6 +51,7 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
         else if (keyName === "\u0003") {
             // cleanup:
             audioManager.stopMusic();
+            process.stdin.removeListener("data", keyListener);
             process.exit(); // hard exit
         }
 

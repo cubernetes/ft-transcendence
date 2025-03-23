@@ -3,7 +3,7 @@ import { WebSocketManager } from "./WebSocketManager";
 import { startKeyListener } from "./input";
 import { setGameConfig } from "./GameRendering";
 import { GameConfig } from "./game.types";
-import { optionsMenu } from "./options.js";
+import { optionsMenu, userOptions } from "./options";
 import { audioManager } from "./audio";
 import chalk from "chalk";
 import figlet from "figlet";
@@ -48,6 +48,9 @@ export async function mainMenu(): Promise<void> {
             },
         ]);
 
+        if (userOptions.sfx) {
+            audioManager.playSoundEffect("blop");
+        }
         switch (mode) {
             case 1:
                 startLocalGame();
@@ -92,6 +95,10 @@ async function handleServerLogin() {
         { type: "input", name: "username", message: "Username:" },
         { type: "password", name: "password", message: "Password:" },
     ]);
+
+    if (userOptions.music) {
+        audioManager.playSoundEffect("blop");
+    }
 
     if (!token) {
         // token = await loginToServer(answers.username, answers.password);

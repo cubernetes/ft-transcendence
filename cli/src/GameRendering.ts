@@ -141,6 +141,22 @@ export function renderGameState(state: ICLIGameState) {
     const { ball, paddle1, paddle2, score } = state;
     const { scaleX, scaleY } = FIELD_CONFIG;
 
+    if (state.lastCollisionEvents && userOptions.sfx) {
+        for (const event of state.lastCollisionEvents) {
+            switch (event.type) {
+                case "paddle":
+                    audioManager.playSoundEffect("paddle_hit");
+                    break;
+                case "wall":
+                    audioManager.playSoundEffect("wall_hit");
+                    break;
+                case "score":
+                    audioManager.playSoundEffect("score");
+                    break;
+            }
+        }
+    }
+
     renderTick++;
     if (renderTick % 5 === 0) {
         tickStyle = (tickStyle + 1) % 3;
@@ -189,3 +205,22 @@ export function renderGameState(state: ICLIGameState) {
 // Characters to use ╭ ╮ ╰╯ ◯ ◉ 🔴
 // █ ▄ ▀
 // ▖ ▗ ▘ ▝
+
+// export interface ICollisionEvent {
+//     type: "paddle" | "wall" | "score";
+//     timestamp: number;
+// }
+
+// export interface ICLIGameState {
+//     score: { player1: number; player2: number };
+//     ball: Vec2D;
+//     paddle1: Vec2D;
+//     paddle2: Vec2D;
+//     gameRunning: boolean;
+//     lastCollisionEvents?: ICollisionEvent[];
+// }
+
+// audioManager.playSoundEffect(string: string): void
+// "paddle_hit"
+// "wall_hit"
+// "score"
