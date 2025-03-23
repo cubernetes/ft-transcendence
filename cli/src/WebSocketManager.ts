@@ -66,7 +66,7 @@ export class WebSocketManager {
     }
 
     closeConnection() {
-        if (this.ws) {
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.close();
         }
     }

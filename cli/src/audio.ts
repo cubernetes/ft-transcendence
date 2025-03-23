@@ -43,9 +43,6 @@ export class AudioManager {
      * Start playing background music based on the current play style
      */
     startMusic(): void {
-        // console.log(userOptions.music); // This should print `true`
-        // console.log(userOptions.playStyle); // Should print "normal", "stylish", or "crazy"
-
         if (!userOptions.music) return;
 
         this.stopMusic();
@@ -70,6 +67,8 @@ export class AudioManager {
     private playAudio(audioPath: string, loop: boolean, destination: "music" | "effect"): void {
         const child = audioPlayer.play(audioPath, (err) => {
             if (err) console.error(`Error playing audio: ${err}`);
+            this.loopMusic = false;
+            return;
         });
 
         if (destination === "music") {

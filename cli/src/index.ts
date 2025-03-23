@@ -1,12 +1,12 @@
 import inquirer from "inquirer";
+import chalk from "chalk";
+import figlet from "figlet";
 import { WebSocketManager } from "./WebSocketManager";
 import { startKeyListener } from "./input";
 import { setGameConfig } from "./GameRendering";
 import { GameConfig } from "./game.types";
 import { optionsMenu, userOptions } from "./options";
 import { audioManager } from "./audio";
-import chalk from "chalk";
-import figlet from "figlet";
 
 let wsManager: WebSocketManager | null = null;
 let token: string | null = null;
@@ -20,8 +20,16 @@ export function getGameActive(): boolean {
     return isGameActive;
 }
 
-// --- Menu Setup ---
+export function cleanup() {
+    console.log(chalk.greenBright("See you soon - good luck for your next game!"));
+    if (wsManager) {
+        wsManager.closeConnection();
+    }
+    audioManager.stopMusic();
+    process.exit(0);
+}
 
+// --- Menu Setup ---
 export async function mainMenu(): Promise<void> {
     try {
         console.clear();
@@ -29,7 +37,6 @@ export async function mainMenu(): Promise<void> {
         const title = figlet.textSync(" PONG   CLI", { font: "Small Poison" });
         console.log(chalk.green(title));
 
-        // Now prompt for menu options
         const { mode } = await inquirer.prompt([
             {
                 type: "list",
@@ -51,6 +58,7 @@ export async function mainMenu(): Promise<void> {
         if (userOptions.sfx) {
             audioManager.playSoundEffect("blop");
         }
+
         switch (mode) {
             case 1:
                 startLocalGame();
@@ -62,20 +70,14 @@ export async function mainMenu(): Promise<void> {
                 optionsMenu();
                 break;
             case 0:
-                console.log(chalk.red("See you soon - good luck for your next game!"));
-                if (wsManager) {
-                    wsManager.closeConnection(); // Close the WebSocket connection on exit
-                }
-                process.exit(0);
+                cleanup();
         }
     } catch (err) {
-        console.error(chalk.red("Error in main menu: "), err);
-        process.exit(1);
+        cleanup();
     }
 }
 
 // --- Server Flow ---
-
 async function fetchGameConfig(): Promise<GameConfig> {
     const res = await fetch("http://localhost:8080/api/games/config");
     if (!res.ok) {
@@ -85,32 +87,29 @@ async function fetchGameConfig(): Promise<GameConfig> {
 }
 
 async function handleServerLogin() {
-    // Only log in if the user isn't already logged in
-    if (wsManager) {
-        console.log(chalk.yellow("Already logged in and connected to server."));
-        return startRemoteGame(); // Skip login if connection is already established
-    }
+    try {
+        if (wsManager) {
+            console.log(chalk.yellow("Already logged in and connected to server."));
+            return startRemoteGame();
+        }
 
-    const answers = await inquirer.prompt([
-        { type: "input", name: "username", message: "Username:" },
-        { type: "password", name: "password", message: "Password:" },
-    ]);
-
-    if (userOptions.music) {
-        audioManager.playSoundEffect("blop");
-    }
-
-    if (!token) {
-        // token = await loginToServer(answers.username, answers.password);
-        token = "dummy"; // Dummy token for now
+        const answers = await inquirer.prompt([
+            { type: "input", name: "username", message: "Username:" },
+            { type: "password", name: "password", message: "Password:" },
+        ]);
 
         if (!token) {
-            console.error(chalk.red("Login failed."));
-            return mainMenu();
+            token = "dummy"; // Dummy token for now
+            if (!token) {
+                console.error(chalk.red("Login failed."));
+                return mainMenu();
+            }
         }
-    }
 
-    await startRemoteGame();
+        await startRemoteGame();
+    } catch (err) {
+        cleanup();
+    }
 }
 
 async function loginToServer(username: string, password: string): Promise<string | null> {
@@ -132,7 +131,6 @@ async function loginToServer(username: string, password: string): Promise<string
 
 async function startRemoteGame() {
     try {
-        // Fetch game config from the server
         const config = await fetchGameConfig();
         console.log("Fetched game config:", config);
         console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
@@ -144,10 +142,8 @@ async function startRemoteGame() {
             wsManager = new WebSocketManager(serverUrl);
         }
 
-        // Set game state to active
         isGameActive = true;
 
-        // Start listening for user input to send directions to the server
         startKeyListener((dir) => {
             if (wsManager) {
                 wsManager.sendMessage(`move ${dir}`);
@@ -159,14 +155,11 @@ async function startRemoteGame() {
     }
 }
 
-// --- Local Flow (stub for now) ---
-
+// --- Local Flow ---
 async function startLocalGame() {
     console.log(chalk.yellow("Local play not implemented yet."));
-    // TODO: integrate local game engine
     mainMenu();
 }
 
 // --- Start CLI ---
-
 mainMenu();
