@@ -18,6 +18,11 @@ export const createUserSchema = z
         message: "Passwords do not match",
     });
 
+export const loginUserSchema = z.object({
+    username: z.string().min(3, { message: "Username is required" }),
+    password: z.string().min(8, { message: "Password is required" }),
+});
+
 export const userIdSchema = z.object({
     id: z.coerce.number().int().gt(0),
 });
@@ -36,6 +41,14 @@ export const PublicUserSchema = z.object({
     createdAt: z.string().datetime(),
 });
 
+export const LoginSchema = z.object({
+    token: z.string(),
+});
+
+export const authenticationSchema = z.object({
+    authorization: z.string().startsWith("Bearer ", { message: "Invalid Bearer token format" }),
+});
+
 // export const updateUserSchema = z.object({
 //     id: z.coerce.number().int().gt(0),
 //     username: z.string().min(3, { message: "Username must be at least 3 characters long" }),
@@ -48,8 +61,8 @@ export const createRouteSchema = {
     schema: {
         body: zodToJsonSchema(createUserSchema),
         response: {
-            201: zodToJsonSchema(resSuccess(PublicUserSchema)),
-            400: zodToJsonSchema(resError(["BAD_REQUEST"])),
+            201: zodToJsonSchema(resSuccess(LoginSchema)),
+            400: zodToJsonSchema(resError(["VALIDATION_ERROR"])),
             409: zodToJsonSchema(resError(["USERNAME_TAKEN"])),
             500: zodToJsonSchema(resError(["INTERNAL_SERVER_ERROR"])),
         },

@@ -2,6 +2,7 @@ import { createHomePage } from "../pages/HomePage";
 import { createGamePage } from "../pages/GamePage";
 import { createProfilePage } from "../pages/ProfilePage";
 import { createLeaderboardPage } from "../pages/LeaderboardPage";
+import { createLoginPage } from "../pages/LoginPage";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {
@@ -9,6 +10,7 @@ export const createRouter = (container: HTMLElement): void => {
         game: createGamePage,
         profile: createProfilePage,
         leaderboard: createLeaderboardPage,
+        login: createLoginPage,
     };
 
     async function handleRouteChange() {

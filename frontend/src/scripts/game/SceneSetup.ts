@@ -55,7 +55,8 @@ export class SceneSetup {
         paddle2: Mesh;
         ball: Mesh;
     }> {
-        const objectConfigs = (await (await getObjectConfigs()).json()) as unknown as ObjectConfig;
+        const objectConfigs = (await (await getObjectConfigs()).json())
+            .data as unknown as ObjectConfig;
 
         // Define consts
         const positions = gameConfig.positions;

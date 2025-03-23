@@ -12,7 +12,7 @@ export const createHeader = (): HTMLElement => {
     const nav = document.createElement("nav");
     nav.className = "mt-2";
 
-    const navItems = ["Home", "Game", "Leaderboard", "Profile"];
+    const navItems = ["Home", "Game", "Leaderboard", "Profile", "Login"];
     const navList = document.createElement("ul");
     navList.className = "flex space-x-4";
 

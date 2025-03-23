@@ -1,25 +1,30 @@
 import type { FastifyPluginAsync } from "fastify";
 import {
-    createUserHandler,
     getAllUsersHandler,
+    getMeHandler,
     getUserByIdHandler,
     getUserByUsernameHandler,
+    loginHandler,
+    registerHandler,
 } from "./user.controller.ts";
 import { withZod } from "../utils/zod-validate.ts";
 import {
+    authenticationSchema,
     createRouteSchema,
     createUserSchema,
     getUserByIdRouteSchema,
+    loginUserSchema,
     userIdSchema,
     userNameSchema,
 } from "./user.schema.ts";
 
 const userRoutes: FastifyPluginAsync = async (fastify) => {
     fastify.post(
-        "/create",
+        "/register",
         createRouteSchema,
-        withZod({ body: createUserSchema }, createUserHandler)
+        withZod({ body: createUserSchema }, registerHandler)
     );
+    fastify.post("/login", withZod({ body: loginUserSchema }, loginHandler));
     fastify.get(
         "/id/:id",
         getUserByIdRouteSchema,
@@ -30,6 +35,7 @@ const userRoutes: FastifyPluginAsync = async (fastify) => {
         withZod({ params: userNameSchema }, getUserByUsernameHandler)
     );
     fastify.get("/all", getAllUsersHandler);
+    fastify.get("/me", withZod({ headers: authenticationSchema }, getMeHandler));
     // fastify.put(
     //     "/:id",
     //     withZod(
