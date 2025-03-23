@@ -21,8 +21,7 @@ check-env:
 		cp .env.example .env; \
 	}
 
-.PHONY: dev
-dev: check-env clean-app-volumes
+define dev-env
 	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
 	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
 	[ -n "$(DEV_DOMAINS)" ]    &&  \
@@ -33,10 +32,10 @@ dev: check-env clean-app-volumes
 	WATCH="1"                      \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build --watch $(ARGS)
+	$(DC) $(1)
+endef
 
-.PHONY: prod
-prod: check-env clean-app-volumes
+define prod-env
 	[ -n "$(PROD_HTTP_PORT)" ]  &&  \
 	[ -n "$(PROD_HTTPS_PORT)" ] &&  \
 	[ -n "$(PROD_DOMAINS)" ]    &&  \
@@ -47,7 +46,35 @@ prod: check-env clean-app-volumes
 	WATCH="0"                       \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) up --build --detach
+	$(DC) $(1)
+endef
+
+define wait-progress
+	printf '\033[33m%s\033[m\n' \
+		"INFO: Starting to watch for filesystem changes in $(1) second(s)"
+	sleep 1
+endef
+
+.PHONY: dev-old-compose
+dev-old-compose: check-env clean-app-volumes
+	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
+	@$(call dev-env,build)
+	@$(call dev-env,up --remove-orphans --detach)
+	@$(call dev-env,logs --follow &)
+	@$(call wait-progress,5)
+	@$(call wait-progress,4)
+	@$(call wait-progress,3)
+	@$(call wait-progress,2)
+	@$(call wait-progress,1)
+	@$(call dev-env,watch --no-up)
+
+.PHONY: dev
+dev: check-env clean-app-volumes
+	@$(call dev-env,up --remove-orphans --build --watch $(ARGS))
+
+.PHONY: prod
+prod: check-env clean-app-volumes
+	@$(call prod-env,up --remove-orphans --build --detach)
 
 .PHONY: down
 down:
@@ -86,7 +113,7 @@ deepclean: fclean
 		"and consider 'make clean' instead.\n"                                  \
 		"Press ENTER to continue anyway..." && read c
 	$(MAKE) clean
-	$(D) ps --quiet --all | xargs -r $(D) rm --force # non-graceful shutdown because wdgaf
+	$(D) ps --quiet --all | xargs -r $(D) rm -f # non-graceful shutdown because wdgaf
 	$(D) system prune --all --volumes --force        # dangerous
 
 .PHONY: re
