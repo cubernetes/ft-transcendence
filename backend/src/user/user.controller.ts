@@ -1,6 +1,12 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserDTO, LoginUserDTO, UserIdDTO, UserNameDTO } from "./user.types.ts";
-import { toPublicUser } from "./user.helpers.ts";
+import {
+    AuthenticationDTO,
+    CreateUserDTO,
+    LoginUserDTO,
+    UserIdDTO,
+    UserNameDTO,
+} from "./user.types.ts";
+import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
 import { ApiError } from "../utils/errors.ts";
 
 export const registerHandler = async (
@@ -99,3 +105,20 @@ export const getAllUsersHandler = async (req: FastifyRequest, reply: FastifyRepl
 // ) => {
 //     await request.server.userService.remove(request.params.id);
 // };
+
+export const getMeHandler = async (
+    { headers }: { headers: AuthenticationDTO },
+    req: FastifyRequest,
+    reply: FastifyReply
+) => {
+    const token = headers.authorization.split(" ")[1]; // Extract the token from the Authorization header (Bearer <token>)
+    const decodedPayload = req.server.authService.verifyToken(token) as { id: number };
+
+    const user = await req.server.userService.findById(decodedPayload.id);
+
+    if (!user) {
+        throw new ApiError("NOT_FOUND", 404, "User not found");
+    }
+
+    reply.send({ success: true, data: toPersonalUser(user) });
+};

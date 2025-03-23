@@ -44,7 +44,7 @@ export const createHomePage = async (): Promise<HTMLElement> => {
     const userStatusEl = document.createElement("div");
     main.appendChild(userStatusEl);
 
-    showUserStatus(userStatusEl);
+    await showUserStatus(userStatusEl);
 
     return container;
 };

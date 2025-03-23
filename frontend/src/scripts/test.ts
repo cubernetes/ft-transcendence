@@ -8,7 +8,7 @@ interface JwtPayload {
     exp: number;
 }
 
-export const showUserStatus = (container: HTMLElement) => {
+export const showUserStatus = async (container: HTMLElement) => {
     const token = localStorage.getItem("token");
     console.log(token);
 
@@ -24,6 +24,15 @@ export const showUserStatus = (container: HTMLElement) => {
             localStorage.removeItem("token");
             return;
         }
+
+        // Verify on the backend to see test that it works
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        const data = await response.json();
+        console.log(data);
     } catch (error) {
         localStorage.removeItem("token");
         return;

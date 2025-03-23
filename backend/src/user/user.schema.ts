@@ -45,6 +45,10 @@ export const LoginSchema = z.object({
     token: z.string(),
 });
 
+export const authenticationSchema = z.object({
+    authorization: z.string().startsWith("Bearer ", { message: "Invalid Bearer token format" }),
+});
+
 // export const updateUserSchema = z.object({
 //     id: z.coerce.number().int().gt(0),
 //     username: z.string().min(3, { message: "Username must be at least 3 characters long" }),

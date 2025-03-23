@@ -1,5 +1,6 @@
 import { users } from "../db/db.schema.ts";
 import {
+    authenticationSchema,
     createUserSchema,
     loginUserSchema,
     PublicUserSchema,
@@ -16,3 +17,5 @@ export type UserNameDTO = z.infer<typeof userNameSchema>;
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type PublicUser = z.infer<typeof PublicUserSchema>;
+
+export type AuthenticationDTO = z.infer<typeof authenticationSchema>;
