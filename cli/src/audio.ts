@@ -19,6 +19,7 @@ export class AudioManager {
         this.soundEffects.set("blop", "src/content/blop.mp3");
 
         // Register background music tracks
+        this.musicTracks.set("menu", "src/content/menu.mp3");
         this.musicTracks.set("normal", "src/content/neon-gaming.mp3");
         this.musicTracks.set("stylish", "src/content/stylish_game.mp3");
         this.musicTracks.set("crazy", "src/content/crazy_game.mp3");
@@ -42,12 +43,14 @@ export class AudioManager {
     /**
      * Start playing background music based on the current play style
      */
-    startMusic(): void {
-        if (!userOptions.music) return;
-
+    startMusic(name: string = ""): void {
+        let trackName;
         this.stopMusic();
-
-        const trackName = userOptions.playStyle;
+        if (name === "") {
+            trackName = userOptions.playStyle;
+        } else {
+            trackName = name;
+        }
         if (!this.musicTracks.has(trackName)) {
             console.error(`Music track for "${trackName}" style not found`);
             return;
