@@ -1,9 +1,9 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserDTO, UserIdDTO, UserNameDTO } from "./user.types.ts";
+import { CreateUserDTO, LoginUserDTO, UserIdDTO, UserNameDTO } from "./user.types.ts";
 import { toPublicUser } from "./user.helpers.ts";
 import { ApiError } from "../utils/errors.ts";
 
-export const createUserHandler = async (
+export const registerHandler = async (
     { body }: { body: CreateUserDTO },
     req: FastifyRequest,
     reply: FastifyReply
@@ -14,13 +14,40 @@ export const createUserHandler = async (
     // Use authService to hash the password
     const hashedPassword = await req.server.authService.hashPassword(userData.password);
 
-    // Create user with hashed password
+    // Create user with hashed password, will throw 409 if user already exists
     const user = await req.server.userService.create({
         ...userData,
         passwordHash: hashedPassword,
     });
 
-    reply.code(201).send(toPublicUser(user));
+    const token = req.server.authService.generateToken(user);
+
+    reply.code(201).send({ success: true, data: { token } });
+};
+
+export const loginHandler = async (
+    { body }: { body: LoginUserDTO },
+    req: FastifyRequest,
+    reply: FastifyReply
+) => {
+    const user = await req.server.userService.findByUsername(body.username);
+
+    if (!user) {
+        throw new ApiError("NOT_FOUND", 404, "User not found");
+    }
+
+    const isPasswordValid = await req.server.authService.comparePassword(
+        body.password,
+        user.passwordHash
+    );
+
+    if (!isPasswordValid) {
+        throw new ApiError("UNAUTHORIZED", 401, "Invalid password");
+    }
+
+    const token = req.server.authService.generateToken(user);
+
+    reply.code(200).send({ success: true, data: { token } });
 };
 
 export const getUserByIdHandler = async (
