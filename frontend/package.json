@@ -15,11 +15,13 @@
         "@babylonjs/core": "^7.51.3",
         "@types/earcut": "^3.0.0",
         "earcut": "^3.0.1",
+        "jwt-decode": "^4.0.0",
         "tailwindcss": "3.4.17",
         "typescript": "^5.7.3"
     },
     "devDependencies": {
         "@babylonjs/inspector": "^7.52.2",
+        "@types/jwt-decode": "^2.2.1",
         "chokidar": "^4.0.3",
         "concurrently": "^9.1.2",
         "esbuild": "^0.25.1",

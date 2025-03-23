@@ -1,6 +1,6 @@
 import { createHeader } from "../components/Header";
 import { createFooter } from "../components/Footer";
-
+import { showUserStatus } from "../test";
 export const createHomePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
@@ -39,6 +39,12 @@ export const createHomePage = async (): Promise<HTMLElement> => {
 
     const container = document.createElement("div");
     container.appendChild(fragment);
+
+    // TESTING: login status on home page with DisplayName
+    const userStatusEl = document.createElement("div");
+    main.appendChild(userStatusEl);
+
+    showUserStatus(userStatusEl);
 
     return container;
 };
