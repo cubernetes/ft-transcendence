@@ -57,8 +57,9 @@ endef
 
 .PHONY: dev-old-compose
 dev-old-compose: check-env clean-app-volumes
+	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
 	@$(call dev-env,build)
-	@$(call dev-env,up --remove-orphans --detach $(ARGS))
+	@$(call dev-env,up --remove-orphans --detach)
 	@$(call dev-env,logs --follow &)
 	@$(call wait-progress,5)
 	@$(call wait-progress,4)
