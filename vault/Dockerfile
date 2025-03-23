@@ -1,3 +1,7 @@
 FROM hashicorp/vault:1.19.0
 
-CMD ["entrypoint.sh"]
+RUN apk add --no-cache jq
+
+COPY . .
+
+CMD ["/entrypoint.sh"]
