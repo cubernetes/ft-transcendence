@@ -189,7 +189,7 @@ populate_kv_secrets () {
 		# `vault kv put' can also read json from stdin
 		debug "KV put command output: %s" "$(printf %s "$json" | vault kv put -format=json -mount=secret "$service" - | jq --compact-output --color-output)"
 	done <<-EOF
-	$(</vault/config/env.json jq -r 'to_entries[]|.key+";"+(.value|tostring)')
+	$(/replace_json_templates.py /vault/config/env.json | jq -r 'to_entries[]|.key+";"+(.value|tostring)')
 	EOF
 }
 
