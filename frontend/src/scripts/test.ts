@@ -66,7 +66,7 @@ export const showUserStatus = async (container: HTMLElement) => {
 
 export const fetchTestData = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/all`);
+        const response = await fetch(`${API_BASE_URL}/users/leaderboard/10`);
         if (!response.ok) {
             throw new Error("Failed to fetch users");
         }
