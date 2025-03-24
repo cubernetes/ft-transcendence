@@ -24,21 +24,27 @@ export const appOpts: FastifyServerOptions = {
     logger: process.env.NODE_ENV === "production" ? prodLoggerConfig : devLoggerConfig,
 };
 
-const readVaultSecret = async (vaultToken: String, apiAddr: String, path: String, key: String) => {
-	return fetch(`${apiAddr}/${path}`, {headers: {"X-Vault-Token": vaultToken}})
-	.then(resp => resp.json())
-	.then(data => data.data.data[key]); // wtf
+export const readVaultSecret = async (vaultToken: string, apiBaseAddr: string, path: string, key: string) => {
+	const apiAddr = `${apiBaseAddr}/v1/${path}`;
+	return fetch(apiAddr, {headers: {"X-Vault-Token": vaultToken}})
+	.then((resp) => resp.json())
+	.then((data) => data.data.data[key]); // wtf
 }
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (fastify: FastifyInstance) => {
     /** Validate config integrity */
 
-	const vaultToken = await fs.readFileSync("/run/secrets/backend_vault_token", "utf8");
-	const jwtSecret = await readVaultSecret(vaultToken, "http://vault:8200", "secret/data/backend", "JWT_SECRET");
-	await fs.writeFileSync("/run/secrets/backend_vault_token", "read");
+	let vaultToken = fs.readFileSync("/run/secrets/backend_vault_token", "utf8");
 
-    const parsedEnv = configSchema.parse({...process.env, JWT_SECRET: jwtSecret);
+	const rawJwtSecret = await readVaultSecret(vaultToken, "http://vault:8200", "secret/data/backend", "JWT_SECRET"); // maybe pass these as a (vault config) object?
+	/* ... */
+	/* read more secrets from vault if needed */
+
+	fs.writeFileSync("/run/secrets/backend_vault_token", ""); // clear, since not needed anymore
+	vaultToken = undefined;
+
+    const parsedEnv = configSchema.parse({...process.env, JWT_SECRET: rawJwtSecret});
 
     const port = parsedEnv.BACKEND_PORT;
     const jwtSecret = parsedEnv.JWT_SECRET;
