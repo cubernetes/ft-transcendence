@@ -8,9 +8,9 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
     let upPressed = false;
     let downPressed = false;
 
-    if (userOptions.music) {
-        audioManager.startMusic();
-    }
+    // if (userOptions.music) {
+    //     audioManager.startMusic();
+    // }
 
     // Create an interface to read from stdin
     const rl = readline.createInterface({
@@ -27,21 +27,23 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
     const keyListener = (key: Buffer) => {
         const keyName = key.toString();
 
-        // Up direction: Arrow up or 'w'
-        if ((keyName === "\u001b[A" || keyName === "w") && !upPressed) {
+        // Up direction: Arrow up or User-defined key
+        if ((keyName === "\u001b[A" || keyName === userOptions.controls.p1Up) && !upPressed) {
             upPressed = true;
             downPressed = false;
             onDir("down");
         }
-        // Down direction: Arrow down or 's'
-        else if ((keyName === "\u001b[B" || keyName === "s") && !downPressed) {
+        // Down direction: Arrow down or User-defined key
+        else if (
+            (keyName === "\u001b[B" || keyName === userOptions.controls.p1Down) &&
+            !downPressed
+        ) {
             downPressed = true;
             upPressed = false;
             onDir("up");
         }
-
-        // Stop: Space or Enter key
-        else if (keyName === " " || keyName === "\r") {
+        // Stop: Space or User-defined key
+        else if (keyName === " " || keyName === userOptions.controls.p1Stop) {
             downPressed = false;
             upPressed = false;
             onDir("stop");

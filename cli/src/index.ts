@@ -89,7 +89,8 @@ async function fetchGameConfig(): Promise<GameConfig> {
     if (!res.ok) {
         throw new Error(`Failed to fetch config: ${res.status}`);
     }
-    return res.json();
+    const json = await res.json();
+    return json.data;
 }
 
 async function handleServerLogin() {
@@ -157,7 +158,9 @@ async function startRemoteGame() {
             }
         });
     } catch (err) {
-        console.error("Failed to start remote game:", err);
+        // console.error("Failed to start remote game!");
+        // mainMenu();
+        console.error("Failed to start remote game: ", err);
         process.exit(1);
     }
 }
