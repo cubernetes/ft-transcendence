@@ -22,10 +22,20 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
         transport: http(),
     });
 
-    const walletClient = createWalletClient({
-        chain: holesky,
-        transport: custom(window.ethereum!),
-    });
+    const walletClient = (() => {
+        try {
+            if (!window.ethereum) {
+                return null;
+            }
+            return createWalletClient({
+                chain: holesky,
+                transport: custom(window.ethereum),
+            });
+        } catch (error) {
+            console.error("Failed to initialize wallet client:", error);
+            return null;
+        }
+    })();
 
     // State management
     let account: `0x${string}` | undefined;
@@ -34,6 +44,10 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
     };
 
     const connectWallet = async (): Promise<`0x${string}` | undefined> => {
+        if (!walletClient) {
+            console.log("No wallet detected! Please install MetaMask or another web3 wallet.");
+            return undefined;
+        }
         try {
             const [address] = await walletClient.requestAddresses();
             if (address) {
@@ -76,7 +90,7 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
 
     writeButton.addEventListener("click", async () => {
         const gameId = BigInt(inputWrite.value || "0");
-        if (!account) {
+        if (!account || !walletClient) {
             console.log("No account connected");
             return;
         }
