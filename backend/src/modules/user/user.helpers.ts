@@ -1,4 +1,4 @@
-import { User } from "./user.types.ts";
+import { PublicUser, User } from "./user.types.ts";
 
 /** Remove sensitive fields from user before sending response to themselves. */
 export const toPersonalUser = (user: User): Omit<User, "passwordHash"> => {
@@ -7,7 +7,7 @@ export const toPersonalUser = (user: User): Omit<User, "passwordHash"> => {
 };
 
 /** Remove sensitive fields from user before sending response to public. */
-export const toPublicUser = (user: User): Omit<User, "passwordHash" | "totpSecret"> => {
+export const toPublicUser = (user: User): PublicUser => {
     const { passwordHash, totpSecret, ...publicUser } = user;
-    return publicUser;
+    return publicUser as PublicUser; // TODI: Fix Type
 };

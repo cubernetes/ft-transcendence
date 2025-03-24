@@ -1,110 +1,69 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import {
-    AuthenticationDTO,
-    CreateUserDTO,
-    LoginUserDTO,
-    UserIdDTO,
-    UserNameDTO,
-} from "./user.types.ts";
-import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
-import { ApiError } from "../utils/errors.ts";
+import { AuthenticationDTO, CreateUserDTO, LeaderboardDTO, LoginUserDTO } from "./user.types.ts";
+import { toPersonalUser } from "./user.helpers.ts";
+import { ApiError, ok } from "../../utils/errors.ts";
 
 export const registerHandler = async (
     { body }: { body: CreateUserDTO },
     req: FastifyRequest,
     reply: FastifyReply
-) => {
+): Promise<void> => {
     // Remove confirmPassword from data
     const { confirmPassword, ...userData } = body;
 
-    // Use authService to hash the password
     const hashedPassword = await req.server.authService.hashPassword(userData.password);
-
-    // Create user with hashed password, will throw 409 if user already exists
     const user = await req.server.userService.create({
         ...userData,
         passwordHash: hashedPassword,
     });
 
-    const token = req.server.authService.generateToken(user);
+    if (!user.success) {
+        return user.error.send(reply);
+    }
 
-    reply.code(201).send({ success: true, data: { token } });
+    const token = req.server.authService.generateToken(user.data);
+    return reply.code(201).send({ success: true, data: { token } });
 };
 
 export const loginHandler = async (
     { body }: { body: LoginUserDTO },
     req: FastifyRequest,
     reply: FastifyReply
-) => {
+): Promise<void> => {
     const user = await req.server.userService.findByUsername(body.username);
-
-    if (!user) {
-        throw new ApiError("NOT_FOUND", 404, "User not found");
+    if (!user.success) {
+        return user.error.send(reply);
     }
 
     const isPasswordValid = await req.server.authService.comparePassword(
         body.password,
-        user.passwordHash
+        user.data.passwordHash
     );
-
     if (!isPasswordValid) {
-        throw new ApiError("UNAUTHORIZED", 401, "Invalid password");
+        const err = new ApiError("UNAUTHORIZED", 401, "Invalid password");
+        return err.send(reply);
     }
 
-    const token = req.server.authService.generateToken(user);
-
-    reply.code(200).send({ success: true, data: { token } });
+    const token = req.server.authService.generateToken(user.data);
+    return reply.code(200).send({ success: true, data: { token } });
 };
 
-export const getUserByIdHandler = async (
-    { params }: { params: UserIdDTO },
+export const getLeaderboardHandler = async (
+    { params }: { params: LeaderboardDTO },
     req: FastifyRequest,
     reply: FastifyReply
 ) => {
-    const user = await req.server.userService.findById(params.id);
-
-    if (!user) {
-        throw new ApiError("NOT_FOUND", 404, "User not found");
-    }
-
-    reply.send(toPublicUser(user));
-};
-
-export const getUserByUsernameHandler = async (
-    { params }: { params: UserNameDTO },
-    req: FastifyRequest,
-    reply: FastifyReply
-) => {
-    const user = await req.server.userService.findByUsername(params.username);
-
-    if (!user) {
-        throw new ApiError("NOT_FOUND", 404, "User not found");
-    }
-
-    reply.send(toPublicUser(user));
-};
-
-export const getAllUsersHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+    const { n } = params;
     const users = await req.server.userService.findAll();
-    const publicUsers = users.map((user) => toPublicUser(user));
 
-    reply.send(publicUsers);
+    if (!users.success) {
+        return users.error.send(reply);
+    }
+
+    const leadUsers = users.data.sort((a, b) => b.wins - a.wins).slice(0, n);
+
+    return reply.send(ok(leadUsers));
 };
-
-// export const updateUserHandler = async (
-//     request: FastifyRequest<{ Params: { id: string }; Body: UpdateUserDTO }>,
-//     reply: FastifyReply
-// ) => {
-//     const user = await request.server.userService.update(request.params.id, request.body);
-//     return reply.send(user);
-// };
-
-// export const removeUserHandler = async (
-//     request: FastifyRequest<{ Params: { id: string } }>,
-//     reply: FastifyReply
-// ) => {
-//     await request.server.userService.remove(request.params.id);
-// };
 
 export const getMeHandler = async (
     { headers }: { headers: AuthenticationDTO },
@@ -112,13 +71,14 @@ export const getMeHandler = async (
     reply: FastifyReply
 ) => {
     const token = headers.authorization.split(" ")[1]; // Extract the token from the Authorization header (Bearer <token>)
-    const decodedPayload = req.server.authService.verifyToken(token) as { id: number };
+    const decodedPayload = req.server.authService.verifyToken(token);
 
-    const user = await req.server.userService.findById(decodedPayload.id);
+    // Type??
+    const user = await req.server.userService.findById(Number(decodedPayload.id));
 
-    if (!user) {
-        throw new ApiError("NOT_FOUND", 404, "User not found");
+    if (!user.success) {
+        return user.error.send(reply);
     }
 
-    reply.send({ success: true, data: toPersonalUser(user) });
+    return reply.send(ok(toPersonalUser(user.data)));
 };

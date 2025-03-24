@@ -1,6 +1,6 @@
 import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
-import { resError, resSuccess } from "../utils/response-wrapper.ts";
+import { resError, resSuccess } from "../../core/api/api.schema.ts";
 
 export const createUserSchema = z
     .object({
@@ -25,6 +25,10 @@ export const loginUserSchema = z.object({
 
 export const userIdSchema = z.object({
     id: z.coerce.number().int().gt(0),
+});
+
+export const leaderboardSchema = z.object({
+    n: z.coerce.number().int().gt(0),
 });
 
 export const userNameSchema = z.object({
