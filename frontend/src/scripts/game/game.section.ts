@@ -1,7 +1,7 @@
-import { AudioManager } from "./managers/Audio";
-import { GameStateManager } from "./managers/GameState";
-import { WebSocketManager } from "./managers/WebSocket";
-import { GameUIManager } from "./managers/GameUI";
+import { AudioManager } from "./managers/managers.audio";
+import { GameStateManager } from "./managers/managers.state";
+import { WebSocketManager } from "./managers/managers.sockets";
+import { GameUIManager } from "./managers/managers.ui";
 import earcut from "earcut";
 (window as any).earcut = earcut;
 

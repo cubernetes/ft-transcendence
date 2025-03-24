@@ -1,6 +1,7 @@
-import { createHeader } from "../components/Header";
-import { createFooter } from "../components/Footer";
-import { create3DGameSection } from "../game/GameSection3D";
+import { createHeader } from "../components/components.header";
+import { createFooter } from "../components/components.footer";
+import { create3DGameSection } from "../game/game.section";
+import { connectBlockchain } from "../components/components.blockchain";
 
 export const createGamePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
@@ -9,6 +10,9 @@ export const createGamePage = async (): Promise<HTMLElement> => {
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4";
+
+    const connectButton = await connectBlockchain();
+    main.appendChild(connectButton);
 
     const game3DSection = await create3DGameSection();
     main.appendChild(game3DSection);
