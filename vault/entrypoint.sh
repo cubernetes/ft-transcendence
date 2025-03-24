@@ -65,10 +65,15 @@ error () {
 	log ERROR "$@"
 }
 
-debug "Creating /vault/file/ directory"
-mkdir /vault/ /vault/file/
+die () {
+	error "$@"
+	exit 1
+}
 
-start_server () {
+debug "Creating /vault/file/ directory"
+mkdir -p /vault/file/
+
+start_server_in_bg () {
 	#vault server -config=/vault/config/config.hcl
 	info "Starting vault server in background job"
 
@@ -91,14 +96,14 @@ wait_and_extract_secrets () {
 
 show_secrets () {
 	i=1
-	while read -r; do
-		info 'Unseal key %d: \033\133;93m%s\033\133;m\n' "$i" "$REPLY"
+	while read -r key; do
+		debug 'Unseal key %d: \033\133;93m%s\033\133;m\n' "$i" "$key"
 		i=$((i+1))
 	done <<-EOF
 	$unseal_keys
 	EOF
 
-	info 'Root Token:   \033\133;93m%s\033\133;m\n' "$root_token"
+	debug 'Root Token:   \033\133;93m%s\033\133;m\n' "$root_token"
 }
 
 
@@ -118,9 +123,9 @@ ensure_unsealed () {
 		info "Vault is sealed, trying to unseal it using unseal keys"
 
 		i=1
-		while read -r; do
-			debug "Trying to unseal using the %d. key: \033\133;93m%s\033\133;m" "$i" "$REPLY"
-			debug "Unseal command output: %s" "$(vault operator unseal -format=json "$REPLY" | jq --compact-output --color-output)"
+		while read -r key; do
+			debug "Trying to unseal using the %d. key: \033\133;93m%s\033\133;m" "$i" "$key"
+			debug "Unseal command output: %s" "$(vault operator unseal -format=json "$key" | jq --compact-output --color-output)"
 			i=$((i+1))
 		done <<-EOF
 		$unseal_keys
@@ -137,17 +142,66 @@ ensure_unsealed () {
 	fi
 }
 
+# Assumes that 'vault is sealed' is the last diagnostic. In case it is not,
+# a fallback context of 10 lines is supported. If the server produces more than
+# 10 lines of output after saying 'vault is sealed', it will be force shutdown using SIGKILL.
+wait_until_sealed () {
+	timeout=$((${1:-5} * 10)) # in seconds, default 5 seconds
+
+	i=0
+	while :; do
+		debug "Waiting until server says 'vault is sealed' ($((i/10)).$((i%10)) second(s) passed)"
+		tail -n 10 ~/vault-server-stderr | jq --raw-output '.["@message"]' | grep -Fx 'vault is sealed' 1>/dev/null && return 0
+		sleep 0.1
+		i=$((i+1))
+		[ "$i" -gt "$timeout" ] && return 1
+	done
+}
+
 shutdown_server () {
+	warn "Terminating (with SIGTERM) vault server"
+	kill %1 || true
+
+	wait_until_sealed 10 && return 0
+
+	# Grace wait
+	sleep .2
+
 	warn "Terminating (with SIGKILL) vault server"
-	kill -s SIGKILL %%
+	kill -s SIGKILL %1 || true
+}
+
+setup_kv_secrets_engine () {
+	info "Disabling secrets engine at path secret/"
+	1>/dev/null vault secrets disable secret/ || die "Could not disable secrets engine at path secret/"
+	info "Enabling kv-v2 secrets engine at path secret/"
+	1>/dev/null vault secrets enable -path=secret/ kv-v2 || die "Could not enable kv-v2 secrets engine at path secret/"
+}
+
+populate_kv_secrets () {
+	test -e /vault/config/env.json || die "File /vault/config/env.json is missing"
+	test -f /vault/config/env.json || die "File /vault/config/env.json is not a regular file"
+	test -r /vault/config/env.json || die "File /vault/config/env.json is not readable"
+	while read -r kv_entries; do
+		service=$(printf %s "$kv_entries" | cut -d';' -f1)
+		json=$(printf %s "$kv_entries" | cut -d';' -f2-)
+
+		# `vault kv put' can also read json from stdin
+		debug "KV put command output: %s" "$(printf %s "$json" | vault kv put -format=json -mount=secret "$service" - | jq --compact-output --color-output)"
+	done <<-EOF
+	$(</vault/config/env.json jq -r 'to_entries[]|.key+";"+(.value|tostring)')
+	EOF
 }
 
 main () {
-	start_server
+	start_server_in_bg
 	wait_and_extract_secrets
-	show_secrets
+	show_secrets # TODO: Remove, since not needed
 	export_environment
+	vault operator seal 1>/dev/null 2>&1
 	ensure_unsealed
+	setup_kv_secrets_engine
+	populate_kv_secrets
 	shutdown_server
 }
 
