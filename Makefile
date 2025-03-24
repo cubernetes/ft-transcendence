@@ -1,6 +1,8 @@
 DC := docker compose
 D := docker
 
+VAULT_TOKEN_EXCHANGE_FILES := ./secrets/backend_vault_token
+
 .DEFAULT_GOAL := dev
 
 -include .env
@@ -55,8 +57,14 @@ define wait-progress
 	sleep 1
 endef
 
+.PHONY: ensure-secret-files
+ensure-secret-files:
+	@mkdir -p ./secrets/
+	@$(RM) -r $(VAULT_TOKEN_EXCHANGE_FILES)
+	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
+
 .PHONY: dev-old-compose
-dev-old-compose: check-env clean-app-volumes
+dev-old-compose: check-env clean-app-volumes ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
 	@$(call dev-env,build)
 	@$(call dev-env,up --remove-orphans --detach)
@@ -69,11 +77,11 @@ dev-old-compose: check-env clean-app-volumes
 	@$(call dev-env,watch --no-up)
 
 .PHONY: dev
-dev: check-env clean-app-volumes
+dev: check-env clean-app-volumes ensure-secret-files
 	@$(call dev-env,up --remove-orphans --build --watch $(ARGS))
 
 .PHONY: prod
-prod: check-env clean-app-volumes
+prod: check-env clean-app-volumes ensure-secret-files
 	@$(call prod-env,up --remove-orphans --build --detach)
 
 .PHONY: down
@@ -99,8 +107,9 @@ cleanvault: clean
 
 .PHONY: fclean
 fclean: clean cleandb cleanvault
-	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
-	$(RM) -r frontend/node_modules/ frontend/dist/
+	$(RM) -r ./backend/node_modules/ backend/dist/ backend/.tap/
+	$(RM) -r ./frontend/node_modules/ frontend/dist/
+	$(RM) -r $(VAULT_TOKEN_EXCHANGE_FILES)
 
 .PHONY: deepclean
 deepclean: fclean

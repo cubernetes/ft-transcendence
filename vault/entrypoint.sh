@@ -6,6 +6,8 @@ set -m
 #set -x
 
 : "${LOGLEVEL:=INFO}"
+: "${SAVE_UNSEAL_KEYS:=0}"
+: "${SAVE_ROOT_TOKEN:=0}"
 : "${vault_config:=/vault/config/config.hcl}"
 : "${vault_storage_path:=/vault/files/}" # must match what's inside /vault/config/config.hcl, if that's used
 : "${vault_stdout_file:="$HOME"/vault-server-stdout}"
@@ -13,6 +15,8 @@ set -m
 : "${vault_exit_code_file:="$HOME"/vault-server-exit-status}"
 : "${vault_env_json:=/vault/config/env.json}"
 : "${vault_kv_store_path:=secret/}"
+: "${vault_secrets_path:=/vault/secret/}"
+: "${token_exchange_dir:=/run/secrets/}"
 
 loglevel_to_num () {
 	level=$(printf %s "$1" | tr a-z A-Z)
@@ -137,11 +141,16 @@ wait_and_extract_secrets () {
 		debug "Waiting until unseal keys and root token are available ($((i/10)).$((i%10)) second(s) passed)"
 
 		unseal_keys=$(grep -o '^Unseal Key\( [[:digit:]]\+\)\?: .\+' "$vault_stdout_file" | sed 's/^Unseal Key\( [[:digit:]]\+\)\?: //')
-		export VAULT_TOKEN=$(grep -o '^\(Initial \)\?Root Token: .\+' "$vault_stdout_file" | sed 's/^\(Initial \)\?Root Token: //')
+		VAULT_TOKEN=$(grep -o '^\(Initial \)\?Root Token: .\+' "$vault_stdout_file" | sed 's/^\(Initial \)\?Root Token: //')
+		export VAULT_TOKEN
 
-		export VAULT_ADDR=$(grep -o '\<Api Address: [^[:space:]]\+\>' "$vault_stdout_file" | sed 's/^Api Address: //')
+		VAULT_ADDR=$(grep -o '\<Api Address: [^[:space:]]\+\>' "$vault_stdout_file" | sed 's/^Api Address: //')
+		export VAULT_ADDR
 		# If api address is not set, try to get an address from the tcp listener
-		[ -n "$VAULT_ADDR" ] || export VAULT_ADDR=$(grep -o 'Listener 1: tcp ([^)]\+)' "$vault_stdout_file" | grep -o '\<addr: "[^"]\+"' | sed 's/addr: "/http:\/\//;s/"$//')
+		[ -n "$VAULT_ADDR" ] || {
+			VAULT_ADDR=$(grep -o 'Listener 1: tcp ([^)]\+)' "$vault_stdout_file" | grep -o '\<addr: "[^"]\+"' | sed 's/addr: "/http:\/\//;s/"$//')
+			export VAULT_ADDR
+		}
 
 		exit_status=$(2>/dev/null cat "$vault_exit_code_file") || true
 		[ -n "$exit_status" ] && die "Vault server exited. This is the stdout:\n\033\133;93m%s\033\133m\nAnd this is the stderr:\n\033\133;93m%s\033\133m" "$(sed 's/^/\t/' "$vault_stdout_file")" "$(sed 's/^/\t/' "$vault_stderr_file")"
@@ -157,20 +166,36 @@ wait_and_extract_secrets () {
 show_secrets () {
 	i=1
 	while read -r key; do
-		debug 'Unseal key %d: \033\133;93m%s\033\133;m\n' "$i" "$key"
+		info 'Unseal key %d: \033\133;93m%s\033\133;m\n' "$i" "$key"
 		i=$((i+1))
 	done <<-EOF
 	$unseal_keys
 	EOF
 
-	debug 'Root Token:   \033\133;93m%s\033\133;m\n' "$VAULT_TOKEN"
+	info 'Root Token:   \033\133;93m%s\033\133;m\n' "$VAULT_TOKEN"
 }
 
+maybe_save_secrets () {
+	if [ "$SAVE_UNSEAL_KEYS" = "1" ]; then
+		i=1
+		while read -r key; do
+			printf %s "$key" > "$vault_secrets_path/unseal_key_$i"
+			i=$((i+1))
+		done <<-EOF
+		$unseal_keys
+		EOF
+	fi
+
+	if [ "$SAVE_ROOT_TOKEN" = "1" ]; then
+		printf %s "$VAULT_TOKEN" > "$vault_secrets_path/root_token"
+	fi
+}
 
 export_environment () {
 	info "Extracting environment variables that need to be set"
 	debug "Running the following commands through eval:\n\033\133;93m%s\033\133m" "$(grep -o '\$ export [A-Z_]\+=.\+' "$vault_stdout_file" | cut -c3- | sed 's/^/\t\$ /')"
 	eval "$(grep -o '\$ export [A-Z_]\+=.\+' "$vault_stdout_file" | cut -c3-)"
+	echo "$VAULT_ADDR" > /tmp/vault_addr
 }
 
 # NOTE: This procedure would normally NOT be automated, but rather every keyshare-holder would
@@ -242,6 +267,7 @@ populate_kv_secrets () {
 	test -e "$vault_env_json" || die "File '$vault_env_json' is missing"
 	test -f "$vault_env_json" || die "File '$vault_env_json' is not a regular file"
 	test -r "$vault_env_json" || die "File '$vault_env_json' is not readable"
+
 	info "Populating key-value secret store with values from env.json"
 	while read -r kv_entries; do
 		service=$(printf %s "$kv_entries" | cut -d';' -f1)
@@ -255,20 +281,68 @@ populate_kv_secrets () {
 	EOF
 }
 
+revoke_all_client_tokens () {
+	info "Revoking all client tokens"
+	# TODO: Implement
+}
+
+get_or_recover_vault_secrets () {
+	if [ "$SAVE_UNSEAL_KEYS" = "1" ]; then
+		unseal_keys=$(find /vault/secret/ -mindepth 1 -type f -name 'unseal_key_*' -exec cat {} \+)
+	else
+		die "Unseal keys were not saved and there's no functionality to supply it, cannot continue"
+	fi
+
+	if [ "$SAVE_ROOT_TOKEN" = "1" ]; then
+		VAULT_TOKEN=$(cat /vault/secret/root_token)
+		export VAULT_TOKEN
+	else
+		die "Root token was not saved and there's no functionality to supply it, cannot continue"
+	fi
+}
+
+create_and_share_client_tokens () {
+	test -e "$vault_env_json" || die "File '$vault_env_json' is missing"
+	test -f "$vault_env_json" || die "File '$vault_env_json' is not a regular file"
+	test -r "$vault_env_json" || die "File '$vault_env_json' is not readable"
+
+	while read -r service; do
+		info "Creating new client token for service \033\133;93m%s\033\133m and policy \033\133;93m%s\033\133m" "$service" "root" # TODO: Change from default to an actual policy
+		vault token create -policy=root -format=json | jq -r .auth.client_token > "$token_exchange_dir/${service}_vault_token"
+	done <<-EOF
+	$(<"$vault_env_json" jq -r 'to_entries[].key')
+	EOF
+}
+
 main () {
+	echo 0 > /tmp/vault_started
 	if is_initialized; then
 		info "Vault storage backend has files in it. Not re-initializing vault"
+
+		get_or_recover_vault_secrets
+
+		revoke_all_client_tokens
+		create_and_share_client_tokens
+
+		( sleep 2 ; echo 1 > /tmp/vault_started ) &
 		start_server
 	else
 		info "Vault storage backend is empty. Initializing vault"
+
 		start_server_in_bg
 		wait_and_extract_secrets
-		show_secrets # TODO: Remove/comment out
+		show_secrets # TODO: Maybe remove? IDK
+		maybe_save_secrets
 		export_environment
 		ensure_unsealed
 		setup_kv_secrets_engine
 		populate_kv_secrets
+
+		revoke_all_client_tokens
+		create_and_share_client_tokens
 		#shutdown_server # Only for debugging
+
+		echo 1 > /tmp/vault_started
 		tail -F "$vault_stdout_file" "$vault_stderr_file"
 	fi
 }

@@ -11,7 +11,6 @@ x-env-common: &env-common
     DOMAINS: ${DOMAINS:-localhost}
 
 x-env-files: &env-files
-    - .env
     - config.env
 
 services:
@@ -25,8 +24,12 @@ services:
             - IPC_LOCK
         volumes:
             - "vault:/vault/file/"
+            - "vault_secret:/vault/secret/"
+            - "./secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             LOGLEVEL: debug
+            SAVE_UNSEAL_KEYS: 1
+            SAVE_ROOT_TOKEN: 1
         tty: true
         develop:
             watch:
@@ -36,6 +39,9 @@ services:
                 - path: "./vault/replace_json_templates.py"
                   action: sync+restart
                   target: "/replace_json_templates.py"
+                - path: "./vault/healthcheck.sh"
+                  action: sync+restart
+                  target: "/healthcheck.sh"
                 - path: "./vault/config.hcl"
                   action: sync+restart
                   target: "/vault/config/config.hcl"
@@ -59,6 +65,9 @@ services:
             <<: *env-common
             CADDY_EXTRA_GLOBAL_DIRECTIVES: ${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
             CADDY_EXTRA_SITE_DIRECTIVES: ${CADDY_EXTRA_SITE_DIRECTIVES:-}
+        depends_on:
+            - frontend
+            - backend
         develop:
             watch:
                 - path: "./caddy/Caddyfile"
@@ -101,9 +110,13 @@ services:
             <<: *env-common
             NODE_ENV: ${NODE_ENV:-development}
             DB_PATH: ${DB_PATH:-}
-            JWT_SECRET: ${JWT_SECRET:-}
         volumes:
             - "drizzle:/backend/drizzle/"
+            - "./secrets/backend_vault_token:/run/secrets/backend_vault_token"
+        depends_on:
+            vault:
+                restart: true
+                condition: service_healthy
         develop:
             watch:
                 - path: "./backend/"
@@ -119,6 +132,7 @@ services:
 
 volumes:
     vault:
+    vault_secret:
     caddy_data:
     drizzle:
     frontend:
