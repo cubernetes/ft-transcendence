@@ -12,9 +12,10 @@ const tryBuild = await buildApp(appOpts);
 if (tryBuild.success) {
     const app = tryBuild.data;
     const { port, host } = app.config;
+
     await app.listen({ port, host });
     app.log.info(`Server running at port ${port}!`);
 } else {
-    console.error(JSON.stringify(tryBuild.error, Object.getOwnPropertyNames(tryBuild.error), 2)); // TODO: Handle this better, problem is that fastify is closed
+    console.error(tryBuild.error.message);
     process.exit(1);
 }
