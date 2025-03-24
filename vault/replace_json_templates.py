@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Author: https://github.com/cubernetes
+# License: Public Domain
+#
 # This unix filter replaces simple mustache templates in json strings. Example:
 # {
 #   "foo": "{{digit:16}}"
