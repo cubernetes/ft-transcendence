@@ -9,7 +9,7 @@ set -m
 : "${SAVE_UNSEAL_KEYS:=0}"
 : "${SAVE_ROOT_TOKEN:=0}"
 : "${vault_config:=/vault/config/config.hcl}"
-: "${vault_storage_path:=/vault/files/}" # must match what's inside /vault/config/config.hcl, if that's used
+: "${vault_storage_path:=/vault/file/}" # must match what's inside /vault/config/config.hcl, if that's used
 : "${vault_stdout_file:="$HOME"/vault-server-stdout}"
 : "${vault_stderr_file:="$HOME"/vault-server-stderr}"
 : "${vault_exit_code_file:="$HOME"/vault-server-exit-status}"
