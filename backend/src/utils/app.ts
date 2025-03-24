@@ -19,8 +19,10 @@ const buildApp = async (
 
         // Seed database if not in production & not in test mode
         if (process.env.NODE_ENV !== "production" && !test) {
-            // Error is non-fatal
-            await seed(app).catch((err) => app.log.warn({ err }, "Seed failing"));
+            if ((await app.userService.getCount()) === 0) {
+                // Error is non-fatal
+                await seed(app).catch((err) => app.log.warn({ err }, "Seed failing"));
+            }
         }
 
         return ok(app);
@@ -29,7 +31,7 @@ const buildApp = async (
         app.close();
 
         app.log.error({ err }, "Failed to start server");
-        return error(err as Error); // TODO: Map error function!
+        return error(err);
     }
 };
 
