@@ -1,12 +1,12 @@
 import type { FastifyInstance } from "fastify";
-import { configSchema } from "./config.schema.ts";
-import fs from "fs";
-import path from "path";
 import fp from "fastify-plugin";
+import path from "path";
+import fs from "fs";
+import { configSchema } from "./config.schema.ts";
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (app: FastifyInstance): Promise<void> => {
-    /** Validate config integrity */
+    // Validate config integrity with zod schema
     const parsedEnv = configSchema.parse(process.env);
 
     const port = parsedEnv.BACKEND_PORT;
