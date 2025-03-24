@@ -29,7 +29,7 @@ export const userOptions: Options = {
     sfx: true,
     playStyle: "normal",
     resolution: "160x40",
-    controls: { p1Up: "w", p1Down: "s", p1Stop: " ", p2Up: "i", p2Down: "k", p2Stop: "n" },
+    controls: { p1Up: "q", p1Down: "a", p1Stop: "x", p2Up: "p", p2Down: "l", p2Stop: "m" },
 };
 
 export async function optionsMenu(): Promise<void> {
@@ -155,44 +155,57 @@ export async function optionsMenu(): Promise<void> {
                 }
 
                 case "controls": {
-                    const { p1Up, p1Down, p1Stop, p2Up, p2Down, p2Stop } = await inquirer.prompt([
-                        {
-                            type: "input",
-                            name: "p1Up",
-                            message: chalk.cyan("Set Player 1   UP: ↑"),
-                            default: "w",
-                        },
-                        {
-                            type: "input",
-                            name: "p1Down",
-                            message: chalk.cyan("Set Player 1 DOWN: ↓"),
-                            default: "s",
-                        },
-                        {
-                            type: "input",
-                            name: "p1Stop",
-                            message: chalk.cyan("Set Player 1 STOP: X"),
-                            default: " ",
-                        },
-                        {
-                            type: "input",
-                            name: "p2Up",
-                            message: chalk.cyan("Set Player 2   UP: ↑"),
-                            default: "i",
-                        },
-                        {
-                            type: "input",
-                            name: "p2Down",
-                            message: chalk.cyan("Set Player 2 DOWN: ↓"),
-                            default: "k",
-                        },
-                        {
-                            type: "input",
-                            name: "p2Stop",
-                            message: chalk.cyan("Set Player 2 STOP: X"),
-                            default: "n",
-                        },
-                    ]);
+                    const usedKeys = new Set<string>();
+
+                    const askKey = async (
+                        message: string,
+                        defaultValue: string
+                    ): Promise<string> => {
+                        const { key } = await inquirer.prompt([
+                            {
+                                type: "input",
+                                name: "key",
+                                message,
+                                default: defaultValue,
+                                validate: (input: string) => {
+                                    input = input.trim().toLowerCase();
+                                    if (input.length !== 1)
+                                        return "Key must be a single character.";
+                                    if (usedKeys.has(input))
+                                        return `Key '${input}' is already used.`;
+                                    return true;
+                                },
+                                filter: (input: string) => input.trim().toLowerCase(),
+                            },
+                        ]);
+                        usedKeys.add(key);
+                        return key;
+                    };
+                    const p1Up = await askKey(
+                        chalk.cyan("Set Player 1   UP: ↑"),
+                        userOptions.controls.p1Up
+                    );
+                    const p1Down = await askKey(
+                        chalk.cyan("Set Player 1 DOWN: ↓"),
+                        userOptions.controls.p1Down
+                    );
+                    const p1Stop = await askKey(
+                        chalk.cyan("Set Player 1 STOP: ■"),
+                        userOptions.controls.p1Stop
+                    );
+                    const p2Up = await askKey(
+                        chalk.cyan("Set Player 2   UP: ↑"),
+                        userOptions.controls.p2Up
+                    );
+                    const p2Down = await askKey(
+                        chalk.cyan("Set Player 2 DOWN: ↓"),
+                        userOptions.controls.p2Down
+                    );
+                    const p2Stop = await askKey(
+                        chalk.cyan("Set Player 2 STOP: ■"),
+                        userOptions.controls.p2Stop
+                    );
+
                     userOptions.controls = { p1Up, p1Down, p1Stop, p2Up, p2Down, p2Stop };
                     break;
                 }

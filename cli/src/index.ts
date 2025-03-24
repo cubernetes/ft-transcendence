@@ -11,6 +11,7 @@ import { audioManager } from "./audio";
 let wsManager: WebSocketManager | null = null;
 let token: string | null = null;
 let isGameActive = false;
+// let startedMenuMusic = false;
 
 export function setGameActive(state: boolean) {
     isGameActive = state;
@@ -32,6 +33,11 @@ export function cleanup() {
 // --- Menu Setup ---
 export async function mainMenu(): Promise<void> {
     try {
+        // if (userOptions.music && !startedMenuMusic) {
+        //     audioManager.startMusic("menu");
+        //     startedMenuMusic = true;
+        // }
+
         console.clear();
 
         const title = figlet.textSync(" PONG   CLI", { font: "Small Poison" });
@@ -142,6 +148,7 @@ async function startRemoteGame() {
             wsManager = new WebSocketManager(serverUrl);
         }
 
+        // startedMenuMusic = false;
         isGameActive = true;
 
         startKeyListener((dir) => {
