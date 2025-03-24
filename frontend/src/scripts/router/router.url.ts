@@ -2,6 +2,7 @@ import { createHomePage } from "../pages/pages.home";
 import { createGamePage } from "../pages/pages.game";
 import { createProfilePage } from "../pages/pages.profile";
 import { createLeaderboardPage } from "../pages/pages.leaderboard";
+import { createLoginPage } from "../pages/pages.login";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {

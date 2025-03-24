@@ -1,6 +1,6 @@
-import { createHeader } from "../components/Header";
-import { createFooter } from "../components/Footer";
-import { createLoginForm } from "../components/LoginForm";
+import { createHeader } from "../components/components.header";
+import { createFooter } from "../components/components.footer";
+import { createLoginForm } from "../components/components.loginForm";
 
 export const createLoginPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
