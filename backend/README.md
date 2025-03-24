@@ -1,8 +1,11 @@
-Environmental variables:
+# The Transcendence Backend
 
-port: number;
-jwtSecret: string;
-dbPath: string;
-dbDir: string;
-apiPrefix: string;
-host: string;
+## Usage
+
+### Configurations (as environmental variables)
+
+- BACKEND_PORT: Required, integer from 1024 to 65535, recommended: 3000;
+- DB_PATH: Required, path to SQLite file, parent folder must exist (with migration and config for drizzle), recommended: `./drizzle/db.sqlite`.
+- API_PREFIX: Optional, default "/api".
+- HOST: Optional, default "0.0.0.0".
+- ~~JWT_SECRET~~: Handled by Hashicorp Vault.
