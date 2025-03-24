@@ -74,21 +74,52 @@ debug "Creating /vault/file/ directory"
 mkdir -p /vault/file/
 
 start_server_in_bg () {
-	#vault server -config=/vault/config/config.hcl
 	info "Starting vault server in background job"
 
-	1>~/vault-server-stdout \
-	2>~/vault-server-stderr \
-	vault server -log-format=json -dev &
+	(
+		set +e
+		1>~/vault-server-stdout \
+		2>~/vault-server-stderr \
+		vault server -log-format=json -config=/vault/config/config.hcl
+		#vault server -log-format=json -dev
+
+		1>~/vault-server-exit-status echo $?
+	) &
+}
+
+maybe_initialize_vault () {
+	if [ -n "$VAULT_ADDR" ] && \
+		if printf %s "$VAULT_ADDR" | grep -qF '0.0.0.0'; then
+			warn "API address \033\133;93m%s\033\133m contains any-address 0.0.0.0 which works using a linux kernel (goes to loopback), but it might not work on other kernels. Please configure vault's api_addr manually" "$VAULT_ADDR"
+		fi
+
+		grep -qFx '==> Vault server started! Log data will stream in below:' ~/vault-server-stdout && \
+		! vault status -format=json | jq --exit-status .initialized 1>/dev/null; then
+
+			info "Vault server has started (address \033\133;93m%s\033\133m) but is not initialized yet. Initializing it" "$VAULT_ADDR"
+			# better would be to use -format=json, but then the logic from the loop in the calling function wouldn't find the keys
+			vault operator init >> ~/vault-server-stdout
+	fi
 }
 
 wait_and_extract_secrets () {
 	i=0
 	while :; do
 		debug "Waiting until unseal keys and root token are available ($((i/10)).$((i%10)) second(s) passed)"
-		unseal_keys=$(grep -o '^Unseal Key: .\+' ~/vault-server-stdout | sed 's/^Unseal Key: //')
-		root_token=$(grep -o '^Root Token: .\+' ~/vault-server-stdout | sed 's/^Root Token: //')
-		[ -n "$unseal_keys" ] && [ -n "$root_token" ] && break
+
+		unseal_keys=$(grep -o '^Unseal Key\( [[:digit:]]\+\)\?: .\+' ~/vault-server-stdout | sed 's/^Unseal Key\( [[:digit:]]\+\)\?: //')
+		export VAULT_TOKEN=$(grep -o '^\(Initial \)\?Root Token: .\+' ~/vault-server-stdout | sed 's/^\(Initial \)\?Root Token: //')
+
+		export VAULT_ADDR=$(grep -o '\<Api Address: [^[:space:]]\+\>' ~/vault-server-stdout | sed 's/^Api Address: //')
+		# If api address is not set, try to get an address from the tcp listener
+		[ -n "$VAULT_ADDR" ] || export VAULT_ADDR=$(grep -o 'Listener 1: tcp ([^)]\+)' ~/vault-server-stdout | grep -o '\<addr: "[^"]\+"' | sed 's/addr: "/http:\/\//;s/"$//')
+
+		exit_status=$(2>/dev/null cat ~/vault-server-exit-status) || true
+		[ -n "$exit_status" ] && die "Vault server exited. This is the stdout:\n\033\133;93m%s\033\133m\nAnd this is the stderr:\n\033\133;93m%s\033\133m" "$(sed 's/^/\t/' ~/vault-server-stdout)" "$(sed 's/^/\t/' ~/vault-server-stderr)"
+		[ -n "$unseal_keys" ] && [ -n "$VAULT_TOKEN" ] && break || true # if these exist, vault is already initialized
+
+		maybe_initialize_vault
+
 		sleep 0.1
 		i=$((i+1))
 	done
@@ -103,7 +134,7 @@ show_secrets () {
 	$unseal_keys
 	EOF
 
-	debug 'Root Token:   \033\133;93m%s\033\133;m\n' "$root_token"
+	debug 'Root Token:   \033\133;93m%s\033\133;m\n' "$VAULT_TOKEN"
 }
 
 
@@ -151,7 +182,7 @@ wait_until_sealed () {
 	i=0
 	while :; do
 		debug "Waiting until server says 'vault is sealed' ($((i/10)).$((i%10)) second(s) passed)"
-		tail -n 10 ~/vault-server-stderr | jq --raw-output '.["@message"]' | grep -Fx 'vault is sealed' 1>/dev/null && return 0
+		tail -n 10 ~/vault-server-stderr | jq --raw-output '.["@message"]' | grep -qFx 'vault is sealed' && return 0
 		sleep 0.1
 		i=$((i+1))
 		[ "$i" -gt "$timeout" ] && return 1
@@ -182,6 +213,7 @@ populate_kv_secrets () {
 	test -e /vault/config/env.json || die "File /vault/config/env.json is missing"
 	test -f /vault/config/env.json || die "File /vault/config/env.json is not a regular file"
 	test -r /vault/config/env.json || die "File /vault/config/env.json is not readable"
+	info "Populating key-value secret store with values from env.json"
 	while read -r kv_entries; do
 		service=$(printf %s "$kv_entries" | cut -d';' -f1)
 		json=$(printf %s "$kv_entries" | cut -d';' -f2-)
@@ -198,7 +230,6 @@ main () {
 	wait_and_extract_secrets
 	show_secrets # TODO: Remove, since not needed
 	export_environment
-	vault operator seal 1>/dev/null 2>&1
 	ensure_unsealed
 	setup_kv_secrets_engine
 	populate_kv_secrets
