@@ -1,8 +1,8 @@
 import { Scene, Engine } from "@babylonjs/core";
-import { AudioManager } from "./Audio";
-import { GameStateManager } from "./GameState";
-import { WebSocketManager } from "./WebSocket";
-import { SceneSetup } from "../SceneSetup";
+import { AudioManager } from "./managers.audio";
+import { GameStateManager } from "./managers.state";
+import { WebSocketManager } from "./managers.sockets";
+import { SceneSetup } from "../game.scene";
 import { Direction } from "../game.types";
 
 export class GameUIManager {

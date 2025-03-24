@@ -17,7 +17,8 @@
         "earcut": "^3.0.1",
         "jwt-decode": "^4.0.0",
         "tailwindcss": "3.4.17",
-        "typescript": "^5.7.3"
+        "typescript": "^5.7.3",
+        "viem": "^2.23.13"
     },
     "devDependencies": {
         "@babylonjs/inspector": "^7.52.2",

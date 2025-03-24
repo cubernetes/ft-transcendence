@@ -1,6 +1,6 @@
 import { IBabylonGameState, IServerGameState, ICollisionEvent } from "../game.types";
-import { AudioManager } from "./Audio";
-import { gameConfig } from "../GameConfig";
+import { AudioManager } from "./managers.audio";
+import { gameConfig } from "../game.config";
 import { CreateText, Mesh, Scene, Vector3 } from "@babylonjs/core";
 import { ASSETS_DIR } from "../../config";
 

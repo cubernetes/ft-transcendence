@@ -1,4 +1,4 @@
-import { createRouter } from "./router/Router";
+import { createRouter } from "./router/router.url";
 
 const launchSite = (): void => {
     const appElement = document.getElementById("app");

@@ -1,5 +1,5 @@
-import { createHeader } from "../components/Header";
-import { createFooter } from "../components/Footer";
+import { createHeader } from "../components/components.header";
+import { createFooter } from "../components/components.footer";
 import { fetchTestData } from "../test";
 
 export const createLeaderboardPage = async (): Promise<HTMLElement> => {
