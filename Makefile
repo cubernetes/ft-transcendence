@@ -93,8 +93,12 @@ clean:
 cleandb: clean
 	$(D) volume rm --force ft-transcendence_drizzle
 
+.PHONY: cleanvault
+cleanvault: clean
+	$(D) volume rm --force ft-transcendence_vault
+
 .PHONY: fclean
-fclean: clean cleandb
+fclean: clean cleandb cleanvault
 	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
 	$(RM) -r frontend/node_modules/ frontend/dist/
 

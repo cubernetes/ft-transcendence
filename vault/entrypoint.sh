@@ -6,6 +6,13 @@ set -m
 #set -x
 
 : "${LOGLEVEL:=INFO}"
+: "${vault_config:=/vault/config/config.hcl}"
+: "${vault_storage_path:=/vault/file/}"
+: "${vault_stdout_file:="$HOME"/vault-server-stdout}"
+: "${vault_stderr_file:="$HOME"/vault-server-stderr}"
+: "${vault_exit_code_file:="$HOME"/vault-server-exit-status}"
+: "${vault_env_json:=/vault/config/env.json}"
+: "${vault_kv_store_path:=secret/}"
 
 loglevel_to_num () {
 	level=$(printf %s "$1" | tr a-z A-Z)
@@ -70,21 +77,43 @@ die () {
 	exit 1
 }
 
-debug "Creating /vault/file/ directory"
-mkdir -p /vault/file/
+debug "Creating vault storage path at directory '$vault_storage_path'"
+mkdir -p "$vault_storage_path"
+
+_start_vault_server () {
+	vault server -log-format=json -config="$vault_config"
+	#vault server -log-format=json -dev
+}
+
+is_initialized () {
+	# Check if the storage path directory is empty. If it is (`read' returns 1), then we also
+	# return with 1, meaning false (aka "is not initialized")
+	{ find "$vault_storage_path" -mindepth 1 -maxdepth 1 || true; } | tee /tmp/storage_files | head -n 1 | read
+	exit_status=$?
+	[ "$exit_status" = "1" ] && debug "These files are present in the vault storage path directory (\033\133;93m%s\033\133m):\n%s" "$vault_storage_path" "$(sed 's/^/\t/' /tmp/storage_files)"
+	return "$exit_status"
+}
+
+start_server () {
+	info "Starting vault server in foreground"
+
+	_start_vault_server
+}
 
 start_server_in_bg () {
 	info "Starting vault server in background job"
 
 	(
 		set +e
-		1>~/vault-server-stdout \
-		2>~/vault-server-stderr \
-		vault server -log-format=json -config=/vault/config/config.hcl
-		#vault server -log-format=json -dev
+		1>"$vault_stdout_file" \
+		2>"$vault_stderr_file" \
+		_start_vault_server
 
-		1>~/vault-server-exit-status echo $?
+		1>"$vault_exit_code_file" echo $?
 	) &
+
+	# Grace wait
+	sleep .2
 }
 
 maybe_initialize_vault () {
@@ -93,12 +122,12 @@ maybe_initialize_vault () {
 			warn "API address \033\133;93m%s\033\133m contains any-address 0.0.0.0 which works using a linux kernel (goes to loopback), but it might not work on other kernels. Please configure vault's api_addr manually" "$VAULT_ADDR"
 		fi
 
-		grep -qFx '==> Vault server started! Log data will stream in below:' ~/vault-server-stdout && \
+		grep -qFx '==> Vault server started! Log data will stream in below:' "$vault_stdout_file" && \
 		! vault status -format=json | jq --exit-status .initialized 1>/dev/null; then
 
 			info "Vault server has started (address \033\133;93m%s\033\133m) but is not initialized yet. Initializing it" "$VAULT_ADDR"
 			# better would be to use -format=json, but then the logic from the loop in the calling function wouldn't find the keys
-			vault operator init >> ~/vault-server-stdout
+			vault operator init >> "$vault_stdout_file"
 	fi
 }
 
@@ -107,15 +136,15 @@ wait_and_extract_secrets () {
 	while :; do
 		debug "Waiting until unseal keys and root token are available ($((i/10)).$((i%10)) second(s) passed)"
 
-		unseal_keys=$(grep -o '^Unseal Key\( [[:digit:]]\+\)\?: .\+' ~/vault-server-stdout | sed 's/^Unseal Key\( [[:digit:]]\+\)\?: //')
-		export VAULT_TOKEN=$(grep -o '^\(Initial \)\?Root Token: .\+' ~/vault-server-stdout | sed 's/^\(Initial \)\?Root Token: //')
+		unseal_keys=$(grep -o '^Unseal Key\( [[:digit:]]\+\)\?: .\+' "$vault_stdout_file" | sed 's/^Unseal Key\( [[:digit:]]\+\)\?: //')
+		export VAULT_TOKEN=$(grep -o '^\(Initial \)\?Root Token: .\+' "$vault_stdout_file" | sed 's/^\(Initial \)\?Root Token: //')
 
-		export VAULT_ADDR=$(grep -o '\<Api Address: [^[:space:]]\+\>' ~/vault-server-stdout | sed 's/^Api Address: //')
+		export VAULT_ADDR=$(grep -o '\<Api Address: [^[:space:]]\+\>' "$vault_stdout_file" | sed 's/^Api Address: //')
 		# If api address is not set, try to get an address from the tcp listener
-		[ -n "$VAULT_ADDR" ] || export VAULT_ADDR=$(grep -o 'Listener 1: tcp ([^)]\+)' ~/vault-server-stdout | grep -o '\<addr: "[^"]\+"' | sed 's/addr: "/http:\/\//;s/"$//')
+		[ -n "$VAULT_ADDR" ] || export VAULT_ADDR=$(grep -o 'Listener 1: tcp ([^)]\+)' "$vault_stdout_file" | grep -o '\<addr: "[^"]\+"' | sed 's/addr: "/http:\/\//;s/"$//')
 
-		exit_status=$(2>/dev/null cat ~/vault-server-exit-status) || true
-		[ -n "$exit_status" ] && die "Vault server exited. This is the stdout:\n\033\133;93m%s\033\133m\nAnd this is the stderr:\n\033\133;93m%s\033\133m" "$(sed 's/^/\t/' ~/vault-server-stdout)" "$(sed 's/^/\t/' ~/vault-server-stderr)"
+		exit_status=$(2>/dev/null cat "$vault_exit_code_file") || true
+		[ -n "$exit_status" ] && die "Vault server exited. This is the stdout:\n\033\133;93m%s\033\133m\nAnd this is the stderr:\n\033\133;93m%s\033\133m" "$(sed 's/^/\t/' "$vault_stdout_file")" "$(sed 's/^/\t/' "$vault_stderr_file")"
 		[ -n "$unseal_keys" ] && [ -n "$VAULT_TOKEN" ] && break || true # if these exist, vault is already initialized
 
 		maybe_initialize_vault
@@ -140,8 +169,8 @@ show_secrets () {
 
 export_environment () {
 	info "Extracting environment variables that need to be set"
-	debug "Running the following commands through eval:\n\033\133;93m%s\033\133m" "$(grep -o '\$ export [A-Z_]\+=.\+' ~/vault-server-stdout | cut -c3- | sed 's/^/\t\$ /')"
-	eval "$(grep -o '\$ export [A-Z_]\+=.\+' ~/vault-server-stdout | cut -c3-)"
+	debug "Running the following commands through eval:\n\033\133;93m%s\033\133m" "$(grep -o '\$ export [A-Z_]\+=.\+' "$vault_stdout_file" | cut -c3- | sed 's/^/\t\$ /')"
+	eval "$(grep -o '\$ export [A-Z_]\+=.\+' "$vault_stdout_file" | cut -c3-)"
 }
 
 # NOTE: This procedure would normally NOT be automated, but rather every keyshare-holder would
@@ -182,7 +211,7 @@ wait_until_sealed () {
 	i=0
 	while :; do
 		debug "Waiting until server says 'vault is sealed' ($((i/10)).$((i%10)) second(s) passed)"
-		tail -n 10 ~/vault-server-stderr | jq --raw-output '.["@message"]' | grep -qFx 'vault is sealed' && return 0
+		tail -n 10 "$vault_stderr_file" | jq --raw-output '.["@message"]' | grep -qFx 'vault is sealed' && return 0
 		sleep 0.1
 		i=$((i+1))
 		[ "$i" -gt "$timeout" ] && return 1
@@ -203,37 +232,45 @@ shutdown_server () {
 }
 
 setup_kv_secrets_engine () {
-	info "Disabling secrets engine at path secret/"
-	1>/dev/null vault secrets disable secret/ || die "Could not disable secrets engine at path secret/"
-	info "Enabling kv-v2 secrets engine at path secret/"
-	1>/dev/null vault secrets enable -path=secret/ kv-v2 || die "Could not enable kv-v2 secrets engine at path secret/"
+	info "Disabling secrets engine at path '$vault_kv_store_path'"
+	1>/dev/null vault secrets disable "$vault_kv_store_path" || die "Could not disable secrets engine at path '$vault_kv_store_path'"
+	info "Enabling kv-v2 secrets engine at path '$vault_kv_store_path'"
+	1>/dev/null vault secrets enable -path="$vault_kv_store_path" kv-v2 || die "Could not enable kv-v2 secrets engine at path '$vault_kv_store_path'"
 }
 
 populate_kv_secrets () {
-	test -e /vault/config/env.json || die "File /vault/config/env.json is missing"
-	test -f /vault/config/env.json || die "File /vault/config/env.json is not a regular file"
-	test -r /vault/config/env.json || die "File /vault/config/env.json is not readable"
+	test -e "$vault_env_json" || die "File '$vault_env_json' is missing"
+	test -f "$vault_env_json" || die "File '$vault_env_json' is not a regular file"
+	test -r "$vault_env_json" || die "File '$vault_env_json' is not readable"
 	info "Populating key-value secret store with values from env.json"
 	while read -r kv_entries; do
 		service=$(printf %s "$kv_entries" | cut -d';' -f1)
 		json=$(printf %s "$kv_entries" | cut -d';' -f2-)
 
+		debug "Raw JSON: \033\133;93m%s\033\133m" "$(printf %s "$json")"
 		# `vault kv put' can also read json from stdin
-		debug "KV put command output: %s" "$(printf %s "$json" | vault kv put -format=json -mount=secret "$service" - | jq --compact-output --color-output)"
+		debug "KV put command output: %s" "$(printf %s "$json" | vault kv put -format=json -mount="$vault_kv_store_path" "$service" - | jq --compact-output --color-output)"
 	done <<-EOF
-	$(/replace_json_templates.py /vault/config/env.json | jq -r 'to_entries[]|.key+";"+(.value|tostring)')
+	$(/replace_json_templates.py "$vault_env_json" | jq -r 'to_entries[]|.key+";"+(.value|tostring)')
 	EOF
 }
 
 main () {
-	start_server_in_bg
-	wait_and_extract_secrets
-	show_secrets # TODO: Remove, since not needed
-	export_environment
-	ensure_unsealed
-	setup_kv_secrets_engine
-	populate_kv_secrets
-	shutdown_server
+	if is_initialized; then
+		info "Vault storage backend has files in it. Not re-initializing vault"
+		start_server
+	else
+		info "Vault storage backend is empty. Initializing vault"
+		start_server_in_bg
+		wait_and_extract_secrets
+		#show_secrets
+		export_environment
+		ensure_unsealed
+		setup_kv_secrets_engine
+		populate_kv_secrets
+		#shutdown_server
+		tail -F "$vault_stdout_file" "$vault_stderr_file"
+	fi
 }
 
 main "$@"

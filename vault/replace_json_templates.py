@@ -31,7 +31,7 @@ character_sets = {
 }
 
 def usage(name: str) -> None:
-    print(f"{name} [FILE]")
+    print(f"{name} [FILE]", file=sys.stderr, flush=True)
 
 def parse_json(name: str, args: list[str]) -> dict:
     if len(args) > 1:
@@ -44,7 +44,7 @@ def parse_json(name: str, args: list[str]) -> dict:
             try:
                 stream = ctx.enter_context(open(args[0]))
             except FileNotFoundError:
-                print(f"Error opening file: \"{args[0]}\"")
+                print(f"Error opening file: \"{args[0]}\"", file=sys.stderr, flush=True)
                 return {}
         else:
             stream = sys.stdin
@@ -52,11 +52,11 @@ def parse_json(name: str, args: list[str]) -> dict:
         try:
             data = json.load(stream)
         except json.decoder.JSONDecodeError as e:
-            print(f"Error parsing JSON: {e}")
+            print(f"Error parsing JSON: {e}", file=sys.stderr, flush=True)
             return {}
 
     if not data:
-        print(f"JSON object is empty")
+        print(f"JSON object is empty", file=sys.stderr, flush=True)
     return data
 
 def replace_templates(s: str) -> str:
@@ -65,11 +65,11 @@ def replace_templates(s: str) -> str:
         template_len = int(m[2])
         character_set = character_sets.get(template_type, '')
         if not character_set:
-            print(f'\033\133;91mWARNING\033\133m: Unknown template type: \033\133;93m{template_type}\033\133m, supported types are \033\133;92m{", ".join(character_sets.keys())}\033\133m. Leaving it unmodified')
+            print(f'\033\133;91mWARNING\033\133m: Unknown template type: \033\133;93m{template_type}\033\133m, supported types are \033\133;92m{", ".join(character_sets.keys())}\033\133m. Leaving it unmodified', file=sys.stderr, flush=True)
             return s
         return ''.join(random.choices(character_set, k=template_len))
     elif re.match(r'\{\{.*\}\}', s):
-        print(f"\033\133;91mWARNING\033\133m: Found template string \033\133;93m{s}\033\133m, but it doesn't match the expected regex \033\133;94m\\{{\\{{(\\w+):(\\d+)\\}}\\}}\033\133m. Leaving it unmodified")
+        print(f"\033\133;91mWARNING\033\133m: Found template string \033\133;93m{s}\033\133m, but it doesn't match the expected regex \033\133;94m\\{{\\{{(\\w+):(\\d+)\\}}\\}}\033\133m. Leaving it unmodified", file=sys.stderr, flush=True)
         return s
     else:
         return s

@@ -24,12 +24,23 @@ services:
         cap_add:
             - IPC_LOCK
         volumes:
-            - "vault:/vault/file"
+            - "vault:/vault/file/"
+        environment:
+            LOGLEVEL: debug
         develop:
             watch:
-                - path: "./vault/config/"
+                - path: "./vault/entrypoint.sh"
+                  action: sync+restart
+                  target: "/entrypoint.sh"
+                - path: "./vault/replace_json_templates.py"
+                  action: sync+restart
+                  target: "/replace_json_templates.py"
+                - path: "./vault/config.hcl"
                   action: sync
-                  target: "/vault/config/"
+                  target: "/vault/config/config.hcl"
+                - path: "./vault/env.json"
+                  action: sync
+                  target: "/vault/config/env.json"
     caddy:
         build: "./caddy/"
         container_name: caddy
@@ -106,6 +117,7 @@ services:
         env_file: *env-files
 
 volumes:
+    vault:
     caddy_data:
     drizzle:
     frontend:
