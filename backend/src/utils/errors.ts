@@ -2,15 +2,25 @@ export type Result<T, E extends Error = Error> =
     | { success: true; data: T }
     | { success: false; error: E };
 
-export const ok = <T>(data: T): Result<T> => ({
+export const ok = <T = void>(data?: T): Result<T> => ({
     success: true,
-    data,
+    data: data as T,
 });
 
-export const err = <E extends Error>(error: E): Result<never, E> => ({
-    success: false,
-    error,
-});
+// Handles all of them here, take in unknown
+export const error = <E extends Error>(error: E): Result<never, E> => {
+    if (error instanceof Error) {
+        return {
+            success: false,
+            error,
+        };
+    }
+
+    return {
+        success: false,
+        error,
+    };
+};
 
 export const ErrorCodes = {
     VALIDATION_ERROR: "VALIDATION_ERROR",

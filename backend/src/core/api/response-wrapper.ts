@@ -1,7 +1,7 @@
 import fp from "fastify-plugin";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
-import { ApiError } from "./errors";
+import { ApiError } from "../../utils/errors.ts";
 
 export type ResSuccess<T> = {
     success: true;

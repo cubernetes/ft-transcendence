@@ -1,5 +1,11 @@
-import { buildApp } from "./utils/app";
-import { appOpts } from "./utils/config";
+import type { FastifyServerOptions } from "fastify";
+import { buildApp } from "./utils/app.ts";
+import { devLoggerConfig, prodLoggerConfig } from "./utils/logger.ts";
+
+/** Fastify server options, cannot be changed once instance is created */
+const appOpts: FastifyServerOptions = {
+    logger: process.env.NODE_ENV === "production" ? prodLoggerConfig : devLoggerConfig,
+};
 
 try {
     await buildApp(appOpts);
