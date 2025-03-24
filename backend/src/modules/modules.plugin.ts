@@ -14,6 +14,4 @@ const modulesPlugin = async (app: FastifyInstance) => {
     await app.register(userPlugin);
 };
 
-export default fp(modulesPlugin, {
-    name: "modules-plugin",
-});
+export default fp(modulesPlugin, { name: "modules-plugin" });

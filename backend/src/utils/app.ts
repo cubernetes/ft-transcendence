@@ -17,20 +17,11 @@ const buildApp = async (
 
         app.get("/healthcheck", async (_, reply) => reply.status(200).send({ status: "ok" }));
 
-        // In test mode with tap, no need to start or listen to the server
-        if (test) {
-            return ok(app);
-        }
-
-        // Seed database if not in production
-        if (process.env.NODE_ENV !== "production") {
+        // Seed database if not in production & not in test mode
+        if (process.env.NODE_ENV !== "production" && !test) {
             // Error is non-fatal
             await seed(app).catch((err) => app.log.warn({ err }, "Seed failing"));
         }
-
-        const { port, host } = app.config;
-        await app.listen({ port, host });
-        app.log.info(`Server running at port ${port}!`);
 
         return ok(app);
     } catch (err) {
