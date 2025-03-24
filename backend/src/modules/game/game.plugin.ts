@@ -3,10 +3,10 @@ import { createGameService } from "./game.service.ts";
 import gameRoutes from "./game.routes.ts";
 import fp from "fastify-plugin";
 
-const gamePlugin = async (fastify: FastifyInstance) => {
-    fastify.decorate("gameService", createGameService(fastify));
+const gamePlugin = async (app: FastifyInstance) => {
+    app.decorate("gameService", createGameService(app));
 
-    await fastify.register(gameRoutes, { prefix: "/games" });
+    await app.register(gameRoutes, { prefix: "/games" });
 };
 
 export default fp(gamePlugin, {

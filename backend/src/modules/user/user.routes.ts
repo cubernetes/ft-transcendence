@@ -21,16 +21,16 @@ const userRoutes: FastifyPluginAsync = async (app) => {
 
     app.get("/leaderboard/:n", withZod({ params: leaderboardSchema }, getLeaderboardHandler)); // Leaderboard, top x players?
     // These endpoints are acutally stupid, controller should be used for more direct things for frontend
-    // fastify.get(
+    // app.get(
     //     "/id/:id",
     //     getUserByIdRouteSchema,
     //     withZod({ params: userIdSchema }, getUserByIdHandler)
     // );
-    // fastify.get(
+    // app.get(
     //     "/username/:username",
     //     withZod({ params: userNameSchema }, getUserByUsernameHandler)
     // );
-    // fastify.put(
+    // app.put(
     //     "/:id",
     //     withZod(
     //         { params: userIdSchema, body: updateUserSchema, header: authenticationSchema },

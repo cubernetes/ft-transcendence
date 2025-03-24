@@ -3,10 +3,10 @@ import { createTournamentService } from "./tournament.service.ts";
 import tournamentRoutes from "./tournament.routes.ts";
 import fp from "fastify-plugin";
 
-const tournamentPlugin = async (fastify: FastifyInstance) => {
-    fastify.decorate("tournamentService", createTournamentService(fastify));
+const tournamentPlugin = async (app: FastifyInstance) => {
+    app.decorate("tournamentService", createTournamentService(app));
 
-    await fastify.register(tournamentRoutes, { prefix: "/tournaments" });
+    await app.register(tournamentRoutes, { prefix: "/tournaments" });
 };
 
 export default fp(tournamentPlugin, {

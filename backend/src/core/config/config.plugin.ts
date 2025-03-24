@@ -5,7 +5,7 @@ import path from "path";
 import fp from "fastify-plugin";
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
-const configPlugin = async (fastify: FastifyInstance): Promise<void> => {
+const configPlugin = async (app: FastifyInstance): Promise<void> => {
     /** Validate config integrity */
     const parsedEnv = configSchema.parse(process.env);
 
@@ -21,7 +21,7 @@ const configPlugin = async (fastify: FastifyInstance): Promise<void> => {
     }
 
     const config = { port, jwtSecret, dbPath, dbDir, apiPrefix, host };
-    fastify.decorate("config", config);
+    app.decorate("config", config);
 };
 
 export default fp(configPlugin, { name: "config-plugin" });

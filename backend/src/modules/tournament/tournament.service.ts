@@ -1,10 +1,10 @@
 import type { FastifyInstance } from "fastify";
-import { tournaments } from "../db/db.schema.ts";
+import { tournaments } from "../../core/db/db.schema.ts";
 import { NewTournament, Tournament } from "./tournament.types.ts";
 import { eq } from "drizzle-orm";
 
-export const createTournamentService = (fastify: FastifyInstance) => {
-    const db = fastify.db;
+export const createTournamentService = (app: FastifyInstance) => {
+    const db = app.db;
 
     const create = async (data: NewTournament): Promise<Tournament | null> =>
         (await db.insert(tournaments).values(data).returning())?.[0] || null;

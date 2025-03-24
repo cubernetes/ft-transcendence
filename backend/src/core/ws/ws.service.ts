@@ -1,13 +1,14 @@
 import { FastifyInstance } from "fastify";
 import { WebSocket } from "ws";
-import type { GameSession, GameState, Player } from "../game/game.types.ts";
-import GameEngine, { GAME_CONSTANTS } from "../game/game.engine.ts";
+// Move these to appropriate places
+import type { GameSession, GameState, Player } from "../../modules/game/game.types.ts";
+import GameEngine, { GAME_CONSTANTS } from "../../modules/game/game.engine.ts";
 
-export const createWsService = (fastify: FastifyInstance) => {
+export const createWsService = (app: FastifyInstance) => {
     const connections = new Map<number, WebSocket>();
     const gameSessions = new Map<string, GameSession>(); // Track game sessions
 
-    const { log } = fastify;
+    const { log } = app;
 
     const startGameLoop = (gameId: string, intervalMs: number = 25) => {
         const session = gameSessions.get(gameId);

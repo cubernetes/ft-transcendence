@@ -8,13 +8,13 @@ import { FastifyInstance } from "fastify/types/instance";
 
 export type DbClient = BetterSQLite3Database<typeof schema> & { $client: Database.Database };
 
-const dbPlugin = async (fastify: FastifyInstance) => {
+const dbPlugin = async (app: FastifyInstance) => {
     try {
-        const { dbPath, dbDir } = fastify.config;
+        const { dbPath, dbDir } = app.config;
         const sqlite = new Database(dbPath);
 
         /** Ensure to close sqlite connection on shutdown */
-        fastify.addHook("onClose", async (instance) => {
+        app.addHook("onClose", async (instance) => {
             instance.log.info("On close hook triggered: Closing SQLite connection...");
             try {
                 sqlite.close();
@@ -30,9 +30,9 @@ const dbPlugin = async (fastify: FastifyInstance) => {
         /** Better-sqlite3 is synchronous, but await still recommended for future-proofing */
         await migrate(db, { migrationsFolder: path.join(dbDir, "migrations") });
 
-        fastify.decorate("db", db);
+        app.decorate("db", db);
     } catch (err) {
-        fastify.log.error({ err }, "Fail to initialize database");
+        app.log.error({ err }, "Fail to initialize database");
         throw err;
     }
 };

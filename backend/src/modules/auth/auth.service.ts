@@ -3,8 +3,8 @@ import type { FastifyInstance } from "fastify";
 import type { User } from "../user/user.types.ts";
 import type { JwtPayload } from "./auth.types.ts";
 
-export const createAuthService = (fastify: FastifyInstance) => {
-    const { jwt } = fastify;
+export const createAuthService = (app: FastifyInstance) => {
+    const { jwt } = app;
     const saltRounds = 10;
 
     const hashPassword = (password: string): Promise<string> => bcrypt.hash(password, saltRounds);

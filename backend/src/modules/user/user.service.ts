@@ -6,8 +6,8 @@ import { ApiError, errUniqueConstraintOn } from "../../utils/errors.ts";
 import { ok, error, Result } from "../../utils/errors.ts";
 import { toPublicUser } from "./user.helpers.ts";
 
-export const createUserService = (fastify: FastifyInstance) => {
-    const db = fastify.db;
+export const createUserService = (app: FastifyInstance) => {
+    const db = app.db;
 
     const create = async (data: NewUser): Promise<Result<User, ApiError>> => {
         try {

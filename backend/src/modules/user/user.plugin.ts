@@ -3,10 +3,10 @@ import { createUserService } from "./user.service.ts";
 import userRoutes from "./user.routes.ts";
 import fp from "fastify-plugin";
 
-const userPlugin = async (fastify: FastifyInstance) => {
-    fastify.decorate("userService", createUserService(fastify));
+const userPlugin = async (app: FastifyInstance) => {
+    app.decorate("userService", createUserService(app));
 
-    await fastify.register(userRoutes, { prefix: "/users" });
+    await app.register(userRoutes, { prefix: "/users" });
 };
 
 export default fp(userPlugin, {
