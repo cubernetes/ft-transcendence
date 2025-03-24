@@ -7,7 +7,7 @@ set -m
 
 : "${LOGLEVEL:=INFO}"
 : "${vault_config:=/vault/config/config.hcl}"
-: "${vault_storage_path:=/vault/file/}"
+: "${vault_storage_path:=/vault/files/}" # must match what's inside /vault/config/config.hcl
 : "${vault_stdout_file:="$HOME"/vault-server-stdout}"
 : "${vault_stderr_file:="$HOME"/vault-server-stderr}"
 : "${vault_exit_code_file:="$HOME"/vault-server-exit-status}"
@@ -263,14 +263,15 @@ main () {
 		info "Vault storage backend is empty. Initializing vault"
 		start_server_in_bg
 		wait_and_extract_secrets
-		#show_secrets
+		show_secrets # TODO: Remove/comment out
 		export_environment
 		ensure_unsealed
 		setup_kv_secrets_engine
 		populate_kv_secrets
-		#shutdown_server
+		#shutdown_server # Only for debugging
 		tail -F "$vault_stdout_file" "$vault_stderr_file"
 	fi
 }
 
 main "$@"
+

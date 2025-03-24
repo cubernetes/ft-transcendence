@@ -27,6 +27,7 @@ services:
             - "vault:/vault/file/"
         environment:
             LOGLEVEL: debug
+        tty: true
         develop:
             watch:
                 - path: "./vault/entrypoint.sh"
@@ -36,10 +37,10 @@ services:
                   action: sync+restart
                   target: "/replace_json_templates.py"
                 - path: "./vault/config.hcl"
-                  action: sync
+                  action: sync+restart
                   target: "/vault/config/config.hcl"
                 - path: "./vault/env.json"
-                  action: sync
+                  action: sync+restart
                   target: "/vault/config/env.json"
     caddy:
         build: "./caddy/"
