@@ -1,3 +1,17 @@
+export type Result<T, E extends Error = Error> =
+    | { success: true; data: T }
+    | { success: false; error: E };
+
+export const ok = <T>(data: T): Result<T> => ({
+    success: true,
+    data,
+});
+
+export const err = <E extends Error>(error: E): Result<never, E> => ({
+    success: false,
+    error,
+});
+
 export const ErrorCodes = {
     VALIDATION_ERROR: "VALIDATION_ERROR",
     USERNAME_TAKEN: "USERNAME_TAKEN",
