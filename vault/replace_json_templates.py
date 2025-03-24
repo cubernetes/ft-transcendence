@@ -1,4 +1,20 @@
 #!/usr/bin/env python3
+# This unix filter replaces simple mustache templates in json strings. Example:
+# {
+#   "foo": "{{digit:16}}"
+# }
+#
+# could turn into
+# {
+#   "foo": "2819465738296500"
+# }
+#
+# Supported template types are the alnum, alpha, and digit, which refer to the same C locale
+# character classes as described in grep(1) or Section 3.2 from the GNU grep manual:
+#   https://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html
+#
+# After the alphanumeric (+underscore) template type, there must always be a colon
+# and then a series of digits. Otherwise, no replacement occurs and a warning is printed.
 
 import re
 import sys
@@ -11,7 +27,7 @@ import contextlib
 character_sets = {
     'alnum': string.ascii_letters + string.digits,
     'alpha': string.ascii_letters,
-    'digits': string.digits,
+    'digit': string.digits,
 }
 
 def usage(name: str) -> None:
