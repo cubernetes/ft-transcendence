@@ -22,6 +22,7 @@
     },
     "devDependencies": {
         "@babylonjs/inspector": "^7.52.2",
+        "@babylonjs/loaders": "^7.54.1",
         "@types/jwt-decode": "^2.2.1",
         "chokidar": "^4.0.3",
         "concurrently": "^9.1.2",
