@@ -1,15 +1,15 @@
 import { GameState, GameConfig, CollisionEvent } from "./game.types.ts";
 
 export const GAME_CONSTANTS: GameConfig = {
-    BOARD_WIDTH: 20,
+    BOARD_WIDTH: 40,
     BOARD_HEIGHT: 0.1,
-    BOARD_DEPTH: 15,
+    BOARD_DEPTH: 30,
     PADDLE_WIDTH: 0.2,
     PADDLE_HEIGHT: 0.3,
-    PADDLE_DEPTH: 5,
+    PADDLE_DEPTH: 25,
     BALL_RADIUS: 0.3,
     PADDLE_SPEED: 0.3,
-    BALL_SPEED: 0.2,
+    BALL_SPEED: 0.3,
 };
 
 export default class GameEngine {
