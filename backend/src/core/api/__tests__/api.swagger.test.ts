@@ -25,4 +25,36 @@ test("GET /docs and /docs/returns swagger docs", async (t) => {
     });
 
     t.equal(resDocsSlash.statusCode, 200, "/docs/ should return 200 OK");
+
+    t.end();
+});
+
+test("GET /docs returns 404 if in production", async (t) => {
+    const originalEnv = process.env.NODE_ENV;
+
+    process.env.NODE_ENV = "production";
+    const tryBuild = await buildApp({ logger: false });
+    if (tryBuild.isErr()) {
+        return t.fail("Failed to build app");
+    }
+
+    t.teardown(() => {
+        process.env.NODE_ENV = originalEnv;
+        app.close();
+    });
+
+    const app = tryBuild.value;
+
+    const resDocs = await app.inject({
+        method: "GET",
+        url: "/docs",
+    });
+    const resDocsSlash = await app.inject({
+        method: "GET",
+        url: "/docs/",
+    });
+
+    t.equal(resDocs.statusCode, 404, "/docs should return 404 Not Found");
+    t.equal(resDocsSlash.statusCode, 404, "/docs/ should return 404 Not Found");
+    t.end();
 });
