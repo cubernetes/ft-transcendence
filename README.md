@@ -74,7 +74,7 @@
 
 ### Makefile
 
-- When running make (dev), arguments can be added to pass on additional flags for docker compose up. For instance `make dev ARGS="--no-attach caddy"` will silence any logs registered by the Caddy container, note that to silence more the flag needs to be repeated, i.e. `make dev ARGS="--no-attach caddy --no-attach backend"`.
+- When running make (dev), arguments can be added to pass on additional flags for docker compose up. For instance `make dev ARGS="--no-attach caddy"` will silence any logs registered by the Caddy container, note that to silence more the flag needs to be repeated, i.e. `make dev ARGS="--no-attach caddy --no-attach backend"`. Similarly, you can also use `ARGS="--attach caddy"` for inclusive logging.
 
 ### API endpoint
 
