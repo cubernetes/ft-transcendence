@@ -1,6 +1,8 @@
-import { test } from "tap";
-import { buildApp } from "../app.ts";
+import t, { test } from "tap";
 import { faker } from "@faker-js/faker";
+import buildApp from "../app.ts";
+import { Result } from "neverthrow";
+// import { ApiError } from "../errors.ts";
 
 const testEnv = (name: string, env: Partial<typeof process.env>, shouldResolve: boolean) => {
     test(name, async (t) => {
@@ -9,7 +11,7 @@ const testEnv = (name: string, env: Partial<typeof process.env>, shouldResolve: 
             process.env = originalEnv;
         });
 
-        /** Assign a set of valid env variables */
+        // Set up base valid env
         process.env = {
             ...process.env,
             BACKEND_PORT: "3000",
@@ -18,10 +20,12 @@ const testEnv = (name: string, env: Partial<typeof process.env>, shouldResolve: 
         };
 
         Object.assign(process.env, env);
-        const app = buildApp({ logger: false }, true);
+
+        const result = await buildApp({ logger: false }, true);
+
         shouldResolve
-            ? await t.resolves(app, `${JSON.stringify(env)}`)
-            : await t.rejects(app, `${JSON.stringify(env)}`);
+            ? t.ok(result.isOk(), `Expected success: ${JSON.stringify(env)}`)
+            : t.ok(result.isErr(), `Expected failure: ${JSON.stringify(env)}`);
     });
 };
 
@@ -43,23 +47,51 @@ test("Required env variables are not present", async (t) => {
         process.env = originalEnv;
     });
 
-    /** Assign a set of valid env variables */
     process.env = {
-        ...process.env,
         BACKEND_PORT: "3000",
         JWT_SECRET: faker.string.alphanumeric(32),
         DB_PATH: "drizzle/db.sqlite",
     };
-    const app = buildApp({ logger: false }, true);
 
     delete process.env.BACKEND_PORT;
-    await t.rejects(app, "BACKEND_PORT needs to be present");
+    let result = await buildApp({ logger: false }, true);
+    t.ok(result.isErr(), "expected result to be an error");
+    result.match(
+        () => t.fail("expected error"),
+        (error) => t.match(error.message, /BACKEND_PORT needs to be present/)
+    );
 
     process.env.BACKEND_PORT = "3000";
     delete process.env.JWT_SECRET;
-    await t.rejects(app, "JWT_SECRET needs to be present");
+    result = await buildApp({ logger: false }, true);
+    t.ok(result.isErr());
+    result.match(
+        () => t.fail("expected error"),
+        (error) => t.match(error.message, /JWT_SECRET needs to be present/)
+    );
 
     process.env.JWT_SECRET = faker.string.alphanumeric(32);
     delete process.env.DB_PATH;
-    await t.rejects(app, "DB_PATH needs to be present");
+    result = await buildApp({ logger: false }, true);
+    t.ok(result.isErr());
+    result.match(
+        () => t.fail("expected error"),
+        (error) => t.match(error.message, /DB_PATH needs to be present/)
+    );
 });
+function asyncResult(
+    arg0: Promise<
+        import("neverthrow").Result<
+            import("fastify").FastifyInstance<
+                import("fastify").RawServerDefault,
+                import("http").IncomingMessage,
+                import("http").ServerResponse<import("http").IncomingMessage>,
+                import("fastify").FastifyBaseLogger,
+                import("fastify").FastifyTypeProviderDefault
+            >,
+            Error
+        >
+    >
+) {
+    throw new Error("Function not implemented.");
+}

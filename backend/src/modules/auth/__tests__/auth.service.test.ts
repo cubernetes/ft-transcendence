@@ -3,6 +3,7 @@ import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import { createAuthService } from "../auth.service.ts";
 import { faker } from "@faker-js/faker";
+import { mockUser } from "../../user/user.helpers.ts";
 
 test("authService - hashPassword + comparePassword", async (t) => {
     const app = Fastify();
@@ -29,14 +30,13 @@ test("authService - jwt sign + verify", async (t) => {
     await app.ready();
     const authService = createAuthService(app);
 
-    const id = 1;
-    const username = "darren";
-
-    const token = authService.generateToken(id, username);
+    const user = mockUser();
+    const token = authService.generateToken(user);
     t.type(token, "string", "should return a string JWT");
 
     const decoded = authService.verifyToken(token);
+    const { id, username, displayName } = user;
 
-    t.match(decoded, { id, username }, "decoded token contains id and username");
+    t.match(decoded, { id, username, displayName }, "decoded token contains id and username");
     t.end();
 });
