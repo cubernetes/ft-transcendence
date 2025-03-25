@@ -1,20 +1,20 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserDTO, LeaderboardDTO, LoginUserDTO } from "./user.types.ts";
 import { toPersonalUser } from "./user.helpers.ts";
 import { ApiError } from "../../utils/errors.ts";
+import type { RegisterBody, LoginBody, LeaderboardParams } from "./user.types.ts";
 
-export const registerHandler = async (
-    { body }: { body: CreateUserDTO },
+const registerHandler = async (
+    { body }: { body: RegisterBody },
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
     // Remove confirmPassword from data
     const { confirmPassword, ...userData } = body;
 
-    const hashedPassword = await req.server.authService.hashPassword(userData.password);
+    const passwordHash = await req.server.authService.hashPassword(userData.password);
     const user = await req.server.userService.create({
         ...userData,
-        passwordHash: hashedPassword,
+        passwordHash,
     });
 
     if (user.isErr()) {
@@ -25,8 +25,8 @@ export const registerHandler = async (
     return reply.code(201).send({ success: true, data: { token } });
 };
 
-export const loginHandler = async (
-    { body }: { body: LoginUserDTO },
+const loginHandler = async (
+    { body }: { body: LoginBody },
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
@@ -45,11 +45,11 @@ export const loginHandler = async (
     }
 
     const token = req.server.authService.generateToken(user.value);
-    return reply.code(200).send({ success: true, data: { token } });
+    return reply.send({ success: true, data: { token } });
 };
 
-export const getLeaderboardHandler = async (
-    { params }: { params: LeaderboardDTO },
+const getLeaderboardHandler = async (
+    { params }: { params: LeaderboardParams },
     req: FastifyRequest,
     reply: FastifyReply
 ) => {
@@ -65,7 +65,7 @@ export const getLeaderboardHandler = async (
     return reply.send({ success: true, data: leadUsers });
 };
 
-export const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
     const user = await req.server.userService.findById(req.userId!);
 
     if (user.isErr()) {
@@ -73,4 +73,11 @@ export const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => 
     }
 
     return reply.send({ success: true, data: toPersonalUser(user.value) });
+};
+
+export default {
+    register: registerHandler,
+    login: loginHandler,
+    leaderboard: getLeaderboardHandler,
+    me: getMeHandler,
 };

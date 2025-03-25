@@ -1,42 +1,29 @@
 import type { FastifyPluginAsync } from "fastify";
-import {
-    getLeaderboardHandler,
-    getMeHandler,
-    loginHandler,
-    registerHandler,
-} from "./user.controller.ts";
+import handlers from "./user.controller.ts";
 import { withZod } from "../../utils/zod-validate.ts";
-import {
-    registerRouteSchema,
-    createUserSchema,
-    leaderboardSchema,
-    loginUserSchema,
-    loginRouteSchema,
-    getLeaderboardRouteSchema,
-    getMeRouteSchema,
-} from "./user.schema.ts";
+import schemas from "./user.schema.ts";
 
 const userRoutes: FastifyPluginAsync = async (app) => {
     app.post(
         "/register",
-        { schema: registerRouteSchema },
-        withZod({ body: createUserSchema }, registerHandler)
+        { schema: schemas.routes.register },
+        withZod({ body: schemas.registerBody }, handlers.register)
     );
     app.post(
         "/login",
-        { schema: loginRouteSchema },
-        withZod({ body: loginUserSchema }, loginHandler)
+        { schema: schemas.routes.login },
+        withZod({ body: schemas.loginBody }, handlers.login)
     );
     app.get(
         "/me",
-        { preHandler: [app.authService.jwtAuth], schema: getMeRouteSchema },
-        getMeHandler
+        { preHandler: [app.authService.jwtAuth], schema: schemas.routes.me },
+        handlers.me
     );
 
     app.get(
         "/leaderboard/:n",
-        { schema: getLeaderboardRouteSchema },
-        withZod({ params: leaderboardSchema }, getLeaderboardHandler)
+        { schema: schemas.routes.leaderboard },
+        withZod({ params: schemas.leaderboardParams }, handlers.leaderboard)
     );
 
     // These endpoints are acutally stupid, controller should be used for more direct things for frontend

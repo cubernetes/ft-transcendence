@@ -1,17 +1,14 @@
-import { users } from "../../core/db/db.schema.ts";
-import {
-    createUserSchema,
-    leaderboardSchema,
-    loginUserSchema,
-    PublicUserSchema,
-} from "./user.schema.ts";
 import { z } from "zod";
+import schemas from "./user.schema.ts";
+import { users } from "../../core/db/db.schema.ts";
 
-export type CreateUserDTO = z.infer<typeof createUserSchema>;
-export type LoginUserDTO = z.infer<typeof loginUserSchema>;
+export type RegisterBody = z.infer<typeof schemas.registerBody>;
+export type LoginBody = z.infer<typeof schemas.loginBody>;
+export type LeaderboardParams = z.infer<typeof schemas.leaderboardParams>;
 
-export type User = typeof users.$inferSelect; // Problematic, such that default field shown as possibly null
+export type PublicUser = z.infer<typeof schemas.publicUser>;
+
+// Problematic, such that default field shown as possibly null
+// Only use for db operations?
+export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
-export type PublicUser = z.infer<typeof PublicUserSchema>;
-
-export type LeaderboardDTO = z.infer<typeof leaderboardSchema>;

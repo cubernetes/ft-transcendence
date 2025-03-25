@@ -2,7 +2,7 @@ import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 import { apiError, apiSuccess } from "../../core/api/api.schema.ts";
 
-export const createUserSchema = z
+const registerBodySchema = z
     .object({
         username: z.string().min(3, { message: "Username must be at least 3 characters long" }),
         displayName: z
@@ -18,16 +18,16 @@ export const createUserSchema = z
         message: "Passwords do not match",
     });
 
-export const loginUserSchema = z.object({
+const loginBodySchema = z.object({
     username: z.string().min(3, { message: "Username is required" }),
     password: z.string().min(8, { message: "Password is required" }),
 });
 
-export const leaderboardSchema = z.object({
+const leaderboardParamsSchema = z.object({
     n: z.coerce.number().int().gt(0),
 });
 
-export const PublicUserSchema = z.object({
+const PublicUserSchema = z.object({
     id: z.number(),
     username: z.string(),
     displayName: z.string(),
@@ -37,30 +37,29 @@ export const PublicUserSchema = z.object({
     createdAt: z.string().datetime(),
 });
 
-export const LoginSchema = z.object({
+const LoginResponseSchema = z.object({
     token: z.string(),
 });
 
 /** Schemas for swagger UI */
-
-export const registerRouteSchema = {
+const registerRouteSchema = {
     tags: ["User"],
     description: "Register a new user",
-    body: zodToJsonSchema(createUserSchema),
+    body: zodToJsonSchema(registerBodySchema),
     response: {
-        201: zodToJsonSchema(apiSuccess(LoginSchema)),
+        201: zodToJsonSchema(apiSuccess(LoginResponseSchema)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         409: zodToJsonSchema(apiError("USERNAME_TAKEN")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },
 };
 
-export const loginRouteSchema = {
+const loginRouteSchema = {
     tags: ["User"],
     description: "Login an user",
-    body: zodToJsonSchema(loginUserSchema),
+    body: zodToJsonSchema(loginBodySchema),
     response: {
-        201: zodToJsonSchema(apiSuccess(LoginSchema)),
+        201: zodToJsonSchema(apiSuccess(LoginResponseSchema)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         404: zodToJsonSchema(apiError("NOT_FOUND")),
@@ -68,7 +67,7 @@ export const loginRouteSchema = {
     },
 };
 
-export const getMeRouteSchema = {
+const getMeRouteSchema = {
     tags: ["User"],
     description: "Get current user info",
     security: [{ bearerAuth: [] }],
@@ -79,13 +78,27 @@ export const getMeRouteSchema = {
     },
 };
 
-export const getLeaderboardRouteSchema = {
+const getLeaderboardRouteSchema = {
     tags: ["User"],
     description: "Get top n users by wins",
-    params: zodToJsonSchema(leaderboardSchema),
+    params: zodToJsonSchema(leaderboardParamsSchema),
     response: {
         200: zodToJsonSchema(apiSuccess(PublicUserSchema.array())),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+    },
+};
+
+export default {
+    registerBody: registerBodySchema,
+    loginBody: loginBodySchema,
+    leaderboardParams: leaderboardParamsSchema,
+    loginResponse: LoginResponseSchema,
+    publicUser: PublicUserSchema,
+    routes: {
+        register: registerRouteSchema,
+        login: loginRouteSchema,
+        me: getMeRouteSchema,
+        leaderboard: getLeaderboardRouteSchema,
     },
 };
