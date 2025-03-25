@@ -29,7 +29,7 @@ declare module "fastify" {
         gameRoutes: ReturnType<typeof gameRoutes>;
         tournamentRoutes: ReturnType<typeof tournamentRoutes>;
         //friendRoutes: ReturnType<typeof friendRoutes>;
-        requireAuth: (req: FastifyRequest, reply: FastifyReply) => void;
+        requireAuth: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
     }
 
     interface FastifyRequest {

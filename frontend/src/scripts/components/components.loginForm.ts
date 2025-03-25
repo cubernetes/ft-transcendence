@@ -117,7 +117,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
 
     const login = async (username: string, password: string) => {
         try {
-            const response = await fetch("/api/users/login", {
+            const response = await fetch("/api/user/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -143,7 +143,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
     };
 
     const register = async (data: AuthFormData) => {
-        const response = await fetch("/api/users/register", {
+        const response = await fetch("/api/user/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

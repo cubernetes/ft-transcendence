@@ -67,7 +67,7 @@ const getLeaderboardHandler = async (
 };
 
 const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    const user = await req.server.userService.findById(req.userId!);
+    const user = await req.server.userService.findById(req.userId);
 
     if (user.isErr()) {
         return user.error.send(reply);

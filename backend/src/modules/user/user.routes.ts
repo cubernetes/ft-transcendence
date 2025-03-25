@@ -14,11 +14,7 @@ const userRoutes: FastifyPluginAsync = async (app) => {
         { schema: schemas.routes.login },
         withZod({ body: schemas.loginBody }, handlers.login)
     );
-    app.get(
-        "/me",
-        { preHandler: [app.authService.jwtAuth], schema: schemas.routes.me },
-        handlers.me
-    );
+    app.get("/me", { preHandler: [app.requireAuth], schema: schemas.routes.me }, handlers.me);
 
     app.get(
         "/leaderboard/:n",

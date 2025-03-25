@@ -26,7 +26,7 @@ export const createAuthService = (app: FastifyInstance) => {
 
     const verifyToken = (token: string): JwtPayload => jwt.verify(token) as JwtPayload;
 
-    const jwtAuth = (req: FastifyRequest, reply: FastifyReply) => {
+    const jwtAuth = async (req: FastifyRequest, reply: FastifyReply) => {
         const header = req.headers.authorization;
         if (!header) {
             const error = new ApiError("UNAUTHORIZED", 401, "Missing Authorization header");

@@ -26,13 +26,12 @@ export const showUserStatus = async (container: HTMLElement) => {
         }
 
         // Verify on the backend to see test that it works
-        const response = await fetch(`${API_BASE_URL}/users/me`, {
+        const response = await fetch(`${API_BASE_URL}/user/me`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
         const data = await response.json();
-        console.log(data);
     } catch (error) {
         localStorage.removeItem("token");
         return;
@@ -66,7 +65,7 @@ export const showUserStatus = async (container: HTMLElement) => {
 
 export const fetchTestData = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/leaderboard/10`);
+        const response = await fetch(`${API_BASE_URL}/user/leaderboard/10`);
         if (!response.ok) {
             throw new Error("Failed to fetch users");
         }
