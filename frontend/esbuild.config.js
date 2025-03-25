@@ -53,7 +53,7 @@ if (watch) {
     });
     await context.watch();
 
-    /** Watch extra files that aren't in the dependency graph */
+    // Watch extra files that aren't in the dependency graph
     const watcher = chokidar.watch(["./src/public/index.html", "./src/public/assets"], {
         persistent: true,
         ignoreInitial: true,

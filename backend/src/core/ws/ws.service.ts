@@ -18,7 +18,7 @@ export const createWsService = (app: FastifyInstance) => {
             const newState = session.engine!.update();
             session.state = newState;
 
-            /** Broadcast the updated state to all players in the session */
+            // Broadcast the updated state to all players in the session
             session.players.forEach((player) => {
                 player.socket.send(JSON.stringify(session.state));
             });
@@ -39,7 +39,7 @@ export const createWsService = (app: FastifyInstance) => {
         log.info(`Registering connection for user ${id}`);
         connections.set(id, conn);
 
-        /** Ensure a game session exists */
+        // Ensure a game session exists
         if (!gameSessions.has(gameId)) {
             const state: GameState = {
                 ballPosition: { x: 0, y: 0, z: 0 },
@@ -60,16 +60,16 @@ export const createWsService = (app: FastifyInstance) => {
             });
         }
 
-        /** Add the player to the session */
+        // Add the player to the session
         const session = gameSessions.get(gameId)!;
 
         session.players.set(id.toString(), { socket: conn, playerId: id.toString() });
 
-        /** Log the game state and player IDs */
+        // Log the game state and player IDs
         log.info(`Game state after registering player ${id}: ${JSON.stringify(session.state)}`);
         log.info(`Players in game ${gameId}: ${[...session.players.keys()].join(", ")}`);
 
-        /** Start the game loop if there's only one player (for now) */
+        // Start the game loop if there's only one player (for now)
         if (session.players.size === 1) {
             startGameLoop(gameId);
         }
@@ -113,7 +113,7 @@ export const createWsService = (app: FastifyInstance) => {
         }
 
         const gameState = session.state;
-        /** Log the entire game state for debugging */
+        // Log the entire game state for debugging
         log.debug({ gameState }, `gameState for game ${gameId}`);
 
         // TODO: Feels weird, take a look later
@@ -125,10 +125,10 @@ export const createWsService = (app: FastifyInstance) => {
             return log.warn("Unrecognized player tried to send a message.");
         }
 
-        /** Dynamically determine the player key */
+        // Dynamically determine the player key
         const playerKey = `player-${session.players.size === 1 ? "1" : "2"}`; // Determine player-1 or player-2 based on session size
 
-        /** Log the playerId for debugging */
+        // Log the playerId for debugging
         log.debug(`Player ID for the connection: ${playerId}`);
         log.debug({ gameState });
         log.debug(`Checking if playerKey ${playerKey} exists in paddlePosition`);
@@ -146,14 +146,14 @@ export const createWsService = (app: FastifyInstance) => {
             "move stop": () => engine.setInput(playerKey, "stop"),
         };
 
-        /** Log the action being sent */
+        // Log the action being sent
         log.info(`Received action: ${msg}`);
 
         if (msg in actionHandlers) {
             actionHandlers[msg]();
         }
 
-        /** Broadcast the updated state to all players in the session */
+        // Broadcast the updated state to all players in the session
         Object.values(session.players).forEach(({ socket }) => {
             socket.send(JSON.stringify(gameState));
         });

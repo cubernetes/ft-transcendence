@@ -11,7 +11,7 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
 
     server.wsService.createGame(conn, userId, gameId);
 
-    /** Retrieve the existing game state from the websocket service */
+    // Retrieve the existing game state from the websocket service
     let gameState = server.wsService.getGameState(gameId);
 
     if (!gameState) {
@@ -22,10 +22,10 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
     conn.send(JSON.stringify(gameState));
 
     conn.on("message", (message: string) => {
-        /** Handle the message, which updates the game state */
+        // Handle the message, which updates the game state
         server.wsService.handleMessage(conn, message, gameId);
 
-        /** Retrieve the updated game state */
+        // Retrieve the updated game state
         gameState = server.wsService.getGameState(gameId);
     });
 

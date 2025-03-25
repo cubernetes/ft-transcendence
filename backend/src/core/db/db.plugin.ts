@@ -13,14 +13,14 @@ const dbPlugin = async (app: FastifyInstance) => {
         const { dbPath, dbDir } = app.config;
         const sqlite = new Database(dbPath);
 
-        /** Ensure to close sqlite connection on shutdown */
+        // Ensure to close sqlite connection on shutdown
         app.addHook("onClose", async (instance) => {
             instance.log.info("On close hook triggered: Closing SQLite connection...");
             try {
                 sqlite.close();
                 instance.log.info("SQLite closed");
             } catch (err) {
-                /** Log error but no need to rethrow */
+                // Log error but no need to rethrow
                 instance.log.error({ err }, "Error closing SQLite");
             }
         });

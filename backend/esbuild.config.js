@@ -14,7 +14,7 @@ const context = await esbuild.context({
     sourcemap: !isProd, // Disable sourcemaps in production
     packages: "external",
     define: {
-        /** Define process.env.NODE_ENV to eliminate dead code in production */
+        // Define process.env.NODE_ENV to eliminate dead code in production
         "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
     },
 });
