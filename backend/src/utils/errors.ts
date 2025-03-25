@@ -1,7 +1,6 @@
 import type { FastifyReply } from "fastify";
 import type { ErrorCode } from "../core/api/api.schema.ts";
 
-// ZodError, ApiError (HTTP), Error.
 export class ApiError extends Error {
     constructor(
         public code: ErrorCode,
@@ -20,8 +19,8 @@ export class ApiError extends Error {
 }
 
 export class UnknownError extends ApiError {
-    constructor() {
-        super("INTERNAL_SERVER_ERROR", 500, "Unknown error");
+    constructor(message = "Unknown error") {
+        super("INTERNAL_SERVER_ERROR", 500, message);
     }
 }
 

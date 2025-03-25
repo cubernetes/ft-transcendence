@@ -9,11 +9,13 @@ const userRoutes: FastifyPluginAsync = async (app) => {
         { schema: schemas.routes.register },
         withZod({ body: schemas.registerBody }, handlers.register)
     );
+
     app.post(
         "/login",
         { schema: schemas.routes.login },
         withZod({ body: schemas.loginBody }, handlers.login)
     );
+
     app.get("/me", { preHandler: [app.requireAuth], schema: schemas.routes.me }, handlers.me);
 
     app.get(
