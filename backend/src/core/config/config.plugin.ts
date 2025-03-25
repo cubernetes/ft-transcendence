@@ -3,6 +3,7 @@ import fp from "fastify-plugin";
 import path from "path";
 import fs from "fs";
 import { configSchema } from "./config.schema.ts";
+import { AppConfig } from "./config.types.ts";
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (app: FastifyInstance): Promise<void> => {
@@ -13,15 +14,29 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
     const jwtSecret = parsedEnv.JWT_SECRET;
     const dbPath = parsedEnv.DB_PATH;
     const dbDir = process.env.DB_DIR ?? path.dirname(parsedEnv.DB_PATH);
-    const apiPrefix = process.env.API_PREFIX ?? "/api";
-    const host = process.env.HOST ?? "0.0.0.0";
-    const domain = process.env.DOMAINS ?? "*";
-
     if (!fs.existsSync(dbDir)) {
         throw new Error("Directory for database does not exist");
     }
 
-    const config = { port, jwtSecret, dbPath, dbDir, apiPrefix, host, domain };
+    const apiPrefix = process.env.API_PREFIX ?? "/api";
+    const host = process.env.HOST ?? "0.0.0.0";
+    const domains = process.env.DOMAINS?.split(" ") ?? ["localhost"];
+    const corsOrigin =
+        process.env.NODE_ENV === "production"
+            ? domains.flatMap((d) => [`https://${d}`, `http://${d}`])
+            : "*";
+
+    const config: AppConfig = {
+        port,
+        jwtSecret,
+        dbPath,
+        dbDir,
+        apiPrefix,
+        host,
+        domains,
+        corsOrigin,
+    };
+
     app.decorate("config", config);
 };
 
