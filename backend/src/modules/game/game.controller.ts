@@ -16,8 +16,8 @@ export const createGameHandler = async (
         }
 
         return reply.code(201).send(game);
-    } catch (err) {
-        req.log.error({ err }, "Failed to create game");
+    } catch (e) {
+        req.log.error({ err: e }, "Failed to create game");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -35,8 +35,8 @@ export const getGameByIdHandler = async (
         }
 
         return reply.send(game);
-    } catch (err) {
-        req.log.error({ err }, "Failed to get game by ID");
+    } catch (e) {
+        req.log.error({ err: e }, "Failed to get game by ID");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -45,8 +45,8 @@ export const getAllGamesHandler = async (req: FastifyRequest, reply: FastifyRepl
     try {
         const games = await req.server.gameService.findAll();
         return reply.send(games);
-    } catch (err) {
-        req.log.error({ err }, "Failed to get all games");
+    } catch (e) {
+        req.log.error({ err: e }, "Failed to get all games");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -54,8 +54,8 @@ export const getAllGamesHandler = async (req: FastifyRequest, reply: FastifyRepl
 export const getGameConfigHandler = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
         return reply.send(GAME_CONSTANTS);
-    } catch (err) {
-        req.log.error({ err }, "Failed to get game config");
+    } catch (e) {
+        req.log.error({ err: e }, "Failed to get game config");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };

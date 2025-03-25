@@ -18,7 +18,7 @@ const buildApp = async (opts: FastifyServerOptions): Promise<Result<FastifyInsta
         // Seed database if not in production
         if (process.env.NODE_ENV !== "production") {
             // Error is non-fatal
-            await seed(app).catch((err) => app.log.warn({ err }, "Seed failing"));
+            await seed(app).catch((e) => app.log.warn({ err: e }, "Seed failing"));
         }
 
         return ok(app);
