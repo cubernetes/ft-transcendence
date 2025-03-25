@@ -22,30 +22,36 @@ test("Create user", async (t) => {
     const username = faker.internet.username();
     const displayName = faker.person.firstName();
     const passwordHash = faker.internet.password();
-    const user1 = await app.userService.create({
+    let user = await app.userService.create({
         username,
         displayName,
         passwordHash,
     });
 
-    if (user1.isErr()) {
+    if (user.isErr()) {
         return t.fail("User should be created");
     }
 
-    t.ok(user1.value, "User should be returned");
-    t.equal(user1.value.username, username, "Username should match");
-    t.equal(user1.value.displayName, displayName, "Display name should match");
-    t.equal(user1.value.passwordHash, passwordHash, "Password hash should be undefined");
+    t.ok(user.value, "User should be returned");
+    t.equal(user.value.username, username, "Username should match");
+    t.equal(user.value.displayName, displayName, "Display name should match");
+    t.equal(user.value.passwordHash, passwordHash, "Password hash should be undefined");
 
-    const dupUser = await app.userService.create({
+    user = await app.userService.create({
         username,
         displayName,
         passwordHash,
     });
 
-    if (dupUser.isOk()) {
+    if (user.isOk()) {
         return t.fail("User should not be created");
     }
 
-    t.equal(dupUser.error.code, "USERNAME_TAKEN", "Error code should be USERNAME_TAKEN");
+    t.equal(user.error.code, "USERNAME_TAKEN", "Error code should be USERNAME_TAKEN");
+
+    user = await app.userService.findById(-1);
+    t.ok(user.isErr(), "User should not be found");
+
+    user = await app.userService.update(-1, { displayName: faker.person.firstName() });
+    t.ok(user.isErr(), "User should not be updated");
 });
