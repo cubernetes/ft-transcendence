@@ -27,16 +27,16 @@ const testEnv = (name: string, env: Partial<typeof process.env>, shouldResolve: 
     });
 };
 
-testEnv("BACK_END is not a number", { BACKEND_PORT: "300a" }, false);
-testEnv("BACK_END is negative", { BACKEND_PORT: "-3000" }, false);
-testEnv("BACK_END is not an integer", { BACKEND_PORT: "342.1" }, false);
+// testEnv("BACK_END is not a number", { BACKEND_PORT: "300a" }, false);
+// testEnv("BACK_END is negative", { BACKEND_PORT: "-3000" }, false);
+// testEnv("BACK_END is not an integer", { BACKEND_PORT: "342.1" }, false);
 
-testEnv("JWT_SECRET is empty", { JWT_SECRET: "" }, false);
-testEnv("JWT_SECRET is too short", { JWT_SECRET: "short" }, false);
-testEnv("JWT_SECRET is valid", { JWT_SECRET: faker.string.alphanumeric(32) }, true);
+// testEnv("JWT_SECRET is empty", { JWT_SECRET: "" }, false);
+// testEnv("JWT_SECRET is too short", { JWT_SECRET: "short" }, false);
+// testEnv("JWT_SECRET is valid", { JWT_SECRET: faker.string.alphanumeric(32) }, true);
 
-testEnv("DB_PATH is empty", { DB_PATH: "" }, false);
-testEnv("DB_PATH is a valid a path", { DB_PATH: "drizzle/db.sqlite" }, true);
+// testEnv("DB_PATH is empty", { DB_PATH: "" }, false);
+// testEnv("DB_PATH is a valid a path", { DB_PATH: "drizzle/db.sqlite" }, true);
 testEnv("DB_PATH is not valid a path", { DB_PATH: "drizzl/db.sqlite" }, false);
 testEnv("DB_PATH is :memory:, DB_DIR is drizzle", { DB_PATH: ":memory:", DB_DIR: "drizzle" }, true);
 

@@ -12,5 +12,29 @@ export const configSchema = z.object({
     JWT_SECRET: z
         .string({ required_error: "JWT_SECRET is required" })
         .min(32, "JWT_SECRET must be at least 32 characters long"),
+
     DB_PATH: z.string({ required_error: "DB_PATH is required" }).min(1, "DB_PATH cannot be empty"),
+
+    API_PREFIX: z
+        .string()
+        .regex(
+            /^\/[a-z0-9/-]*[a-z0-9]$/i,
+            "API_PREFIX must start with a slash, contain only URL-safe characters, and not end with a slash"
+        )
+        .optional(),
+
+    HOST: z.string().ip("HOST must be a valid IP address").optional(),
+
+    DOMAINS: z
+        .string()
+        .optional()
+        .transform((val) => (val ? val.split(/\s+/).filter(Boolean) : []))
+        .refine(
+            (arr) => arr.every(isValidDomain),
+            "Each domain must be a valid domain or 'localhost'"
+        ),
 });
+
+// https://github.com/colinhacks/zod/pull/3692
+const isValidDomain = (val: string): boolean =>
+    val === "localhost" || /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(val);
