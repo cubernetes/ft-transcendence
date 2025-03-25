@@ -1,0 +1,28 @@
+import { test } from "tap";
+import buildApp from "../../../utils/app.ts";
+
+test("GET /docs and /docs/returns swagger docs", async (t) => {
+    const tryBuild = await buildApp({ logger: false });
+    if (tryBuild.isErr()) {
+        return t.fail("Failed to build app");
+    }
+
+    t.teardown(() => app.close());
+
+    const app = tryBuild.value;
+
+    const resDocs = await app.inject({
+        method: "GET",
+        url: "/docs",
+    });
+
+    t.equal(resDocs.statusCode, 302, "/docs should return 302 Redirect");
+    t.ok(resDocs.headers.location?.endsWith("/docs/"), "Redirect should point to /docs/");
+
+    const resDocsSlash = await app.inject({
+        method: "GET",
+        url: "/docs/",
+    });
+
+    t.equal(resDocsSlash.statusCode, 200, "/docs/ should return 200 OK");
+});

@@ -10,7 +10,7 @@ const appOpts: FastifyServerOptions = {
 const tryBuild = await buildApp(appOpts);
 
 if (tryBuild.isErr()) {
-    console.error(tryBuild.error.message);
+    console.error(`Fatal error when building app: ${tryBuild.error.message}`);
     process.exit(1);
 }
 

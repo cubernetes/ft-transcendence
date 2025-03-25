@@ -1,14 +1,5 @@
 import type { FastifyReply } from "fastify";
-
-export const ErrorCodes = {
-    VALIDATION_ERROR: "VALIDATION_ERROR",
-    USERNAME_TAKEN: "USERNAME_TAKEN",
-    NOT_FOUND: "NOT_FOUND",
-    UNAUTHORIZED: "UNAUTHORIZED",
-    INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
-} as const;
-
-export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
+import type { ErrorCode } from "../core/api/api.schema.ts";
 
 // ZodError, ApiError (HTTP), Error.
 export class ApiError extends Error {
