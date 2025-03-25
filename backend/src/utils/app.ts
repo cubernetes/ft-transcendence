@@ -7,7 +7,10 @@ import { seed } from "../core/db/db.seed.ts";
 
 const buildApp = async (opts: FastifyServerOptions): Promise<Result<FastifyInstance, Error>> => {
     const app = fastify(opts);
-    app.setValidatorCompiler(() => () => true); // Disable ajv validation
+    // Disable ajv validation for request schema validation
+    app.setValidatorCompiler(() => () => true);
+    // Disable fast-json-stringify for response schema validation, leave it for now
+    // app.setSerializerCompiler(() => JSON.stringify);
 
     try {
         await app.register(corePlugin);
