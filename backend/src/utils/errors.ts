@@ -1,26 +1,4 @@
-export type Result<T, E extends Error = Error> =
-    | { success: true; data: T }
-    | { success: false; error: E };
-
-export const ok = <T = void>(data?: T): Result<T> => ({
-    success: true,
-    data: data as T,
-});
-
-// Handles all of them here, take in unknown
-export const error = <E extends Error>(error: E): Result<never, E> => {
-    if (error instanceof Error) {
-        return {
-            success: false,
-            error,
-        };
-    }
-
-    return {
-        success: false,
-        error,
-    };
-};
+import type { FastifyReply } from "fastify";
 
 export const ErrorCodes = {
     VALIDATION_ERROR: "VALIDATION_ERROR",
@@ -32,15 +10,27 @@ export const ErrorCodes = {
 
 export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes];
 
+// ZodError, ApiError (HTTP), Error.
 export class ApiError extends Error {
     constructor(
         public code: ErrorCode,
         public statusCode: number,
-        public message: string,
-        public details?: unknown
+        public message: string
     ) {
         super(message);
-        this.name = "ApiError";
+    }
+
+    send(reply: FastifyReply) {
+        reply.code(this.statusCode).send({
+            success: false,
+            error: { code: this.code, message: this.message },
+        });
+    }
+}
+
+export class UnknownError extends ApiError {
+    constructor() {
+        super("INTERNAL_SERVER_ERROR", 500, "Unknown error");
     }
 }
 

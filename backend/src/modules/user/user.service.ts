@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
+import { ok, err, Result } from "neverthrow";
 import { users } from "../../core/db/db.schema.ts";
 import { NewUser, PublicUser, User } from "./user.types.ts";
 import { eq, count } from "drizzle-orm";
-import { ApiError, errUniqueConstraintOn } from "../../utils/errors.ts";
-import { ok, error, Result } from "../../utils/errors.ts";
+import { ApiError, errUniqueConstraintOn, UnknownError } from "../../utils/errors.ts";
 import { toPublicUser } from "./user.helpers.ts";
 
 export const createUserService = (app: FastifyInstance) => {
@@ -13,12 +13,12 @@ export const createUserService = (app: FastifyInstance) => {
         try {
             const user = (await db.insert(users).values(data).returning())?.[0];
             return ok(user);
-        } catch (err) {
-            if (errUniqueConstraintOn(err, "users.username")) {
-                return error(new ApiError("USERNAME_TAKEN", 409, "Username already taken"));
+        } catch (e) {
+            if (errUniqueConstraintOn(e, "users.username")) {
+                return err(new ApiError("USERNAME_TAKEN", 409, "Username already taken"));
             }
 
-            return error(err);
+            return err(new UnknownError());
         }
     };
 
@@ -26,8 +26,8 @@ export const createUserService = (app: FastifyInstance) => {
         try {
             const user = (await db.select().from(users).where(eq(users.id, id)))?.[0];
             return ok(user);
-        } catch (err) {
-            return error(new ApiError("NOT_FOUND", 404, "User not found"));
+        } catch (e) {
+            return err(new ApiError("NOT_FOUND", 404, "User not found"));
         }
     };
 
@@ -36,8 +36,8 @@ export const createUserService = (app: FastifyInstance) => {
             // TODO: TEST this
             const user = (await db.select().from(users).where(eq(users.username, username)))?.[0];
             return ok(user);
-        } catch (err) {
-            return error(new ApiError("NOT_FOUND", 404, "User not found"));
+        } catch (e) {
+            return err(new ApiError("NOT_FOUND", 404, "User not found"));
         }
     };
 
@@ -46,8 +46,8 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users);
             const publicUsers = result.map(toPublicUser);
             return ok(publicUsers);
-        } catch (err) {
-            return error(err);
+        } catch (e) {
+            return err(new UnknownError());
         }
     };
 

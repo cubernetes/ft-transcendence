@@ -6,7 +6,7 @@ import fp from "fastify-plugin";
 const userPlugin = async (app: FastifyInstance) => {
     app.decorate("userService", createUserService(app));
 
-    await app.register(userRoutes, { prefix: "/users" });
+    await app.register(userRoutes, { prefix: "/user" });
 };
 
 export default fp(userPlugin, {
