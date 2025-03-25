@@ -1,5 +1,5 @@
-const API_BASE_URL = "/api";
 import { jwtDecode } from "jwt-decode";
+import { USER_URL } from "./config";
 
 interface JwtPayload {
     id: string;
@@ -26,7 +26,7 @@ export const showUserStatus = async (container: HTMLElement) => {
         }
 
         // Verify on the backend to see test that it works
-        const response = await fetch(`${API_BASE_URL}/user/me`, {
+        const response = await fetch(`${USER_URL}/me`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -65,7 +65,7 @@ export const showUserStatus = async (container: HTMLElement) => {
 
 export const fetchTestData = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/user/leaderboard/10`);
+        const response = await fetch(`${USER_URL}/leaderboard/10`);
         if (!response.ok) {
             throw new Error("Failed to fetch users");
         }
