@@ -9,3 +9,5 @@
 **/compile_commands.json
 
 backend/drizzle/db.sqlite
+
+secrets/
