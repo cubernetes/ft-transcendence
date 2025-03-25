@@ -53,9 +53,9 @@ export const getAllGamesHandler = async (req: FastifyRequest, reply: FastifyRepl
 
 export const getGameConfigHandler = async (req: FastifyRequest, reply: FastifyReply) => {
     try {
-        return reply.send(GAME_CONSTANTS);
+        return reply.send({ success: true, data: GAME_CONSTANTS });
     } catch (e) {
         req.log.error({ err: e }, "Failed to get game config");
-        return reply.code(500).send({ error: "Internal server error" });
+        return reply.code(500).send({ success: false, error: "Internal server error" });
     }
 };

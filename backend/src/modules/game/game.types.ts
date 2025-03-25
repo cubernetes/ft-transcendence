@@ -1,7 +1,7 @@
 import { WebSocket } from "ws";
 import GameEngine from "./game.engine.ts";
 import { z } from "zod";
-import { games } from "../db/db.schema.ts";
+import { games } from "../../core/db/db.schema.ts";
 export const createGameSchema = z.object({});
 export const gameIdSchema = z.object({ id: z.coerce.number().int().gt(0) });
 
