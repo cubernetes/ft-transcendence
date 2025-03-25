@@ -5,6 +5,7 @@ import type { createAuthService } from "./modules/auth/auth.service.ts";
 import type { createUserService } from "./modules/user/user.service.ts";
 import type { createGameService } from "./modules/game/game.service.ts";
 import type { createTournamentService } from "./modules/tournament/tournament.service.ts";
+import type { JwtPayload } from "./modules/auth/auth.types.ts";
 // import type { createFriendService } from "./friend/friend.service";
 // import type authRoutes from "./auth/auth.routes";
 import type userRoutes from "./modules/user/user.routes.ts";
@@ -28,5 +29,10 @@ declare module "fastify" {
         gameRoutes: ReturnType<typeof gameRoutes>;
         tournamentRoutes: ReturnType<typeof tournamentRoutes>;
         //friendRoutes: ReturnType<typeof friendRoutes>;
+        requireAuth: (req: FastifyRequest, reply: FastifyReply) => void;
+    }
+
+    interface FastifyRequest {
+        userId: number;
     }
 }

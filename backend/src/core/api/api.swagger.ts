@@ -19,6 +19,15 @@ const swaggerPlugin = async (app: FastifyInstance) => {
                     description: "API behind Caddy reverse proxy",
                 },
             ],
+            components: {
+                securitySchemes: {
+                    bearerAuth: {
+                        type: "http",
+                        scheme: "bearer",
+                        bearerFormat: "JWT",
+                    },
+                },
+            },
         },
     });
 

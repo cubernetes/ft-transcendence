@@ -30,13 +30,7 @@ export const withZod =
         const summarizeZodError = (error: ZodError): string => {
             if (error.issues.length === 0) return "Validation failed";
 
-            // TODO: Better serializer
-            return error.issues
-                .map((issue) => {
-                    const path = issue.path.join(".");
-                    return path ? `${path}: ${issue.message}` : issue.message;
-                })
-                .join("; ");
+            return error.issues.map((i) => i.message).join("; ");
         };
 
         for (const key of Object.keys(schemas) as (keyof Schemas)[]) {
