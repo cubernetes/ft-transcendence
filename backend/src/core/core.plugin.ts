@@ -16,7 +16,7 @@ const corePlugin = async (app: FastifyInstance) => {
         origin: process.env.NODE_ENV === "production" ? "placeholder" : "*",
     });
 
-    // TODO: Add more options here for JWT, see: https://github.com app-jwt
+    // TODO: Add more options here for JWT, see: https://github.com/fastify/fastify-jwt
     await app.register(jwt, { secret: app.config.jwtSecret }); // Register jwt plugin
 
     await app.register(dbPlugin);

@@ -27,7 +27,7 @@ const dbPlugin = async (app: FastifyInstance) => {
 
         const db: DbClient = drizzle(sqlite, { schema });
 
-        /** Better-sqlite3 is synchronous, but await still recommended for future-proofing */
+        // Better-sqlite3 is synchronous, but await still recommended for future-proofing
         await migrate(db, { migrationsFolder: path.join(dbDir, "migrations") });
 
         app.decorate("db", db);
