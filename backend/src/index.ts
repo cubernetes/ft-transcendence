@@ -9,13 +9,13 @@ const appOpts: FastifyServerOptions = {
 
 const tryBuild = await buildApp(appOpts);
 
-if (tryBuild.success) {
-    const app = tryBuild.data;
-    const { port, host } = app.config;
-
-    await app.listen({ port, host });
-    app.log.info(`Server running at port ${port}!`);
-} else {
+if (tryBuild.isErr()) {
     console.error(tryBuild.error.message);
     process.exit(1);
 }
+
+const app = tryBuild.value;
+const { port, host } = app.config;
+
+await app.listen({ port, host });
+app.log.info(`Server running at port ${port}!`);
