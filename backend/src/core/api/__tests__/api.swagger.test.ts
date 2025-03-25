@@ -1,7 +1,7 @@
 import { test } from "tap";
 import buildApp from "../../../utils/app.ts";
 
-test("GET /docs and /docs/returns swagger docs", async (t) => {
+test("GET /docs and /docs/ returns swagger docs", async (t) => {
     const tryBuild = await buildApp({ logger: false });
     if (tryBuild.isErr()) {
         return t.fail("Failed to build app");
@@ -25,6 +25,7 @@ test("GET /docs and /docs/returns swagger docs", async (t) => {
     });
 
     t.equal(resDocsSlash.statusCode, 200, "/docs/ should return 200 OK");
+    t.match(resDocsSlash.body, /<title>Swagger UI<\/title>/, "Swagger UI title should be present");
 });
 
 test("GET /docs returns 404 if in production", async (t) => {
