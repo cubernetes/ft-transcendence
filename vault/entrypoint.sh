@@ -19,7 +19,7 @@ set -m
 : "${token_exchange_dir:=/run/secrets/}"
 
 loglevel_to_num () {
-	level=$(printf %s "$1" | tr a-z A-Z)
+	level=$(printf %s "$1" | tr '[:lower:]' '[:upper:]')
 	case "$level" in
 		(DEBUG) printf 3
 			;;
@@ -35,7 +35,7 @@ loglevel_to_num () {
 }
 
 log () {
-	level=$(printf %s "$1" | tr a-z A-Z)
+	level=$(printf %s "$1" | tr '[:lower:]' '[:upper:]')
 	shift
 
 	OLDIFS=$IFS
@@ -56,7 +56,7 @@ log () {
 	esac
 	[ "$(loglevel_to_num "$level")" -gt "$(loglevel_to_num "$LOGLEVEL")" ] && return 0
 
-	printf '[ %b%-5s%b ]: %s\n' "$ansi_color" "$level" "$ansi_reset" "$(printf -- "$@")"
+	printf '[ %b%-5s%b ]: %s\n' "$ansi_color" "$level" "$ansi_reset" "$(printf "$@")"
 	IFS=$OLDIFS
 }
 
@@ -92,17 +92,18 @@ _start_vault_server () {
 is_initialized () {
 	# Check if the storage path directory is empty. If it is (`read' returns 1), then we also
 	# return with 1, meaning false (aka "is not initialized")
-	{ find "$vault_storage_path" -mindepth 1 -maxdepth 1 || true; } | tee /tmp/storage_files | head -n 1 | read
+	{ find "$vault_storage_path" -mindepth 1 -maxdepth 1 || true; } | tee /tmp/storage_files | head -n 1 | read -r
 	exit_status=$?
 	[ "$exit_status" = "1" ] && debug "These files are present in the vault storage path directory (\033\133;93m%s\033\133m):\n%s" "$vault_storage_path" "$(sed 's/^/\t/' /tmp/storage_files)"
 	return "$exit_status"
 }
 
-start_server () {
-	info "Starting vault server in foreground"
-
-	_start_vault_server
-}
+# Not needed anymore, we always have to start it in bg
+#start_server () {
+#	info "Starting vault server in foreground"
+#
+#	_start_vault_server
+#}
 
 start_server_in_bg () {
 	info "Starting vault server in background job"
@@ -121,18 +122,29 @@ start_server_in_bg () {
 }
 
 maybe_initialize_vault () {
-	if [ -n "$VAULT_ADDR" ] && \
+	if [ -n "$VAULT_ADDR" ]; then
 		if printf %s "$VAULT_ADDR" | grep -qF '0.0.0.0'; then
 			warn "API address \033\133;93m%s\033\133m contains any-address 0.0.0.0 which works using a linux kernel (goes to loopback), but it might not work on other kernels. Please configure vault's api_addr manually" "$VAULT_ADDR"
 		fi
 
-		grep -qFx '==> Vault server started! Log data will stream in below:' "$vault_stdout_file" && \
-		! vault status -format=json | jq --exit-status .initialized 1>/dev/null; then
-
-			info "Vault server has started (address \033\133;93m%s\033\133m) but is not initialized yet. Initializing it" "$VAULT_ADDR"
-			# better would be to use -format=json, but then the logic from the loop in the calling function wouldn't find the keys
-			vault operator init >> "$vault_stdout_file"
+		if grep -qFx '==> Vault server started! Log data will stream in below:' "$vault_stdout_file"; then
+			if ! vault status -format=json | jq --exit-status .initialized 1>/dev/null; then
+				info "Vault server has started (address \033\133;93m%s\033\133m) but is not initialized yet. Initializing it" "$VAULT_ADDR"
+				# better would be to use -format=json, but then the logic from the loop in the calling function wouldn't find the keys
+				vault operator init >> "$vault_stdout_file"
+			fi
+		fi
 	fi
+}
+
+get_vault_addr () {
+	VAULT_ADDR=$(grep -o '\<Api Address: [^[:space:]]\+\>' "$vault_stdout_file" | sed 's/^Api Address: //')
+	export VAULT_ADDR
+	# If api address is not set, try to get an address from the tcp listener
+	[ -n "$VAULT_ADDR" ] || {
+		VAULT_ADDR=$(grep -o 'Listener 1: tcp ([^)]\+)' "$vault_stdout_file" | grep -o '\<addr: "[^"]\+"' | sed 's/addr: "/http:\/\//;s/"$//')
+		export VAULT_ADDR
+	}
 }
 
 wait_and_extract_secrets () {
@@ -144,19 +156,43 @@ wait_and_extract_secrets () {
 		VAULT_TOKEN=$(grep -o '^\(Initial \)\?Root Token: .\+' "$vault_stdout_file" | sed 's/^\(Initial \)\?Root Token: //')
 		export VAULT_TOKEN
 
-		VAULT_ADDR=$(grep -o '\<Api Address: [^[:space:]]\+\>' "$vault_stdout_file" | sed 's/^Api Address: //')
-		export VAULT_ADDR
-		# If api address is not set, try to get an address from the tcp listener
-		[ -n "$VAULT_ADDR" ] || {
-			VAULT_ADDR=$(grep -o 'Listener 1: tcp ([^)]\+)' "$vault_stdout_file" | grep -o '\<addr: "[^"]\+"' | sed 's/addr: "/http:\/\//;s/"$//')
-			export VAULT_ADDR
-		}
+		get_vault_addr
 
 		exit_status=$(2>/dev/null cat "$vault_exit_code_file") || true
 		[ -n "$exit_status" ] && die "Vault server exited. This is the stdout:\n\033\133;93m%s\033\133m\nAnd this is the stderr:\n\033\133;93m%s\033\133m" "$(sed 's/^/\t/' "$vault_stdout_file")" "$(sed 's/^/\t/' "$vault_stderr_file")"
-		[ -n "$unseal_keys" ] && [ -n "$VAULT_TOKEN" ] && break || true # if these exist, vault is already initialized
+		{ [ -n "$unseal_keys" ] && [ -n "$VAULT_TOKEN" ] && break; } || true # if these exist, vault is already initialized
 
 		maybe_initialize_vault
+
+		sleep 0.1
+		i=$((i+1))
+	done
+}
+
+just_wait_for_startup () {
+	i=0
+	while :; do
+		debug "Waiting until server has started up ($((i/10)).$((i%10)) second(s) passed)"
+
+		get_vault_addr
+
+		exit_status=$(2>/dev/null cat "$vault_exit_code_file") || true
+		[ -n "$exit_status" ] && die "Vault server exited. This is the stdout:\n\033\133;93m%s\033\133m\nAnd this is the stderr:\n\033\133;93m%s\033\133m" "$(sed 's/^/\t/' "$vault_stdout_file")" "$(sed 's/^/\t/' "$vault_stderr_file")"
+
+		if [ -n "$VAULT_ADDR" ]; then
+			if printf %s "$VAULT_ADDR" | grep -qF '0.0.0.0'; then
+				warn "API address \033\133;93m%s\033\133m contains any-address 0.0.0.0 which works using a linux kernel (goes to loopback), but it might not work on other kernels. Please configure vault's api_addr manually" "$VAULT_ADDR"
+			fi
+
+			if grep -qFx '==> Vault server started! Log data will stream in below:' "$vault_stdout_file"; then
+				if ! vault status -format=json | jq --exit-status .initialized 1>/dev/null; then
+					die "Vault server has started (address \033\133;93m%s\033\133m) but is not initialized yet, but it should be initialized! Something went wrong" "$VAULT_ADDR"
+				else
+					info "Vault server has started (address \033\133;93m%s\033\133m) and is initialized. Waiting done" "$VAULT_ADDR"
+					break
+				fi
+			fi
+		fi
 
 		sleep 0.1
 		i=$((i+1))
@@ -288,7 +324,7 @@ revoke_all_client_tokens () {
 
 get_or_recover_vault_secrets () {
 	if [ "$SAVE_UNSEAL_KEYS" = "1" ]; then
-		unseal_keys=$(find /vault/secret/ -mindepth 1 -type f -name 'unseal_key_*' -exec cat {} \+)
+		unseal_keys=$(find /vault/secret/ -mindepth 1 -type f -name 'unseal_key_*' -exec sh -c 'cat "$1" && printf "\n"' sh {} \;)
 	else
 		die "Unseal keys were not saved and there's no functionality to supply it, cannot continue"
 	fi
@@ -319,13 +355,15 @@ main () {
 	if is_initialized; then
 		info "Vault storage backend has files in it. Not re-initializing vault"
 
+		start_server_in_bg
+		just_wait_for_startup
 		get_or_recover_vault_secrets
-
+		ensure_unsealed
 		revoke_all_client_tokens
 		create_and_share_client_tokens
 
-		( sleep 2 ; echo 1 > /tmp/vault_started ) &
-		start_server
+		echo 1 > /tmp/vault_started
+		tail -F "$vault_stdout_file" "$vault_stderr_file"
 	else
 		info "Vault storage backend is empty. Initializing vault"
 
