@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { toPersonalUser } from "./user.helpers.ts";
-import { ApiError } from "../../utils/errors.ts";
 import type { RegisterBody, LoginBody, LeaderboardParams } from "./user.types.ts";
+import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
+import { ApiError } from "../../utils/errors.ts";
 
 const registerHandler = async (
     { body }: { body: RegisterBody },
@@ -60,7 +60,8 @@ const getLeaderboardHandler = async (
         return users.error.send(reply);
     }
 
-    const leadUsers = users.value.sort((a, b) => b.wins - a.wins).slice(0, n);
+    const publicUsers = users.value.map(toPublicUser);
+    const leadUsers = publicUsers.sort((a, b) => b.wins - a.wins).slice(0, n);
 
     return reply.send({ success: true, data: leadUsers });
 };

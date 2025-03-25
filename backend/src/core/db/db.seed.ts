@@ -31,8 +31,12 @@ const seedUsers = async (n: number, app: FastifyInstance) => {
 export const seed = async (app: FastifyInstance) => {
     const userCount = await app.userService.getCount();
 
+    if (userCount.isErr()) {
+        return app.log.error({ err: userCount.error }, "Failed to get user count");
+    }
+
     // Only seed users if there aren't a significant amount
-    if (userCount <= 200) {
+    if (userCount.value <= 200) {
         await seedUsers(20, app);
     }
 };
