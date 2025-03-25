@@ -1,26 +1,26 @@
-import { ZodError } from "zod";
-import { GameState } from "../game/game.types.ts";
 import type { PinoLoggerOptions } from "fastify/types/logger.ts";
+import type { GameState } from "../modules/game/game.types.ts";
+import { ZodError } from "zod";
 
-const formatError = (error: unknown) => {
-    if (error instanceof ZodError) {
+const formatError = (e: unknown) => {
+    if (e instanceof ZodError) {
         return {
             name: "ZodError",
-            issues: error.issues.map((i) => `${i.path}: ${i.message}`),
+            issues: e.issues.map((i) => i.message),
         };
     }
 
-    if (error instanceof Error) {
+    if (e instanceof Error) {
         return {
-            name: error.name,
-            message: error.message,
-            stack: error.stack ?? "No stack trace available",
+            name: e.name,
+            message: e.message,
+            stack: e.stack ?? "No stack trace available",
         };
     }
 
-    /** Fallback for unknown error */
+    // Fallback for unknown error
     return {
-        message: String(error),
+        message: String(e),
     };
 };
 
@@ -57,7 +57,7 @@ export const devLoggerConfig: PinoLoggerOptions = {
             // }
         ],
     },
-    serializers: { err: formatError, gameState: formatGameState },
+    serializers: { e: formatError, gameState: formatGameState },
 };
 
 export const prodLoggerConfig: PinoLoggerOptions = {
@@ -72,17 +72,17 @@ export const prodLoggerConfig: PinoLoggerOptions = {
                     ignore: "pid,hostname", // Hides unnecessary fields
                 },
             },
-            {
-                target: "pino-socket",
-                level: "info",
-                options: {
-                    mode: "tcp",
-                    address: process.env.LOGSTASH_HOST || "logstash",
-                    port: parseInt(process.env.LOGSTASH_PORT || "5000"),
-                    reconnectTimeout: 1000,
-                },
-            },
+            // {
+            //     target: "pino-socket",
+            //     level: "info",
+            //     options: {
+            //         mode: "tcp",
+            //         address: process.env.LOGSTASH_HOST || "logstash",
+            //         port: parseInt(process.env.LOGSTASH_PORT || "5000"),
+            //         reconnectTimeout: 1000,
+            //     },
+            // },
         ],
     },
-    serializers: { err: formatError, gameState: formatGameState },
+    serializers: { e: formatError, gameState: formatGameState },
 };

@@ -1,6 +1,6 @@
+import type { FastifyRequest, FastifyReply } from "fastify";
 import { z, ZodError, ZodTypeAny } from "zod";
-import { FastifyRequest, FastifyReply } from "fastify";
-import { ApiError } from "./errors";
+import { ApiError } from "./errors.ts";
 
 type ZodTarget = "body" | "query" | "params" | "headers";
 type SchemaMap = Partial<Record<ZodTarget, ZodTypeAny>>;
@@ -13,7 +13,7 @@ type ZodHandler<S extends SchemaMap> = (
     data: InferSchemaMap<S>,
     req: FastifyRequest,
     reply: FastifyReply
-) => unknown | Promise<unknown>;
+) => Promise<void>;
 
 /**
  * Middleware to validate data for the request (params, body, query, headers) using Zod.
@@ -30,12 +30,7 @@ export const withZod =
         const summarizeZodError = (error: ZodError): string => {
             if (error.issues.length === 0) return "Validation failed";
 
-            return error.issues
-                .map((issue) => {
-                    const path = issue.path.join(".");
-                    return path ? `${path}: ${issue.message}` : issue.message;
-                })
-                .join("; ");
+            return error.issues.map((i) => i.message).join("; ");
         };
 
         for (const key of Object.keys(schemas) as (keyof Schemas)[]) {
@@ -43,11 +38,12 @@ export const withZod =
             const result = schema.safeParse(req[key as ZodTarget]);
 
             if (!result.success) {
-                throw new ApiError("VALIDATION_ERROR", 400, summarizeZodError(result.error));
+                const err = new ApiError("VALIDATION_ERROR", 400, summarizeZodError(result.error));
+                return err.send(reply);
             }
 
             parsed[key] = result.data;
         }
 
-        return cb(parsed as any, req, reply); // Safe cast to any
+        return cb(parsed as InferSchemaMap<Schemas>, req, reply);
     };

@@ -1,3 +1,5 @@
+import { USER_URL } from "../config";
+
 export type AuthFormData = {
     username: string;
     password: string;
@@ -117,7 +119,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
 
     const login = async (username: string, password: string) => {
         try {
-            const response = await fetch("/api/users/login", {
+            const response = await fetch(`${USER_URL}/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -143,7 +145,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
     };
 
     const register = async (data: AuthFormData) => {
-        const response = await fetch("/api/users/register", {
+        const response = await fetch(`${USER_URL}/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
