@@ -1,7 +1,7 @@
 import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
+import { ok, err, Result } from "neverthrow";
 import corePlugin from "../core/core.plugin.ts";
 import modulesPlugin from "../modules/modules.plugin.ts";
-import { ok, error, Result } from "./errors.ts";
 import { seed } from "../core/db/db.seed.ts";
 
 const buildApp = async (
@@ -26,12 +26,12 @@ const buildApp = async (
         }
 
         return ok(app);
-    } catch (err) {
+    } catch (e) {
         // Safely close the server, trigger all onClose hooks
         app.close();
 
-        app.log.error({ err }, "Failed to start server");
-        return error(err);
+        app.log.error({ err: e }, "Failed to start server");
+        return err(e as Error); // this could be ZodError, or Error
     }
 };
 

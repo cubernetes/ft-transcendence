@@ -13,7 +13,7 @@ const seedUsers = async (n: number, app: FastifyInstance) => {
     const seedOneUser = async (newUser: (typeof fakeUsers)[number]) => {
         const user = await app.userService.create(newUser);
 
-        if (!user.success) {
+        if (user.isErr()) {
             return app.log.error({ err: user.error }, "Failed to create user");
         }
 
@@ -22,7 +22,7 @@ const seedUsers = async (n: number, app: FastifyInstance) => {
             losses: faker.number.int({ min: 0, max: 100 }),
         };
 
-        await app.userService.update(user.data.id, stats);
+        await app.userService.update(user.value.id, stats);
     };
 
     await Promise.all(fakeUsers.map(seedOneUser));
