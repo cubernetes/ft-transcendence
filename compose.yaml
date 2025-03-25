@@ -8,6 +8,7 @@ x-watch-common: &watch-common
 x-env-common: &env-common
     <<: *watch-common
     BACKEND_PORT: ${BACKEND_PORT:-3000}
+    DOMAINS: ${DOMAINS:-localhost}
 
 x-env-files: &env-files
     - .env
@@ -29,7 +30,6 @@ services:
             # - "public:/frontend/src/public/:ro"
         environment:
             <<: *env-common
-            DOMAINS: ${DOMAINS:-localhost}
             CADDY_EXTRA_GLOBAL_DIRECTIVES: ${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
             CADDY_EXTRA_SITE_DIRECTIVES: ${CADDY_EXTRA_SITE_DIRECTIVES:-}
         develop:

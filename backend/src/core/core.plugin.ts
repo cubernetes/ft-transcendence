@@ -11,9 +11,11 @@ const corePlugin = async (app: FastifyInstance) => {
     // Register configs, check integrity of the env variables
     await app.register(configPlugin);
 
-    // TODO: When in production what should the origin be? SITES? are env vars loaded?
     await app.register(cors, {
-        origin: process.env.NODE_ENV === "production" ? "placeholder" : "*",
+        origin:
+            process.env.NODE_ENV === "production"
+                ? [`https://${app.config.domain}`, `http://${app.config.domain}`]
+                : "*",
     });
 
     // TODO: Add more options here for JWT, see: https://github.com/fastify/fastify-jwt

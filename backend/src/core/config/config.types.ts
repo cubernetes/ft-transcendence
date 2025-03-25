@@ -5,4 +5,5 @@ export type AppConfig = {
     dbDir: string;
     apiPrefix: string;
     host: string;
+    domain: string;
 };
