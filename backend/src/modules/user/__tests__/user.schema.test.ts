@@ -1,12 +1,12 @@
 import { test } from "tap";
-import { createUserSchema } from "../user.schema.ts";
 import { faker } from "@faker-js/faker";
+import schemas from "../user.schema.ts";
 
-test("createUserSchema - valid data passes", (t) => {
+test("registerBodySchema - valid data passes", (t) => {
     const username = faker.internet.username();
     const displayName = faker.person.firstName();
     const pw = faker.internet.password();
-    const result = createUserSchema.safeParse({
+    const result = schemas.registerBody.safeParse({
         username,
         displayName,
         password: pw,
@@ -16,5 +16,6 @@ test("createUserSchema - valid data passes", (t) => {
     t.ok(result.success, "Valid user data should pass");
     t.equal(result.data?.username, username);
     t.equal(result.data?.displayName, displayName);
+
     t.end();
 });

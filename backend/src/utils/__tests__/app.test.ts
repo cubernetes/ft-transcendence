@@ -38,6 +38,7 @@ testEnv("JWT_SECRET is valid", { JWT_SECRET: faker.string.alphanumeric(32) }, tr
 testEnv("DB_PATH is empty", { DB_PATH: "" }, false);
 testEnv("DB_PATH is a valid a path", { DB_PATH: "drizzle/db.sqlite" }, true);
 testEnv("DB_PATH is not valid a path", { DB_PATH: "drizzl/db.sqlite" }, false);
+testEnv("DB_PATH is :memory:, DB_DIR is drizzle", { DB_PATH: ":memory:", DB_DIR: "drizzle" }, true);
 
 test("Required env variables are not present", async (t) => {
     const originalEnv = { ...process.env };
@@ -84,6 +85,4 @@ test("Required env variables are not present", async (t) => {
         () => t.fail("expected error"),
         (error) => t.match(error.message, "BACKEND_PORT is required; DB_PATH is required")
     );
-
-    t.end();
 });

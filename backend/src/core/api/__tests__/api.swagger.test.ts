@@ -25,8 +25,6 @@ test("GET /docs and /docs/returns swagger docs", async (t) => {
     });
 
     t.equal(resDocsSlash.statusCode, 200, "/docs/ should return 200 OK");
-
-    t.end();
 });
 
 test("GET /docs returns 404 if in production", async (t) => {
@@ -56,5 +54,4 @@ test("GET /docs returns 404 if in production", async (t) => {
 
     t.equal(resDocs.statusCode, 404, "/docs should return 404 Not Found");
     t.equal(resDocsSlash.statusCode, 404, "/docs/ should return 404 Not Found");
-    t.end();
 });

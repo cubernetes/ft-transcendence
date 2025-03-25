@@ -6,11 +6,11 @@ import { faker } from "@faker-js/faker";
 import { mockUser } from "../../user/user.helpers.ts";
 
 test("authService - hashPassword + comparePassword", async (t) => {
-    const app = Fastify();
+    const app = Fastify({ logger: false });
     await app.ready();
     const authService = createAuthService(app);
 
-    const password = "test-password";
+    const password = faker.internet.password();
     const hash = await authService.hashPassword(password);
     t.ok(hash, "Hash should be returned");
     t.not(hash, password, "Hash should not match raw password");
@@ -20,8 +20,6 @@ test("authService - hashPassword + comparePassword", async (t) => {
 
     const isWrong = await authService.comparePassword("wrong-password", hash);
     t.notOk(isWrong, "Wrong password should not match the hash");
-
-    t.end();
 });
 
 test("authService - jwt sign + verify", async (t) => {
@@ -38,5 +36,4 @@ test("authService - jwt sign + verify", async (t) => {
     const { id, username, displayName } = user;
 
     t.match(decoded, { id, username, displayName }, "decoded token contains id and username");
-    t.end();
 });

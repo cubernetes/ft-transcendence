@@ -12,7 +12,7 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
     const port = parsedEnv.BACKEND_PORT;
     const jwtSecret = parsedEnv.JWT_SECRET;
     const dbPath = parsedEnv.DB_PATH;
-    const dbDir = path.dirname(parsedEnv.DB_PATH);
+    const dbDir = process.env.DB_DIR ?? path.dirname(parsedEnv.DB_PATH);
     const apiPrefix = process.env.API_PREFIX ?? "/api";
     const host = process.env.HOST ?? "0.0.0.0";
 
