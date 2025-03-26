@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import type { User } from "../user/user.types.ts";
+import type { User } from "../../modules/user/user.types.ts";
 import type { JwtPayload } from "./auth.types.ts";
 import { ApiError } from "../../utils/errors.ts";
 
@@ -24,6 +24,7 @@ export const createAuthService = (app: FastifyInstance) => {
         return jwt.sign(payload, { expiresIn: exp });
     };
 
+    // Figure out if this throws or what
     const verifyToken = (token: string): JwtPayload => jwt.verify(token) as JwtPayload;
 
     const jwtAuth = async (req: FastifyRequest, reply: FastifyReply) => {
