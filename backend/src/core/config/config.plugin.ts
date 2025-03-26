@@ -52,9 +52,9 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
         throw new Error("Directory for database does not exist");
     }
 
-    const apiPrefix = process.env.API_PREFIX ?? "/api";
-    const host = process.env.HOST ?? "0.0.0.0";
-    const domains = process.env.DOMAINS?.split(" ") ?? ["localhost"];
+    const apiPrefix = parsedEnv.API_PREFIX;
+    const host = parsedEnv.HOST;
+    const domains = parsedEnv.DOMAINS;
     const corsOrigin =
         process.env.NODE_ENV === "production"
             ? domains.flatMap((d) => [`https://${d}`, `http://${d}`])
