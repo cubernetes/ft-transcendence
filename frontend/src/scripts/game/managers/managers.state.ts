@@ -3,6 +3,7 @@ import { AudioManager } from "./managers.audio";
 import { gameConfig } from "../game.config";
 import { CreateText, Mesh, Scene, Vector3 } from "@babylonjs/core";
 import { ASSETS_DIR } from "../../config";
+import { logger } from "../../utils/logger";
 
 export class GameStateManager {
     private state: IBabylonGameState = {
@@ -93,7 +94,7 @@ export class GameStateManager {
         );
 
         if (newEvents.length > 0) {
-            console.log("New collision events:", newEvents);
+            logger.info("New collision events:", newEvents);
 
             // Play sounds for each new event
             newEvents.forEach((event: any) => {

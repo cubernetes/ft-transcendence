@@ -1,5 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 import { USER_URL } from "./config";
+import { logger } from "./utils/logger";
 
 interface JwtPayload {
     id: string;
@@ -10,7 +11,7 @@ interface JwtPayload {
 
 export const showUserStatus = async (container: HTMLElement) => {
     const token = localStorage.getItem("token");
-    console.log(token);
+    logger.info(token);
 
     container.innerHTML = ""; // Clear existing content
 
@@ -88,7 +89,7 @@ export const fetchTestData = async () => {
 
         return processedData;
     } catch (error) {
-        console.error("Fetch error:", error);
+        logger.error("Fetch error:", error);
 
         throw error;
     }

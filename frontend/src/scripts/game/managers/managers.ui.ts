@@ -4,6 +4,7 @@ import { GameStateManager } from "./managers.state";
 import { WebSocketManager } from "./managers.sockets";
 import { SceneSetup } from "../game.scene";
 import { Direction } from "../game.types";
+import { logger } from "../../utils/logger";
 
 export class GameUIManager {
     private container: HTMLElement;
@@ -73,7 +74,7 @@ export class GameUIManager {
 
     setupKeyboardControls() {
         document.addEventListener("keydown", (event) => {
-            console.log(`Key pressed: ${event.key}`);
+            logger.info(`Key pressed: ${event.key}`);
             if (event.key === "ArrowUp" || event.key === "w") {
                 this.webSocketManager.sendDirection("up");
             } else if (event.key === "ArrowDown" || event.key === "s") {
@@ -82,7 +83,7 @@ export class GameUIManager {
         });
 
         document.addEventListener("keyup", (event) => {
-            console.log(`Key released: ${event.key}`);
+            logger.info(`Key released: ${event.key}`);
             if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
                 this.webSocketManager.sendDirection("stop");
             }
