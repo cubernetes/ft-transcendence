@@ -13,7 +13,7 @@ export class WebSocketManager {
 
         // WebSocket connection open
         this.ws.on("open", () => {
-            console.log("Connected to the server");
+            // console.log("Connected to the server");
         });
 
         // Handle incoming messages from the server

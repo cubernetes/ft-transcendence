@@ -17,7 +17,16 @@ const CORNER_STYLES = [
     { tl: "╭", tr: "╮", bl: "╰", br: "╯" },
     { tl: "┌", tr: "┐", bl: "└", br: "┘" },
     { tl: "◤", tr: "◥", bl: "◣", br: "◢" },
+    { tl: "▗", tr: "▖", bl: "▝", br: "▘" },
 ];
+
+const EDGE_STYLES = [
+    { hor: "▄▅▆▃", ver: "⡇" },
+    { hor: "▅▆▃▄", ver: "⠇" },
+    { hor: "▆▃▄▅", ver: "⠃" },
+    { hor: "▃▄▅▆", ver: "⠁" },
+];
+
 const RESET = "\x1b[0m";
 const FG_RED = "\x1b[31m";
 const FG_GREEN = "\x1b[32m";
@@ -112,7 +121,7 @@ function clearField() {
 
 const makeChar = (index: number) => {
     const brightness = [FG_WHITE, FG_CYAN, FG_BLUE, FG_GREEN, FG_RED];
-    const char = [".", "•", "●", "◉", "◯"];
+    const char = [".", "•", "●", "◉", "⬤"];
     return color(char[Math.min(index, char.length - 1)], brightness[index]);
 };
 
@@ -159,7 +168,7 @@ export function renderGameState(state: ICLIGameState) {
 
     renderTick++;
     if (renderTick % 5 === 0) {
-        tickStyle = (tickStyle + 1) % 3;
+        tickStyle = (tickStyle + 1) % 4;
     }
 
     // Clear the field buffer
@@ -183,26 +192,51 @@ export function renderGameState(state: ICLIGameState) {
     drawBall(FIELD_BUFFER, ball);
 
     const corners = CORNER_STYLES[tickStyle];
+    const edges = EDGE_STYLES[tickStyle];
 
     // Print all the elements
-    const border = `${corners.tl}${"~─".repeat(TERM_WIDTH / 2)}${corners.tr}`;
-    const bottomBorder = `${corners.bl}${"─~".repeat(TERM_WIDTH / 2)}${corners.br}`;
+    const border = `${corners.tl}${edges.hor.repeat(TERM_WIDTH / 4)}${corners.tr}`;
+    const bottomBorder = `${corners.bl}${edges.hor.repeat(TERM_WIDTH / 4)}${corners.br}`;
 
-    console.clear();
-    console.log(
-        color(`Score:`, FG_CYAN),
-        color(` Player 1 - ${score.player1} `, FG_GREEN),
-        ":",
-        color(` ${score.player2} - Player 2 `, FG_YELLOW)
-    );
-    console.log(border);
+    // console.clear();
+    // console.log(
+    //     color(`Score:`, FG_CYAN),
+    //     color(` Player 1 - ${score.player1} `, FG_GREEN),
+    //     ":",
+    //     color(` ${score.player2} - Player 2 `, FG_YELLOW)
+    // );
+    // console.log(border);
+    // for (const row of FIELD_BUFFER) {
+    //     console.log(`|${row.join("")}|`);
+    // }
+    // console.log(bottomBorder);
+
+    let frameBuffer = ""; // Store the frame
+
+    frameBuffer += `\x1b[H`; // Move cursor to the top-left
+    frameBuffer += color(`Score:`, FG_CYAN) + " ";
+    frameBuffer += color(` Player 1 - ${score.player1} `, FG_GREEN);
+    frameBuffer += ":" + color(` ${score.player2} - Player 2 `, FG_YELLOW) + "\n";
+    frameBuffer += border + "\n";
+
+    // frameBuffer += "\x1b[43m"; // Set background color to green
     for (const row of FIELD_BUFFER) {
-        console.log(`|${row.join("")}|`);
+        frameBuffer += `${edges.ver}${row.join("")}${edges.ver}\n`;
     }
-    console.log(bottomBorder);
+    // frameBuffer += RESET; // Reset background
+
+    frameBuffer += bottomBorder + "\n";
+
+    process.stdout.write("\x1b[?25l"); // Hide cursor
+    process.stdout.write("\x1b[H"); // Move cursor to the top-left
+    process.stdout.write(frameBuffer);
+    process.stdout.write("\x1b[?25h"); // Show cursor
 }
 
-// Characters to use ╭ ╮ ╰╯ ◯ ◉ 🔴
+// ▁▂▃▄▅▆▇█
+// ⡇⡆⡄⡀⡄⡆⡇⠇⠃⠁
+
+// Characters to use ╭ ╮ ╰╯ ◯ ◉ 🔴 ⬤
 // █ ▄ ▀
 // ▖ ▗ ▘ ▝
 
