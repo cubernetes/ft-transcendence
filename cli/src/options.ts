@@ -34,6 +34,7 @@ export const userOptions: Options = {
 
 export async function optionsMenu(): Promise<void> {
     let exit = false;
+    let lastChoice = "music";
 
     while (!exit) {
         try {
@@ -71,6 +72,7 @@ export async function optionsMenu(): Promise<void> {
                         new inquirer.Separator(),
                         { name: chalk.red("⬅  Main menu"), value: "exit" },
                     ],
+                    default: lastChoice,
                 },
             ]);
 
@@ -78,6 +80,7 @@ export async function optionsMenu(): Promise<void> {
                 audioManager.playSoundEffect("blop");
             }
 
+            lastChoice = option;
             switch (option) {
                 case "music": {
                     const { music } = await inquirer.prompt([

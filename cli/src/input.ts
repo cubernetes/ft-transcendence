@@ -8,9 +8,9 @@ export function startKeyListener(onDir: (d: "up" | "down" | "stop") => void) {
     let upPressed = false;
     let downPressed = false;
 
-    // if (userOptions.music) {
-    //     audioManager.startMusic();
-    // }
+    if (userOptions.music) {
+        audioManager.startMusic();
+    }
 
     // Create an interface to read from stdin
     const rl = readline.createInterface({

@@ -11,7 +11,8 @@ import { audioManager } from "./audio";
 let wsManager: WebSocketManager | null = null;
 let token: string | null = null;
 let isGameActive = false;
-// let startedMenuMusic = false;
+let startedMenuMusic = false;
+let defaultMode = 1;
 
 export function setGameActive(state: boolean) {
     isGameActive = state;
@@ -33,10 +34,10 @@ export function cleanup() {
 // --- Menu Setup ---
 export async function mainMenu(): Promise<void> {
     try {
-        // if (userOptions.music && !startedMenuMusic) {
-        //     audioManager.startMusic("menu");
-        //     startedMenuMusic = true;
-        // }
+        if (userOptions.music && !startedMenuMusic) {
+            audioManager.startMusic("menu");
+            startedMenuMusic = true;
+        }
 
         console.clear();
 
@@ -58,13 +59,14 @@ export async function mainMenu(): Promise<void> {
                     new inquirer.Separator(),
                     { name: chalk.red("🚪  Exit"), value: 0 },
                 ],
+                default: defaultMode,
             },
         ]);
 
         if (userOptions.sfx) {
             audioManager.playSoundEffect("blop");
         }
-
+        defaultMode = mode;
         switch (mode) {
             case 1:
                 startLocalGame();
@@ -149,7 +151,7 @@ async function startRemoteGame() {
             wsManager = new WebSocketManager(serverUrl);
         }
 
-        // startedMenuMusic = false;
+        startedMenuMusic = false;
         isGameActive = true;
 
         startKeyListener((dir) => {

@@ -1,28 +1,27 @@
-import player from "play-sound";
+import { spawn, ChildProcess } from "child_process";
 import path from "path";
 import { userOptions } from "./options";
-
-// Initialize audio player
-const audioPlayer = player({});
+import fs from "fs";
 
 export class AudioManager {
-    private musicProcess: any = null;
+    private musicProcess: ChildProcess | null = null;
+    private soundEffectProcess: ChildProcess | null = null;
     private soundEffects: Map<string, string> = new Map();
     private musicTracks: Map<string, string> = new Map();
     private loopMusic: boolean = false;
 
     constructor() {
         // Register sound effects
-        this.soundEffects.set("paddle_hit", "src/content/hit.mp3");
-        this.soundEffects.set("wall_hit", "src/content/bounce.mp3");
-        this.soundEffects.set("score", "src/content/score.mp3");
-        this.soundEffects.set("blop", "src/content/blop.mp3");
+        this.soundEffects.set("paddle_hit", "src/content/hit.wav");
+        this.soundEffects.set("wall_hit", "src/content/bounce.wav");
+        this.soundEffects.set("score", "src/content/score.wav");
+        this.soundEffects.set("blop", "src/content/blop.wav");
 
         // Register background music tracks
-        this.musicTracks.set("menu", "src/content/menu.mp3");
-        this.musicTracks.set("normal", "src/content/neon-gaming.mp3");
-        this.musicTracks.set("stylish", "src/content/stylish_game.mp3");
-        this.musicTracks.set("crazy", "src/content/crazy_game.mp3");
+        this.musicTracks.set("menu", "src/content/menu.wav");
+        this.musicTracks.set("normal", "src/content/neon-gaming.wav");
+        this.musicTracks.set("stylish", "src/content/stylish_game.wav");
+        this.musicTracks.set("crazy", "src/content/crazy_game.wav");
     }
 
     /**
@@ -35,8 +34,6 @@ export class AudioManager {
         }
 
         const soundPath = path.resolve(this.soundEffects.get(effectName)!);
-
-        // Play sound without volume adjustment
         this.playAudio(soundPath, false, "effect");
     }
 
@@ -44,21 +41,16 @@ export class AudioManager {
      * Start playing background music based on the current play style
      */
     startMusic(name: string = ""): void {
-        let trackName;
-        this.stopMusic();
-        if (name === "") {
-            trackName = userOptions.playStyle;
-        } else {
-            trackName = name;
-        }
+        this.stopMusic(); // Ensure no duplicate tracks are playing
+
+        const trackName = name || userOptions.playStyle;
         if (!this.musicTracks.has(trackName)) {
-            console.error(`Music track for "${trackName}" style not found`);
+            console.error(`Music track for "${trackName}" not found`);
             return;
         }
 
         const musicPath = path.resolve(this.musicTracks.get(trackName)!);
-
-        // Play music with looping if possible
+        this.loopMusic = true;
         this.playAudio(musicPath, true, "music");
     }
 
@@ -68,26 +60,49 @@ export class AudioManager {
      * @param loop - Whether the audio should loop or not
      */
     private playAudio(audioPath: string, loop: boolean, destination: "music" | "effect"): void {
-        const child = audioPlayer.play(audioPath, (err) => {
-            if (err) console.error(`Error playing audio: ${err}`);
-            this.loopMusic = false;
+        if (!fs.existsSync(audioPath)) {
+            console.error(`Audio file not found: ${audioPath}`);
             return;
-        });
+        }
+
+        // Base arguments
+        const args = ["-q", audioPath];
+        if (destination === "music") {
+            args.splice(1, 0, "--buffer-size=96000", "--period-size=48000");
+        }
+        // const args = [
+        //     '-q',                   // Quiet mode
+        //     '--buffer-size=96000',  // Adjust buffer size (better performance)
+        //     '--period-size=48000',  // Adjust period size (smoother playback)
+        //     audioPath
+        // ];
+
+        // Kill previous instance cleanly (if any)
+        if (destination === "music" && this.musicProcess) {
+            this.musicProcess.kill("SIGTERM");
+            this.musicProcess = null; // Clean up the process reference
+        } else if (destination === "effect" && this.soundEffectProcess) {
+            this.soundEffectProcess.kill("SIGTERM");
+            this.soundEffectProcess = null;
+        }
+
+        const child = spawn("aplay", args, { stdio: "ignore" });
 
         if (destination === "music") {
-            if (this.musicProcess && typeof this.musicProcess.kill === "function") {
-                this.musicProcess.kill();
-            }
-            this.musicProcess = child;
-
-            if (loop) {
-                this.loopMusic = true;
-                child.on("exit", () => {
-                    if (this.loopMusic) {
-                        this.playAudio(audioPath, loop, "music"); // restart loop
-                    }
-                });
-            }
+            child.on("exit", (code, signal) => {
+                if (code !== null && code !== 0) {
+                    console.warn(`'aplay' exited with code ${code}`);
+                } else if (signal !== null) {
+                    console.warn(`'aplay' was terminated by signal ${signal}`);
+                }
+                // Only restart the music if it was not manually stopped (exit code 0)
+                if (loop && this.loopMusic && code === 0) {
+                    this.playAudio(audioPath, loop, destination);
+                }
+            });
+            this.musicProcess = child; // Assign the music process
+        } else {
+            this.soundEffectProcess = child;
         }
     }
 
@@ -95,11 +110,11 @@ export class AudioManager {
      * Stop the currently playing background music
      */
     stopMusic(): void {
-        this.loopMusic = false;
-        if (this.musicProcess && typeof this.musicProcess.kill === "function") {
-            this.musicProcess.kill();
+        if (this.musicProcess) {
+            this.loopMusic = false;
+            this.musicProcess.kill("SIGTERM"); // Kill the current process
+            this.musicProcess = null; // Ensure we clean up the process reference
         }
-        this.musicProcess = null;
     }
 
     /**
