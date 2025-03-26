@@ -1,3 +1,4 @@
+import { logger } from "../../utils/logger";
 import { Direction } from "../game.types";
 import { GameStateManager } from "./managers.state";
 import { Scene } from "@babylonjs/core";
@@ -13,30 +14,30 @@ export class WebSocketManager {
 
     setupSocketHandlers() {
         this.socket.onopen = () => {
-            console.log("WebSocket connection established.");
+            logger.info("WebSocket connection established.");
         };
 
         this.socket.onerror = (error) => {
-            console.error("WebSocket error:", error);
+            logger.error("WebSocket error:", error);
         };
 
         this.socket.onclose = () => {
-            console.log("WebSocket connection closed.");
+            logger.info("WebSocket connection closed.");
         };
     }
 
     startGame() {
         if (this.socket.readyState === WebSocket.OPEN) {
-            console.log("Sending startPong");
+            logger.info("Sending startPong");
             this.socket.send("startPong"); // Start the game
             // this.gameStateManager
         } else {
-            console.error("WebSocket is not open.");
+            logger.error("WebSocket is not open.");
         }
     }
 
     sendDirection(direction: Direction) {
-        console.log("Sending direction:", direction);
+        logger.info("Sending direction:", direction);
         if (direction !== this.lastDirection && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(`move ${direction}`);
             this.lastDirection = direction;

@@ -1,4 +1,5 @@
 import { USER_URL } from "../config";
+import { logger } from "../utils/logger";
 
 export type AuthFormData = {
     username: string;
@@ -131,7 +132,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
 
             if (!response.ok) {
                 // Show different messages for different error codes
-                console.log(response);
+                logger.info(response);
                 showError(result.message || "Login failed");
                 return;
             }
@@ -195,10 +196,10 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
 
 export class AuthComponent {
     async login(data: AuthFormData) {
-        console.log("Logging in", data);
+        logger.info("Logging in", data);
     }
 
     async register(data: AuthFormData) {
-        console.log("Registering", data);
+        logger.info("Registering", data);
     }
 }
