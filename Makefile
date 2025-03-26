@@ -63,6 +63,8 @@ ensure-secret-files:
 	@$(RM) -r $(VAULT_TOKEN_EXCHANGE_FILES)
 	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
 
+# This target is needed for legacy docker compose versions where there's no `--watch' flag for `docker compose up'.
+# Use the `dev' target instead.
 .PHONY: dev-old-compose
 dev-old-compose: check-env clean-app-volumes ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
