@@ -7,6 +7,9 @@ import {
     ArcRotateCamera,
     Vector3,
     Color3,
+    CreateAudioEngineAsync,
+    CreateStreamingSoundAsync,
+    CreateSoundAsync,
 } from "@babylonjs/core";
 // import * as BABYLON from "@babylonjs/core";
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
@@ -35,7 +38,48 @@ export class SceneSetup {
         scene.createDefaultLight();
     }
 
-    static setCamera(scene: Scene): void {
+    // TODO: Check if audioEngine works like this
+    static async createAudioEngine(scene: Scene): Promise<void> {
+        const audioEngine = await CreateAudioEngineAsync();
+        await audioEngine.unlock();
+        scene.audioEnabled = true;
+
+        const soundStream = await CreateStreamingSoundAsync(
+            "bgMusic",
+            `${ASSETS_DIR}/neon-gaming.mp3`,
+            {
+                loop: true,
+                autoplay: true,
+                volume: 0.5,
+            },
+            audioEngine
+        );
+        // soundStream.stop();
+        // (await soundStream).play();
+        const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/blop.mp3`);
+        blopSound.pitch = 1.5;
+    }
+
+    static createFunctions(scene: Scene): void {
+        // scene.onPointerDown = function castRay() {
+        //     const picked = scene.pick(scene.pointerX, scene.pointerY);
+        //     if (picked.pickedMesh) {
+        //         blopSound.play();
+        //     }
+        // }
+
+        // Create a function to handle window resizing
+        window.addEventListener("resize", () => {
+            scene.getEngine().resize();
+        });
+
+        // Create a function to handle window closing
+        window.addEventListener("beforeunload", () => {
+            scene.dispose();
+        });
+    }
+
+    static setCamera(scene: Scene): ArcRotateCamera {
         //TODO: check if Class TargetCamera makes more sense.
         const camera = new ArcRotateCamera(
             "pongCamera",
@@ -47,7 +91,10 @@ export class SceneSetup {
         );
         // Disable keyboard controls
         camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
-        camera.inputs.clear();
+        // camera.inputs.clear();
+        camera.attachControl(scene.getEngine().getRenderingCanvas(), true);
+
+        return camera;
     }
 
     static async createGameObjects(scene: Scene): Promise<{

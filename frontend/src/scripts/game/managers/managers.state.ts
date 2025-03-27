@@ -1,5 +1,5 @@
 import { IBabylonGameState, IServerGameState, ICollisionEvent } from "../game.types";
-import { AudioManager } from "./managers.audio";
+// import { AudioManager } from "./managers.audio";
 import { gameConfig } from "../game.config";
 import { CreateText, Mesh, Scene, Vector3 } from "@babylonjs/core";
 import { ASSETS_DIR } from "../../config";
@@ -98,13 +98,13 @@ export class GameStateManager {
 
             // Play sounds for each new event
             newEvents.forEach((event: any) => {
-                if (event.type === "paddle") {
-                    this.audioManager.playSound("bounce");
-                } else if (event.type === "wall") {
-                    this.audioManager.playSound("bounce");
-                } else if (event.type === "score") {
-                    this.audioManager.playSound("hit");
-                }
+                // if (event.type === "paddle") {
+                //     this.audioManager.playSound("bounce");
+                // } else if (event.type === "wall") {
+                //     this.audioManager.playSound("bounce");
+                // } else if (event.type === "score") {
+                //     this.audioManager.playSound("hit");
+                // }
             });
 
             // Update last collision events

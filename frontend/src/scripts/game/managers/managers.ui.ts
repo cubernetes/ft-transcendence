@@ -1,18 +1,34 @@
-import { Scene, Engine } from "@babylonjs/core";
+import {
+    Mesh,
+    Scene,
+    Engine,
+    StandardMaterial,
+    Texture,
+    MeshBuilder,
+    ArcRotateCamera,
+    Vector3,
+    Color3,
+    Material,
+    CreateAudioEngineAsync,
+    CreateSoundAsync,
+    Sound,
+    CreateStreamingSoundAsync,
+} from "@babylonjs/core";
 import { AudioManager } from "./managers.audio";
 import { GameStateManager } from "./managers.state";
 import { WebSocketManager } from "./managers.sockets";
 import { SceneSetup } from "../game.scene";
-import { Direction } from "../game.types";
 import { logger } from "../../utils/logger";
+import { Direction, GameElements } from "../game.types";
+import { ASSETS_DIR } from "../../config";
 
 export class GameUIManager {
     private container: HTMLElement;
     private gameSection: HTMLCanvasElement;
     private playButton: HTMLButtonElement;
+    private gameElements!: GameElements;
 
     constructor(
-        private audioManager: AudioManager,
         private gameStateManager: GameStateManager,
         private webSocketManager: WebSocketManager
     ) {
@@ -32,30 +48,62 @@ export class GameUIManager {
         this.container.appendChild(this.gameSection);
 
         this.setupEventListeners();
+
+        this.initGame();
     }
 
-    setupEventListeners() {
-        this.playButton?.addEventListener("click", () => {
-            this.playButton?.remove();
-            this.webSocketManager.startGame();
-            this.audioManager.playSound("background");
-            this.initGame();
-        });
-
-        this.container?.addEventListener("destroy", () => {
-            this.audioManager.stopAllSounds();
-            //TODO: Add additional functionality when window is closed such as websockets closing?
-        });
-    }
-
-    async initGame() {
+    private async initGame() {
         const engine = new Engine(this.gameSection);
+
         const scene = new Scene(engine);
 
-        SceneSetup.setupScene(scene);
-        SceneSetup.setCamera(scene);
+        const audioEngine = await CreateAudioEngineAsync();
+        await audioEngine.unlock();
+        scene.audioEnabled = true;
+
+        const bgMusic = await CreateStreamingSoundAsync(
+            "bgMusic",
+            `${ASSETS_DIR}/neon-gaming.mp3`,
+            {
+                loop: true,
+                autoplay: true,
+                volume: 0.5,
+            },
+            audioEngine
+        );
+
+        const hitSound = await CreateSoundAsync("hitSound", `${ASSETS_DIR}/hit.wav`);
+
+        const bounceSound = await CreateSoundAsync("bounceSound", `${ASSETS_DIR}/bounce.wav`);
+
+        const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/blop.wav`);
 
         const { board, paddle1, paddle2, ball } = await SceneSetup.createGameObjects(scene);
+
+        this.gameElements = {
+            engine,
+            scene,
+            audioEngine,
+            bgMusic,
+            hitSound,
+            bounceSound,
+            blopSound,
+            board,
+            paddle1,
+            paddle2,
+            ball,
+            // scoreText,
+            // fontData,
+        };
+    }
+
+    private setGame() {
+        const { scene, engine, board, paddle1, paddle2, ball } = this.gameElements;
+        SceneSetup.setupScene(scene);
+        SceneSetup.setCamera(scene);
+        // SceneSetup.createAudioEngine(scene);
+        SceneSetup.createFunctions(scene);
+
         this.gameStateManager.setBall(ball);
         this.gameStateManager.setPaddles(paddle1, paddle2);
 
@@ -69,6 +117,20 @@ export class GameUIManager {
 
         window.addEventListener("resize", () => {
             engine.resize();
+        });
+    }
+
+    setupEventListeners() {
+        this.playButton?.addEventListener("click", () => {
+            this.playButton?.remove();
+            this.webSocketManager.startGame();
+            // this.audioManager.playSound("background");
+            this.setGame();
+        });
+
+        this.container?.addEventListener("destroy", () => {
+            // this.audioManager.stopAllSounds();
+            //TODO: Add additional functionality when window is closed such as websockets closing?
         });
     }
 
