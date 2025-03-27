@@ -124,6 +124,7 @@ re: clean
 install:
 	npm --prefix=frontend install
 	npm --prefix=backend install
+	npm --prefix=cli install
 	
 .PHONY: test
 test: install

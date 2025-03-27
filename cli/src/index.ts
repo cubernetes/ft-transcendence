@@ -76,9 +76,8 @@ export async function mainMenu(): Promise<void> {
             },
         ]);
 
-        if (userOptions.sfx) {
-            audioManager.playSoundEffect("blop");
-        }
+        audioManager.playSoundEffect("blop");
+
         defaultMode = mode;
         switch (mode) {
             case 1:
@@ -100,7 +99,7 @@ export async function mainMenu(): Promise<void> {
 
 // --- Server Flow ---
 async function fetchGameConfig(): Promise<GameConfig> {
-    const res = await fetch("http://localhost:8080/api/games/config");
+    const res = await fetch("http://localhost:8080/api/game/config");
     if (!res.ok) {
         throw new Error(`Failed to fetch config: ${res.status}`);
     }
