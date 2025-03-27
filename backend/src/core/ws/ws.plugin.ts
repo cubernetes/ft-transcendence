@@ -13,4 +13,5 @@ const wsPlugin = async (app: FastifyInstance) => {
 
 export default fp(wsPlugin, {
     name: "ws-plugin",
+    dependencies: ["auth-plugin", "pong-plugin"],
 });

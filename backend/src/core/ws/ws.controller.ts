@@ -1,32 +1,26 @@
 import type { FastifyRequest } from "fastify";
-import { WebSocket } from "ws";
+import type { WebSocket } from "fastify";
+import type { Message } from "./ws.types.ts";
 
 export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
     const { server } = req;
 
-    server.log.info("New WebSocket connection");
-
-    const gameId = "some-unique-game-id"; // You should generate this dynamically
-    const userId = Math.floor(Math.random() * 1000); // Replace with actual user ID
-
-    server.wsService.createGame(conn, userId, gameId);
-
-    // Retrieve the existing game state from the websocket service
-    let gameState = server.wsService.getGameState(gameId);
-
-    if (!gameState) {
-        server.log.error("Game state could not be retrieved.");
-        return conn.close();
-    }
-
-    conn.send(JSON.stringify(gameState));
-
     conn.on("message", (message: string) => {
-        // Handle the message, which updates the game state
-        server.wsService.handleMessage(conn, message, gameId);
+        try {
+            const { type, payload } = JSON.parse(message) as Message;
+            const handler = server.wsService.messageHandlers[type];
 
-        // Retrieve the updated game state
-        gameState = server.wsService.getGameState(gameId);
+            if (!handler) {
+                return server.log.error(`Unknown message type: ${type}`);
+            }
+
+            const result = handler(conn, server, payload);
+            if (result.isErr()) {
+                server.log.error({ e: result.error }, "Websocket on message failed");
+            }
+        } catch (e) {
+            server.log.error({ e }, "Websocket on message failed");
+        }
     });
 
     conn.on("ping", () => {
@@ -35,14 +29,7 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
     });
 
     conn.on("close", () => {
-        server.log.info(`WebSocket connection closed for player ${userId}`);
-        server.wsService.removePlayerFromGame(gameId, userId); // Clean up when the player disconnects
+        server.log.info(`WebSocket connection closed for player ${conn.userId}`);
+        //server.wsService.removePlayerFromGame(gameId, userId); // Clean up when the player disconnects
     });
-    // Full steps: check id -> register ->
-
-    // try {
-    //   const userId = validateId(request.params.id);
-    //   // Maybe more validation, check user does exist etc.
-    //   this.websocketService.registerConnection(conn, userId);
-    // } catch (error) {}
 };
