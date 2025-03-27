@@ -7,8 +7,14 @@ import {
     ArcRotateCamera,
     Vector3,
     Color3,
+    Material,
+    CreateAudioEngineAsync,
+    CreateSoundAsync,
+    Sound,
+    CreateStreamingSoundAsync,
 } from "@babylonjs/core";
-// import * as BABYLON from "@babylonjs/core";
+// import * as BABYLON from '@babylonjs/core'
+
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
 import { ASSETS_DIR } from "../config";
 
@@ -35,19 +41,68 @@ export class SceneSetup {
         scene.createDefaultLight();
     }
 
+    // TODO: Check if audioEngine works like this
+    static async createAudioEngine(scene: Scene): Promise<void> {
+        const audioEngine = await CreateAudioEngineAsync();
+        await audioEngine.unlock();
+        scene.audioEnabled = true;
+        CreateStreamingSoundAsync(
+            "bgMusic",
+            `${ASSETS_DIR}/neon-gaming.mp3`,
+            {
+                loop: true,
+                autoplay: true,
+                volume: 0.5,
+            },
+            audioEngine
+        );
+        const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/blop.mp3`);
+        blopSound.pitch = 1.5;
+    }
+
+    static createFunctions(scene: Scene): void {
+        // scene.onPointerDown = function castRay() {
+        //     const picked = scene.pick(scene.pointerX, scene.pointerY);
+        //     if (picked.pickedMesh) {
+        //         blopSound.play();
+        //     }
+        // }
+
+        // Create a function to handle window resizing
+        window.addEventListener("resize", () => {
+            scene.getEngine().resize();
+        });
+
+        // Create a function to handle window closing
+        window.addEventListener("beforeunload", () => {
+            scene.dispose();
+        });
+    }
+
     static setCamera(scene: Scene): void {
         //TODO: check if Class TargetCamera makes more sense.
         const camera = new ArcRotateCamera(
             "pongCamera",
             -Math.PI / 2, // alpha - side view (fixed)
-            0.1, // beta - slightly above (fixed)
+            0.7, // beta - slightly above (fixed)
             25, // radius - distance from center
             Vector3.Zero(), // target - looking at center
             scene
         );
+        // Set limits for zooming in/out
+        camera.lowerRadiusLimit = 10;
+        camera.upperRadiusLimit = 40;
+        // Set limits for rotation up/down
+        camera.lowerBetaLimit = 0.5;
+        camera.upperBetaLimit = Math.PI / 2 - 0.1;
+        // Set limits for rotation left/right
+        camera.upperAlphaLimit = -0.2;
+        camera.lowerAlphaLimit = -Math.PI + 0.2;
+
         // Disable keyboard controls
         camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
-        camera.inputs.clear();
+        // camera.inputs.clear();
+        camera.attachControl(scene.getEngine().getRenderingCanvas(), true);
     }
 
     static async createGameObjects(scene: Scene): Promise<{
@@ -65,7 +120,15 @@ export class SceneSetup {
         const materials = gameConfig.materials;
         const boardMaterial = new StandardMaterial("board", scene);
         const paddleMaterial = new StandardMaterial("paddle", scene);
+
         const ballMaterial = new StandardMaterial("ball", scene);
+        // ballMaterial.wireframe = true;
+
+        const paddleMaterial2 = new StandardMaterial("paddle1Mat", scene);
+        paddleMaterial2.alpha = 0.5;
+        paddleMaterial2.alphaMode = Material.MATERIAL_ALPHABLEND;
+        paddleMaterial2.diffuseColor = new Color3(0, 0, 1);
+        paddleMaterial2.backFaceCulling = false;
 
         // Create game board
         const board = MeshBuilder.CreateBox(
@@ -83,19 +146,28 @@ export class SceneSetup {
         board.material = boardMaterial;
 
         // Create paddles
-        const paddle1 = MeshBuilder.CreateBox(
+        // const paddle1 = MeshBuilder.CreateBox(
+        //     "paddle1",
+        //     {
+        //         width: objectConfigs.PADDLE_WIDTH,
+        //         height: objectConfigs.PADDLE_HEIGHT,
+        //         depth: objectConfigs.PADDLE_DEPTH,
+        //     },
+        //     scene
+        // );
+        const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
             {
-                width: objectConfigs.PADDLE_WIDTH,
-                height: objectConfigs.PADDLE_HEIGHT,
-                depth: objectConfigs.PADDLE_DEPTH,
+                diameterX: objectConfigs.PADDLE_WIDTH,
+                diameterY: objectConfigs.PADDLE_HEIGHT,
+                diameterZ: objectConfigs.PADDLE_DEPTH,
             },
             scene
         );
         paddle1.position = positions.PADDLE1;
         paddle1.rotation.x = rotations.PADDLE1;
         paddleMaterial.diffuseColor = materials.PADDLE1.diffuseColor;
-        paddle1.material = paddleMaterial;
+        paddle1.material = paddleMaterial2;
 
         const paddle2 = MeshBuilder.CreateBox(
             "paddle2",
@@ -115,6 +187,7 @@ export class SceneSetup {
         const ball = MeshBuilder.CreateSphere(
             "ball",
             {
+                segments: 5,
                 diameter: objectConfigs.BALL_RADIUS * 2,
             },
             scene

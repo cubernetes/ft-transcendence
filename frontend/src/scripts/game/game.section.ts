@@ -6,10 +6,10 @@ import earcut from "earcut";
 (window as any).earcut = earcut;
 
 export const create3DGameSection = async (): Promise<HTMLElement> => {
-    const audioManager = new AudioManager();
-    const gameStateManager = new GameStateManager(audioManager);
+    // const audioManager = new AudioManager();
+    const gameStateManager = new GameStateManager();
     const webSocketManager = new WebSocketManager(gameStateManager);
-    const gameUIManager = new GameUIManager(audioManager, gameStateManager, webSocketManager);
+    const gameUIManager = new GameUIManager(gameStateManager, webSocketManager);
 
     return gameUIManager.getContainer();
 };

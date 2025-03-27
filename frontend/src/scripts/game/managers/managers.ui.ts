@@ -11,7 +11,7 @@ export class GameUIManager {
     private playButton: HTMLButtonElement;
 
     constructor(
-        private audioManager: AudioManager,
+        // private audioManager: AudioManager,
         private gameStateManager: GameStateManager,
         private webSocketManager: WebSocketManager
     ) {
@@ -37,12 +37,12 @@ export class GameUIManager {
         this.playButton?.addEventListener("click", () => {
             this.playButton?.remove();
             this.webSocketManager.startGame();
-            this.audioManager.playSound("background");
+            // this.audioManager.playSound("background");
             this.initGame();
         });
 
         this.container?.addEventListener("destroy", () => {
-            this.audioManager.stopAllSounds();
+            // this.audioManager.stopAllSounds();
             //TODO: Add additional functionality when window is closed such as websockets closing?
         });
     }
@@ -53,6 +53,8 @@ export class GameUIManager {
 
         SceneSetup.setupScene(scene);
         SceneSetup.setCamera(scene);
+        SceneSetup.createAudioEngine(scene);
+        SceneSetup.createFunctions(scene);
 
         const { board, paddle1, paddle2, ball } = await SceneSetup.createGameObjects(scene);
         this.gameStateManager.setBall(ball);

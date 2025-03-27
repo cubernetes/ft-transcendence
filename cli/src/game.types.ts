@@ -27,9 +27,12 @@ export interface ICollisionEvent {
 }
 
 export interface FieldConfig {
+    termWid: number;
+    termHei: number;
     scaleX: number;
     scaleY: number;
     paddleHeight: number;
+    fieldBuffer: string[][] | null;
 }
 
 export interface GameConfig {

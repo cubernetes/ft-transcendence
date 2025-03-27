@@ -12,7 +12,8 @@ export class GameStateManager {
         lastCollisionEvents: [],
     };
 
-    constructor(private audioManager: AudioManager) {}
+    // constructor(private audioManager: AudioManager) {}
+    constructor() {}
 
     updateGameObjects(eventData: string, scene: Scene) {
         const gameState = JSON.parse(eventData);
