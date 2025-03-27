@@ -154,7 +154,7 @@ Let's say your service is called `foo`, then the steps would be the following:
 1. Add a new policy file at path `./vault/polices/foo.hcl` (copy an existing one, they're all similar)
 
 ```diff
-+path "secret/foo" {
++path "secret/data/foo" {
 +    capabilities = ["read"]
 +}
 ```
