@@ -33,13 +33,13 @@ export default class PongEngine {
         this.scores = [0, 0];
         this.paddles = config.paddles;
         this.ball = config.ball;
-        this.status = "waiting";
+        this.status = "ongoing";
         this.events = []; // why is this an array and not a flag?
     }
 
-    start() {
-        this.status = "ongoing"; // Do we even need to wait??
-    }
+    //start() {
+    //  this.status = "ongoing"; // Do we even need to wait??
+    //}
 
     setInput(i: number, key: UserInput): Result<void, Error> {
         if (this.status !== "ongoing") {
