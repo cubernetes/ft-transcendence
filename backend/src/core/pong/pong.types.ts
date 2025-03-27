@@ -1,3 +1,5 @@
+import type PongEngine from "./pong.engine.ts";
+
 export type Size3D = {
     width: number;
     height: number;
@@ -38,6 +40,9 @@ export type PongConfig = {
 
 export type UserInput = "up" | "down" | "stop";
 
+// Unify with remote later, this is ugh
+export type LocalUserInput = "0-up" | "0-down" | "0-stop" | "1-up" | "1-down" | "1-stop";
+
 export type PongType = "local" | "remote";
 
 // Maybe add waiting, paused
@@ -57,4 +62,17 @@ export type PongState = {
     ball: Ball;
     paddles: [Paddle, Paddle];
     events: PongEvent[];
+};
+
+export type LocalPongSession = {
+    gameId: string;
+    engine: PongEngine;
+    //loop?: NodeJS.Timeout; // Store the interval for the game loop, why store the loop??
+};
+
+export type RemoteSession = {
+    gameId: string;
+    engine: PongEngine;
+    players: [WebSocket, WebSocket];
+    //loop?: NodeJS.Timeout; // Store the interval for the game loop, why store the loop??
 };
