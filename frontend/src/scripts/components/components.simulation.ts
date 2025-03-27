@@ -4,25 +4,22 @@ import {
     ArcRotateCamera,
     Vector3,
     MeshBuilder,
-    CreateText,
     Mesh,
     StandardMaterial,
     Color3,
     Texture,
-    UniversalCamera,
     AssetsManager,
-    Color4,
+    CubeTexture,
+    BackgroundMaterial,
 } from "@babylonjs/core";
-import { Inspector } from "@babylonjs/inspector";
 import earcut from "earcut";
 import { registerBuiltInLoaders } from "@babylonjs/loaders/dynamic";
 (window as any).earcut = earcut;
 
-// Default game constants (will be overridden by server values)
 let GAME_CONSTANTS = {
-    PADDLE_WIDTH: 1,
-    PADDLE_HEIGHT: 1,
-    PADDLE_DEPTH: 25,
+    PADDLE_WIDTH: 0.5,
+    PADDLE_HEIGHT: 0.5,
+    PADDLE_DEPTH: 15,
     BALL_RADIUS: 0.3,
     BOARD_WIDTH: 40,
     BOARD_HEIGHT: 0.3,
@@ -31,18 +28,9 @@ let GAME_CONSTANTS = {
     BALL_SPEED: 0.5,
 };
 
-const SCORE_POSITION = new Vector3(0, 0, 8);
-
-// Game state
-let score = { player1: 0, player2: 0 };
-let scoreText: Mesh;
 let ball: Mesh;
 let paddle1: Mesh;
 let paddle2: Mesh;
-let fontData: any = null;
-let socket: WebSocket;
-let gameRunning = false;
-let lastCollisionEvents: any[] = [];
 
 export async function createSimulation(): Promise<HTMLElement> {
     const container = document.createElement("div");
@@ -57,62 +45,23 @@ export async function createSimulation(): Promise<HTMLElement> {
     playButton.textContent = "Click to Start Game";
     playButton.className = "container mx-auto";
 
-    // Add Sound effects
-    const backgroundMusic = document.createElement("audio");
-    backgroundMusic.src = "assets/neon-gaming.mp3";
-    backgroundMusic.loop = true;
-    const bounceMusic = document.createElement("audio");
-    bounceMusic.src = "assets/bounce.mp3";
-    const hitMusic = document.createElement("audio");
-    hitMusic.src = "assets/hit.mp3";
-    const soundEffects = [backgroundMusic, bounceMusic, hitMusic];
-
     container.appendChild(playButton);
     container.appendChild(gameSection);
 
-    socket = new WebSocket("/ws");
-
-    socket.onopen = () => {
-        console.log("WebSocket connection established.");
-    };
-
     container.addEventListener("destroy", () => {
         console.log("received destroy");
-        if (backgroundMusic) {
-            backgroundMusic.pause();
-            backgroundMusic.currentTime = 0;
-        }
-        if (bounceMusic) bounceMusic.pause();
-        if (hitMusic) hitMusic.pause();
     });
 
     // Initialize game only after user interaction
     playButton.addEventListener("click", () => {
         playButton.remove();
-        socket.send("join player-1");
-        if (socket.readyState === WebSocket.OPEN) {
-            console.log("Sending startPong");
-            socket.send("startPong"); // Start the game
-        } else {
-            console.error("WebSocket is not open.");
-        }
-        gameRunning = true;
-        backgroundMusic.play();
-        initialiseGame(gameSection, soundEffects);
+        initialiseGame(gameSection);
     });
-
-    socket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-    };
-
-    socket.onclose = () => {
-        console.log("WebSocket connection closed.");
-    };
 
     return container;
 }
 
-async function initialiseGame(gameSection: HTMLCanvasElement, soundEffects: HTMLAudioElement[]) {
+async function initialiseGame(gameSection: HTMLCanvasElement) {
     const engine = new Engine(gameSection);
 
     const createScene = async function () {
@@ -127,11 +76,6 @@ async function initialiseGame(gameSection: HTMLCanvasElement, soundEffects: HTML
 
         const camera = await setCamera(scene, ball);
 
-        camera.attachControl(gameSection, true);
-
-        // Set up controls
-        setupKeyboardControls(scene);
-
         assetsManager.onFinish = function (tasks) {
             engine.runRenderLoop(function () {
                 scene.render();
@@ -140,13 +84,9 @@ async function initialiseGame(gameSection: HTMLCanvasElement, soundEffects: HTML
 
         assetsManager.load();
 
-        // Set up WebSocket message handler AFTER everything is initialized
-        socket.onmessage = (event) => {
-            updateGameObjects(event.data, scene, soundEffects);
-        };
-
-        // Enable inspector for debugging
-        Inspector.Show(scene, {});
+        scene.registerBeforeRender(() => {
+            camera.alpha += 0.003; // Rotates around Y-axis
+        });
 
         return scene;
     };
@@ -163,9 +103,9 @@ async function initialiseGame(gameSection: HTMLCanvasElement, soundEffects: HTML
 }
 
 function setScene(scene: Scene): Scene {
-    // Create a skybox
-    const skybox = MeshBuilder.CreateBox(
-        "skybox",
+    // Create a ground
+    const ground = MeshBuilder.CreateBox(
+        "ground",
         {
             width: 100,
             height: 0.1,
@@ -173,15 +113,33 @@ function setScene(scene: Scene): Scene {
         },
         scene
     );
-    skybox.position.y = -0.9;
-    const skyboxMaterial = new StandardMaterial("skyboxMaterial", scene);
-    skyboxMaterial.diffuseTexture = new Texture("./assets/ground.jpg", scene);
-    skybox.material = skyboxMaterial;
+    ground.position.y = -0.9;
+    const groundMaterial = new StandardMaterial("groundMaterial", scene);
+    groundMaterial.diffuseTexture = new Texture("./assets/ground.jpg", scene);
+    ground.material = groundMaterial;
     // Create default lighting
     scene.createDefaultLight();
-    scene.fogMode = Scene.FOGMODE_EXP;
-    scene.fogDensity = 0.0;
-    scene.clearColor = new Color4(1, 0, 0, 1);
+    scene.fogMode = Scene.FOGMODE_LINEAR;
+    scene.fogDensity = 1;
+    scene.fogStart = 10.0;
+
+    const size = 1000;
+    const skydome = MeshBuilder.CreateBox("sky", { size, sideOrientation: Mesh.BACKSIDE }, scene);
+    skydome.position.y = 0.5;
+    skydome.receiveShadows = true;
+    const sky = new BackgroundMaterial("skyMaterial", scene);
+    sky.enableGroundProjection = true;
+    sky.projectedGroundRadius = 20;
+    sky.projectedGroundHeight = 3;
+    skydome.material = sky;
+    sky.reflectionTexture = new CubeTexture("./assets/skybox/", scene, [
+        "px.png",
+        "py.png",
+        "pz.png",
+        "nx.png",
+        "ny.png",
+        "nz.png",
+    ]);
 
     return scene;
 }
@@ -190,10 +148,25 @@ async function addModels(scene: Scene): Promise<AssetsManager> {
     registerBuiltInLoaders();
     var assetsManager = new AssetsManager(scene);
 
-    var meshTask1 = assetsManager.addMeshTask("asset task 1", "", "assets/", "aldrich.glb");
-    var meshTask2 = assetsManager.addMeshTask("asset task 2", "", "assets/", "dragon.glb");
-    var meshTask3 = assetsManager.addMeshTask("asset task 3", "", "assets/", "mythcreature.glb");
-    var meshTask4 = assetsManager.addMeshTask("asset task 4", "", "assets/", "mythcreature.glb");
+    var meshTask1 = assetsManager.addMeshTask(
+        "asset task 1",
+        "",
+        "assets/textures/",
+        "aldrich.glb"
+    );
+    var meshTask2 = assetsManager.addMeshTask("asset task 2", "", "assets/textures/", "dragon.glb");
+    var meshTask3 = assetsManager.addMeshTask(
+        "asset task 3",
+        "",
+        "assets/textures/",
+        "mythcreature.glb"
+    );
+    var meshTask4 = assetsManager.addMeshTask(
+        "asset task 4",
+        "",
+        "assets/textures/",
+        "mythcreature.glb"
+    );
 
     const positions = [
         new Vector3(-GAME_CONSTANTS.BOARD_WIDTH / 2 - 10, 0, 0), // Left
@@ -226,14 +199,14 @@ async function addModels(scene: Scene): Promise<AssetsManager> {
     meshTask3.onSuccess = function (task) {
         const mesh = task.loadedMeshes[0];
         mesh.position = positions[2];
-        mesh.scaling = new Vector3(5, 5, 5);
+        mesh.scaling = new Vector3(4, 4, 4);
         mesh.rotation = rotations[2];
     };
 
     meshTask4.onSuccess = function (task) {
         const mesh = task.loadedMeshes[0];
         mesh.position = positions[3];
-        mesh.scaling = new Vector3(5, 5, 5);
+        mesh.scaling = new Vector3(4, 4, 4);
         mesh.rotation = rotations[3];
     };
 
@@ -256,9 +229,17 @@ async function addModels(scene: Scene): Promise<AssetsManager> {
     return assetsManager;
 }
 
-async function setCamera(scene: Scene, ball: Mesh): Promise<UniversalCamera> {
-    const camera = new UniversalCamera("UniversalCamera", new Vector3(0, 20, -30), scene);
-    camera.setTarget(Vector3.Zero());
+async function setCamera(scene: Scene, ball: Mesh): Promise<ArcRotateCamera> {
+    const camera = new ArcRotateCamera(
+        "Camera",
+        Math.PI / 2,
+        Math.PI / 2.1,
+        8,
+        ball.position,
+        scene
+    );
+    camera.radius = 10;
+
     return camera;
 }
 
@@ -310,7 +291,7 @@ async function createGameObjects(scene: Scene): Promise<{
         },
         scene
     );
-    paddle1.position = new Vector3(-GAME_CONSTANTS.BOARD_WIDTH / 2 + 0.2, 0.2, 0);
+    paddle1.position = new Vector3(-GAME_CONSTANTS.BOARD_WIDTH / 2 + 0.2, -0.2, 0);
     paddle1.rotation.x = Math.PI;
     paddle1.material = paddleMaterial;
 
@@ -323,7 +304,7 @@ async function createGameObjects(scene: Scene): Promise<{
         },
         scene
     );
-    paddle2.position = new Vector3(GAME_CONSTANTS.BOARD_WIDTH / 2 - 0.2, 0.2, 0);
+    paddle2.position = new Vector3(GAME_CONSTANTS.BOARD_WIDTH / 2 - 0.2, -0.2, 0);
     paddle2.rotation.x = Math.PI;
     paddle2.material = paddleMaterial;
 
@@ -340,96 +321,4 @@ async function createGameObjects(scene: Scene): Promise<{
     ballMaterial.diffuseColor = new Color3(1, 0, 0);
     ball.material = ballMaterial;
     return { board, ball, paddle1, paddle2 };
-}
-
-async function addScore(scene: Scene) {
-    // Load font data once and cache it
-    if (!fontData) fontData = await (await fetch("assets/Montserrat_Regular.json")).json();
-    if (scoreText) scoreText.dispose();
-
-    // Create initial score text
-    const text = CreateText("scoreText", `Score: ${score.player1} - ${score.player2}`, fontData, {
-        size: 0.5, // text size
-        depth: 0.1, // extrusion depth
-        resolution: 32, // curve resolution
-    });
-
-    if (!text) throw new Error("Failed to create score text");
-    scoreText = text;
-    scoreText.position = SCORE_POSITION;
-    scoreText.rotation.x = Math.PI / 2;
-}
-
-function setupKeyboardControls(scene: Scene) {
-    let lastDirection: "up" | "down" | "stop" = "stop";
-
-    document.addEventListener("keydown", (event) => {
-        console.log(`Key pressed: ${event.key}`);
-        if (event.key === "ArrowUp" || event.key === "w") {
-            sendDirection("up");
-        } else if (event.key === "ArrowDown" || event.key === "s") {
-            sendDirection("down");
-        }
-    });
-
-    window.addEventListener("keyup", (event) => {
-        console.log(`Key released: ${event.key}`);
-        if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
-            sendDirection("stop");
-        }
-    });
-
-    function sendDirection(direction: "up" | "down" | "stop") {
-        if (direction !== lastDirection && socket.readyState === WebSocket.OPEN) {
-            socket.send(`move ${direction}`);
-            lastDirection = direction;
-        }
-    }
-}
-
-function updateGameObjects(eventData: any, scene: Scene, soundEffects: HTMLAudioElement[]) {
-    const gameState = JSON.parse(eventData);
-    if (!gameState || !gameRunning) return;
-    //console.log("Updated game state received:", gameState);
-
-    // Update ball position if it exists
-    if (gameState.ballPosition && ball) {
-        ball.position.x = gameState.ballPosition.x;
-        ball.position.y = gameState.ballPosition.y;
-        ball.position.z = gameState.ballPosition.z;
-    }
-
-    // Update paddle positions
-    if (gameState.paddlePosition) {
-        if (paddle1) {
-            paddle1.position.z = gameState.paddlePosition["player-1"].z;
-        }
-        if (paddle2) {
-            paddle2.position.z = gameState.paddlePosition["player-2"].z;
-        }
-    }
-
-    // Update score if needed
-    if (
-        gameState.score &&
-        (score.player1 !== gameState.score.player1 || score.player2 !== gameState.score.player2)
-    ) {
-        score = gameState.score;
-        // addScore(scene);
-    }
-
-    // Play sounds based on collision events
-    if (gameState.collisionEvents && gameState.collisionEvents.length > 0) {
-        // Get only new events by comparing timestamps
-        const newEvents = gameState.collisionEvents.filter(
-            (event: any) => !lastCollisionEvents.some((e: any) => e.timestamp === event.timestamp)
-        );
-
-        if (newEvents.length > 0) {
-            console.log("New collision events:", newEvents);
-
-            // Update last collision events
-            lastCollisionEvents = gameState.collisionEvents;
-        }
-    }
 }
