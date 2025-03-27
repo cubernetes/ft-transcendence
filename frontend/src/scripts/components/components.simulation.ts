@@ -20,7 +20,7 @@ let GAME_CONSTANTS = {
     PADDLE_WIDTH: 0.5,
     PADDLE_HEIGHT: 0.5,
     PADDLE_DEPTH: 15,
-    BALL_RADIUS: 0.3,
+    BALL_RADIUS: 0.4,
     BOARD_WIDTH: 40,
     BOARD_HEIGHT: 0.3,
     BOARD_DEPTH: 30,
@@ -257,7 +257,7 @@ async function createGameObjects(scene: Scene): Promise<{
         },
         scene
     );
-    middleLine.position = new Vector3(0, -0.25, 0);
+    middleLine.position = new Vector3(0, -0.32, 0);
     middleLine.rotation = new Vector3(0, 0, 0);
     const middleLineMaterial = new StandardMaterial("middleLine", scene);
     middleLineMaterial.diffuseColor = new Color3(1, 1, 1);
@@ -316,7 +316,7 @@ async function createGameObjects(scene: Scene): Promise<{
         },
         scene
     );
-    ball.position = new Vector3(0, 0, 0);
+    ball.position = new Vector3(0, 0.05, 0);
     const ballMaterial = new StandardMaterial("ball", scene);
     ballMaterial.diffuseColor = new Color3(1, 0, 0);
     ball.material = ballMaterial;

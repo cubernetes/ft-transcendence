@@ -4,7 +4,7 @@ import { createFooter } from "../components/components.footer";
 export const createProfilePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
-    const header = createHeader();
+    const header = await createHeader();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4";
