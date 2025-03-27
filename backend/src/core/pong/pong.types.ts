@@ -42,3 +42,25 @@ export type PongType = "local" | "remote";
 
 // Should it have "waiting"? Is "paused" an option to implement?
 export type PongStatus = "waiting" | "ongoing" | "paused" | "ended";
+
+export type PongEventType =
+    | "wall-collision"
+    | "paddle-collision"
+    | "score"
+    | "start"
+    | "pause"
+    | "resume"
+    | "end";
+
+export type PongEvent = {
+    type: PongEventType;
+    timestamp: number;
+};
+
+export type PongState = {
+    status: PongStatus;
+    scores: [number, number];
+    ball: Ball;
+    paddles: [Paddle, Paddle];
+    events: PongEvent[];
+};
