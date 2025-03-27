@@ -78,7 +78,7 @@ services:
             DB_PATH: ${DB_PATH:-}
         volumes:
             - "drizzle:/backend/drizzle/"
-            - "./secrets/backend_vault_token:/run/secrets/backend_vault_token"
+            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         depends_on:
             vault:
                 restart: true
@@ -106,7 +106,7 @@ services:
         volumes:
             - "vault:/vault/file/"
             - "vault_secret:/vault/secret/"
-            - "./secrets/backend_vault_token:/run/secrets/backend_vault_token"
+            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             LOGLEVEL: debug
             SAVE_UNSEAL_KEYS: 1

@@ -1,7 +1,7 @@
 DC := docker compose
 D := docker
 
-VAULT_TOKEN_EXCHANGE_FILES := ./secrets/backend_vault_token
+VAULT_TOKEN_EXCHANGE_FILES := ./.secrets/backend_vault_token
 
 .DEFAULT_GOAL := dev
 
@@ -59,7 +59,7 @@ endef
 
 .PHONY: ensure-secret-files
 ensure-secret-files:
-	@mkdir -p ./secrets/
+	@mkdir -p ./.secrets/
 	@$(RM) -r $(VAULT_TOKEN_EXCHANGE_FILES)
 	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
 
