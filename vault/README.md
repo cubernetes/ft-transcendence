@@ -9,9 +9,9 @@ to `http://vault:8200/v1/secret/$SERVICE_NAME` and extract the secrets from the
 JSON response (`.data.data`). A token can only be used as many times as there
 are secrets for a particular service (TODO) (if the `backend` service only has the
 `JWT_SECRET` secret, then it can make only a single `GET` request, after which the
-token is invalidated) and it can only read its own secrets (TODO) (enforced via policies).
-If not all secrets are read, it's each service is advised to override/truncate
-the file to prevent unwanted access from the host system.
+token is invalidated; enforced via roles) and it can only read its own secrets (TODO)
+(enforced via policies). If not all secrets are read, it's each service is advised
+to override/truncate the file to prevent unwanted access from the host system.
 
 ## How Vault initially starts up
 
@@ -68,7 +68,7 @@ line in `./vault/endpoint.sh` to not print those secrets (then you should set
 ```diff
      else
          info "Vault storage backend is empty. Initializing vault"
- 
+
          start_server_in_bg
          wait_and_extract_secrets
 -        show_secrets
@@ -82,15 +82,154 @@ line in `./vault/endpoint.sh` to not print those secrets (then you should set
 If `SAVE_ROOT_TOKEN` was `1` and the vault is unsealed and running, you can retrieve
 all secrets for a given `$SERIVCE` using the following command from the docker host:
 
-```console
+```sh
 docker exec vault sh -c '
     SERVICE=backend
     wget --header="X-Vault-Token: $(cat /vault/secret/root_token)" \
         --quiet \
         --output-document=- \
-        "$(cat /tmp/vault_addr)"/v1/secret/data/$SERVICE | 
+        "$(cat /tmp/vault_addr)"/v1/secret/data/$SERVICE |
     jq --raw-output --color-output .data.data'
 ```
+
+## No, I mean: I need the secret inside another service container, how do I get it programmatically?
+
+Unfortunately, at the moment, it is quite a lot of steps to register a completely
+new service to the vault infrastructure. But they are all relatively straightforward.
+Let's say your service is called `foo`, then the steps would be the following:
+
+1. You need to mount a file between the `vault` and `foo` container. For that, adjust `compose.yaml`:
+   1. Add the file mount to the `vault` container:
+
+   ```diff
+         vault:
+             build: "./vault/"
+             container_name: vault
+             restart: unless-stopped
+             networks:
+                 - ft-transcendence-net
+             cap_add:
+                 - IPC_LOCK
+             volumes:
+                 - "vault:/vault/file/"
+                 - "vault_secret:/vault/secret/"
+                 - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
+    +            - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
+             environment:
+                 LOGLEVEL: debug
+                 SAVE_UNSEAL_KEYS: 1
+                 SAVE_ROOT_TOKEN: 1
+             tty: true
+   ```
+
+   1. Add the file mount to the `foo` container and ensure it depends on vault and is in the same network:
+
+   ```diff
+    +    foo:
+    +        networks:
+    +            - ft-transcendence-net
+    +        volumes:
+    +            - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
+    +        depends_on:
+    +            vault:
+    +                restart: true
+    +                condition: service_healthy
+   ```
+
+1. Add `foo` as a new service to `./vault/env.json` and add the secret(s)
+
+```diff
+ {
+     "backend": {
+         "JWT_SECRET": "{{alnum:64}}"
+-    }
++    },
++    "foo": {
++        "SIGNING_SECRET": "{{alpha:32}}"
++        "SOME_PASSWORD": "{{digit:12}}"
++    }
+ }
+```
+
+1. Add a new policy file at path `./vault/polices/foo.hcl` (copy an existing one, they're all similar)
+
+```diff
++path "secret/foo" {
++    capabilities = ["read"]
++}
+```
+
+1. If `foo` does NOT have a Dockerfile, you HAVE to create one with a shell entrypoint wrapper to pass the environment
+   1. Get original entrypoint value
+
+   ```sh
+   docker pull foo:1.42.0
+   docker image inspect $(docker images -q foo:1.42.0) | jq '.[0].Config.Entrypoint'
+   ```
+
+   1. Create Dockerfile with inline entrypoint (specifically look at the lines containing 'Customization Point')
+
+    ```Dockerfile
+    ### Customization Point 1 ###
+    FROM foo:1.42.0
+
+    # If the base image doesn't even have a shell, use a multistage
+    build to get one.
+
+    # Install and curl or wget and jq (or use stage from above)
+    RUN apk/apt add/install curl/wget jq
+
+    COPY --chmod=755 <<EOF /entrypoint.sh
+    #!/bin/sh
+
+    set -e # exit on any error
+    set -u # treat failed expansion as error
+    set -x # for debugging
+
+    ### Customization Point 2 ###
+    service=foo
+    vault_token=$(cat "/run/secrets/${service}_vault_token")
+    vault_addr=http://vault:8200
+
+    export_secret () {
+        secret_name=$1
+
+        eval $secret_name='$(curl --header "X-Vault-Token: $vault_token" \
+            "$vault_addr/v1/secret/data/$service" \
+            jq --raw-output ".data.data[\"$secret_name\"]")'
+
+        # $secret_name must be a valid variable name
+        export "$secret_name" # shellcheck.net/wiki/SC2155
+    }
+
+    ### Customization Point 3 ###
+    # Export all secrets for the foo service here
+    export_secret SIGNING_SECRET
+    export_secret SOME_PASSWORD
+
+    # Truncate file for good measure
+    : > "/run/secrets/${service}_vault_token"
+
+    ### Customization Point 4 ###
+    # Don't forget the "$@" at the end to pass arguments!
+    exec <same value as 'Entrypoint' key from previous step> "$@"
+    # common example: exec tini -- "$@"
+    # https://github.com/krallin/tini
+    # Note that `exec' is REQUIRED to correctly forward signals
+    EOF
+
+    # No need to set WORKDIR, will be inherited from base image
+    # No need to set CMD, will be inherited from base image
+    # No need to set any ENV, will be inherited from base image
+    # No need to set USER, will be inherited from base image
+
+    ENTRYPOINT ["/entrypoint.sh"]
+    ```
+
+1. However, if your `foo` service DOES have a Dockerfile already and is
+   running off of a particular language, then use your language's capabilities
+   to do something similar to the entrypoint script above, or look at how
+   `./backend` does it.
 
 ## The vault architecture is weird, why would you do it this way?
 
