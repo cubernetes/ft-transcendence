@@ -16,25 +16,38 @@ let defaultMode = 1;
 
 export function setGameActive(state: boolean) {
     isGameActive = state;
+    if (state) {
+        startedMenuMusic = false;
+    }
+}
+
+export function setStartedMenuMusic(state: boolean) {
+    startedMenuMusic = state;
+}
+
+export function getStartedMenuMusic(): boolean {
+    return startedMenuMusic;
 }
 
 export function getGameActive(): boolean {
     return isGameActive;
 }
 
+// --- Cleanup ---
 export function cleanup() {
     console.log(chalk.greenBright("See you soon - good luck for your next game!"));
     if (wsManager) {
         wsManager.closeConnection();
     }
     audioManager.stopMusic();
+    process.stdin.setRawMode(false);
     process.exit(0);
 }
 
 // --- Menu Setup ---
 export async function mainMenu(): Promise<void> {
     try {
-        if (userOptions.music && !startedMenuMusic) {
+        if (!startedMenuMusic) {
             audioManager.startMusic("menu");
             startedMenuMusic = true;
         }
@@ -141,7 +154,7 @@ async function loginToServer(username: string, password: string): Promise<string
 async function startRemoteGame() {
     try {
         const config = await fetchGameConfig();
-        console.log("Fetched game config:", config);
+        console.log("Fetched game config:", config); // TODO: Remove later
         console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         setGameConfig(config);
 
@@ -151,8 +164,7 @@ async function startRemoteGame() {
             wsManager = new WebSocketManager(serverUrl);
         }
 
-        startedMenuMusic = false;
-        isGameActive = true;
+        setGameActive(true);
 
         startKeyListener((dir) => {
             if (wsManager) {

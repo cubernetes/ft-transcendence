@@ -76,9 +76,7 @@ export async function optionsMenu(): Promise<void> {
                 },
             ]);
 
-            if (userOptions.sfx) {
-                audioManager.playSoundEffect("blop");
-            }
+            audioManager.playSoundEffect("blop");
 
             lastChoice = option;
             switch (option) {
@@ -97,6 +95,7 @@ export async function optionsMenu(): Promise<void> {
                         },
                     ]);
                     userOptions.music = music;
+                    audioManager.updateAudioSettings();
                     break;
                 }
 

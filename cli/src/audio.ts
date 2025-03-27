@@ -1,7 +1,7 @@
-import { spawn, ChildProcess } from "child_process";
-import path from "path";
-import { userOptions } from "./options";
 import fs from "fs";
+import { spawn, ChildProcess } from "child_process";
+import { userOptions } from "./options";
+import { setStartedMenuMusic, getStartedMenuMusic } from "./index";
 
 export class AudioManager {
     private musicProcess: ChildProcess | null = null;
@@ -28,19 +28,24 @@ export class AudioManager {
      * Play a sound effect once
      */
     playSoundEffect(effectName: string): void {
+        if (!userOptions.sfx) {
+            return;
+        }
         if (!this.soundEffects.has(effectName)) {
             console.error(`Sound effect "${effectName}" not found`);
             return;
         }
 
-        const soundPath = path.resolve(this.soundEffects.get(effectName)!);
-        this.playAudio(soundPath, false, "effect");
+        this.playAudio(this.soundEffects.get(effectName)!, false, "effect");
     }
 
     /**
      * Start playing background music based on the current play style
      */
     startMusic(name: string = ""): void {
+        if (!userOptions.music) {
+            return;
+        }
         this.stopMusic(); // Ensure no duplicate tracks are playing
 
         const trackName = name || userOptions.playStyle;
@@ -49,9 +54,8 @@ export class AudioManager {
             return;
         }
 
-        const musicPath = path.resolve(this.musicTracks.get(trackName)!);
         this.loopMusic = true;
-        this.playAudio(musicPath, true, "music");
+        this.playAudio(this.musicTracks.get(trackName)!, true, "music");
     }
 
     /**
@@ -70,12 +74,6 @@ export class AudioManager {
         if (destination === "music") {
             args.splice(1, 0, "--buffer-size=96000", "--period-size=48000");
         }
-        // const args = [
-        //     '-q',                   // Quiet mode
-        //     '--buffer-size=96000',  // Adjust buffer size (better performance)
-        //     '--period-size=48000',  // Adjust period size (smoother playback)
-        //     audioPath
-        // ];
 
         // Kill previous instance cleanly (if any)
         if (destination === "music" && this.musicProcess) {
@@ -90,17 +88,17 @@ export class AudioManager {
 
         if (destination === "music") {
             child.on("exit", (code, signal) => {
-                if (code !== null && code !== 0) {
-                    console.warn(`'aplay' exited with code ${code}`);
-                } else if (signal !== null) {
-                    console.warn(`'aplay' was terminated by signal ${signal}`);
-                }
+                // if (code !== null && code !== 0) {
+                //     console.warn(`'aplay' exited with code ${code}`);
+                // } else if (signal !== null) {
+                //     console.warn(`'aplay' was terminated by signal ${signal}`);
+                // }
                 // Only restart the music if it was not manually stopped (exit code 0)
                 if (loop && this.loopMusic && code === 0) {
                     this.playAudio(audioPath, loop, destination);
                 }
             });
-            this.musicProcess = child; // Assign the music process
+            this.musicProcess = child;
         } else {
             this.soundEffectProcess = child;
         }
@@ -112,8 +110,8 @@ export class AudioManager {
     stopMusic(): void {
         if (this.musicProcess) {
             this.loopMusic = false;
-            this.musicProcess.kill("SIGTERM"); // Kill the current process
-            this.musicProcess = null; // Ensure we clean up the process reference
+            this.musicProcess.kill("SIGTERM");
+            this.musicProcess = null;
         }
     }
 
@@ -122,9 +120,13 @@ export class AudioManager {
      */
     updateAudioSettings(): void {
         if (userOptions.music) {
-            this.startMusic(); // Restart music with new settings
+            if (!getStartedMenuMusic()) {
+                this.startMusic("menu");
+                setStartedMenuMusic(true);
+            }
         } else {
             this.stopMusic();
+            setStartedMenuMusic(false);
         }
     }
 }
