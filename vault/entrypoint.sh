@@ -362,9 +362,6 @@ main () {
 		ensure_unsealed
 		revoke_all_client_tokens
 		create_and_share_client_tokens
-
-		echo 1 > /tmp/vault_started
-		tail -F "$vault_stdout_file" "$vault_stderr_file"
 	else
 		info "Vault storage backend is empty. Initializing vault"
 
@@ -380,10 +377,9 @@ main () {
 		revoke_all_client_tokens
 		create_and_share_client_tokens
 		#shutdown_server # Only for debugging
-
-		echo 1 > /tmp/vault_started
-		tail -F "$vault_stdout_file" "$vault_stderr_file"
 	fi
+	echo 1 > /tmp/vault_started
+	tail -F "$vault_stdout_file" "$vault_stderr_file"
 }
 
 main "$@"
