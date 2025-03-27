@@ -5,11 +5,21 @@ import { GameUIManager } from "./managers/managers.ui";
 import earcut from "earcut";
 (window as any).earcut = earcut;
 
+let gameStateManager: GameStateManager | null = null;
+let webSocketManager: WebSocketManager | null = null;
+let gameUIManager: GameUIManager | null = null;
+
 export const create3DGameSection = async (): Promise<HTMLElement> => {
     // const audioManager = new AudioManager();
-    const gameStateManager = new GameStateManager();
-    const webSocketManager = new WebSocketManager(gameStateManager);
-    const gameUIManager = new GameUIManager(gameStateManager, webSocketManager);
+    if (!gameStateManager) {
+        gameStateManager = new GameStateManager();
+    }
+    if (!webSocketManager) {
+        webSocketManager = new WebSocketManager(gameStateManager);
+    }
+    if (!gameUIManager) {
+        gameUIManager = new GameUIManager(gameStateManager, webSocketManager);
+    }
 
     return gameUIManager.getContainer();
 };

@@ -46,7 +46,8 @@ export class SceneSetup {
         const audioEngine = await CreateAudioEngineAsync();
         await audioEngine.unlock();
         scene.audioEnabled = true;
-        CreateStreamingSoundAsync(
+
+        const soundStream = await CreateStreamingSoundAsync(
             "bgMusic",
             `${ASSETS_DIR}/neon-gaming.mp3`,
             {
@@ -56,6 +57,8 @@ export class SceneSetup {
             },
             audioEngine
         );
+        // soundStream.stop();
+        // (await soundStream).play();
         const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/blop.mp3`);
         blopSound.pitch = 1.5;
     }
@@ -79,7 +82,7 @@ export class SceneSetup {
         });
     }
 
-    static setCamera(scene: Scene): void {
+    static setCamera(scene: Scene): ArcRotateCamera {
         //TODO: check if Class TargetCamera makes more sense.
         const camera = new ArcRotateCamera(
             "pongCamera",
@@ -103,6 +106,8 @@ export class SceneSetup {
         camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
         // camera.inputs.clear();
         camera.attachControl(scene.getEngine().getRenderingCanvas(), true);
+
+        return camera;
     }
 
     static async createGameObjects(scene: Scene): Promise<{

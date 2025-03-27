@@ -1,4 +1,4 @@
-import { Mesh } from "@babylonjs/core";
+import { Scene, Engine, Mesh, StreamingSound, StaticSound, AudioEngineV2 } from "@babylonjs/core";
 
 // Game state
 export interface IBabylonGameState {
@@ -27,3 +27,19 @@ export interface ICollisionEvent {
 
 export type SoundType = "background" | "bounce" | "hit";
 export type Direction = "up" | "down" | "stop";
+
+export interface GameElements {
+    engine: Engine;
+    scene: Scene;
+    audioEngine: AudioEngineV2;
+    bgMusic: StreamingSound;
+    hitSound: StaticSound;
+    bounceSound: StaticSound;
+    blopSound: StaticSound;
+    board: Mesh;
+    paddle1: Mesh;
+    paddle2: Mesh;
+    ball: Mesh;
+    // scoreText: Mesh;
+    // fontData: any;
+}
