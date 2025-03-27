@@ -7,6 +7,7 @@ import dbPlugin from "./db/db.plugin.ts";
 import authPlugin from "./auth/auth.plugin.ts";
 import wsPlugin from "./ws/ws.plugin.ts";
 import apiPlugin from "./api/api.plugin.ts";
+import pongPlugin from "./pong/pong.plugin.ts";
 
 const corePlugin = async (app: FastifyInstance) => {
     // Register configs, check integrity of the env variables
@@ -19,6 +20,7 @@ const corePlugin = async (app: FastifyInstance) => {
 
     await app.register(dbPlugin);
     await app.register(authPlugin);
+    await app.register(pongPlugin);
     await app.register(wsPlugin);
     await app.register(apiPlugin);
 };
