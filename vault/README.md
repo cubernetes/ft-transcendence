@@ -7,10 +7,11 @@ the healthcheck. Vault injects a Vault token to each of those services via a
 shared file (bind mount). Once the service has the token, it can make `GET` requests
 to `http://vault:8200/v1/secret/$SERVICE_NAME` and extract the secrets from the
 JSON response (`.data.data`). A token can only be used as many times as there
-are secrets for a particular service (if the `backend` service only has the
+are secrets for a particular service (TODO) (if the `backend` service only has the
 `JWT_SECRET` secret, then it can make only a single `GET` request, after which the
-token is invalidated). If not all secrets are read, it's each service is advised
-to override/truncate the file to prevent unwanted access from the host system.
+token is invalidated) and it can only read its own secrets (TODO) (enforced via policies).
+If not all secrets are read, it's each service is advised to override/truncate
+the file to prevent unwanted access from the host system.
 
 ## How Vault initially starts up
 
@@ -39,19 +40,19 @@ tokens, creates new tokens, and injects those to the services as described above
 
 Secrets are specified in `./vault/env.json`. Since most secrets can be automatically
 generated, you can specify them using a custom double brace syntax (sometimes called
-mustace syntax): `{{alnum:64}}`. Make sure the system you're running on has [enough
+mustache syntax): `{{alnum:64}}`. Make sure the system you're running on has [enough
 entropy](https://superuser.com/questions/944510/why-am-i-constantly-running-out-of-entropy).
 Each secret is a string associated to a service, and each service is a subkey of
-the root json object. Secrets that don't follow this exact structure will be
+the root JSON object. Secrets that don't follow this exact structure will be
 skipped and a warning will be raised.
 Secrets that cannot be generated at runtime should not be specified using the template
 syntax, specifically, they must not match this PCRE regex: `\{\{\w+:\d+\}\}`. In
 case they only match `\{\{.*\}\}`, a warning will be raised, but the string will
 be left unmodified. Note that non-secret data can be specified here as well for
-uniformity.
+consistency.
 
 **Important**: In case you add secrets that cannot be generated (like OAuth secrets),
-it is highly advised to add `env.json` to `.gitignore`. In case you change the
+it is highly advised to add `env.json` to `.gitignore`. In case you then change the
 structure of `env.json`, remove it from `.gitignore`, run `git add -p` (only
 add the non-sensitive parts), commit it, and then add it back to `.gitignore`.
 
