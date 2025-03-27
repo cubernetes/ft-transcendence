@@ -299,10 +299,14 @@ setup_kv_secrets_engine () {
 	1>/dev/null vault secrets enable -path="$vault_kv_store_path" kv-v2 || die "Could not enable kv-v2 secrets engine at path '$vault_kv_store_path'"
 }
 
-populate_kv_secrets () {
+ensure_env_json () {
 	test -e "$vault_env_json" || die "File '$vault_env_json' is missing"
 	test -f "$vault_env_json" || die "File '$vault_env_json' is not a regular file"
 	test -r "$vault_env_json" || die "File '$vault_env_json' is not readable"
+}
+
+populate_kv_secrets () {
+	ensure_env_json
 
 	info "Populating key-value secret store with values from env.json"
 	while read -r kv_entries; do
@@ -337,14 +341,23 @@ get_or_recover_vault_secrets () {
 	fi
 }
 
-create_and_share_client_tokens () {
-	test -e "$vault_env_json" || die "File '$vault_env_json' is missing"
-	test -f "$vault_env_json" || die "File '$vault_env_json' is not a regular file"
-	test -r "$vault_env_json" || die "File '$vault_env_json' is not readable"
+create_policies () {
+	ensure_env_json
 
 	while read -r service; do
-		info "Creating new client token for service \033\133;93m%s\033\133m and policy \033\133;93m%s\033\133m" "$service" "root" # TODO: Change from default to an actual policy
-		vault token create -policy=root -format=json | jq -r .auth.client_token > "$token_exchange_dir/${service}_vault_token"
+		info "Creating new policy for service \033\133;93m%s\033\133m from file \033\133;93m%s\033\133m" "$service" "/vault/policies/${service}.hcl"
+		1>/dev/null vault policy write "$service" "/vault/policies/${service}.hcl" || die "Failed to create policy for service '$service'"
+	done <<-EOF
+	$(<"$vault_env_json" jq -r 'to_entries[].key')
+	EOF
+}
+
+create_and_share_client_tokens () {
+	ensure_env_json
+
+	while read -r service; do
+		info "Creating new client token for service \033\133;93m%s\033\133m and policy \033\133;93m%s\033\133m" "$service" "$service" # TODO: Change from default to an actual policy
+		vault token create -policy="$service" -format=json | jq -r .auth.client_token > "$token_exchange_dir/${service}_vault_token"
 	done <<-EOF
 	$(<"$vault_env_json" jq -r 'to_entries[].key')
 	EOF
@@ -375,6 +388,7 @@ main () {
 		populate_kv_secrets
 
 		revoke_all_client_tokens
+		create_policies
 		create_and_share_client_tokens
 		#shutdown_server # Only for debugging
 	fi

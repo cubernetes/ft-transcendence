@@ -23,7 +23,7 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
 	/* read more secrets from vault if needed */
 
 	fs.writeFileSync("/run/secrets/backend_vault_token", ""); // clear, since not needed anymore
-	vaultToken = undefined;
+	vaultToken = '';
 
     const parsedEnv = configSchema.parse({...process.env, JWT_SECRET: rawJwtSecret});
 

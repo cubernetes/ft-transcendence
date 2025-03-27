@@ -129,6 +129,9 @@ services:
                 - path: "./vault/env.json"
                   action: sync+restart
                   target: "/vault/config/env.json"
+                - path: "./vault/policies/"
+                  action: sync+restart
+                  target: "/vault/policies/"
 
 volumes:
     vault:
