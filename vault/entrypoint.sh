@@ -358,6 +358,7 @@ main () {
 		start_server_in_bg
 		just_wait_for_startup
 		get_or_recover_vault_secrets
+		export_environment
 		ensure_unsealed
 		revoke_all_client_tokens
 		create_and_share_client_tokens
