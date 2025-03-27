@@ -322,8 +322,19 @@ populate_kv_secrets () {
 }
 
 revoke_all_client_tokens () {
-	info "Revoking all client tokens"
-	# TODO: Implement
+	info "Revoking all client (non-root) tokens"
+	while read -r accessor; do
+		display_name=$(vault token lookup -format=json -accessor "$accessor" | jq '.data.display_name')
+		policies=$(vault token lookup -format=json -accessor "$accessor" | jq '.data.policies[]' | xargs | tr ' ' ',')
+		if ! vault token lookup -format=json -accessor "$accessor" | jq --exit-status '.data.policies | index("root")' 1>/dev/null; then
+			info "Token with name $display_name and policies '$policies' is not a root token, revoking it"
+			1>/dev/null vault token revoke -accessor "$accessor"
+		else
+			info "Token with name $display_name and policies '$policies' is a root token, not revoking it"
+		fi
+	done <<-EOF
+	$(vault list -format=json auth/token/accessors | jq --raw-output '.[]')
+	EOF
 }
 
 get_or_recover_vault_secrets () {
