@@ -202,7 +202,7 @@ export default class PongEngine {
         return ok();
     }
 
-    serializeState(): Result<PongState, Error> {
+    getState(): Result<PongState, Error> {
         return ok({
             status: this.status,
             scores: this.scores,
