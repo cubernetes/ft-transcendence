@@ -36,7 +36,7 @@ so it goes through a simpler flow where it just starts Vault, reads the unseal
 keys and root token from `/vault/secret/`, unseals Vault, revokes all
 tokens, creates new tokens, and injects those to the services as described above.
 
-## I want to add a new service or more secrets for a given service
+## I want to add more secrets for a given service
 
 Secrets are specified in `./vault/env.json`. Since most secrets can be automatically
 generated, you can specify them using a custom double brace syntax (sometimes called
@@ -99,42 +99,42 @@ new service to the vault infrastructure. But they are all relatively straightfor
 Let's say your service is called `foo`, then the steps would be the following:
 
 1. You need to mount a file between the `vault` and `foo` container. For that, adjust `compose.yaml`:
-   1. Add the file mount to the `vault` container:
+    1. Add the file mount to the `vault` container:
 
-   ```diff
-         vault:
-             build: "./vault/"
-             container_name: vault
-             restart: unless-stopped
-             networks:
-                 - ft-transcendence-net
-             cap_add:
-                 - IPC_LOCK
-             volumes:
-                 - "vault:/vault/file/"
-                 - "vault_secret:/vault/secret/"
-                 - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
-    +            - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
-             environment:
-                 LOGLEVEL: debug
-                 SAVE_UNSEAL_KEYS: 1
-                 SAVE_ROOT_TOKEN: 1
-             tty: true
-   ```
+    ```diff
+          vault:
+              build: "./vault/"
+              container_name: vault
+              restart: unless-stopped
+              networks:
+                  - ft-transcendence-net
+              cap_add:
+                  - IPC_LOCK
+              volumes:
+                  - "vault:/vault/file/"
+                  - "vault_secret:/vault/secret/"
+                  - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
+    +             - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
+              environment:
+                  LOGLEVEL: debug
+                  SAVE_UNSEAL_KEYS: 1
+                  SAVE_ROOT_TOKEN: 1
+              tty: true
+    ```
 
-   1. Add the file mount to the `foo` container and ensure it depends on vault and is in the same network:
+    1. Add the file mount to the `foo` container and ensure it depends on vault and is in the same network:
 
-   ```diff
-    +    foo:
-    +        networks:
-    +            - ft-transcendence-net
-    +        volumes:
-    +            - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
-    +        depends_on:
-    +            vault:
-    +                restart: true
-    +                condition: service_healthy
-   ```
+    ```diff
+    +     foo:
+    +         networks:
+    +             - ft-transcendence-net
+    +         volumes:
+    +             - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
+    +         depends_on:
+    +             vault:
+    +                 restart: true
+    +                 condition: service_healthy
+    ```
 
 1. Add `foo` as a new service to `./vault/env.json` and add the secret(s)
 
@@ -160,76 +160,76 @@ Let's say your service is called `foo`, then the steps would be the following:
 ```
 
 1. If `foo` does NOT have a Dockerfile, you HAVE to create one with a shell entrypoint wrapper to pass the environment
-   1. Get original entrypoint value
+    1. Get original entrypoint value
 
-   ```sh
-   docker pull foo:1.42.0
-   docker image inspect $(docker images -q foo:1.42.0) | jq '.[0].Config.Entrypoint'
-   ```
-
-   1. Create Dockerfile with inline entrypoint (specifically look at the lines containing 'Customization Point')
-
-    ```Dockerfile
-    ### Customization Point 1 ###
-    FROM foo:1.42.0
-
-    # If the base image doesn't even have a shell, use a multistage
-    build to get one.
-
-    # Install and curl or wget and jq (or use stage from above)
-    RUN apk/apt add/install curl/wget jq
-
-    COPY --chmod=755 <<EOF /entrypoint.sh
-    #!/bin/sh
-
-    set -e # exit on any error
-    set -u # treat failed expansion as error
-    set -x # for debugging
-
-    ### Customization Point 2 ###
-    service=foo
-    vault_token=$(cat "/run/secrets/${service}_vault_token")
-    vault_addr=http://vault:8200
-
-    export_secret () {
-        secret_name=$1
-
-        eval $secret_name='$(curl --header "X-Vault-Token: $vault_token" \
-            "$vault_addr/v1/secret/data/$service" \
-            jq --raw-output ".data.data[\"$secret_name\"]")'
-
-        # $secret_name must be a valid variable name
-        export "$secret_name" # shellcheck.net/wiki/SC2155
-    }
-
-    ### Customization Point 3 ###
-    # Export all secrets for the foo service here
-    export_secret SIGNING_SECRET
-    export_secret SOME_PASSWORD
-
-    # Truncate file for good measure
-    : > "/run/secrets/${service}_vault_token"
-
-    ### Customization Point 4 ###
-    # Don't forget the "$@" at the end to pass arguments!
-    exec <same value as 'Entrypoint' key from previous step> "$@"
-    # common example: exec tini -- "$@"
-    # https://github.com/krallin/tini
-    # Note that `exec' is REQUIRED to correctly forward signals
-    EOF
-
-    # No need to set WORKDIR, will be inherited from base image
-    # No need to set CMD, will be inherited from base image
-    # No need to set any ENV, will be inherited from base image
-    # No need to set USER, will be inherited from base image
-
-    ENTRYPOINT ["/entrypoint.sh"]
+    ```sh
+    docker pull foo:1.42.0
+    docker image inspect $(docker images -q foo:1.42.0) | jq '.[0].Config.Entrypoint'
     ```
+
+    1. Create Dockerfile with inline entrypoint (specifically look at the lines containing 'Customization Point')
+
+     ```Dockerfile
+     ### Customization Point 1 ###
+     FROM foo:1.42.0
+
+     # If the base image doesn't even have a shell, use a multistage build to get one.
+
+     # Install and curl or wget and jq (or use stage from above)
+     RUN apk/apt add/install curl/wget jq
+
+     COPY --chmod=755 <<EOF /entrypoint.sh
+     #!/bin/sh
+
+     set -e # exit on any error
+     set -u # treat failed expansion as error
+     set -x # for debugging
+
+     ### Customization Point 2 ###
+     service=foo
+
+     vault_token=$(cat "/run/secrets/${service}_vault_token")
+     vault_addr=http://vault:8200
+
+     export_secret () {
+         secret_name=$1
+
+         eval $secret_name='$(curl --header "X-Vault-Token: $vault_token" \
+             "$vault_addr/v1/secret/data/$service" \
+             jq --raw-output ".data.data[\"$secret_name\"]")'
+
+         # $secret_name must be a valid variable name
+         export "$secret_name" # shellcheck.net/wiki/SC2155
+     }
+
+     ### Customization Point 3 ###
+     # Export all secrets for the foo service here
+     export_secret SIGNING_SECRET
+     export_secret SOME_PASSWORD
+
+     # Truncate file for good measure
+     : > "/run/secrets/${service}_vault_token"
+
+     ### Customization Point 4 ###
+     # Don't forget the "$@" at the end to pass arguments!
+     exec <same value as 'Entrypoint' key from previous step (watch out for quoting)> "$@"
+     # common example: exec tini -- "$@"
+     # https://github.com/krallin/tini
+     # Note that `exec' is REQUIRED to correctly forward signals
+     EOF
+
+     # No need to set WORKDIR, will be inherited from base image
+     # No need to set CMD, will be inherited from base image
+     # No need to set any ENV, will be inherited from base image
+     # No need to set USER, will be inherited from base image
+
+     ENTRYPOINT ["/entrypoint.sh"]
+     ```
 
 1. However, if your `foo` service DOES have a Dockerfile already and is
    running off of a particular language, then use your language's capabilities
    to do something similar to the entrypoint script above, or look at how
-   `./backend` does it.
+   the `backend` service does it (`./backend/` directory).
 
 ## The vault architecture is weird, why would you do it this way?
 
