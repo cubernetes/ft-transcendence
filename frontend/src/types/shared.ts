@@ -1,4 +1,4 @@
-import type PongEngine from "./pong.engine.ts";
+// Shared from backend, change to pulling from private registry later?
 
 export type Size3D = {
     width: number;
@@ -62,17 +62,4 @@ export type PongState = {
     ball: Ball;
     paddles: [Paddle, Paddle];
     events: PongEvent[];
-};
-
-export type LocalPongSession = {
-    gameId: string;
-    engine: PongEngine;
-    //loop?: NodeJS.Timeout; // Store the interval for the game loop, why store the loop??
-};
-
-export type RemoteSession = {
-    gameId: string;
-    engine: PongEngine;
-    players: [WebSocket, WebSocket];
-    //loop?: NodeJS.Timeout; // Store the interval for the game loop, why store the loop??
 };

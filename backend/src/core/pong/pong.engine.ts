@@ -85,8 +85,8 @@ export default class PongEngine {
         }
 
         const { board } = this.config;
-        const topLimit = board.depth / 2 - paddle.size.depth / 2;
-        const bottomLimit = board.depth / 2 + paddle.size.depth / 2;
+        const topLimit = board.size.depth / 2 - paddle.size.depth / 2;
+        const bottomLimit = board.size.depth / 2 + paddle.size.depth / 2;
         if (direction === "up") {
             paddle.pos.z = Math.min(paddle.pos.z + paddle.speed, topLimit);
         } else if (direction === "down") {
@@ -105,8 +105,8 @@ export default class PongEngine {
         this.ball.pos.z += this.ball.vec.z;
 
         const { board } = this.config;
-        const topLimit = board.depth / 2 - this.ball.r;
-        const bottomLimit = -board.depth / 2 + this.ball.r;
+        const topLimit = board.size.depth / 2 - this.ball.r;
+        const bottomLimit = -board.size.depth / 2 + this.ball.r;
 
         // Check collision with top and bottom walls
         if (this.ball.pos.z >= topLimit || this.ball.pos.z <= bottomLimit) {
@@ -154,11 +154,11 @@ export default class PongEngine {
 
         const { pos } = this.ball;
         const { board } = this.config;
-        if (pos.x < -board.width / 2) {
+        if (pos.x < -board.size.width / 2) {
             this.scores[1]++;
             this.checkWin();
             this.resetBall();
-        } else if (pos.x > board.width / 2) {
+        } else if (pos.x > board.size.width / 2) {
             this.scores[0]++;
             this.checkWin();
             this.resetBall();
