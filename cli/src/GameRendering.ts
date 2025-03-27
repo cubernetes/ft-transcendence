@@ -2,13 +2,28 @@ import { Vec2D, ICLIGameState, GameConfig, FieldConfig } from "./game.types";
 import { userOptions } from "./options.js";
 import { audioManager } from "./audio";
 
-let TERM_WIDTH = 160;
-let TERM_HEIGHT = 40;
-let GAME_CONFIG: GameConfig | null = null;
-let FIELD_CONFIG: FieldConfig | null = null;
-let FIELD_BUFFER: string[][] | null = null;
-
 const BALL_TRAIL_LENGTH = 5;
+
+const FG_RED = "\x1b[31m";
+const FG_GREEN = "\x1b[32m";
+const FG_BLUE = "\x1b[34m";
+const FG_CYAN = "\x1b[36m";
+const FG_YELLOW = "\x1b[33m";
+const FG_WHITE = "\x1b[37m";
+const RESET = "\x1b[0m";
+
+// TODO: Optimise coloring (maybe with chalk)
+
+let gameConf: GameConfig | null = null;
+let fieldConf: FieldConfig = {
+    termWid: 160,
+    termHei: 40,
+    scaleX: 0,
+    scaleY: 0,
+    paddleHeight: 0,
+    fieldBuffer: null,
+};
+
 let ballTrail: Vec2D[] = [];
 let renderTick = 0;
 let tickStyle = 0;
@@ -27,24 +42,16 @@ const EDGE_STYLES = [
     { hor: "▃▄▅▆", ver: "⠁" },
 ];
 
-const RESET = "\x1b[0m";
-const FG_RED = "\x1b[31m";
-const FG_GREEN = "\x1b[32m";
-const FG_BLUE = "\x1b[34m";
-const FG_CYAN = "\x1b[36m";
-const FG_YELLOW = "\x1b[33m";
-const FG_WHITE = "\x1b[37m";
-const BG_BLACK = "\x1b[40m";
-
 function color(text: string, fg: string = "", bg: string = ""): string {
     return `${fg}${bg}${text}${RESET}`;
 }
 
 function setTerminalSize(w: number, h: number): void {
-    TERM_WIDTH = w;
-    TERM_HEIGHT = h;
+    fieldConf.termWid = w;
+    fieldConf.termHei = h;
 }
 
+// for now, just set the terminal size based on the resolution
 function applySettings(): void {
     if (userOptions.resolution === "80x20") {
         setTerminalSize(80, 20);
@@ -63,17 +70,16 @@ function applySettings(): void {
 }
 
 function setFieldConfig() {
-    FIELD_CONFIG = {
-        scaleX: TERM_WIDTH / GAME_CONFIG!.BOARD_WIDTH,
-        scaleY: TERM_HEIGHT / GAME_CONFIG!.BOARD_DEPTH,
-        paddleHeight: (GAME_CONFIG!.PADDLE_DEPTH * TERM_HEIGHT) / GAME_CONFIG!.BOARD_DEPTH,
-    };
-    // Initialize the field buffer
-    FIELD_BUFFER = Array.from({ length: TERM_HEIGHT }, () => Array(TERM_WIDTH).fill(" "));
+    fieldConf.scaleX = fieldConf.termWid / gameConf!.BOARD_WIDTH;
+    fieldConf.scaleY = fieldConf.termHei / gameConf!.BOARD_DEPTH;
+    fieldConf.paddleHeight = (gameConf!.PADDLE_DEPTH * fieldConf.termHei) / gameConf!.BOARD_DEPTH;
+    fieldConf.fieldBuffer = Array.from({ length: fieldConf.termHei }, () =>
+        Array(fieldConf.termWid).fill(" ")
+    );
 }
 
 export function setGameConfig(config: GameConfig) {
-    GAME_CONFIG = config;
+    gameConf = config;
     applySettings();
     setFieldConfig();
 }
@@ -116,7 +122,7 @@ function clamp(val: number, min: number, max: number): number {
 }
 
 function clearField() {
-    FIELD_BUFFER?.forEach((row) => row.fill(" "));
+    fieldConf.fieldBuffer?.forEach((row) => row.fill(" "));
 }
 
 const makeChar = (index: number) => {
@@ -127,28 +133,24 @@ const makeChar = (index: number) => {
 
 // Draw ball with clamping handled in a utility function for reusability
 function drawBall(field: string[][], ballPos: Vec2D): void {
+    if (!fieldConf) {
+        throw new Error("Field config not set. Call setGameConfig() before rendering.");
+    }
+    const { scaleX, scaleY, termWid, termHei } = fieldConf;
     for (let i = 0; i < ballTrail.length; i++) {
         const pos = ballTrail[i];
-        const ballX = clamp(
-            Math.round(pos.x * FIELD_CONFIG!.scaleX + TERM_WIDTH / 2 - 1),
-            0,
-            TERM_WIDTH - 1
-        );
-        const ballY = clamp(
-            Math.round(pos.y * FIELD_CONFIG!.scaleY + TERM_HEIGHT / 2 - 1),
-            0,
-            TERM_HEIGHT - 1
-        );
+        const ballX = clamp(Math.round(pos.x * scaleX + termWid / 2 - 1), 0, termWid - 1);
+        const ballY = clamp(Math.round(pos.y * scaleY + termHei / 2 - 1), 0, termHei - 1);
         field[ballY][ballX] = makeChar(i);
     }
 }
 
 export function renderGameState(state: ICLIGameState) {
-    if (!GAME_CONFIG || !FIELD_CONFIG || !FIELD_BUFFER) {
+    if (!gameConf || !fieldConf.fieldBuffer) {
         throw new Error("Game config not set. Call setGameConfig() before rendering.");
     }
     const { ball, paddle1, paddle2, score } = state;
-    const { scaleX, scaleY } = FIELD_CONFIG;
+    const { scaleX, scaleY, termHei, termWid, fieldBuffer } = fieldConf;
 
     if (state.lastCollisionEvents && userOptions.sfx) {
         for (const event of state.lastCollisionEvents) {
@@ -171,17 +173,16 @@ export function renderGameState(state: ICLIGameState) {
         tickStyle = (tickStyle + 1) % 4;
     }
 
-    // Clear the field buffer
     clearField();
 
     // Draw paddles
-    const pad1X = paddle1.x * scaleX + TERM_WIDTH / 2 - 1;
-    const pad2X = paddle2.x * scaleX + TERM_WIDTH / 2 - 1;
-    const padLen = GAME_CONFIG.PADDLE_DEPTH * scaleY;
-    const pad1YMin = paddle1.y * scaleY + TERM_HEIGHT / 2 - padLen / 2;
-    const pad2YMin = paddle2.y * scaleY + TERM_HEIGHT / 2 - padLen / 2;
-    drawPaddle(FIELD_BUFFER, pad1YMin, padLen, pad1X); // Left paddle
-    drawPaddle(FIELD_BUFFER, pad2YMin, padLen, pad2X); // Right paddle
+    const pad1X = paddle1.x * scaleX + termWid / 2 - 1;
+    const pad2X = paddle2.x * scaleX + termWid / 2 - 1;
+    const padLen = gameConf.PADDLE_DEPTH * scaleY;
+    const pad1YMin = paddle1.y * scaleY + termHei / 2 - padLen / 2;
+    const pad2YMin = paddle2.y * scaleY + termHei / 2 - padLen / 2;
+    drawPaddle(fieldBuffer, pad1YMin, padLen, pad1X); // Left paddle
+    drawPaddle(fieldBuffer, pad2YMin, padLen, pad2X); // Right paddle
 
     ballTrail.push({ ...ball }); // Clone the vector
     if (ballTrail.length > BALL_TRAIL_LENGTH) {
@@ -189,27 +190,14 @@ export function renderGameState(state: ICLIGameState) {
     }
 
     // Draw ball
-    drawBall(FIELD_BUFFER, ball);
+    drawBall(fieldBuffer, ball);
 
     const corners = CORNER_STYLES[tickStyle];
     const edges = EDGE_STYLES[tickStyle];
 
     // Print all the elements
-    const border = `${corners.tl}${edges.hor.repeat(TERM_WIDTH / 4)}${corners.tr}`;
-    const bottomBorder = `${corners.bl}${edges.hor.repeat(TERM_WIDTH / 4)}${corners.br}`;
-
-    // console.clear();
-    // console.log(
-    //     color(`Score:`, FG_CYAN),
-    //     color(` Player 1 - ${score.player1} `, FG_GREEN),
-    //     ":",
-    //     color(` ${score.player2} - Player 2 `, FG_YELLOW)
-    // );
-    // console.log(border);
-    // for (const row of FIELD_BUFFER) {
-    //     console.log(`|${row.join("")}|`);
-    // }
-    // console.log(bottomBorder);
+    const border = `${corners.tl}${edges.hor.repeat(termWid / 4)}${corners.tr}`;
+    const bottomBorder = `${corners.bl}${edges.hor.repeat(termWid / 4)}${corners.br}`;
 
     let frameBuffer = ""; // Store the frame
 
@@ -220,7 +208,7 @@ export function renderGameState(state: ICLIGameState) {
     frameBuffer += border + "\n";
 
     // frameBuffer += "\x1b[43m"; // Set background color to green
-    for (const row of FIELD_BUFFER) {
+    for (const row of fieldBuffer) {
         frameBuffer += `${edges.ver}${row.join("")}${edges.ver}\n`;
     }
     // frameBuffer += RESET; // Reset background
@@ -239,22 +227,3 @@ export function renderGameState(state: ICLIGameState) {
 // Characters to use ╭ ╮ ╰╯ ◯ ◉ 🔴 ⬤
 // █ ▄ ▀
 // ▖ ▗ ▘ ▝
-
-// export interface ICollisionEvent {
-//     type: "paddle" | "wall" | "score";
-//     timestamp: number;
-// }
-
-// export interface ICLIGameState {
-//     score: { player1: number; player2: number };
-//     ball: Vec2D;
-//     paddle1: Vec2D;
-//     paddle2: Vec2D;
-//     gameRunning: boolean;
-//     lastCollisionEvents?: ICollisionEvent[];
-// }
-
-// audioManager.playSoundEffect(string: string): void
-// "paddle_hit"
-// "wall_hit"
-// "score"

@@ -97,6 +97,7 @@ cleandb: clean
 fclean: clean cleandb
 	$(RM) -r backend/node_modules/ backend/dist/ backend/.tap/
 	$(RM) -r frontend/node_modules/ frontend/dist/
+	$(RM) -r cli/node_modules/
 
 .PHONY: deepclean
 deepclean: fclean
