@@ -4,6 +4,7 @@ import { createProfilePage } from "../pages/pages.profile";
 import { createLeaderboardPage } from "../pages/pages.leaderboard";
 import { createLoginPage } from "../pages/pages.login";
 import { createSimulationPage } from "../pages/pages.simulation";
+import { createSetupPage } from "../pages/pages.setup";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {
@@ -13,6 +14,7 @@ export const createRouter = (container: HTMLElement): void => {
         leaderboard: createLeaderboardPage,
         login: createLoginPage,
         simulation: createSimulationPage,
+        setup: createSetupPage,
     };
 
     async function handleRouteChange() {

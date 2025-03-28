@@ -8,7 +8,7 @@ export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const header = await createHeader();
 
     const main = document.createElement("main");
-    main.className = "container mx-auto p-4";
+    main.className = "container mx-auto p-4 font-medieval";
 
     const leaderboardSection = document.createElement("section");
     leaderboardSection.className = "bg-white p-6 rounded-lg shadow-md";
