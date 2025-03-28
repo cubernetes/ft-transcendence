@@ -48,7 +48,7 @@ export class SceneSetup {
     }> {
         const audioEngine = await CreateAudioEngineAsync();
         await audioEngine.unlock();
-        await audioEngine.createMainBusAsync("mainBus", { volume: 0.5 });
+        await audioEngine.createMainBusAsync("mainBus", { volume: 1.0 });
 
         const bgMusic = await CreateStreamingSoundAsync(
             "bgMusic",
@@ -56,7 +56,7 @@ export class SceneSetup {
             {
                 loop: true,
                 autoplay: true,
-                volume: 0.5,
+                volume: 0.4,
             },
             audioEngine
         );

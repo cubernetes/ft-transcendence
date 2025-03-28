@@ -13,6 +13,7 @@ export class WebSocketManager {
 
     setupSocketHandlers() {
         this.socket.onmessage = (event) => {
+            // console.log("Message received from server:", event.data);
             this.gameStateManager.updateGameObjects(event.data);
         };
 
