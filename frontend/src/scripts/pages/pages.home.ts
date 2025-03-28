@@ -26,12 +26,12 @@ export const createHomePage = async (): Promise<HTMLElement> => {
     hero.className = "absolute top-0 left-0 w-full h-full flex flex-col p-8 rounded-lg text-center";
 
     // const heroTitle = document.createElement("h1");
-    // heroTitle.className = "text-6xl font-bold mb-10 text-red-20 font-creepster";
+    // heroTitle.className = "text-6xl font-bold mb-10 text-red-20 font-medieval";
     // heroTitle.textContent = "Transcend!";
 
     const ctaButton = document.createElement("a");
     ctaButton.className =
-        "absolute cursor-pointer font-creepster top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 \
+        "absolute cursor-pointer font-medieval top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 \
         text-white text-center rounded-full border-2 border-red-600 hover:border-red-400 transition-all \
         duration-300 ease-in-out transform hover:scale-105 w-[100px] h-[100px] leading-[100px] cursor-pointer";
     ctaButton.textContent = "Play";

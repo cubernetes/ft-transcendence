@@ -1,8 +1,8 @@
-import { showUserStatus } from "./components.login";
+import { showUserStatus } from "./components.loginStatus";
 
 export const createHeader = async (): Promise<HTMLElement> => {
     const header = document.createElement("header");
-    header.className = "bg-blue-500 p-4 text-white justify-between items-center";
+    header.className = "bg-red-500 p-4 text-white justify-between items-center font-medieval";
 
     const title = document.createElement("h1");
     const a = document.createElement("a");
@@ -17,7 +17,7 @@ export const createHeader = async (): Promise<HTMLElement> => {
     const navList = document.createElement("ul");
     navList.className = "flex space-x-4";
 
-    const navItems = ["Home", "Game", "Leaderboard", "Profile", "Login", "Simulation"];
+    const navItems = ["Setup", "Game", "Leaderboard", "Profile", "Login", "Simulation"];
     navItems.forEach((item) => {
         const li = document.createElement("li");
         const link = document.createElement("a");

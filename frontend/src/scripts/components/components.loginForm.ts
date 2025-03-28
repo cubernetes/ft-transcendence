@@ -9,7 +9,7 @@ export type AuthFormData = {
 };
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
-    wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3 font-creepster";
+    wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3 font-medieval";
 
     const toggleContainer = document.createElement("div");
     toggleContainer.className = "flex justify-center mb-4";
