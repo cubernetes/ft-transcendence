@@ -317,7 +317,7 @@ populate_kv_secrets () {
 		# `vault kv put' can also read json from stdin
 		debug "KV put command output: %s" "$(printf %s "$json" | vault kv put -format=json -mount="$vault_kv_store_path" "$service" - | jq --compact-output --color-output)"
 	done <<-EOF
-	$(/replace_json_templates.py "$vault_env_json" | jq -r 'to_entries[]|.key+";"+(.value|tostring)')
+	$(/replace_json_templates.py "$vault_env_json" | jq --raw-output 'to_entries[]|.key+";"+(.value|tostring)')
 	EOF
 }
 
@@ -357,9 +357,9 @@ create_policies () {
 
 	while read -r service; do
 		info "Creating new policy for service \033\133;93m%s\033\133m from file \033\133;93m%s\033\133m" "$service" "/vault/policies/${service}.hcl"
-		1>/dev/null vault policy write "$service" "/vault/policies/${service}.hcl" || die "Failed to create policy for service '$service'"
+		1>/dev/null vault policy write "$service" "/vault/policies/${service}.hcl" || die "Failed to create policy for service \033\133;93m%s\033\133m" "$service"
 	done <<-EOF
-	$(<"$vault_env_json" jq -r 'to_entries[].key')
+	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
 	EOF
 }
 
@@ -370,7 +370,7 @@ create_and_share_client_tokens () {
 		info "Creating new client token for service \033\133;93m%s\033\133m and policy \033\133;93m%s\033\133m" "$service" "$service" # TODO: Change from default to an actual policy
 		vault token create -policy="$service" -format=json | jq -r .auth.client_token > "$token_exchange_dir/${service}_vault_token"
 	done <<-EOF
-	$(<"$vault_env_json" jq -r 'to_entries[].key')
+	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
 	EOF
 }
 
@@ -391,7 +391,7 @@ main () {
 
 		start_server_in_bg
 		wait_and_extract_secrets
-		show_secrets # TODO: Maybe remove? IDK
+		show_secrets
 		maybe_save_secrets
 		export_environment
 		ensure_unsealed
@@ -401,7 +401,7 @@ main () {
 		revoke_all_client_tokens
 		create_policies
 		create_and_share_client_tokens
-		#shutdown_server # Only for debugging
+		#shutdown_server # For debugging
 	fi
 	echo 1 > /tmp/vault_started
 	tail -F "$vault_stdout_file" "$vault_stderr_file"
