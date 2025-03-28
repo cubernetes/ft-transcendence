@@ -1,6 +1,6 @@
 import { createHeader } from "../components/components.header";
 import { createFooter } from "../components/components.footer";
-import { showUserLogin, showUserStatus } from "../components/components.login";
+import { showUserLogin, showUserStatus } from "../components/components.loginStatus";
 import { createLoginForm } from "../components/components.loginForm";
 
 export const createHomePage = async (): Promise<HTMLElement> => {
@@ -25,23 +25,27 @@ export const createHomePage = async (): Promise<HTMLElement> => {
     const hero = document.createElement("div");
     hero.className = "absolute top-0 left-0 w-full h-full flex flex-col p-8 rounded-lg text-center";
 
-    const heroTitle = document.createElement("h1");
-    heroTitle.className = "text-6xl font-bold mb-10 text-white font-creepster";
-    heroTitle.textContent = "Transcend!";
+    // const heroTitle = document.createElement("h1");
+    // heroTitle.className = "text-6xl font-bold mb-10 text-red-20 font-creepster";
+    // heroTitle.textContent = "Transcend!";
 
     const ctaButton = document.createElement("a");
     ctaButton.className =
-        "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center rounded-full border-2 border-blue-600 hover:border-blue-400 transition-all duration-300 ease-in-out transform hover:scale-105";
+        "absolute cursor-pointer font-creepster top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 \
+        text-white text-center rounded-full border-2 border-red-600 hover:border-red-400 transition-all \
+        duration-300 ease-in-out transform hover:scale-105 w-[100px] h-[100px] leading-[100px] cursor-pointer";
     ctaButton.textContent = "Play";
-    ctaButton.style.width = "100px"; // Set a fixed width (same as height for circle)
-    ctaButton.style.height = "100px"; // Set a fixed height (same as width for circle)
-    ctaButton.style.lineHeight = "100px"; // Vertically center text inside the circle
     ctaButton.onclick = async () => {
-        const loginForm = await createLoginForm();
+        const loginForm = await createLoginForm(ctaButton);
+        mainMusic.play();
         ctaButton.replaceWith(loginForm);
     };
 
-    hero.appendChild(heroTitle);
+    const mainMusic = new Audio("/assets/audio/main.mp3");
+    mainMusic.loop = true;
+    mainMusic.volume = 0.1;
+
+    // hero.appendChild(heroTitle);
     hero.appendChild(ctaButton);
     main.appendChild(video);
     main.appendChild(overlay);

@@ -2,13 +2,8 @@
 /*@import "tailwindcss";*/
 
 /* For tailwindcss v3 */
+@import url("https://fonts.googleapis.com/css2?family=Creepster&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@font-face {
-    font-family: "Creepster-Regular";
-    src: url("public/assets/Creepster-Regular.ttf`") format("truetype");
-    font-weight: normal;
-    font-style: normal;
-}

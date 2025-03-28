@@ -65,7 +65,8 @@ export const showUserStatus = async (container: HTMLElement) => {
 
     // Create status wrapper
     const statusWrapper = document.createElement("div");
-    statusWrapper.className = "flex items-center justify-between bg-gray-100 rounded p-2 shadow-sm";
+    statusWrapper.className =
+        "absolute items-center justify-between bg-gray-100 rounded p-2 shadow-sm right-4 top-4";
 
     // User display name
     const userNameEl = document.createElement("span");

@@ -4,15 +4,15 @@ export type AuthFormData = {
     displayName?: string;
     confirmPassword?: string;
 };
-export const createLoginForm = async (): Promise<HTMLElement> => {
+export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
-    wrapper.className = "max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg";
+    wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3 font-creepster";
 
     const toggleContainer = document.createElement("div");
     toggleContainer.className = "flex justify-center mb-4";
 
     const loginBtn = document.createElement("button");
-    loginBtn.className = "px-4 py-2 bg-blue-500 text-white rounded-l-md";
+    loginBtn.className = "px-4 py-2 bg-red-500 text-white rounded-l-md";
     loginBtn.textContent = "Login";
 
     const registerBtn = document.createElement("button");
@@ -20,6 +20,10 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
     registerBtn.textContent = "Register";
 
     toggleContainer.append(loginBtn, registerBtn);
+
+    const exitButton = document.createElement("button");
+    exitButton.innerHTML = "&times;";
+    exitButton.className = "absolute top-2 right-6 text-red-600 text-2xl font-bold cursor-pointer";
 
     const authForm = document.createElement("form");
     authForm.className = "space-y-4";
@@ -60,7 +64,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
 
     const submitBtn = document.createElement("button");
     submitBtn.type = "submit";
-    submitBtn.className = "w-full p-2 bg-blue-500 text-white rounded";
+    submitBtn.className = "w-full p-2 bg-red-500 text-white rounded";
     submitBtn.textContent = "Login";
 
     const showError = (message: string) => {
@@ -93,15 +97,19 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
 
     const updateToggleButtons = () => {
         if (mode === "login") {
-            loginBtn.className = "px-4 py-2 bg-blue-500 text-white rounded-l-md";
+            loginBtn.className = "px-4 py-2 bg-red-500 text-white rounded-l-md";
             registerBtn.className = "px-4 py-2 bg-gray-300 rounded-r-md";
             submitBtn.textContent = "Login";
         } else {
-            registerBtn.className = "px-4 py-2 bg-blue-500 text-white rounded-r-md";
+            registerBtn.className = "px-4 py-2 bg-red-500 text-white rounded-r-md";
             loginBtn.className = "px-4 py-2 bg-gray-300 rounded-l-md";
             submitBtn.textContent = "Register";
         }
     };
+
+    exitButton.addEventListener("click", () => {
+        wrapper.replaceWith(ctaButton);
+    });
 
     loginBtn.addEventListener("click", () => {
         mode = "login";
@@ -135,7 +143,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
             }
 
             localStorage.setItem("token", result.data.token); // Store JWT
-            window.location.href = "/"; // Redirect to home page
+            window.location.href = "/#setup"; // Redirect to home page
         } catch (error) {
             // Handle fetch errors or thrown errors
             throw error;
@@ -160,7 +168,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
         }
 
         localStorage.setItem("token", result.data.token); // Store JWT
-        window.location.href = "/"; // Redirect to home page
+        window.location.href = "/#setup"; // Redirect to home page
     };
 
     authForm.addEventListener("submit", async (e) => {
@@ -186,7 +194,7 @@ export const createLoginForm = async (): Promise<HTMLElement> => {
         }
     });
 
-    wrapper.append(toggleContainer, authForm);
+    wrapper.append(exitButton, toggleContainer, authForm);
 
     return wrapper;
 };
