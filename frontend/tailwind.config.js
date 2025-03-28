@@ -3,7 +3,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                creepster: ["Creepster"],
+                medieval: ["MedievalSharp"],
             },
         },
     },
