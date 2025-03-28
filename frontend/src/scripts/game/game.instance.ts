@@ -42,6 +42,7 @@ export class GameInstance {
 
         SceneSetup.setupScene(this.scene);
     }
+
     // Static async initialization method
     public static async getInstance(canvas: HTMLCanvasElement): Promise<GameInstance> {
         if (!GameInstance.instance) {
@@ -73,6 +74,8 @@ export class GameInstance {
     }
 
     private setupRenderLoop() {
+        this.webSocketManager.setupSocketHandlers();
+
         this.engine.runRenderLoop(() => {
             this.scene.render();
         });

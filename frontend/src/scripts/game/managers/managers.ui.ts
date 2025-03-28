@@ -34,8 +34,8 @@ export class GameUIManager {
         });
     }
 
-    initGame() {
-        this.gameInstance = GameInstance.getInstance(this.gameSection);
+    async initGame() {
+        this.gameInstance = await GameInstance.getInstance(this.gameSection);
         if (!this.gameInstance) {
             console.error("Game instance not found");
             return;
