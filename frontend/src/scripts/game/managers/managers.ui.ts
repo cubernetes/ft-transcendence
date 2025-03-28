@@ -23,8 +23,6 @@ export class GameUIManager {
         this.container.appendChild(this.gameSection);
 
         this.setupEventListeners();
-
-        this.initGame();
     }
 
     setupEventListeners() {
@@ -43,20 +41,6 @@ export class GameUIManager {
         this.gameInstance.getWebSocketManager().setupSocketHandlers();
         this.setupKeyboardControls();
     }
-
-    // setupEventListeners() {
-    //     this.playButton?.addEventListener("click", () => {
-    //         this.playButton?.remove();
-    //         // this.webSocketManager.startGame();
-    //         // this.audioManager.playSound("background");
-    //         // this.setGame();
-    //     });
-
-    //     this.container?.addEventListener("destroy", () => {
-    //         // this.audioManager.stopAllSounds();
-    //         //TODO: Add additional functionality when window is closed such as websockets closing?
-    //     });
-    // }
 
     setupKeyboardControls() {
         document.addEventListener("keydown", (event) => {
