@@ -363,12 +363,36 @@ create_policies () {
 	EOF
 }
 
+create_token_role () {
+	ensure_env_json
+
+	while read -r service; do
+		info "Determining IP for service \033\133;93m%s\033\133m" "$service"
+		allowed_ip=$({ timeout 0.3 ping -q4 -s0 -w1 -W1 -c1 backend | grep -o '\([[:digit:]]\+\.\)\{3\}[[:digit:]]\+' | head -n 1; } 2>/dev/null)
+		[ -n "$allowed_ip" ] || die "Failed to resolve domain \033\133;93m%s\033\133m to an IP address" "$service"
+
+		info "Creating new role for service \033\133;93m%s\033\133m" "$service"
+		1>/dev/null vault write auth/token/roles/"$service" \
+			allowed_entity_aliases="$service"               \
+			allowed_policies="$service"                     \
+			orphan=true                                     \
+			renewable=false                                 \
+			role_name="$service"                            \
+			token_bound_cidrs=$allowed_ip/32                \
+			token_explicit_max_ttls=30s                     \
+			token_no_default_policy=true                    \
+			token_num_uses=1
+	done <<-EOF
+	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
+	EOF
+}
+
 create_and_share_client_tokens () {
 	ensure_env_json
 
 	while read -r service; do
-		info "Creating new client token for service \033\133;93m%s\033\133m and policy \033\133;93m%s\033\133m" "$service" "$service" # TODO: Change from default to an actual policy
-		vault token create -policy="$service" -format=json | jq -r .auth.client_token > "$token_exchange_dir/${service}_vault_token"
+		info "Creating new client token for service \033\133;93m%s\033\133m with role \033\133;93m%s\033\133m and with policy \033\133;93m%s\033\133m" "$service" "$service" "$service"
+		vault token create -role="$service" -policy="$service" -format=json | jq --raw-output '.auth.client_token' > "$token_exchange_dir/${service}_vault_token"
 	done <<-EOF
 	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
 	EOF
@@ -400,6 +424,7 @@ main () {
 
 		revoke_all_client_tokens
 		create_policies
+		create_token_role
 		create_and_share_client_tokens
 		#shutdown_server # For debugging
 	fi
