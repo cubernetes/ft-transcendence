@@ -10,8 +10,14 @@ export const createLoginPage = async (): Promise<HTMLElement> => {
     const main = document.createElement("main");
     main.className = "container mx-auto p-4";
 
-    const loginForm = await createLoginForm();
-    main.appendChild(loginForm);
+    const loginButton = document.createElement("button");
+    loginButton.className = "px-4 py-2 bg-blue-500 text-white rounded";
+    loginButton.textContent = "Login";
+    loginButton.onclick = async () => {
+        const loginForm = await createLoginForm(loginButton);
+        loginButton.replaceWith(loginForm);
+    };
+    main.appendChild(loginButton);
 
     const footer = createFooter();
 
