@@ -1,11 +1,10 @@
 import { logger } from "../../utils/logger";
 import { Direction } from "../game.types";
 import { GameStateManager } from "./managers.state";
-import { Scene } from "@babylonjs/core";
 
 export class WebSocketManager {
     socket: WebSocket;
-    lastDirection: Direction = "stop";
+    lastDirection: string = "stop";
 
     constructor(private gameStateManager: GameStateManager) {
         this.socket = new WebSocket("/ws");
@@ -13,6 +12,10 @@ export class WebSocketManager {
     }
 
     setupSocketHandlers() {
+        this.socket.onmessage = (event) => {
+            this.gameStateManager.updateGameObjects(event.data);
+        };
+
         this.socket.onopen = () => {
             logger.info("WebSocket connection established.");
         };
@@ -42,11 +45,5 @@ export class WebSocketManager {
             this.socket.send(`move ${direction}`);
             this.lastDirection = direction;
         }
-    }
-
-    setupMessageHandler(scene: Scene) {
-        this.socket.onmessage = (event) => {
-            this.gameStateManager.updateGameObjects(event.data, scene);
-        };
     }
 }

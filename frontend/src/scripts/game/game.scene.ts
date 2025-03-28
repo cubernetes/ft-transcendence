@@ -9,9 +9,12 @@ import {
     Color3,
     CreateAudioEngineAsync,
     CreateStreamingSoundAsync,
+    StaticSound,
+    StreamingSound,
+    AudioEngineV2,
     CreateSoundAsync,
 } from "@babylonjs/core";
-// import * as BABYLON from "@babylonjs/core";
+
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
 import { ASSETS_DIR } from "../config";
 
@@ -39,12 +42,15 @@ export class SceneSetup {
     }
 
     // TODO: Check if audioEngine works like this
-    static async createAudioEngine(scene: Scene): Promise<void> {
+    static async createAudio(): Promise<{
+        audioEngine: AudioEngineV2;
+        bgMusic: StreamingSound;
+    }> {
         const audioEngine = await CreateAudioEngineAsync();
         await audioEngine.unlock();
-        scene.audioEnabled = true;
+        await audioEngine.createMainBusAsync("mainBus", { volume: 0.5 });
 
-        const soundStream = await CreateStreamingSoundAsync(
+        const bgMusic = await CreateStreamingSoundAsync(
             "bgMusic",
             `${ASSETS_DIR}/neon-gaming.mp3`,
             {
@@ -54,10 +60,22 @@ export class SceneSetup {
             },
             audioEngine
         );
-        // soundStream.stop();
-        // (await soundStream).play();
+        return { audioEngine, bgMusic };
+    }
+
+    static async createSounds(): Promise<{
+        hitSound: StaticSound;
+        bounceSound: StaticSound;
+        blopSound: StaticSound;
+    }> {
+        const hitSound = await CreateSoundAsync("hitSound", `${ASSETS_DIR}/hit.mp3`);
+        hitSound.volume = 0.1;
+        const bounceSound = await CreateSoundAsync("bounceSound", `${ASSETS_DIR}/bounce.mp3`);
+        bounceSound.volume = 0.1;
         const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/blop.mp3`);
         blopSound.pitch = 1.5;
+
+        return { hitSound, bounceSound, blopSound };
     }
 
     static createFunctions(scene: Scene): void {
@@ -129,8 +147,7 @@ export class SceneSetup {
         boardMaterial.specularColor = materials.BOARD.specularColor;
         board.material = boardMaterial;
 
-        // Create paddles
-        const paddle1 = MeshBuilder.CreateBox(
+        const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
             {
                 width: objectConfigs.PADDLE_WIDTH,
