@@ -52,7 +52,7 @@ export class SceneSetup {
         await audioEngine.unlock();
         await audioEngine.createMainBusAsync("mainBus", { volume: 1.0 });
 
-        const soundStream = await CreateStreamingSoundAsync(
+        const bgMusic = await CreateStreamingSoundAsync(
             "bgMusic",
             `${ASSETS_DIR}/neon-gaming.mp3`,
             {
