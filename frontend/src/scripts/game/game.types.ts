@@ -1,4 +1,11 @@
-import { Scene, Engine, Mesh, StreamingSound, StaticSound, AudioEngineV2 } from "@babylonjs/core";
+import {
+    Mesh,
+    Engine,
+    Scene,
+    AudioEngine as AudioEngineV2,
+    StreamingSound,
+    StaticSound,
+} from "@babylonjs/core";
 
 // Game state
 export interface IBabylonGameState {
@@ -40,6 +47,4 @@ export interface GameElements {
     paddle1: Mesh;
     paddle2: Mesh;
     ball: Mesh;
-    // scoreText: Mesh;
-    // fontData: any;
 }

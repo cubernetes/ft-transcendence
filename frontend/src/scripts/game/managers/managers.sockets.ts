@@ -1,10 +1,8 @@
-import { Direction } from "../game.types";
 import { GameStateManager } from "./managers.state";
-import { Scene } from "@babylonjs/core";
 
 export class WebSocketManager {
     socket: WebSocket;
-    lastDirection: Direction = "stop";
+    lastDirection: string = "stop";
 
     constructor(private gameStateManager: GameStateManager) {
         this.socket = new WebSocket("/ws");
@@ -12,6 +10,10 @@ export class WebSocketManager {
     }
 
     setupSocketHandlers() {
+        this.socket.onmessage = (event) => {
+            this.gameStateManager.updateGameObjects(event.data);
+        };
+
         this.socket.onopen = () => {
             console.log("WebSocket connection established.");
         };
@@ -35,17 +37,11 @@ export class WebSocketManager {
         }
     }
 
-    sendDirection(direction: Direction) {
+    sendDirection(direction: string) {
         console.log("Sending direction:", direction);
         if (direction !== this.lastDirection && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(`move ${direction}`);
             this.lastDirection = direction;
         }
-    }
-
-    setupMessageHandler(scene: Scene) {
-        this.socket.onmessage = (event) => {
-            this.gameStateManager.updateGameObjects(event.data, scene);
-        };
     }
 }
