@@ -22,7 +22,8 @@ services:
             - "${HTTP_PORT:-8080}:8080"
             - "${HTTPS_PORT:-8443}:8443"
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &caddy_ip 10.42.42.1
         volumes:
             - "caddy_data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
@@ -71,7 +72,8 @@ services:
         container_name: backend
         restart: unless-stopped
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &backend_ip 10.42.42.2
         environment:
             <<: *env-common
             NODE_ENV: ${NODE_ENV:-development}
@@ -100,7 +102,11 @@ services:
         container_name: vault
         restart: unless-stopped
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &vault_ip 10.42.42.42
+        extra_hosts:
+            backend: *backend_ip
+            caddy: *caddy_ip
         cap_add:
             - IPC_LOCK
         volumes:
@@ -142,4 +148,11 @@ volumes:
 
 networks:
     ft-transcendence-net:
+        enable_ipv6: false
         driver: bridge
+        ipam:
+              driver: default
+              config:
+                  - subnet: 10.42.42.0/24
+                    ip_range: 10.42.42.0/24
+                    gateway: 10.42.42.254
