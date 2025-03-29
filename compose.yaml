@@ -151,7 +151,7 @@ services:
             discovery.type: "single-node"
             xpack.security.enabled: "false"
         volumes:
-            - elasticsearch_data:/usr/share/elasticsearch/data
+            - "elasticsearch_data:/usr/share/elasticsearch/data/"
         ports:
             - "9200:9200"
         networks:
@@ -167,8 +167,8 @@ services:
         image: docker.elastic.co/logstash/logstash:8.17.3
         container_name: logstash
         volumes:
-            - ./elk/logstash/pipeline:/usr/share/logstash/pipeline
-            - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+            - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/"
+            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml"
         ports:
             - "5000:5000/tcp"
             - "5000:5000/udp"
