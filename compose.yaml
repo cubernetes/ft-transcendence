@@ -27,7 +27,6 @@ services:
         volumes:
             - "caddy_data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
-            # - "public:/frontend/src/public/:ro"
         environment:
             <<: *env-caddy-backend
             CADDY_EXTRA_GLOBAL_DIRECTIVES: ${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
