@@ -45,17 +45,17 @@ export const devLoggerConfig: PinoLoggerOptions = {
                     ignore: "pid,hostname", // Hides unnecessary fields
                 },
             },
-            // {
-            //     target: "pino-socket",
-            //     level: "info",
-            //     options: {
-            //         mode: "tcp",
-            //         address: process.env.LOGSTASH_HOST || "logstash",
-            //         port: parseInt(process.env.LOGSTASH_PORT || "5000"),
-            //         reconnectTimeout: 1000,
-            //     }
-            // }
-        ],
+            {
+                target: "pino-socket",
+                level: "info",
+                options: {
+                    mode: "tcp",
+                    address: process.env.LOGSTASH_HOST || "logstash",
+                    port: parseInt(process.env.LOGSTASH_PORT || "5000"),
+                    reconnectTimeout: 5000,  // Increased reconnect timeout
+                }
+            }
+        ]
     },
     serializers: { e: formatError, gameState: formatGameState },
 };
@@ -72,17 +72,17 @@ export const prodLoggerConfig: PinoLoggerOptions = {
                     ignore: "pid,hostname", // Hides unnecessary fields
                 },
             },
-            // {
-            //     target: "pino-socket",
-            //     level: "info",
-            //     options: {
-            //         mode: "tcp",
-            //         address: process.env.LOGSTASH_HOST || "logstash",
-            //         port: parseInt(process.env.LOGSTASH_PORT || "5000"),
-            //         reconnectTimeout: 1000,
-            //     },
-            // },
-        ],
+            {
+                target: "pino-socket",
+                level: "info",
+                options: {
+                    mode: "tcp",
+                    address: process.env.LOGSTASH_HOST || "logstash",
+                    port: parseInt(process.env.LOGSTASH_PORT || "5000"),
+                    reconnectTimeout: 5000,
+                }
+            }
+        ]
     },
     serializers: { e: formatError, gameState: formatGameState },
 };
