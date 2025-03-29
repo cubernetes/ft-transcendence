@@ -19,9 +19,9 @@ const dbPlugin = async (app: FastifyInstance) => {
             try {
                 sqlite.close();
                 instance.log.info("SQLite closed");
-            } catch (e) {
+            } catch (error) {
                 // Log error but no need to rethrow
-                instance.log.error({ err: e }, "Error closing SQLite");
+                instance.log.error({ error }, "Error closing SQLite");
             }
         });
 
@@ -31,9 +31,9 @@ const dbPlugin = async (app: FastifyInstance) => {
         await migrate(db, { migrationsFolder: path.join(dbDir, "migrations") });
 
         app.decorate("db", db);
-    } catch (e) {
-        app.log.error({ err: e }, "Fail to initialize database");
-        throw e;
+    } catch (error) {
+        app.log.error({ error }, "Fail to initialize database");
+        throw error;
     }
 };
 

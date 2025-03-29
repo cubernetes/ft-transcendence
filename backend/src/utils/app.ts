@@ -21,20 +21,21 @@ const buildApp = async (opts: FastifyServerOptions): Promise<Result<FastifyInsta
         // Seed database if not in production
         if (process.env.NODE_ENV !== "production") {
             // Error is non-fatal
-            await seed(app).catch((e) => app.log.warn({ err: e }, "Seed failing"));
+            await seed(app).catch((error) => app.log.warn({ error }, "Seed failing"));
         }
 
         return ok(app);
-    } catch (e) {
+    } catch (error) {
+        app.log.error({ error }, "Failed to build server");
+
         // Safely close the server, trigger all onClose hooks
         app.close();
 
-        app.log.error({ err: e }, "Failed to build server");
-        if (e instanceof ZodError) {
-            return err(new Error(e.issues.map((i) => i.message).join("; ")));
+        if (error instanceof ZodError) {
+            return err(new Error(error.issues.map((i) => i.message).join("; ")));
         }
 
-        return err(e as Error);
+        return err(error as Error);
     }
 };
 

@@ -17,7 +17,7 @@ export const readVaultOnce = async (
 
     try {
         res = await req.json();
-    } catch (e) {
+    } catch (error) {
         return err(new Error("invalid JSON response"));
     }
 

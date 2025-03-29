@@ -30,7 +30,7 @@ export const createAuthService = (app: FastifyInstance) => {
         try {
             const payload = jwt.verify(token) as JwtPayload;
             return ok(payload);
-        } catch (e) {
+        } catch (error) {
             return err(new Error("Invalid JWT token"));
         }
     };
