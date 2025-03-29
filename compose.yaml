@@ -155,7 +155,8 @@ services:
         ports:
             - "9200:9200"
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &elasticsearch-ip 10.42.42.3
         restart: unless-stopped
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:9200"]
@@ -176,7 +177,8 @@ services:
         environment:
             LS_JAVA_OPTS: "-Xmx256m -Xms256m"
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &logstash-ip 10.42.42.4
         depends_on:
             - elasticsearch
         restart: unless-stopped
@@ -195,7 +197,8 @@ services:
         environment:
             ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &kibana-ip 10.42.42.5
         depends_on:
             - elasticsearch
         restart: unless-stopped
