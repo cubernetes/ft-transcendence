@@ -4,10 +4,29 @@ import PongEngine from "./pong.engine.ts";
 import { err, ok, Result } from "neverthrow";
 import type { WebSocket } from "fastify";
 import { LocalUserInput, UserInput } from "./pong.types.ts";
-import { LocalGamePayload } from "../ws/ws.types.ts";
+import { LocalGamePayload, OutgoingMessage, OutgoingMessageType } from "../ws/ws.types.ts";
 
 export const createPongService = (_: FastifyInstance) => {
     //const localGameSessions: Map<string, WebSocket> = new Map();
+    const matchmakingQueue: WebSocket[] = []; // socket knows its own userId
+    const remoteGameSessions: Map<string, PongEngine> = new Map();
+
+    const enqueuePlayer = (conn: WebSocket): Result<void, Error> => {
+        matchmakingQueue.push(conn);
+        return ok();
+    };
+
+    const dequeue = (): Result<WebSocket, Error> => {
+        const opponent = matchmakingQueue.shift();
+        if (!opponent) {
+            return err(new Error("No opponent found"));
+        }
+        return ok(opponent);
+    };
+
+    const hasWaitingPlayer = (): boolean => {
+        return matchmakingQueue.length > 0;
+    };
 
     const startLocalGame = (conn: WebSocket, intervalMs: number = 25): Result<void, Error> => {
         //const gameId = uuidv4();
@@ -44,6 +63,33 @@ export const createPongService = (_: FastifyInstance) => {
         return ok();
     };
 
+    const startRemoteGame = (conn: WebSocket): Result<OutgoingMessage, Error> => {
+        if (!hasWaitingPlayer()) {
+            enqueuePlayer(conn);
+            return ok({
+                type: "waiting-for-opponent",
+                payload: null,
+            });
+        }
+
+        // TODO: Check waiting logic, feels a little off potentially if almost simultaneous connection? async properly?
+        const opponent = dequeue();
+        if (opponent.isErr()) {
+            return err(opponent.error);
+        }
+
+        const gameEngine = new PongEngine();
+        const gameId = uuidv4();
+        remoteGameSessions.set(gameId, gameEngine);
+
+        return ok({
+            type: "game-start",
+            payload: {
+                gameId,
+                opponentId: opponent.value.userId,
+            },
+        });
+    };
     // startLocalGame
     // startRemoteGame
     // getGameState
