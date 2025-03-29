@@ -180,7 +180,8 @@ services:
             ft-transcendence-net:
                 ipv4_address: &logstash-ip 10.42.42.4
         depends_on:
-            - elasticsearch
+            elasticsearch:
+              condition: service_healthy
         restart: unless-stopped
         healthcheck:
             test: ["CMD", "curl", "--fail", "http://localhost:9600/_node/stats"]
@@ -200,7 +201,8 @@ services:
             ft-transcendence-net:
                 ipv4_address: &kibana-ip 10.42.42.5
         depends_on:
-            - elasticsearch
+            elasticsearch:
+                condition: service_healthy
         restart: unless-stopped
 
     elasticsearch:
