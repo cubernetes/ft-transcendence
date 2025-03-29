@@ -145,7 +145,7 @@ Let's say your service is called `foo`, then the steps would be the following:
 -    }
 +    },
 +    "foo": {
-+        "SIGNING_SECRET": "{{alpha:32}}"
++        "SIGNING_SECRET": "{{alpha:32}}",
 +        "SOME_PASSWORD": "{{digit:12}}"
 +    }
  }
