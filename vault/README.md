@@ -191,26 +191,46 @@ Let's say your service is called `foo`, then the steps would be the following:
     vault_token=$(cat "/run/secrets/${service}_vault_token")
     vault_addr=http://vault:8200
 
-    export_secret () {
-        secret_name=$1
+    get_all_secrets_as_export_lines () {
+        curl --header "X-Vault-Token: $vault_token" \
+            "$vault_addr/v1/secret/data/$service" |
+            jq --raw-output '
+             .data.data.to_entries[] |
+              "export "
+              + .key
+              + "='\''"
+              + (if .value | type == "string" then
+                  (
+                   .value |
+                    gsub(
+                     "'\''";
+                     "'\''\\'\'''\''"
+                    )
+                  )
+                 else
+                  .value
+                 end
+                )
+              + "'\''"
+            '
 
-        eval $secret_name='$(curl --header "X-Vault-Token: $vault_token" \
-            "$vault_addr/v1/secret/data/$service" \
-            jq --raw-output ".data.data[\"$secret_name\"]")'
-
-        # $secret_name must be a valid variable name
-        export "$secret_name" # shellcheck.net/wiki/SC2155
+        # Example output:
+        #  export SIGNING_SECRET='jhAOOUIEUOghhgsqyBzmbpPItieuqHAc'
+        #  export SOME_PASSWORD='937400011625'
     }
 
-    ### Customization Point 3 ###
-    # Export all secrets for the foo service here
-    export_secret SIGNING_SECRET
-    export_secret SOME_PASSWORD
+    export_lines=$(get_all_secrets_as_export_lines)
+
+    # Print all secrets for logging
+    printf '%s\n' "$export_lines"
+
+    # Export all secrets as environment variables
+    eval "$export_lines"
 
     # Truncate file for good measure
     : > "/run/secrets/${service}_vault_token"
 
-    ### Customization Point 4 ###
+    ### Customization Point 3 ###
     # Don't forget the "$@" at the end to pass arguments!
     exec <same value as 'Entrypoint' key from previous step (watch out for quoting)> "$@"
     # common example: exec tini -- "$@"
