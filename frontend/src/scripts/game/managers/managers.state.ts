@@ -11,45 +11,34 @@ export class GameStateManager {
 
     async updateGameObjects(eventData: string) {
         const gameState: IServerGameState = JSON.parse(eventData);
-        const gameInstance = await GameInstance.getInstance(
+        const instance = await GameInstance.getInstance(
             document.getElementById("renderCanvas") as HTMLCanvasElement
         );
-
         if (!gameState) return;
 
-        this.updateBallPosition(gameState, gameInstance);
-        this.updatePaddlePosition(gameState, gameInstance);
+        const ballPosition = gameState.ballPosition;
+        instance.updateBallPosition(ballPosition.x, ballPosition.y, ballPosition.z);
+
+        const leftPaddlePosition = gameState.paddlePosition["player-1"];
+        const rightPaddlePosition = gameState.paddlePosition["player-2"];
+        instance.updateLeftPaddlePosition(
+            leftPaddlePosition.x,
+            leftPaddlePosition.y,
+            leftPaddlePosition.z
+        );
+        instance.updateRightPaddlePosition(
+            rightPaddlePosition.x,
+            rightPaddlePosition.y,
+            rightPaddlePosition.z
+        );
 
         // this.updateScore(gameState, scene);
-        // this.handleCollisionEvents(gameState);
-    }
-
-    private updateBallPosition(gameState: IServerGameState, gameInstance: GameInstance) {
-        if (gameState.ballPosition && gameInstance.ball) {
-            gameInstance.ball.position.set(
-                gameState.ballPosition.x,
-                gameState.ballPosition.y,
-                gameState.ballPosition.z
-            );
+        if (gameState.score) {
+            instance.updateScore(gameState.score);
         }
-    }
 
-    private updatePaddlePosition(gameState: IServerGameState, gameInstance: GameInstance) {
-        if (gameState.paddlePosition) {
-            if (gameInstance.paddle1) {
-                gameInstance.paddle1.position.set(
-                    gameState.paddlePosition["player-1"].x,
-                    gameState.paddlePosition["player-1"].y,
-                    gameState.paddlePosition["player-1"].z
-                );
-            }
-            if (gameInstance.paddle2) {
-                gameInstance.paddle2.position.set(
-                    gameState.paddlePosition["player-2"].x,
-                    gameState.paddlePosition["player-2"].y,
-                    gameState.paddlePosition["player-2"].z
-                );
-            }
+        if (gameState.collisionEvents && gameState.collisionEvents.length) {
+            instance.handleCollisionEvents(gameState.collisionEvents);
         }
     }
 
@@ -62,15 +51,7 @@ export class GameStateManager {
     //     ) {
     //         return;
     //     }
-
     //     this.state.score = gameState.score;
-
-    //     if (!this.state.fontData)
-    //         this.state.fontData = await (
-    //             await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
-    //         ).json();
-    //     if (this.state.scoreText) this.state.scoreText.dispose();
-
     //     // Create initial score text
     //     const text = CreateText(
     //         "scoreText",
@@ -88,32 +69,5 @@ export class GameStateManager {
     //     this.state.scoreText = text;
     //     this.state.scoreText.position = gameConfig.positions.SCORE;
     //     this.state.scoreText.rotation.x = gameConfig.rotations.SCORE;
-    // }
-
-    // handleCollisionEvents(gameState: IServerGameState) {
-    //     if (!gameState.collisionEvents || gameState.collisionEvents.length === 0) return;
-    //     // Get only new events by comparing timestamps
-    //     const newEvents = gameState.collisionEvents.filter(
-    //         (event: any) =>
-    //             !this.state.lastCollisionEvents.some((e: any) => e.timestamp === event.timestamp)
-    //     );
-
-    //     if (newEvents.length > 0) {
-    //         console.log("New collision events:", newEvents);
-
-    //         // Play sounds for each new event
-    //         newEvents.forEach((event: any) => {
-    //             // if (event.type === "paddle") {
-    //             //     this.audioManager.playSound("bounce");
-    //             // } else if (event.type === "wall") {
-    //             //     this.audioManager.playSound("bounce");
-    //             // } else if (event.type === "score") {
-    //             //     this.audioManager.playSound("hit");
-    //             // }
-    //         });
-
-    //         // Update last collision events
-    //         this.state.lastCollisionEvents = gameState.collisionEvents;
-    //     }
     // }
 }
