@@ -12,6 +12,7 @@
         "test:dev": "npx tap --watch"
     },
     "dependencies": {
+        "@darrenkuro/pong-core": "^1.0.0",
         "@faker-js/faker": "^9.6.0",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
