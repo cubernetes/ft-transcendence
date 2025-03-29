@@ -5,25 +5,39 @@ import fs from "fs";
 import { configSchema } from "./config.schema.ts";
 import { AppConfig } from "./config.types.ts";
 
-export const readVaultSecret = async (vaultToken: string, apiBaseAddr: string, path: string, key: string) => {
-	const apiAddr = `${apiBaseAddr}/v1/${path}`;
-	return fetch(apiAddr, {headers: {"X-Vault-Token": vaultToken}})
-	.then((resp) => resp.json())
-	.then((data) => data.data.data[key]); // wtf
+const readVaultOnce = async (path: string) => {
+	const vaultToken = fs.readFileSync("/run/secrets/backend_vault_token", "utf8");
+
+	const promise = fetch(`http://vault:8200/v1/${path}`, {headers:{"X-Vault-Token": vaultToken}})
+		.then((resp) => {
+			if (!resp.ok) {
+				throw new Error(`Request to vault API was NOT OK:\n${resp.text()}`);
+			}
+			return resp.text();
+		})
+		.then((text) => {
+			try {
+				return JSON.parse(text).data.data;
+			} catch (e) {
+				throw new Error(`Failed to parse JSON response:\n${text}`);
+			}
+		})
+		.catch((e) => {
+			throw new Error(`Request to vault API FAILED:\n${e}`);
+		});
+
+	fs.writeFileSync("/run/secrets/backend_vault_token", ""); // clear, since not needed anymore, but token-max-use should be set to 1 anyways
+
+	return promise;
 }
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (app: FastifyInstance): Promise<void> => {
     // Validate config integrity with zod schema
 
-	let vaultToken = fs.readFileSync("/run/secrets/backend_vault_token", "utf8");
 
-	const rawJwtSecret = await readVaultSecret(vaultToken, "http://vault:8200", "secret/data/backend", "JWT_SECRET"); // maybe pass these as a (vault config) object?
-	/* ... */
-	/* read more secrets from vault if needed */
-
-	fs.writeFileSync("/run/secrets/backend_vault_token", ""); // clear, since not needed anymore
-	vaultToken = undefined;
+	const secrets = await readVaultOnce("secret/data/backend");
+	const rawJwtSecret = secrets.JWT_SECRET;
 
     const parsedEnv = configSchema.parse({...process.env, JWT_SECRET: rawJwtSecret});
 

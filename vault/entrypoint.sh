@@ -299,10 +299,14 @@ setup_kv_secrets_engine () {
 	1>/dev/null vault secrets enable -path="$vault_kv_store_path" kv-v2 || die "Could not enable kv-v2 secrets engine at path '$vault_kv_store_path'"
 }
 
-populate_kv_secrets () {
+ensure_env_json () {
 	test -e "$vault_env_json" || die "File '$vault_env_json' is missing"
 	test -f "$vault_env_json" || die "File '$vault_env_json' is not a regular file"
 	test -r "$vault_env_json" || die "File '$vault_env_json' is not readable"
+}
+
+populate_kv_secrets () {
+	ensure_env_json
 
 	info "Populating key-value secret store with values from env.json"
 	while read -r kv_entries; do
@@ -313,13 +317,24 @@ populate_kv_secrets () {
 		# `vault kv put' can also read json from stdin
 		debug "KV put command output: %s" "$(printf %s "$json" | vault kv put -format=json -mount="$vault_kv_store_path" "$service" - | jq --compact-output --color-output)"
 	done <<-EOF
-	$(/replace_json_templates.py "$vault_env_json" | jq -r 'to_entries[]|.key+";"+(.value|tostring)')
+	$(/replace_json_templates.py "$vault_env_json" | jq --raw-output 'to_entries[]|.key+";"+(.value|tostring)')
 	EOF
 }
 
 revoke_all_client_tokens () {
-	info "Revoking all client tokens"
-	# TODO: Implement
+	info "Revoking all client (non-root) tokens"
+	while read -r accessor; do
+		display_name=$(vault token lookup -format=json -accessor "$accessor" | jq '.data.display_name')
+		policies=$(vault token lookup -format=json -accessor "$accessor" | jq '.data.policies[]' | xargs | tr ' ' ',')
+		if ! vault token lookup -format=json -accessor "$accessor" | jq --exit-status '.data.policies | index("root")' 1>/dev/null; then
+			info "Token with name $display_name and policies '$policies' is not a root token, revoking it"
+			1>/dev/null vault token revoke -accessor "$accessor"
+		else
+			info "Token with name $display_name and policies '$policies' is a root token, not revoking it"
+		fi
+	done <<-EOF
+	$(vault list -format=json auth/token/accessors | jq --raw-output '.[]')
+	EOF
 }
 
 get_or_recover_vault_secrets () {
@@ -337,16 +352,49 @@ get_or_recover_vault_secrets () {
 	fi
 }
 
-create_and_share_client_tokens () {
-	test -e "$vault_env_json" || die "File '$vault_env_json' is missing"
-	test -f "$vault_env_json" || die "File '$vault_env_json' is not a regular file"
-	test -r "$vault_env_json" || die "File '$vault_env_json' is not readable"
+create_policies () {
+	ensure_env_json
 
 	while read -r service; do
-		info "Creating new client token for service \033\133;93m%s\033\133m and policy \033\133;93m%s\033\133m" "$service" "root" # TODO: Change from default to an actual policy
-		vault token create -policy=root -format=json | jq -r .auth.client_token > "$token_exchange_dir/${service}_vault_token"
+		info "Creating new policy for service \033\133;93m%s\033\133m from file \033\133;93m%s\033\133m" "$service" "/vault/policies/${service}.hcl"
+		1>/dev/null vault policy write "$service" "/vault/policies/${service}.hcl" || die "Failed to create policy for service \033\133;93m%s\033\133m" "$service"
 	done <<-EOF
-	$(<"$vault_env_json" jq -r 'to_entries[].key')
+	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
+	EOF
+}
+
+create_token_role () {
+	ensure_env_json
+
+	while read -r service; do
+		info "Determining IP for service \033\133;93m%s\033\133m" "$service"
+		allowed_ip=$({ timeout 0.3 ping -q4 -s0 -w1 -W1 -c1 backend | grep -o '\([[:digit:]]\+\.\)\{3\}[[:digit:]]\+' | head -n 1; } 2>/dev/null)
+		[ -n "$allowed_ip" ] || die "Failed to resolve domain \033\133;93m%s\033\133m to an IP address" "$service"
+
+		info "Creating new role for service \033\133;93m%s\033\133m" "$service"
+		1>/dev/null vault write auth/token/roles/"$service" \
+			allowed_entity_aliases="$service"               \
+			allowed_policies="$service"                     \
+			orphan=true                                     \
+			renewable=false                                 \
+			role_name="$service"                            \
+			token_bound_cidrs=$allowed_ip/32                \
+			token_explicit_max_ttls=30s                     \
+			token_no_default_policy=true                    \
+			token_num_uses=1
+	done <<-EOF
+	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
+	EOF
+}
+
+create_and_share_client_tokens () {
+	ensure_env_json
+
+	while read -r service; do
+		info "Creating new client token for service \033\133;93m%s\033\133m with role \033\133;93m%s\033\133m and with policy \033\133;93m%s\033\133m" "$service" "$service" "$service"
+		vault token create -role="$service" -policy="$service" -format=json | jq --raw-output '.auth.client_token' > "$token_exchange_dir/${service}_vault_token"
+	done <<-EOF
+	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
 	EOF
 }
 
@@ -362,15 +410,12 @@ main () {
 		ensure_unsealed
 		revoke_all_client_tokens
 		create_and_share_client_tokens
-
-		echo 1 > /tmp/vault_started
-		tail -F "$vault_stdout_file" "$vault_stderr_file"
 	else
 		info "Vault storage backend is empty. Initializing vault"
 
 		start_server_in_bg
 		wait_and_extract_secrets
-		show_secrets # TODO: Maybe remove? IDK
+		show_secrets
 		maybe_save_secrets
 		export_environment
 		ensure_unsealed
@@ -378,12 +423,13 @@ main () {
 		populate_kv_secrets
 
 		revoke_all_client_tokens
+		create_policies
+		create_token_role
 		create_and_share_client_tokens
-		#shutdown_server # Only for debugging
-
-		echo 1 > /tmp/vault_started
-		tail -F "$vault_stdout_file" "$vault_stderr_file"
+		#shutdown_server # For debugging
 	fi
+	echo 1 > /tmp/vault_started
+	tail -F "$vault_stdout_file" "$vault_stderr_file"
 }
 
 main "$@"
