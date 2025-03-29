@@ -184,6 +184,7 @@ services:
             - "vault_secret:/vault/secret/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
+            <<: *watch-common
             LOGLEVEL: "debug"
             SAVE_UNSEAL_KEYS: "1"
             SAVE_ROOT_TOKEN: "1"
