@@ -9,4 +9,4 @@ const apiPlugin = async (app: FastifyInstance) => {
     }
 };
 
-export default fp(apiPlugin, { name: "api-plugin" });
+export default fp(apiPlugin, { name: "api-plugin", dependencies: ["config-plugin"] });
