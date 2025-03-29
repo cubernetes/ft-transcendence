@@ -1,6 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { CreateGameDTO, GameIdDTO } from "./game.types.ts";
-import { GAME_CONSTANTS } from "./game.engine.ts";
 
 export const createGameHandler = async (
     { body }: { body: CreateGameDTO },
@@ -48,14 +47,5 @@ export const getAllGamesHandler = async (req: FastifyRequest, reply: FastifyRepl
     } catch (e) {
         req.log.error({ err: e }, "Failed to get all games");
         return reply.code(500).send({ error: "Internal server error" });
-    }
-};
-
-export const getGameConfigHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    try {
-        return reply.send({ success: true, data: GAME_CONSTANTS });
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to get game config");
-        return reply.code(500).send({ success: false, error: "Internal server error" });
     }
 };
