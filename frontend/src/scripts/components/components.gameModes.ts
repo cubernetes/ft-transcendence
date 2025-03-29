@@ -1,7 +1,7 @@
-export const createGameModes = async (): Promise<HTMLElement> => {
+export const createGameModes = (): HTMLElement => {
     const setupSection = document.createElement("section");
     setupSection.className =
-        "bg-gray-300 p-8 rounded-lg shadow-md w-1/2 mx-auto justify-center items-center mt-16 mb-16";
+        "bg-gray-300 p-8 rounded-lg shadow-md w-1/2 mx-auto justify-center items-center shaded";
 
     const setupTitle = document.createElement("h2");
     setupTitle.className = "text-6xl font-bold mb-4 text-center text-white items-center";
@@ -14,20 +14,21 @@ export const createGameModes = async (): Promise<HTMLElement> => {
     gameModes.className = "flex flex-row space-x-4 justify-between items-center mt-4";
 
     const localButton = document.createElement("button");
-    localButton.className = "w-80 p-2 bg-gray-100 text-black rounded text-xl hover:bg-gray-300";
+    localButton.className = "w-80 p-2 bg-gray-100 text-black rounded text-xl hover:bg-gray-400";
     localButton.textContent = "Local";
 
     const onlineButton = document.createElement("button");
-    onlineButton.className = "w-80 p-2 bg-gray-100 text-black rounded text-xl hover:bg-gray-300";
+    onlineButton.className = "w-80 p-2 bg-gray-100 text-black rounded text-xl hover:bg-gray-400";
     onlineButton.textContent = "Online";
 
     const aiButton = document.createElement("button");
-    aiButton.className = "w-80 p-2 bg-gray-100 text-black rounded text-xl hover:bg-gray-300";
+    aiButton.className = "w-80 p-2 bg-gray-100 text-black rounded text-xl hover:bg-gray-400";
     aiButton.textContent = "AI";
 
     // Create a container for the tournament button
     const tournamentButton = document.createElement("button");
-    tournamentButton.className = "w-full p-2 bg-gray-100 text-black rounded text-xl mt-4";
+    tournamentButton.className =
+        "w-full p-2 bg-gray-100 text-black rounded text-xl mt-4 hover:bg-gray-400";
 
     // Set the tournament button's text and append it to the section
     tournamentButton.textContent = "Tournament Mode";
