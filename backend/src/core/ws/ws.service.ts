@@ -3,7 +3,7 @@ import { MessageHandler } from "./ws.types.ts";
 import { IncomingMessageType, OutgoingMessage, OutgoingMessageType } from "@darrenkuro/pong-core";
 import { err, ok, Result } from "neverthrow";
 
-export const createWsService = (app: FastifyInstance) => {
+export const createWsService = (_: FastifyInstance) => {
     const connections = new Set<WebSocket>();
     const handlers = new Map<IncomingMessageType, MessageHandler<IncomingMessageType>>();
 
