@@ -1,5 +1,61 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest, WebSocket } from "fastify";
 import { CreateGameDTO, GameIdDTO } from "./game.types.ts";
+import { createPongEngine, IncomingMessagePayloads } from "@darrenkuro/pong-core";
+import { v4 as uuidv4 } from "uuid";
+
+export const handleGameStart =
+    (app: FastifyInstance) =>
+    (conn: WebSocket, payload: IncomingMessagePayloads["game-start"]): void => {
+        const { token } = payload;
+        if (!token) {
+            return app.log.error("Game start message has no token");
+        }
+
+        // if (!userId) {
+        //     return app.log.error("Invalid token");
+        // }
+
+        if (!app.gameService.hasWaitingPlayer()) {
+            if (!app.gameService.hasWaitingPlayer()) {
+                app.gameService.enqueuePlayer(conn);
+                return app.wsService.send(conn, {
+                    type: "waiting-for-opponent",
+                    payload: null,
+                });
+            }
+
+            const opponent = app.gameService.dequeuePlayer();
+            if (opponent.isErr()) {
+                return app.log.error({ err: opponent.error }, "Failed to dequeue player");
+            }
+
+            const gameEngine = createPongEngine();
+            const gameId = uuidv4();
+            app.gameService.gameSessions.set(gameId, gameEngine);
+            app.gameService.gamePlayers.set(gameId, [opponent.value, conn]);
+            gameEngine.start();
+
+            if (!opponent.value.userId || !conn.userId) {
+                return app.log.error("Opponent or connection has no user ID");
+            }
+
+            app.wsService.send(conn, {
+                type: "game-start",
+                payload: {
+                    gameId,
+                    opponentId: opponent.value.userId,
+                },
+            });
+
+            app.wsService.send(opponent.value, {
+                type: "game-start",
+                payload: {
+                    gameId,
+                    opponentId: conn.userId,
+                },
+            });
+        }
+    };
 
 export const createGameHandler = async (
     { body }: { body: CreateGameDTO },

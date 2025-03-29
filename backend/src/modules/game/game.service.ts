@@ -1,10 +1,32 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, WebSocket } from "fastify";
 import { games } from "../../core/db/db.schema.ts";
-import { NewGame, Game } from "./game.types.ts";
+import { NewGame, Game, GameId, PongEngine } from "./game.types.ts";
 import { eq } from "drizzle-orm";
+import { err, ok, Result } from "neverthrow";
+import { createPongEngine } from "@darrenkuro/pong-core";
 
 export const createGameService = (app: FastifyInstance) => {
+    const matchmakingQueue: WebSocket[] = []; // socket knows its own userId
+    const gameSessions: Map<GameId, PongEngine> = new Map();
+    const gamePlayers: Map<GameId, WebSocket[]> = new Map();
     const db = app.db;
+
+    const enqueuePlayer = (conn: WebSocket): Result<void, Error> => {
+        matchmakingQueue.push(conn);
+        return ok();
+    };
+
+    const dequeuePlayer = (): Result<WebSocket, Error> => {
+        const opponent = matchmakingQueue.shift();
+        if (!opponent) {
+            return err(new Error("No opponent found"));
+        }
+        return ok(opponent);
+    };
+
+    const hasWaitingPlayer = (): boolean => {
+        return matchmakingQueue.length > 0;
+    };
 
     const create = async (data: NewGame): Promise<Game | null> =>
         (await db.insert(games).values(data).returning())?.[0] || null;
@@ -26,5 +48,10 @@ export const createGameService = (app: FastifyInstance) => {
         findAll,
         update,
         remove,
+        enqueuePlayer,
+        dequeuePlayer,
+        hasWaitingPlayer,
+        gameSessions,
+        gamePlayers,
     };
 };
