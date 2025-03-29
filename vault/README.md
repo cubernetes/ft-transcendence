@@ -80,7 +80,7 @@ line in `./vault/endpoint.sh` to not print those secrets (then you should set
 ## I need the secret for a particular service, how do I get it?
 
 If `SAVE_ROOT_TOKEN` was `1` and the vault is unsealed and running, you can retrieve
-all secrets for a given `$SERIVCE` using the following command from the docker host:
+all secrets for a given `$SERVICE` using the following command from the docker host:
 
 ```sh
 docker exec vault sh -c '
