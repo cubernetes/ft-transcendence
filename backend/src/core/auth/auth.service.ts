@@ -3,6 +3,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { User } from "../../modules/user/user.types.ts";
 import type { JwtPayload } from "./auth.types.ts";
 import { ApiError } from "../../utils/errors.ts";
+import { err, ok, Result } from "neverthrow";
 
 export const createAuthService = (app: FastifyInstance) => {
     const { jwt } = app;
@@ -25,7 +26,14 @@ export const createAuthService = (app: FastifyInstance) => {
     };
 
     // Figure out if this throws or what
-    const verifyToken = (token: string): JwtPayload => jwt.verify(token) as JwtPayload;
+    const verifyToken = (token: string): Result<JwtPayload, Error> => {
+        try {
+            const payload = jwt.verify(token) as JwtPayload;
+            return ok(payload);
+        } catch (e) {
+            return err(new Error("Invalid JWT token"));
+        }
+    };
 
     const jwtAuth = async (req: FastifyRequest, reply: FastifyReply) => {
         const header = req.headers.authorization;
@@ -39,12 +47,12 @@ export const createAuthService = (app: FastifyInstance) => {
             return error.send(reply);
         }
         const payload = req.server.authService.verifyToken(token);
-        if (!payload || !payload.id || isNaN(Number(payload.id))) {
+        if (payload.isErr() || !payload.value.id || isNaN(Number(payload.value.id))) {
             const error = new ApiError("UNAUTHORIZED", 401, "Invalid or expired token");
             return error.send(reply);
         }
 
-        req.userId = Number(payload.id);
+        req.userId = Number(payload.value.id);
     };
 
     return {
