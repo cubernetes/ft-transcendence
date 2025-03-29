@@ -11,7 +11,6 @@ x-env-common: &env-common
     DOMAINS: ${DOMAINS:-localhost}
 
 x-env-files: &env-files
-    - .env
     - config.env
 
 services:
@@ -23,7 +22,8 @@ services:
             - "${HTTP_PORT:-8080}:8080"
             - "${HTTPS_PORT:-8443}:8443"
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &caddy_ip 10.42.42.1
         volumes:
             - "caddy_data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
@@ -32,6 +32,9 @@ services:
             <<: *env-common
             CADDY_EXTRA_GLOBAL_DIRECTIVES: ${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
             CADDY_EXTRA_SITE_DIRECTIVES: ${CADDY_EXTRA_SITE_DIRECTIVES:-}
+        depends_on:
+            - frontend
+            - backend
         develop:
             watch:
                 - path: "./caddy/Caddyfile"
@@ -69,14 +72,19 @@ services:
         container_name: backend
         restart: unless-stopped
         networks:
-            - ft-transcendence-net
+            ft-transcendence-net:
+                ipv4_address: &backend_ip 10.42.42.2
         environment:
             <<: *env-common
             NODE_ENV: ${NODE_ENV:-development}
             DB_PATH: ${DB_PATH:-}
-            JWT_SECRET: ${JWT_SECRET:-}
         volumes:
             - "drizzle:/backend/drizzle/"
+            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
+        depends_on:
+            vault:
+                restart: true
+                condition: service_healthy
         develop:
             watch:
                 - path: "./backend/"
@@ -89,12 +97,62 @@ services:
                   action: rebuild
                   target: "/backend/esbuild.config.js"
         env_file: *env-files
+    vault:
+        build: "./vault/"
+        container_name: vault
+        restart: unless-stopped
+        networks:
+            ft-transcendence-net:
+                ipv4_address: &vault_ip 10.42.42.42
+        extra_hosts:
+            backend: *backend_ip
+            caddy: *caddy_ip
+        cap_add:
+            - IPC_LOCK
+        volumes:
+            - "vault:/vault/file/"
+            - "vault_secret:/vault/secret/"
+            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
+        environment:
+            LOGLEVEL: debug
+            SAVE_UNSEAL_KEYS: 1
+            SAVE_ROOT_TOKEN: 1
+        tty: true
+        develop:
+            watch:
+                - path: "./vault/entrypoint.sh"
+                  action: sync+restart
+                  target: "/entrypoint.sh"
+                - path: "./vault/replace_json_templates.py"
+                  action: sync+restart
+                  target: "/replace_json_templates.py"
+                - path: "./vault/healthcheck.sh"
+                  action: sync+restart
+                  target: "/healthcheck.sh"
+                - path: "./vault/config.hcl"
+                  action: sync+restart
+                  target: "/vault/config/config.hcl"
+                - path: "./vault/env.json"
+                  action: sync+restart
+                  target: "/vault/config/env.json"
+                - path: "./vault/policies/"
+                  action: sync+restart
+                  target: "/vault/policies/"
 
 volumes:
+    vault:
+    vault_secret:
     caddy_data:
     drizzle:
     frontend:
 
 networks:
     ft-transcendence-net:
+        enable_ipv6: false
         driver: bridge
+        ipam:
+              driver: default
+              config:
+                  - subnet: 10.42.42.0/24
+                    ip_range: 10.42.42.0/24
+                    gateway: 10.42.42.254
