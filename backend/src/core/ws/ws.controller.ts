@@ -18,16 +18,16 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
     conn.on("message", (raw: string) => {
         const msg = safeJsonParse<IncomingMessage<IncomingMessageType>>(raw.toString());
         if (msg.isErr()) {
-            return server.log.error({ e: msg.error }, "Websocket on message failed");
+            return server.log.error("Websocket on message failed to parse JSON");
         }
 
-        const handler = server.wsService.handlers.get(msg.value.type);
+        const handler = server.wsService.getHandler(msg.value.type);
 
-        if (!handler) {
+        if (handler.isErr()) {
             return server.log.error(`Unhandled message type: ${msg.value.type}`);
         }
 
-        handler(conn, msg.value.payload);
+        handler.value(conn, msg.value.payload);
     });
 
     conn.on("close", () => {
