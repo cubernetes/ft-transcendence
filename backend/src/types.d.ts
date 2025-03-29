@@ -1,6 +1,6 @@
 import type { DbClient } from "./core/db/db.plugin.ts";
 import type { AppConfig } from "./core/config/config.plugin.ts";
-import type { createWsService } from "./core/ws/ws.old.service.ts";
+import type { createWsService } from "./core/ws/ws.service.ts";
 import type { createAuthService } from "./core/auth/auth.service.ts";
 import type { createUserService } from "./modules/user/user.service.ts";
 import type { createGameService } from "./modules/game/game.service.ts";
@@ -21,7 +21,6 @@ declare module "fastify" {
         config: AppConfig;
         wsService: ReturnType<typeof createWsService>;
         authService: ReturnType<typeof createAuthService>;
-        pongService: ReturnType<typeof createPongService>;
         userService: ReturnType<typeof createUserService>;
         gameService: ReturnType<typeof createGameService>;
         tournamentService: ReturnType<typeof createTournamentService>;
@@ -40,6 +39,5 @@ declare module "fastify" {
 
     interface WebSocket extends WsWebSocket {
         userId?: number;
-        localGameId?: string;
     }
 }

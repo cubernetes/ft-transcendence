@@ -1,6 +1,6 @@
+import type { Message } from "@darrenkuro/pong-core";
 import type { FastifyRequest } from "fastify";
 import type { WebSocket } from "fastify";
-import type { Message } from "./ws.types.ts";
 
 export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
     const { server } = req;
@@ -8,18 +8,25 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
     conn.on("message", (message: string) => {
         try {
             const { type, payload } = JSON.parse(message) as Message;
+
             const handler = server.wsService.messageHandlers[type];
 
             if (!handler) {
                 return server.log.error(`Unknown message type: ${type}`);
             }
 
-            const result = handler(conn, server, payload);
+            const result = handler(conn, payload);
+
             if (result.isErr()) {
-                server.log.error({ e: result.error }, "Websocket on message failed");
+                return server.log.error({ e: result.error }, "Websocket on message failed");
+                // Do you send back error message via websocket?
             }
+
+            result.value.forEach(([conn, msg]) => {
+                conn.send(JSON.stringify(msg));
+            });
         } catch (e) {
-            server.log.error({ e }, "Websocket on message failed");
+            server.log.error({ e }, "Websocket on message failed"); // This has to be JSON.parse
         }
     });
 
