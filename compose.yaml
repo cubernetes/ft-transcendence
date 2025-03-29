@@ -159,7 +159,7 @@ services:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
         restart: unless-stopped
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9200"]
+            test: ["CMD", "curl", "--fail", "http://localhost:9200"]
             interval: 30s
             timeout: 10s
             retries: 5
@@ -183,7 +183,7 @@ services:
             - elasticsearch
         restart: unless-stopped
         healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9600/_node/stats"]
+            test: ["CMD", "curl", "--fail", "http://localhost:9600/_node/stats"]
             interval: 10s
             timeout: 5s
             retries: 3
