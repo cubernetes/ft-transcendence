@@ -15,6 +15,9 @@ import {
     StaticSound,
     StreamingSound,
     AudioEngineV2,
+    DynamicTexture,
+    Color4,
+    CreateText,
 } from "@babylonjs/core";
 
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
@@ -210,4 +213,8 @@ export class SceneSetup {
 
         return { board, paddle1, paddle2, ball };
     }
+
+    // createScoreText(): Mesh {
+    //     //
+    // }
 }
