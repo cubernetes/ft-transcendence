@@ -1,7 +1,7 @@
-import { createHeader } from "../components/components.header";
-import { createFooter } from "../components/components.footer";
-import { create3DGameSection } from "../game/game.section";
-import { connectBlockchain } from "../components/components.blockchain";
+import { createHeader } from "../../components/components.header";
+import { createFooter } from "../../components/components.footer";
+import { create3DGameSection } from "../../game/game.section";
+import { connectBlockchain } from "../../components/components.blockchain";
 
 export const createGamePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();

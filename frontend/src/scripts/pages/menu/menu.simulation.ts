@@ -1,4 +1,4 @@
-import { createSimulation } from "../components/components.simulation";
+import { createSimulation } from "../../components/components.simulation";
 
 export const createSimulationPage = async (): Promise<HTMLElement> => {
     const page = document.createElement("div");
