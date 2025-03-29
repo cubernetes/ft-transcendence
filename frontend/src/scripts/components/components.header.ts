@@ -17,7 +17,7 @@ export const createHeader = async (): Promise<HTMLElement> => {
     const navList = document.createElement("ul");
     navList.className = "flex space-x-4";
 
-    const navItems = ["Setup", "Game", "Leaderboard", "Profile", "Login", "Simulation"];
+    const navItems = ["Setup", "Game", "Leaderboard", "Profile", "Simulation"];
     navItems.forEach((item) => {
         const li = document.createElement("li");
         const link = document.createElement("a");

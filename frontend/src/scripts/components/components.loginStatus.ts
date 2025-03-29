@@ -1,11 +1,11 @@
 import { authState, UserData } from "./../auth/auth.state";
 
-export const showUserStatus = async (container: HTMLElement) => {
+export const showUserStatus = async (container: HTMLElement): Promise<Boolean> => {
     const loggedUser = authState.getUser();
 
     if (!loggedUser) {
         console.error("No user logged in.");
-        return;
+        return false;
     }
     // Create status wrapper
     const statusWrapper = document.createElement("div");
@@ -32,4 +32,5 @@ export const showUserStatus = async (container: HTMLElement) => {
     statusWrapper.appendChild(userNameEl);
     statusWrapper.appendChild(logoutBtn);
     container.appendChild(statusWrapper);
+    return true;
 };

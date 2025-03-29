@@ -2,6 +2,7 @@ import { createHeader } from "../components/components.header";
 import { createFooter } from "../components/components.footer";
 import { showUserStatus } from "../components/components.loginStatus";
 import { createLoginForm } from "../components/components.loginForm";
+import { checkAccess } from "../auth/auth.utils";
 
 export const createHomePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
@@ -36,8 +37,11 @@ export const createHomePage = async (): Promise<HTMLElement> => {
         duration-300 ease-in-out transform hover:scale-105 w-[100px] h-[100px] leading-[100px]";
     ctaButton.textContent = "Play";
     ctaButton.onclick = async () => {
-        const loginForm = await createLoginForm(ctaButton);
         mainMusic.play();
+        if (checkAccess()) {
+            window.location.href = "#setup";
+        }
+        const loginForm = await createLoginForm(ctaButton);
         ctaButton.replaceWith(loginForm);
     };
 

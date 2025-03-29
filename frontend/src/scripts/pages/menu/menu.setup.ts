@@ -1,10 +1,41 @@
+import { createHeader } from "../../components/components.header";
+import { createFooter } from "../../components/components.footer";
+import { createPaddles } from "../../components/components.paddles";
+import { createLocalMode } from "../../components/gameSetup/gameSetup.local";
+import { createAIMode } from "../../components/gameSetup/gameSetup.ai";
+import { createOnlineMode } from "../../components/gameSetup/gameSetup.online";
+
+export const createSetupPage = async (): Promise<HTMLElement> => {
+    const container = document.createElement("div");
+    container.className = "flex flex-col min-h-screen font-medieval";
+
+    const header = await createHeader();
+    const footer = createFooter();
+
+    const main = document.createElement("main");
+    main.className =
+        "flex-grow flex items-center justify-center bg-gray-100 w-full cursor-[url(assets/pongball.cur)]";
+
+    const setupSection = createGameModes();
+    const paddles = createPaddles(main);
+
+    main.appendChild(paddles);
+    main.appendChild(setupSection);
+
+    container.appendChild(header);
+    container.appendChild(main);
+    container.appendChild(footer);
+
+    return container;
+};
+
 export const createGameModes = (): HTMLElement => {
     const setupSection = document.createElement("section");
     setupSection.className =
         "bg-gray-300 p-8 rounded-lg shadow-md w-1/2 mx-auto justify-center items-center shaded";
 
     const setupTitle = document.createElement("h2");
-    setupTitle.className = "text-6xl font-bold mb-4 text-center text-white items-center";
+    setupTitle.className = "text-6xl font-bold mb-4 text-center text-black items-center";
     setupTitle.textContent = "Choose Game Mode";
 
     const setupLine = document.createElement("hr");
@@ -43,14 +74,17 @@ export const createGameModes = (): HTMLElement => {
 
     localButton.onclick = async () => {
         console.log("Local Game Mode");
+        setupSection.replaceWith(createLocalMode());
     };
 
     onlineButton.onclick = async () => {
         console.log("Online Game Mode");
+        setupSection.replaceWith(createOnlineMode());
     };
 
     aiButton.onclick = async () => {
         console.log("AI Game Mode");
+        setupSection.replaceWith(createAIMode());
     };
 
     tournamentButton.onclick = async () => {

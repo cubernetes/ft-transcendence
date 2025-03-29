@@ -126,54 +126,6 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         updateToggleButtons();
     });
 
-    // const login = async (username: string, password: string) => {
-    //     try {
-    //         const response = await fetch("/api/users/login", {
-    //             method: "POST",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //             },
-    //             body: JSON.stringify({ username, password }),
-    //         });
-
-    //         const result = await response.json();
-
-    //         if (!response.ok) {
-    //             // Show different messages for different error codes
-    //             console.log(response);
-    //             showError(result.message || "Login failed");
-    //             return;
-    //         }
-
-    //         localStorage.setItem("token", result.data.token); // Store JWT
-    //         window.location.href = "/#setup"; // Redirect to home page
-    //     } catch (error) {
-    //         // Handle fetch errors or thrown errors
-    //         throw error;
-    //     }
-    // };
-
-    // const register = async (data: AuthFormData) => {
-    //     const response = await fetch("/api/users/register", {
-    //         method: "POST",
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify(data),
-    //     });
-
-    //     const result = await response.json();
-
-    //     if (!response.ok) {
-    //         const { error } = result;
-    //         showError(error.message || "Login failed");
-    //         return;
-    //     }
-
-    //     localStorage.setItem("token", result.data.token); // Store JWT
-    //     window.location.href = "/#setup"; // Redirect to home page
-    // };
-
     authForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData: AuthFormData = {
@@ -192,11 +144,11 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
 
         if (mode === "login") {
             if (await authState.login(formData)) {
-                window.location.href = "/#setup";
+                window.location.href = "#setup";
             }
         } else {
             if (await authState.register(formData)) {
-                window.location.href = "/#setup";
+                window.location.href = "#setup";
             }
         }
     });

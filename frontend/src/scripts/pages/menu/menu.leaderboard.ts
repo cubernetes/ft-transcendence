@@ -1,6 +1,6 @@
-import { createHeader } from "../components/components.header";
-import { createFooter } from "../components/components.footer";
-import { fetchTestData } from "../test";
+import { createHeader } from "../../components/components.header";
+import { createFooter } from "../../components/components.footer";
+import { fetchTestData } from "../../test";
 
 export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();

@@ -1,10 +1,10 @@
 import { createHomePage } from "../pages/pages.home";
-import { createGamePage } from "../pages/pages.game";
-import { createProfilePage } from "../pages/pages.profile";
-import { createLeaderboardPage } from "../pages/pages.leaderboard";
-import { createLoginPage } from "../pages/pages.login";
-import { createSimulationPage } from "../pages/pages.simulation";
-import { createSetupPage } from "../pages/pages.setup";
+import { createGamePage } from "../pages/game/game.gameplay";
+import { createProfilePage } from "../pages/menu/menu.profile";
+import { createLeaderboardPage } from "../pages/menu/menu.leaderboard";
+import { createSimulationPage } from "../pages/menu/menu.simulation";
+import { createSetupPage } from "../pages/menu/menu.setup";
+import { checkAccess } from "../auth/auth.utils";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {
@@ -12,7 +12,6 @@ export const createRouter = (container: HTMLElement): void => {
         game: createGamePage,
         profile: createProfilePage,
         leaderboard: createLeaderboardPage,
-        login: createLoginPage,
         simulation: createSimulationPage,
         setup: createSetupPage,
     };
@@ -30,6 +29,9 @@ export const createRouter = (container: HTMLElement): void => {
         if (currentPage) {
             currentPage.dispatchEvent(new Event("destroy"));
         }
+
+        // Check access for protected routes
+        checkAccess();
 
         // Render the appropriate page
         const createPage = routes[route];
