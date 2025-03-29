@@ -39,8 +39,6 @@ export type PongConfig = {
 
 export type UserInput = "up" | "down" | "stop";
 
-export type PongType = "local" | "remote";
-
 // Maybe add waiting, paused
 export type PongStatus = "waiting" | "ongoing" | "ended";
 
