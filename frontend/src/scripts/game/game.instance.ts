@@ -10,6 +10,7 @@ import {
     ArcRotateCamera,
     IFontData,
 } from "@babylonjs/core";
+import { AdvancedDynamicTexture } from "@babylonjs/gui";
 import { WebSocketManager } from "./managers/managers.sockets";
 import { GameStateManager } from "./managers/managers.state";
 import { SceneSetup } from "./game.scene";
@@ -20,6 +21,7 @@ export class GameInstance {
     private static instance: GameInstance;
     public engine: Engine;
     public scene: Scene;
+    public controls!: AdvancedDynamicTexture;
     public audioEngine!: AudioEngineV2;
     public bgMusic!: StreamingSound;
     public hitSound!: StaticSound;
@@ -37,8 +39,11 @@ export class GameInstance {
 
     private constructor(canvas: HTMLCanvasElement) {
         this.engine = new Engine(canvas, true);
-        this.scene = new Scene(this.engine);
-        this.scene.audioEnabled = true;
+
+        const { scene, controls } = SceneSetup.createScene(this.engine);
+        this.scene = scene;
+        this.controls = controls;
+        // this.scene = SceneSetup.createScene(this.engine);
 
         this.camera = SceneSetup.setCamera(this.scene);
 
@@ -78,6 +83,11 @@ export class GameInstance {
             ).json()) as IFontData;
 
             // GameInstance.instance.scoreText = SceneSetup.createScoreText();
+
+            SceneSetup.createControls(
+                GameInstance.instance.controls,
+                GameInstance.instance.bgMusic
+            );
 
             GameInstance.instance.setupRenderLoop();
         }

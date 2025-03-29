@@ -12,7 +12,8 @@
         "reload": "node reload-server.js"
     },
     "dependencies": {
-        "@babylonjs/core": "^7.51.3",
+        "@babylonjs/core": "^8.0.1",
+        "@babylonjs/gui": "^8.0.1",
         "@types/earcut": "^3.0.0",
         "earcut": "^3.0.1",
         "jwt-decode": "^4.0.0",
@@ -21,7 +22,7 @@
         "viem": "^2.23.13"
     },
     "devDependencies": {
-        "@babylonjs/inspector": "^7.52.2",
+        "@babylonjs/inspector": "^8.0.1",
         "@babylonjs/loaders": "^7.54.1",
         "@types/jwt-decode": "^2.2.1",
         "chokidar": "^4.0.3",

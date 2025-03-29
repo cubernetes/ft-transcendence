@@ -16,12 +16,143 @@ import {
     CreateSoundAsync,
     Color4,
     CreateText,
+    HemisphericLight,
+    Tools,
+    SoundState,
 } from "@babylonjs/core";
-
+import {
+    AdvancedDynamicTexture,
+    Control,
+    StackPanel,
+    Button,
+    TextBlock,
+    Slider,
+    ImageBasedSlider,
+    Image,
+    Grid,
+} from "@babylonjs/gui";
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
 import { ASSETS_DIR } from "../config";
 
 export class SceneSetup {
+    static createScene(engine: any): { scene: Scene; controls: AdvancedDynamicTexture } {
+        const scene = new Scene(engine);
+        scene.audioEnabled = true;
+        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+        var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
+
+        // Default intensity is 1. Let's dim the light a small amount
+        light.intensity = 0.7;
+
+        // GUI
+        var controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+        return { scene, controls };
+    }
+
+    static createControls(controls: AdvancedDynamicTexture, bgMusic: StreamingSound): void {
+        // Create a grid
+        var grid = new Grid();
+        controls.addControl(grid);
+
+        grid.addColumnDefinition(0.2);
+        grid.addColumnDefinition(0.2);
+        grid.addColumnDefinition(0.2);
+        grid.addColumnDefinition(0.1);
+        grid.addColumnDefinition(0.1);
+        grid.addColumnDefinition(0.2);
+        grid.addRowDefinition(0.07);
+        grid.addRowDefinition(0.25);
+        grid.addRowDefinition(0.25);
+        grid.addRowDefinition(0.25);
+
+        // // Create a button
+        var button1 = Button.CreateSimpleButton("but1", "Click Me");
+        button1.width = "150px";
+        button1.height = "40px";
+        button1.color = "white";
+        button1.cornerRadius = 20;
+        button1.background = "green";
+        button1.onPointerUpObservable.add(function () {
+            alert("You just clicked a button!");
+            // controls.rootContainer.fontSize = "9px";
+            //button1.children[0].fontSize = "9px";
+        });
+        controls.addControl(button1);
+
+        // Create a button for the game music
+        var buttonMusic = Button.CreateSimpleButton("bgMusic", "Mute\nMusic");
+        buttonMusic.fontSize = 15;
+        buttonMusic.fontFamily = "Cambria";
+        buttonMusic.fontStyle = "italic";
+        buttonMusic.height = "35px";
+        buttonMusic.width = "60px";
+        buttonMusic.color = "white";
+        buttonMusic.cornerRadius = 20;
+        buttonMusic.background = "green";
+        buttonMusic.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        buttonMusic.onPointerUpObservable.add(function () {
+            if (bgMusic.state === SoundState.Started) {
+                bgMusic.pause();
+                buttonMusic.background = "red";
+                buttonMusic.textBlock!.text = "Play\nMusic";
+            } else {
+                bgMusic.play();
+                buttonMusic.background = "green";
+                buttonMusic.textBlock!.text = "Mute\nMusic";
+            }
+        });
+        grid.addControl(buttonMusic, 0, 4);
+
+        // Create a volume-slider
+        var panelVol = new StackPanel();
+        panelVol.width = "220px";
+        grid.addControl(panelVol, 0, 5);
+
+        var header = new TextBlock();
+        header.text = "Volume: 50 %";
+        header.fontSize = 16;
+        header.fontStyle = "italic";
+        header.fontFamily = "Calibri";
+        header.height = "15px";
+        header.color = "white";
+        panelVol.addControl(header);
+
+        var slider2 = new Slider();
+        slider2.minimum = 0;
+        slider2.maximum = 100;
+        slider2.value = 50;
+        slider2.height = "20px";
+        slider2.width = "100px";
+        slider2.color = "lightblue";
+        slider2.background = "black";
+        slider2.displayThumb = false;
+        slider2.blur;
+        slider2.onValueChangedObservable.add(function (value) {
+            header.text = "Volume: " + (value | 0) + " %";
+            bgMusic.volume = value / 100;
+        });
+        panelVol.addControl(slider2);
+
+        // Create a image-slider
+        // var slider = new ImageBasedSlider();
+        // slider.minimum = 0;
+        // slider.maximum = 100;
+        // slider.value = 100;
+        // slider.height = "20px";
+        // slider.width = "200px";
+        // slider.isThumbClamped = true;
+        // // slider.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        // slider.backgroundImage = new Image("back", "/assets/bgSlider.png");
+        // slider.valueBarImage = new Image("value", "/assets/fgSlider.png");
+        // slider.thumbImage = new Image("thumb", "/assets/knSlider.png");
+        // slider.onValueChangedObservable.add(function(value) {
+        //     header.text = "Volume: " + (value | 0) + " %";
+        //     bgMusic.volume = value / 100;
+        // });
+        // panelVol.addControl(slider);
+    }
+
     static setupScene(scene: Scene): void {
         // Create a background
         const skybox = MeshBuilder.CreateBox(
@@ -50,7 +181,7 @@ export class SceneSetup {
         bgMusic: StreamingSound;
     }> {
         const audioEngine = await CreateAudioEngineAsync();
-        await audioEngine.unlock();
+        await audioEngine.unlockAsync();
         await audioEngine.createMainBusAsync("mainBus", { volume: 1.0 });
 
         const bgMusic = await CreateStreamingSoundAsync(
@@ -59,7 +190,7 @@ export class SceneSetup {
             {
                 loop: true,
                 autoplay: true,
-                volume: 0.4,
+                volume: 0.5,
             },
             audioEngine
         );
