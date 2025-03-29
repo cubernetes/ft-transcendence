@@ -1,12 +1,12 @@
-import { USER_URL } from "../config";
-import { logger } from "../utils/logger";
+import { authState, AuthFormData } from "../auth/auth.state";
 
-export type AuthFormData = {
-    username: string;
-    password: string;
-    displayName?: string;
-    confirmPassword?: string;
-};
+// export type AuthFormData = {
+//     username: string;
+//     password: string;
+//     displayName?: string;
+//     confirmPassword?: string;
+// };
+
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
     wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3 font-medieval";
@@ -126,53 +126,53 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         updateToggleButtons();
     });
 
-    const login = async (username: string, password: string) => {
-        try {
-            const response = await fetch(`${USER_URL}/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ username, password }),
-            });
+    // const login = async (username: string, password: string) => {
+    //     try {
+    //         const response = await fetch("/api/users/login", {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify({ username, password }),
+    //         });
 
-            const result = await response.json();
+    //         const result = await response.json();
 
-            if (!response.ok) {
-                // Show different messages for different error codes
-                logger.info(response);
-                showError(result.message || "Login failed");
-                return;
-            }
+    //         if (!response.ok) {
+    //             // Show different messages for different error codes
+    //             console.log(response);
+    //             showError(result.message || "Login failed");
+    //             return;
+    //         }
 
-            localStorage.setItem("token", result.data.token); // Store JWT
-            window.location.href = "/#setup"; // Redirect to home page
-        } catch (error) {
-            // Handle fetch errors or thrown errors
-            throw error;
-        }
-    };
+    //         localStorage.setItem("token", result.data.token); // Store JWT
+    //         window.location.href = "/#setup"; // Redirect to home page
+    //     } catch (error) {
+    //         // Handle fetch errors or thrown errors
+    //         throw error;
+    //     }
+    // };
 
-    const register = async (data: AuthFormData) => {
-        const response = await fetch(`${USER_URL}/register`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        });
+    // const register = async (data: AuthFormData) => {
+    //     const response = await fetch("/api/users/register", {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(data),
+    //     });
 
-        const result = await response.json();
+    //     const result = await response.json();
 
-        if (!response.ok) {
-            const { error } = result;
-            showError(error.message || "Login failed");
-            return;
-        }
+    //     if (!response.ok) {
+    //         const { error } = result;
+    //         showError(error.message || "Login failed");
+    //         return;
+    //     }
 
-        localStorage.setItem("token", result.data.token); // Store JWT
-        window.location.href = "/#setup"; // Redirect to home page
-    };
+    //     localStorage.setItem("token", result.data.token); // Store JWT
+    //     window.location.href = "/#setup"; // Redirect to home page
+    // };
 
     authForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -191,9 +191,13 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
 
         if (mode === "login") {
-            await login(formData.username, formData.password);
+            if (await authState.login(formData)) {
+                window.location.href = "/#setup";
+            }
         } else {
-            await register(formData);
+            if (await authState.register(formData)) {
+                window.location.href = "/#setup";
+            }
         }
     });
 
