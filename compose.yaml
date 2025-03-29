@@ -2,13 +2,13 @@
 name: ft-transcendence
 
 # https://github.com/docker/compose/pull/5140
-x-watch-common: &watch-common
-    WATCH: ${WATCH:-0}
+x-env-watch: &env-watch
+    WATCH: "${WATCH:-0}"
 
-x-env-common: &env-common
-    <<: *watch-common
-    BACKEND_PORT: ${BACKEND_PORT:-3000}
-    DOMAINS: ${DOMAINS:-localhost}
+x-env-caddy-backend: &env-caddy-backend
+    <<: *env-watch
+    BACKEND_PORT: "${BACKEND_PORT:-3000}"
+    DOMAINS: "${DOMAINS:-localhost}"
 
 x-env-files: &env-files
     - config.env
@@ -23,15 +23,14 @@ services:
             - "${HTTPS_PORT:-8443}:8443"
         networks:
             ft-transcendence-net:
-                ipv4_address: &caddy_ip 10.42.42.1
+                ipv4_address: &caddy-ip 10.42.42.1
         volumes:
             - "caddy_data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
-            # - "public:/frontend/src/public/:ro"
         environment:
-            <<: *env-common
-            CADDY_EXTRA_GLOBAL_DIRECTIVES: ${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
-            CADDY_EXTRA_SITE_DIRECTIVES: ${CADDY_EXTRA_SITE_DIRECTIVES:-}
+            <<: *env-caddy-backend
+            CADDY_EXTRA_GLOBAL_DIRECTIVES: "${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
+            CADDY_EXTRA_SITE_DIRECTIVES: "${CADDY_EXTRA_SITE_DIRECTIVES:-}"
         depends_on:
             - frontend
             - backend
@@ -48,7 +47,7 @@ services:
         restart: no
         ports:
             - "35729:35729" # Live-reload port
-        environment: *watch-common
+        environment: *env-watch
         volumes:
             - "frontend:/frontend/dist/"
         develop:
@@ -73,11 +72,11 @@ services:
         restart: unless-stopped
         networks:
             ft-transcendence-net:
-                ipv4_address: &backend_ip 10.42.42.2
+                ipv4_address: &backend-ip 10.42.42.2
         environment:
-            <<: *env-common
-            NODE_ENV: ${NODE_ENV:-development}
-            DB_PATH: ${DB_PATH:-}
+            <<: *env-caddy-backend
+            NODE_ENV: "${NODE_ENV:-development}"
+            DB_PATH: "${DB_PATH:-}"
             LOGSTASH_HOST: "logstash"
             LOGSTASH_PORT: "5000"
         volumes:
@@ -88,6 +87,7 @@ services:
                 restart: true
                 condition: service_healthy
             logstash:
+                restart: true
                 condition: service_healthy
         develop:
             watch:
@@ -101,6 +101,69 @@ services:
                   action: rebuild
                   target: "/backend/esbuild.config.js"
         env_file: *env-files
+
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
+        container_name: elasticsearch
+        environment:
+            ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+            discovery.type: "single-node"
+            xpack.security.enabled: "false"
+        volumes:
+            - "elasticsearch_data:/usr/share/elasticsearch/data/"
+        ports:
+            - "9200:9200"
+        networks:
+            ft-transcendence-net:
+                ipv4_address: &elasticsearch-ip 10.42.42.3
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "http://localhost:9200"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+
+    logstash:
+        image: docker.elastic.co/logstash/logstash:8.17.3
+        container_name: logstash
+        volumes:
+            - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/"
+            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
+        ports:
+            - "5000:5000/tcp"
+            - "5000:5000/udp"
+            - "9600:9600" # Logstash API port for health checking
+        environment:
+            LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+        networks:
+            ft-transcendence-net:
+                ipv4_address: &logstash-ip 10.42.42.4
+        depends_on:
+            elasticsearch:
+              condition: service_healthy
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "http://localhost:9600/_node/stats"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
+
+    kibana:
+        image: docker.elastic.co/kibana/kibana:8.17.3
+        container_name: kibana
+        ports:
+            - "5601:5601"
+        environment:
+            ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+        networks:
+            ft-transcendence-net:
+                ipv4_address: &kibana-ip 10.42.42.5
+        depends_on:
+            elasticsearch:
+                condition: service_healthy
+        restart: unless-stopped
+
     vault:
         build: "./vault/"
         container_name: vault
@@ -109,8 +172,11 @@ services:
             ft-transcendence-net:
                 ipv4_address: &vault_ip 10.42.42.42
         extra_hosts:
-            backend: *backend_ip
-            caddy: *caddy_ip
+            backend: *backend-ip
+            caddy: *caddy-ip
+            elasticsearch: *elasticsearch-ip
+            logstash: *logstash-ip
+            kibana: *kibana-ip
         cap_add:
             - IPC_LOCK
         volumes:
@@ -118,9 +184,9 @@ services:
             - "vault_secret:/vault/secret/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
-            LOGLEVEL: debug
-            SAVE_UNSEAL_KEYS: 1
-            SAVE_ROOT_TOKEN: 1
+            LOGLEVEL: "debug"
+            SAVE_UNSEAL_KEYS: "1"
+            SAVE_ROOT_TOKEN: "1"
         tty: true
         develop:
             watch:
@@ -142,120 +208,6 @@ services:
                 - path: "./vault/policies/"
                   action: sync+restart
                   target: "/vault/policies/"
-
-    elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
-        container_name: elasticsearch
-        environment:
-            - discovery.type=single-node
-            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-            - xpack.security.enabled=false
-        volumes:
-            - elasticsearch_data:/usr/share/elasticsearch/data
-        ports:
-            - "9200:9200"
-        networks:
-            - ft-transcendence-net
-        restart: unless-stopped
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9200"]
-            interval: 30s
-            timeout: 10s
-            retries: 5
-
-    logstash:
-        image: docker.elastic.co/logstash/logstash:8.17.3
-        container_name: logstash
-        volumes:
-            - ./elk/logstash/pipeline:/usr/share/logstash/pipeline
-            - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-        ports:
-            - "5000:5000/tcp"
-            - "5000:5000/udp"
-            - "9600:9600"  # Logstash API port for health checking
-        environment:
-            LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-        networks:
-            - ft-transcendence-net
-        depends_on:
-            - elasticsearch
-        restart: unless-stopped
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9600/_node/stats"]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 30s
-
-    kibana:
-        image: docker.elastic.co/kibana/kibana:8.17.3
-        container_name: kibana
-        ports:
-            - "5601:5601"
-        environment:
-            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-        networks:
-            - ft-transcendence-net
-        depends_on:
-            - elasticsearch
-        restart: unless-stopped
-
-    elasticsearch:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
-        container_name: elasticsearch
-        environment:
-            - discovery.type=single-node
-            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-            - xpack.security.enabled=false
-        volumes:
-            - elasticsearch_data:/usr/share/elasticsearch/data
-        ports:
-            - "9200:9200"
-        networks:
-            - ft-transcendence-net
-        restart: unless-stopped
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9200"]
-            interval: 30s
-            timeout: 10s
-            retries: 5
-
-    logstash:
-        image: docker.elastic.co/logstash/logstash:8.17.3
-        container_name: logstash
-        volumes:
-            - ./elk/logstash/pipeline:/usr/share/logstash/pipeline
-            - ./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
-        ports:
-            - "5000:5000/tcp"
-            - "5000:5000/udp"
-            - "9600:9600"  # Logstash API port for health checking
-        environment:
-            LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-        networks:
-            - ft-transcendence-net
-        depends_on:
-            - elasticsearch
-        restart: unless-stopped
-        healthcheck:
-            test: ["CMD", "curl", "-f", "http://localhost:9600/_node/stats"]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 30s
-
-    kibana:
-        image: docker.elastic.co/kibana/kibana:8.17.3
-        container_name: kibana
-        ports:
-            - "5601:5601"
-        environment:
-            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-        networks:
-            - ft-transcendence-net
-        depends_on:
-            - elasticsearch
-        restart: unless-stopped
 
 volumes:
     vault:
