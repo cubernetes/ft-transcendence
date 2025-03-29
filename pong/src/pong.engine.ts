@@ -1,5 +1,5 @@
 import { err, ok, Result } from "neverthrow";
-import { defaultGameConfig } from "./pong.config.ts";
+import { defaultGameConfig } from "./pong.config";
 import {
     Ball,
     UserInput,
@@ -8,7 +8,7 @@ import {
     Paddle,
     PongState,
     PongEngineEvent,
-} from "./pong.types.ts";
+} from "./pong.types";
 
 // Enforce 2 players for now
 
