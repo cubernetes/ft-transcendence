@@ -3,7 +3,7 @@ import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import { createAuthService } from "../auth.service.ts";
 import { faker } from "@faker-js/faker";
-import { mockUser } from "../../user/user.helpers.ts";
+import { mockUser } from "../../../modules/user/user.helpers.ts";
 
 test("authService - hashPassword + comparePassword", async (t) => {
     const app = Fastify({ logger: false });
@@ -35,5 +35,9 @@ test("authService - jwt sign + verify", async (t) => {
     const decoded = authService.verifyToken(token);
     const { id, username, displayName } = user;
 
-    t.match(decoded, { id, username, displayName }, "decoded token contains id and username");
+    if (decoded.isErr()) {
+        return t.fail("failed to verify token");
+    }
+
+    t.match(decoded.value, { id, username, displayName }, "decoded token contains correct data");
 });

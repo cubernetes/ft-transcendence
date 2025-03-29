@@ -3,21 +3,14 @@ import { faker } from "@faker-js/faker";
 import buildApp from "../../../utils/app.ts";
 
 test("Create user", async (t) => {
-    const originalEnv = process.env;
-    process.env.DB_PATH = ":memory:";
-    process.env.DB_DIR = "drizzle";
-
-    const tryBuild = await buildApp({ logger: true });
+    const tryBuild = await buildApp({ logger: false });
     if (tryBuild.isErr()) {
         return t.fail("Failed to build app");
     }
 
     const app = tryBuild.value;
 
-    t.teardown(() => {
-        process.env = originalEnv;
-        app.close();
-    });
+    t.teardown(() => app.close());
 
     const username = faker.internet.username();
     const displayName = faker.person.firstName();
