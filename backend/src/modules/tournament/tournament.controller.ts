@@ -15,8 +15,8 @@ export const createTournamentHandler = async (
         }
 
         return reply.code(201).send(tournament);
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to create tournament");
+    } catch (error) {
+        req.log.error({ error }, "Failed to create tournament");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -34,8 +34,8 @@ export const getTournamentByIdHandler = async (
         }
 
         return reply.send(tournament);
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to get tournament by ID");
+    } catch (error) {
+        req.log.error({ error }, "Failed to get tournament by ID");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -51,8 +51,8 @@ export const getTournamentByNameHandler = async (
             return reply.code(404).send({ error: "Tournament not found" });
         }
         return reply.send(tournament);
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to get tournament by tournamentname");
+    } catch (error) {
+        req.log.error({ error }, "Failed to get tournament by tournamentname");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -61,8 +61,8 @@ export const getAllTournamentsHandler = async (req: FastifyRequest, reply: Fasti
     try {
         const tournaments = await req.server.tournamentService.findAll();
         return reply.send(tournaments);
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to get all tournaments");
+    } catch (error) {
+        req.log.error({ error }, "Failed to get all tournaments");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };

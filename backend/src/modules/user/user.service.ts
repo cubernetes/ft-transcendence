@@ -18,12 +18,12 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             return ok(user);
-        } catch (e) {
-            if (errUniqueConstraintOn(e, "users.username")) {
+        } catch (error) {
+            if (errUniqueConstraintOn(error, "users.username")) {
                 return err(new ApiError("USERNAME_TAKEN", 409, "Username already taken"));
             }
 
-            app.log.debug({ err: e }, "Failed to create user");
+            app.log.debug({ error }, "Failed to create user");
             return err(new UnknownError("Failed to create user"));
         }
     };
@@ -38,8 +38,8 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             return ok(user);
-        } catch (e) {
-            app.log.debug({ err: e }, "Failed to find user by id");
+        } catch (error) {
+            app.log.debug({ error }, "Failed to find user by id");
             return err(new UnknownError("Failed to find user by id"));
         }
     };
@@ -54,8 +54,8 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             return ok(user);
-        } catch (e) {
-            app.log.debug({ err: e }, "Failed to find user by username");
+        } catch (error) {
+            app.log.debug({ error }, "Failed to find user by username");
             return err(new UnknownError("Failed to find user by username"));
         }
     };
@@ -64,8 +64,8 @@ export const createUserService = (app: FastifyInstance) => {
         try {
             const result = await db.select().from(users);
             return ok(result);
-        } catch (e) {
-            app.log.debug({ err: e }, "Failed to find all users");
+        } catch (error) {
+            app.log.debug({ error }, "Failed to find all users");
             return err(new UnknownError("Failed to find all users"));
         }
     };
@@ -80,12 +80,12 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             return ok(user);
-        } catch (e) {
-            if (errUniqueConstraintOn(e, "users.username")) {
+        } catch (error) {
+            if (errUniqueConstraintOn(error, "users.username")) {
                 return err(new ApiError("USERNAME_TAKEN", 409, "Username already taken"));
             }
 
-            app.log.debug({ err: e }, "Failed to update user");
+            app.log.debug({ error }, "Failed to update user");
             return err(new UnknownError("Failed to update user"));
         }
     };
@@ -100,8 +100,8 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             return ok(user);
-        } catch (e) {
-            app.log.debug({ err: e }, "Failed to remove user");
+        } catch (error) {
+            app.log.debug({ error }, "Failed to remove user");
             return err(new UnknownError("Failed to remove user"));
         }
     };
@@ -115,8 +115,8 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             return ok(result.count);
-        } catch (e) {
-            app.log.debug({ err: e }, "Failed to get user count");
+        } catch (error) {
+            app.log.debug({ error }, "Failed to get user count");
             return err(new UnknownError("Failed to get user count"));
         }
     };

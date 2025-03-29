@@ -6,7 +6,7 @@ import { Result, err, ok } from "neverthrow";
 const safeJsonParse = <T>(data: string): Result<T, Error> => {
     try {
         return ok(JSON.parse(data));
-    } catch (e) {
+    } catch (error) {
         return err(new Error("Invalid JSON"));
     }
 };
