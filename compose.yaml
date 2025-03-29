@@ -168,7 +168,7 @@ services:
         container_name: logstash
         volumes:
             - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/"
-            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml"
+            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
         ports:
             - "5000:5000/tcp"
             - "5000:5000/udp"
