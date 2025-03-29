@@ -29,8 +29,8 @@ export const createHeader = async (): Promise<HTMLElement> => {
     });
 
     const loginStatus = document.createElement("li");
-    loginStatus.className = "ml-auto";
-    loginStatus.innerHTML = '<a href="#login" class="hover:underline">Login</a>';
+    // loginStatus.className = "ml-auto";
+    // loginStatus.innerHTML = '<a href="#login" class="hover:underline">Login</a>';
     navList.appendChild(loginStatus);
 
     nav.appendChild(navList);
