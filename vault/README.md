@@ -5,13 +5,11 @@
 All services that need secrets depend on the Vault service to start up and pass
 the healthcheck. Vault injects a Vault token to each of those services via a
 shared file (bind mount). Once the service has the token, it can make `GET` requests
-to `http://vault:8200/v1/secret/$SERVICE_NAME` and extract the secrets from the
-JSON response (`.data.data`). A token can only be used as many times as there
-are secrets for a particular service (TODO) (if the `backend` service only has the
-`JWT_SECRET` secret, then it can make only a single `GET` request, after which the
-token is invalidated; enforced via roles) and it can only read its own secrets (TODO)
-(enforced via policies). If not all secrets are read, it's each service is advised
-to override/truncate the file to prevent unwanted access from the host system.
+to `http://vault:8200/v1/secret/data/$SERVICE_NAME` and extract the secrets from the
+JSON response (`.data.data`). A token can only be used once, since the response should
+contain all the secrets relevant to that service, and it can only read its own secrets
+(enforced via policies and roles). The service may optionally override/truncate
+the file to prevent unwanted access from the host system.
 
 ## How Vault initially starts up
 
@@ -99,6 +97,7 @@ new service to the vault infrastructure. But they are all relatively straightfor
 Let's say your service is called `foo`, then the steps would be the following:
 
 1. You need to mount a file between the `vault` and `foo` container. For that, adjust `compose.yaml`:
+
     1. Add the file mount to the `vault` container:
 
     ```diff
@@ -152,6 +151,7 @@ Let's say your service is called `foo`, then the steps would be the following:
 ```
 
 1. Add a new policy file at path `./vault/policies/foo.hcl` (copy an existing one, they're all similar)
+
 ```diff
 +path "secret/data/foo" {
 +    capabilities = ["read"]
@@ -159,6 +159,7 @@ Let's say your service is called `foo`, then the steps would be the following:
 ```
 
 1. If `foo` does NOT have a Dockerfile, you HAVE to create one with a shell entrypoint wrapper to pass the environment
+
     1. Get original entrypoint value
 
     ```sh
@@ -168,62 +169,62 @@ Let's say your service is called `foo`, then the steps would be the following:
 
     1. Create Dockerfile with inline entrypoint (specifically look at the lines containing 'Customization Point')
 
-     ```Dockerfile
-     ### Customization Point 1 ###
-     FROM foo:1.42.0
+    ```Dockerfile
+    ### Customization Point 1 ###
+    FROM foo:1.42.0
 
-     # If the base image doesn't even have a shell, use a multistage build to get one.
+    # If the base image doesn't even have a shell, use a multistage build to get one.
 
-     # Install and curl or wget and jq (or use stage from above)
-     RUN apk/apt add/install curl/wget jq
+    # Install and curl or wget and jq (or use stage from above)
+    RUN apk/apt add/install curl/wget jq
 
-     COPY --chmod=755 <<EOF /entrypoint.sh
-     #!/bin/sh
+    COPY --chmod=755 <<EOF /entrypoint.sh
+    #!/bin/sh
 
-     set -e # exit on any error
-     set -u # treat failed expansion as error
-     set -x # for debugging
+    set -e # exit on any error
+    set -u # treat failed expansion as error
+    set -x # for debugging
 
-     ### Customization Point 2 ###
-     service=foo
+    ### Customization Point 2 ###
+    service=foo
 
-     vault_token=$(cat "/run/secrets/${service}_vault_token")
-     vault_addr=http://vault:8200
+    vault_token=$(cat "/run/secrets/${service}_vault_token")
+    vault_addr=http://vault:8200
 
-     export_secret () {
-         secret_name=$1
+    export_secret () {
+        secret_name=$1
 
-         eval $secret_name='$(curl --header "X-Vault-Token: $vault_token" \
-             "$vault_addr/v1/secret/data/$service" \
-             jq --raw-output ".data.data[\"$secret_name\"]")'
+        eval $secret_name='$(curl --header "X-Vault-Token: $vault_token" \
+            "$vault_addr/v1/secret/data/$service" \
+            jq --raw-output ".data.data[\"$secret_name\"]")'
 
-         # $secret_name must be a valid variable name
-         export "$secret_name" # shellcheck.net/wiki/SC2155
-     }
+        # $secret_name must be a valid variable name
+        export "$secret_name" # shellcheck.net/wiki/SC2155
+    }
 
-     ### Customization Point 3 ###
-     # Export all secrets for the foo service here
-     export_secret SIGNING_SECRET
-     export_secret SOME_PASSWORD
+    ### Customization Point 3 ###
+    # Export all secrets for the foo service here
+    export_secret SIGNING_SECRET
+    export_secret SOME_PASSWORD
 
-     # Truncate file for good measure
-     : > "/run/secrets/${service}_vault_token"
+    # Truncate file for good measure
+    : > "/run/secrets/${service}_vault_token"
 
-     ### Customization Point 4 ###
-     # Don't forget the "$@" at the end to pass arguments!
-     exec <same value as 'Entrypoint' key from previous step (watch out for quoting)> "$@"
-     # common example: exec tini -- "$@"
-     # https://github.com/krallin/tini
-     # Note that `exec' is REQUIRED to correctly forward signals
-     EOF
+    ### Customization Point 4 ###
+    # Don't forget the "$@" at the end to pass arguments!
+    exec <same value as 'Entrypoint' key from previous step (watch out for quoting)> "$@"
+    # common example: exec tini -- "$@"
+    # https://github.com/krallin/tini
+    # Note that `exec' is REQUIRED to correctly forward signals
+    EOF
 
-     # No need to set WORKDIR, will be inherited from base image
-     # No need to set CMD, will be inherited from base image
-     # No need to set any ENV, will be inherited from base image
-     # No need to set USER, will be inherited from base image
+    # No need to set WORKDIR, will be inherited from base image
+    # No need to set CMD, will be inherited from base image
+    # No need to set any ENV, will be inherited from base image
+    # No need to set USER, will be inherited from base image
 
-     ENTRYPOINT ["/entrypoint.sh"]
-     ```
+    ENTRYPOINT ["/entrypoint.sh"]
+    ```
 
 1. However, if your `foo` service DOES have a Dockerfile already and is
    running off of a particular language, then use your language's capabilities
