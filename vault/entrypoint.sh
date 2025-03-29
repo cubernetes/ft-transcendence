@@ -368,7 +368,7 @@ create_token_role () {
 
 	while read -r service; do
 		info "Determining IP for service \033\133;93m%s\033\133m" "$service"
-		allowed_ip=$({ timeout 0.3 ping -q4 -s0 -w1 -W1 -c1 backend | grep -o '\([[:digit:]]\+\.\)\{3\}[[:digit:]]\+' | head -n 1; } 2>/dev/null)
+		allowed_ip=$({ timeout 0.3 ping -q4 -s0 -w1 -W1 -c1 "$service" | grep -o '\([[:digit:]]\+\.\)\{3\}[[:digit:]]\+' | head -n 1; } 2>/dev/null)
 		[ -n "$allowed_ip" ] || die "Failed to resolve domain \033\133;93m%s\033\133m to an IP address" "$service"
 
 		info "Creating new role for service \033\133;93m%s\033\133m" "$service"

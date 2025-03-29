@@ -98,7 +98,22 @@ Let's say your service is called `foo`, then the steps would be the following:
 
 1. You need to mount a file between the `vault` and `foo` container. For that, adjust `compose.yaml`:
 
-    1. Add the file mount to the `vault` container:
+    1. Add the file mount to the `foo` container and ensure it depends on vault, is in the same network, and has a unique and named IP (look at other services and IPAM configuration at the networks section at the bottom of the Makefile and then choose a unique IP):
+
+    ```diff
+    +     foo:
+    +         networks:
+    +             ft-transcendence-net:
+    +                 ipv4_address: &foo_ip 10.42.42.3
+    +         volumes:
+    +             - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
+    +         depends_on:
+    +             vault:
+    +                 restart: true
+    +                 condition: service_healthy
+    ```
+
+    1. Add the file mount and extra host to the `vault` container:
 
     ```diff
           vault:
@@ -106,7 +121,12 @@ Let's say your service is called `foo`, then the steps would be the following:
               container_name: vault
               restart: unless-stopped
               networks:
-                  - ft-transcendence-net
+                  ft-transcendence-net
+                      ipv4_address: &vault_ip 10.42.42.42
+              extra_hosts:
+                  backend: *backend_ip
+                  caddy: *caddy_ip
+    +             foo: *foo_ip
               cap_add:
                   - IPC_LOCK
               volumes:
@@ -121,19 +141,18 @@ Let's say your service is called `foo`, then the steps would be the following:
               tty: true
     ```
 
-    1. Add the file mount to the `foo` container and ensure it depends on vault and is in the same network:
+1. Add that mounted file to the Makefile to ensure it exists (otherwise, Docker will create it as a directory)
 
-    ```diff
-    +     foo:
-    +         networks:
-    +             - ft-transcendence-net
-    +         volumes:
-    +             - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
-    +         depends_on:
-    +             vault:
-    +                 restart: true
-    +                 condition: service_healthy
-    ```
+```diff
+ D := docker
+
+ VAULT_TOKEN_EXCHANGE_FILES := \
+-       ./.secrets/backend_vault_token
++       ./.secrets/backend_vault_token \
++       ./.secrets/foo_vault_token
+
+ .DEFAULT_GOAL := dev
+```
 
 1. Add `foo` as a new service to `./vault/env.json` and add the secret(s)
 
@@ -183,35 +202,35 @@ Let's say your service is called `foo`, then the steps would be the following:
 
     set -e # exit on any error
     set -u # treat failed expansion as error
-    set -x # for debugging
+    # set -x # for debugging
 
     ### Customization Point 2 ###
     service=foo
 
-    vault_token=$(cat "/run/secrets/${service}_vault_token")
+    vault_token=\$(cat "/run/secrets/\${service}_vault_token")
     vault_addr=http://vault:8200
 
     get_all_secrets_as_export_lines () {
-        curl --header "X-Vault-Token: $vault_token" \
-            "$vault_addr/v1/secret/data/$service" |
+        curl --header "X-Vault-Token: \$vault_token" \\
+            "\$vault_addr/v1/secret/data/\$service" |
             jq --raw-output '
-             .data.data.to_entries[] |
+             .data.data|to_entries[] |
               "export "
               + .key
-              + "='\''"
+              + "='\\''"
               + (if .value | type == "string" then
                   (
                    .value |
                     gsub(
-                     "'\''";
-                     "'\''\\'\'''\''"
+                     "'\\''";
+                     "'\\''\\\\'\\'''\\''"
                     )
                   )
                  else
                   .value
                  end
                 )
-              + "'\''"
+              + "'\\''"
             '
 
         # Example output:
@@ -219,23 +238,23 @@ Let's say your service is called `foo`, then the steps would be the following:
         #  export SOME_PASSWORD='937400011625'
     }
 
-    export_lines=$(get_all_secrets_as_export_lines)
+    export_lines=\$(get_all_secrets_as_export_lines)
 
     # Print all secrets for logging
-    printf '%s\n' "$export_lines"
+    printf '%s\\n' "\$export_lines"
 
     # Export all secrets as environment variables
-    eval "$export_lines"
+    eval "\$export_lines"
 
     # Truncate file for good measure
-    : > "/run/secrets/${service}_vault_token"
+    : > "/run/secrets/\${service}_vault_token"
 
     ### Customization Point 3 ###
-    # Don't forget the "$@" at the end to pass arguments!
-    exec <same value as 'Entrypoint' key from previous step (watch out for quoting)> "$@"
-    # common example: exec tini -- "$@"
+    # Don't forget the "\$@" at the end to pass arguments!
+    exec <same value as 'Entrypoint' key from previous step (watch out for quoting)> "\$@"
+    # common example: exec tini -- "\$@"
     # https://github.com/krallin/tini
-    # Note that `exec' is REQUIRED to correctly forward signals
+    # Note that \`exec' is REQUIRED to correctly forward signals
     EOF
 
     # No need to set WORKDIR, will be inherited from base image
