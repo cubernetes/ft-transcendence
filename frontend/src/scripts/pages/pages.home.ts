@@ -1,6 +1,6 @@
 import { createHeader } from "../components/components.header";
 import { createFooter } from "../components/components.footer";
-import { showUserLogin, showUserStatus } from "../components/components.loginStatus";
+import { showUserStatus } from "../components/components.loginStatus";
 import { createLoginForm } from "../components/components.loginForm";
 
 export const createHomePage = async (): Promise<HTMLElement> => {
@@ -33,7 +33,7 @@ export const createHomePage = async (): Promise<HTMLElement> => {
     ctaButton.className =
         "absolute cursor-pointer font-medieval top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 \
         text-white text-center rounded-full border-2 border-red-600 hover:border-red-400 transition-all \
-        duration-300 ease-in-out transform hover:scale-105 w-[100px] h-[100px] leading-[100px] cursor-pointer";
+        duration-300 ease-in-out transform hover:scale-105 w-[100px] h-[100px] leading-[100px]";
     ctaButton.textContent = "Play";
     ctaButton.onclick = async () => {
         const loginForm = await createLoginForm(ctaButton);
@@ -43,7 +43,7 @@ export const createHomePage = async (): Promise<HTMLElement> => {
 
     const mainMusic = new Audio("/assets/audio/main.mp3");
     mainMusic.loop = true;
-    mainMusic.volume = 0.1;
+    mainMusic.volume = 0.4;
 
     // hero.appendChild(heroTitle);
     hero.appendChild(ctaButton);
