@@ -8,6 +8,8 @@ import {
     Vector3,
     Color3,
 } from "@babylonjs/core";
+// import * as BABYLON from '@babylonjs/core'
+
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
 import { ASSETS_DIR } from "../config";
 

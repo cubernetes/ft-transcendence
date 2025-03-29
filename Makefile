@@ -111,6 +111,7 @@ cleanvault: clean
 fclean: clean cleandb cleanvault
 	$(RM) -r ./backend/node_modules/ backend/dist/ backend/.tap/
 	$(RM) -r ./frontend/node_modules/ frontend/dist/
+  $(RM) -r cli/node_modules/
 	$(RM) -r $(VAULT_TOKEN_EXCHANGE_FILES)
 
 .PHONY: deepclean
@@ -139,6 +140,7 @@ re: clean
 install:
 	npm --prefix=frontend install
 	npm --prefix=backend install
+	npm --prefix=cli install
 	
 .PHONY: test
 test: install
