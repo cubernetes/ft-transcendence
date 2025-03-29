@@ -101,47 +101,6 @@ services:
                   action: rebuild
                   target: "/backend/esbuild.config.js"
         env_file: *env-files
-    vault:
-        build: "./vault/"
-        container_name: vault
-        restart: unless-stopped
-        networks:
-            ft-transcendence-net:
-                ipv4_address: &vault_ip 10.42.42.42
-        extra_hosts:
-            backend: *backend-ip
-            caddy: *caddy-ip
-        cap_add:
-            - IPC_LOCK
-        volumes:
-            - "vault:/vault/file/"
-            - "vault_secret:/vault/secret/"
-            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
-        environment:
-            LOGLEVEL: "debug"
-            SAVE_UNSEAL_KEYS: "1"
-            SAVE_ROOT_TOKEN: "1"
-        tty: true
-        develop:
-            watch:
-                - path: "./vault/entrypoint.sh"
-                  action: sync+restart
-                  target: "/entrypoint.sh"
-                - path: "./vault/replace_json_templates.py"
-                  action: sync+restart
-                  target: "/replace_json_templates.py"
-                - path: "./vault/healthcheck.sh"
-                  action: sync+restart
-                  target: "/healthcheck.sh"
-                - path: "./vault/config.hcl"
-                  action: sync+restart
-                  target: "/vault/config/config.hcl"
-                - path: "./vault/env.json"
-                  action: sync+restart
-                  target: "/vault/config/env.json"
-                - path: "./vault/policies/"
-                  action: sync+restart
-                  target: "/vault/policies/"
 
     elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
@@ -205,6 +164,50 @@ services:
                 condition: service_healthy
         restart: unless-stopped
 
+    vault:
+        build: "./vault/"
+        container_name: vault
+        restart: unless-stopped
+        networks:
+            ft-transcendence-net:
+                ipv4_address: &vault_ip 10.42.42.42
+        extra_hosts:
+            backend: *backend-ip
+            caddy: *caddy-ip
+            elasticsearch: *elasticsearch-ip
+            logstash: *logstash-ip
+            kibana: *kibana-ip
+        cap_add:
+            - IPC_LOCK
+        volumes:
+            - "vault:/vault/file/"
+            - "vault_secret:/vault/secret/"
+            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
+        environment:
+            LOGLEVEL: "debug"
+            SAVE_UNSEAL_KEYS: "1"
+            SAVE_ROOT_TOKEN: "1"
+        tty: true
+        develop:
+            watch:
+                - path: "./vault/entrypoint.sh"
+                  action: sync+restart
+                  target: "/entrypoint.sh"
+                - path: "./vault/replace_json_templates.py"
+                  action: sync+restart
+                  target: "/replace_json_templates.py"
+                - path: "./vault/healthcheck.sh"
+                  action: sync+restart
+                  target: "/healthcheck.sh"
+                - path: "./vault/config.hcl"
+                  action: sync+restart
+                  target: "/vault/config/config.hcl"
+                - path: "./vault/env.json"
+                  action: sync+restart
+                  target: "/vault/config/env.json"
+                - path: "./vault/policies/"
+                  action: sync+restart
+                  target: "/vault/policies/"
 
 volumes:
     vault:
