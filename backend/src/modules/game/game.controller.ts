@@ -11,9 +11,12 @@ export const handleGameStart =
             return app.log.error("Game start message has no token");
         }
 
-        // if (!userId) {
-        //     return app.log.error("Invalid token");
-        // }
+        const userId = app.authService.verifyToken(token);
+        if (userId.isErr()) {
+            return app.log.error("Invalid token");
+        }
+
+        conn.userId = Number(userId.value.id);
 
         if (!app.gameService.hasWaitingPlayer()) {
             if (!app.gameService.hasWaitingPlayer()) {
