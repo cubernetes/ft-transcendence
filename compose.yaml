@@ -87,6 +87,7 @@ services:
                 restart: true
                 condition: service_healthy
             logstash:
+                restart: true
                 condition: service_healthy
         develop:
             watch:
