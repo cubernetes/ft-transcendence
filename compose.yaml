@@ -29,8 +29,8 @@ services:
             - "frontend:/frontend/dist/:ro"
         environment:
             <<: *env-caddy-backend
-            CADDY_EXTRA_GLOBAL_DIRECTIVES: ${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}
-            CADDY_EXTRA_SITE_DIRECTIVES: ${CADDY_EXTRA_SITE_DIRECTIVES:-}
+            CADDY_EXTRA_GLOBAL_DIRECTIVES: "${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
+            CADDY_EXTRA_SITE_DIRECTIVES: "${CADDY_EXTRA_SITE_DIRECTIVES:-}"
         depends_on:
             - frontend
             - backend
@@ -75,8 +75,8 @@ services:
                 ipv4_address: &backend-ip 10.42.42.2
         environment:
             <<: *env-caddy-backend
-            NODE_ENV: ${NODE_ENV:-development}
-            DB_PATH: ${DB_PATH:-}
+            NODE_ENV: "${NODE_ENV:-development}"
+            DB_PATH: "${DB_PATH:-}"
             LOGSTASH_HOST: "logstash"
             LOGSTASH_PORT: "5000"
         volumes:
@@ -117,9 +117,9 @@ services:
             - "vault_secret:/vault/secret/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
-            LOGLEVEL: debug
-            SAVE_UNSEAL_KEYS: 1
-            SAVE_ROOT_TOKEN: 1
+            LOGLEVEL: "debug"
+            SAVE_UNSEAL_KEYS: "1"
+            SAVE_ROOT_TOKEN: "1"
         tty: true
         develop:
             watch:
@@ -146,9 +146,9 @@ services:
         image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
         container_name: elasticsearch
         environment:
-            - discovery.type=single-node
+            - "discovery.type=single-node"
             - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-            - xpack.security.enabled=false
+            - "xpack.security.enabled=false"
         volumes:
             - elasticsearch_data:/usr/share/elasticsearch/data
         ports:
@@ -192,7 +192,7 @@ services:
         ports:
             - "5601:5601"
         environment:
-            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+            - "ELASTICSEARCH_HOSTS=http://elasticsearch:9200"
         networks:
             - ft-transcendence-net
         depends_on:
