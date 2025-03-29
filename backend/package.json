@@ -8,11 +8,10 @@
         "start:dev": "npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
         "build": "tsc --noEmit && node esbuild.config.js",
         "build:dev": "tsc --noEmit && node esbuild.config.js --watch",
-        "test": "npx tap --allow-incomplete-coverage",
-        "test:dev": "npx tap --watch"
+        "test": "BACKEND_PORT=3000 JWT_SECRET=1234567890abcdef1234567890abcdef DB_PATH=:memory: DB_DIR=drizzle npx tap --allow-incomplete-coverage"
     },
     "dependencies": {
-        "@darrenkuro/pong-core": "^1.0.0",
+        "@darrenkuro/pong-core": "^1.0.3",
         "@faker-js/faker": "^9.6.0",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
