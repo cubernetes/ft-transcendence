@@ -27,7 +27,9 @@ const readVaultOnce = async (path: string) => {
 			throw new Error(`Request to vault API FAILED:\n${e}`);
 		});
 
-	fs.writeFileSync("/run/secrets/backend_vault_token", ""); // clear, since not needed anymore, but token-max-use should be set to 1 anyways
+	if (process.env.NODE_ENV === "production") {
+		fs.writeFileSync("/run/secrets/backend_vault_token", "");
+	}
 
 	return promise;
 }
