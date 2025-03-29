@@ -1,4 +1,4 @@
-import { PongConfig } from "./pong.types.ts";
+import { PongConfig } from "./pong.types";
 
 const defaultBoard = {
     size: { width: 20, height: 0.1, depth: 15 },
