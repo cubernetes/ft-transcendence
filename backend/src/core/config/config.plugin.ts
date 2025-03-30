@@ -9,11 +9,12 @@ const readVaultOnce = async (path: string) => {
 	const vaultToken = fs.readFileSync("/run/secrets/backend_vault_token", "utf8");
 
 	const promise = fetch(`http://vault:8200/v1/${path}`, {headers:{"X-Vault-Token": vaultToken}})
-		.then((resp) => {
+		.then(async (resp) => {
+			const respText = await resp.text();
 			if (!resp.ok) {
-				throw new Error(`Request to vault API was NOT OK:\n${resp.text()}`);
+				throw new Error(`Request to vault API was NOT OK:\n${respText}`);
 			}
-			return resp.text();
+			return respText;
 		})
 		.then((text) => {
 			try {
@@ -26,7 +27,9 @@ const readVaultOnce = async (path: string) => {
 			throw new Error(`Request to vault API FAILED:\n${e}`);
 		});
 
-	fs.writeFileSync("/run/secrets/backend_vault_token", ""); // clear, since not needed anymore, but token-max-use should be set to 1 anyways
+	if (process.env.NODE_ENV === "production") {
+		fs.writeFileSync("/run/secrets/backend_vault_token", "");
+	}
 
 	return promise;
 }

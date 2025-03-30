@@ -366,6 +366,14 @@ create_policies () {
 create_token_role () {
 	ensure_env_json
 
+	if [ "$WATCH" = "1" ]; then
+		token_max_uses=''
+		max_ttl='token_explicit_max_ttls=999d'
+	else
+		token_max_uses='token_num_uses=1'
+		max_ttl='token_explicit_max_ttls=30s'
+	fi
+
 	while read -r service; do
 		info "Determining IP for service \033\133;93m%s\033\133m" "$service"
 		allowed_ip=$({ timeout 0.3 ping -q4 -s0 -w1 -W1 -c1 "$service" | grep -o '\([[:digit:]]\+\.\)\{3\}[[:digit:]]\+' | head -n 1; } 2>/dev/null)
@@ -378,10 +386,10 @@ create_token_role () {
 			orphan=true                                     \
 			renewable=false                                 \
 			role_name="$service"                            \
-			token_bound_cidrs=$allowed_ip/32                \
-			token_explicit_max_ttls=30s                     \
+			token_bound_cidrs="$allowed_ip"/32              \
 			token_no_default_policy=true                    \
-			token_num_uses=1
+			$max_ttl                                        \
+			$token_max_uses
 	done <<-EOF
 	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
 	EOF
@@ -399,6 +407,12 @@ create_and_share_client_tokens () {
 }
 
 main () {
+	if [ "$WATCH" = "1" ]; then
+		warn "Watch mode is ON. Service tokens will NOT expire to make hot reloading work"
+	else
+		info "Watch mode is OFF. Service tokens will be one-time-use"
+	fi
+
 	echo 0 > /tmp/vault_started
 	if is_initialized; then
 		info "Vault storage backend has files in it. Not re-initializing vault"
