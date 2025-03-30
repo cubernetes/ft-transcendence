@@ -180,9 +180,10 @@ services:
         cap_add:
             - IPC_LOCK
         volumes:
-            - "vault:/vault/file/"
+            - "vault-storage:/vault/file/"
             - "vault-secret:/vault/secret/"
             - "vault-logs:/vault/logs/"
+            - "./env.json:/vault/config/env.json:ro"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             <<: *env-watch
@@ -204,15 +205,12 @@ services:
                 - path: "./vault/config.hcl"
                   action: sync+restart
                   target: "/vault/config/config.hcl"
-                - path: "./vault/env.json"
-                  action: sync+restart
-                  target: "/vault/config/env.json"
                 - path: "./vault/policies/"
                   action: sync+restart
                   target: "/vault/policies/"
 
 volumes:
-    vault:
+    vault-storage:
     vault-secret:
     vault-logs:
     caddy-data:

@@ -13,14 +13,14 @@ the file to prevent unwanted access from the host system.
 
 ## How Vault initially starts up
 
-When Vault is started for the first time, the `vault` volume mounted at `/vault/file`
+When Vault is started for the first time, the `vault-storage` volume mounted at `/vault/file`
 will be empty. The entrypoint recognizes that and starts the initialization process,
 where it will start (`vault server`) and initialize (`vault operator init`) Vault.
 Then it will extract the **unseal keys** and the **root token** from the stdout.
 It uses the unseal keys to unseal Vault and then the root token to create
 the policies and tokens for all the services. After that, if the environment
 variables `SAVE_UNSEAL_KEYS` or `SAVE_ROOT_TOKEN` are `1`, it will save the
-respective secret in another volume called `vault_secret` at `/vault/secret/`.
+respective secret in another volume called `vault-secret` at `/vault/secret/`.
 This is the default, but for security they should be `0` and you should look
 at the service logs and make note of those secrets. However, as of now, there
 is no way to provide those secrets to Vault at startup. One possible way would
@@ -104,7 +104,7 @@ Let's say your service is called `foo`, then the steps would be the following:
     +     foo:
     +         networks:
     +             ft-transcendence-net:
-    +                 ipv4_address: &foo_ip 10.42.42.3
+    +                 ipv4_address: &foo-ip 10.42.42.3
     +         volumes:
     +             - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
     +         depends_on:
@@ -122,22 +122,23 @@ Let's say your service is called `foo`, then the steps would be the following:
               restart: unless-stopped
               networks:
                   ft-transcendence-net
-                      ipv4_address: &vault_ip 10.42.42.42
+                      ipv4_address: &vault-ip 10.42.42.42
               extra_hosts:
-                  backend: *backend_ip
-                  caddy: *caddy_ip
-    +             foo: *foo_ip
+                  backend: *backend-ip
+                  caddy: *caddy-ip
+    +             foo: *foo-ip
               cap_add:
                   - IPC_LOCK
               volumes:
-                  - "vault:/vault/file/"
-                  - "vault_secret:/vault/secret/"
+                  - "vault-storage:/vault/file/"
+                  - "vault-secret:/vault/secret/"
                   - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
     +             - "./.secrets/foo_vault_token:/run/secrets/foo_vault_token"
               environment:
-                  LOGLEVEL: debug
-                  SAVE_UNSEAL_KEYS: 1
-                  SAVE_ROOT_TOKEN: 1
+                  <<: *env-watch
+                  LOGLEVEL: "debug"
+                  SAVE_UNSEAL_KEYS: "1"
+                  SAVE_ROOT_TOKEN: "1"
               tty: true
     ```
 

@@ -1,0 +1,93 @@
+### clean specific volumes
+.PHONY: clean-frontend-volume
+clean-frontend-volume: down
+	$(D) volume rm --force ft-transcendence_frontend
+
+.PHONY: clean-vault
+clean-vault: down
+	$(D) volume rm --force ft-transcendence_vault
+	$(D) volume rm --force ft-transcendence_vault-logs
+	$(D) volume rm --force ft-transcendence_vault-secrets
+
+.PHONY: clean-db
+clean-db: down
+	$(D) volume rm --force ft-transcendence_drizzle
+
+.PHONY: clean-elk
+clean-elk: down
+	$(D) volume rm --force ft-transcendence_elasticsearch-data
+
+.PHONY: clean-caddy
+clean-caddy: down
+	$(D) volume rm --force ft-transcendence_elasticsearch-caddy-data
+
+### clean all volumes, including caddy-db (user data) and caddy-data (TLS certificates)
+### not suitable for production, obviously
+.PHONY: vclean
+vclean: down
+	$(MAKE) clean-frontend-volume clean-vault clean-db clean-elk clean-caddy
+	$(D) system prune --force
+
+# Clean various files/folders
+.PHONY: clean-secrets-folder
+clean-secrets-folder:
+	$(RM) -r ./.secrets/
+
+.PHONY: clean-backend-files
+clean-backend-files:
+	$(RM) -r ./backend/node_modules/ ./backend/dist/ ./backend/.tap/
+
+.PHONY: clean-frontend-files
+clean-frontend-files:
+	$(RM) -r ./frontend/node_modules/ ./frontend/dist/
+
+.PHONY: clean-cli-files
+clean-cli-files:
+	$(RM) -r ./cli/node_modules/
+
+# Removes all project generated files/folders, DOES NOT REMOVE VOLUMES
+.PHONY: fclean
+fclean: clean-secrets-folder clean-backend-files clean-frontend-files clean-cli-files
+
+# Remove all files/folders/volumes of the project
+.PHONY: clean
+clean: vclean fclean
+
+# Remove (almost) EVERYTHING docker related
+.PHONY: dockerclean
+dockerclean: down
+	@printf '\033[33mWarning: %b\033[m'                                         \
+		"You're about the delete ALL:\n"                                        \
+		" - containers (running or not)\n"                                      \
+		" - docker images (dangling and unused)\n"                              \
+		" - volumes (named or unnamed)\n"                                       \
+		" - networks\n"                                                         \
+		" - build caches\n"                                                     \
+		"This is VERY, VERY LIKELY not needed. Images, containers, networks\n"  \
+		"volumes, and build caches NOT related to this project WILL BE LOST.\n" \
+		"Please make sure you fully understand what you're about to do\n"       \
+		"and consider 'make clean' instead.\n"                                  \
+		"Press ENTER to continue anyway (or CTRL-C to abort)..." && read c
+	$(D) ps --quiet --all | xargs -r $(D) rm -f # non-graceful shutdown because wdgaf
+	$(D) system prune --all --volumes --force   # dangerous
+
+# Remove everything docker related and everything in
+.PHONY: deepclean
+deepclean:
+	@# VERY dangerous command
+	@printf '\033[33mWarning: %b\033[m'                                                \
+		"You're about to run a DANGEROUS COMMAND:\n"                                   \
+		" - \033[41;30m git clean -dffxi \033[m\n"                                     \
+		"It will permanently delete EVERYTHING that is not tracked (interactively)!\n" \
+		"INCLUDING .gitignored FILES. It is pretty much equivalent to cloning the\n"   \
+ 		"repo fresh. You might lose ALL files you haven't commited yet, so either\n"   \
+		"lose them or save them using (for example) the following commands:\n"         \
+		" - \033[32mgit stash --include-untracked\033[m\n"                             \
+		" - \033[32mgit add --intend-to-add --all\033[m\n"                             \
+		" - \033[32mgit add --all\033[m\n"                                             \
+		"Or run the dangerous command anyway, because it will be interactive,\n"       \
+		"you can decide which files to remove and which to keep.\n"                    \
+		"Press ENTER to go to the selection (or CTLR-C to abort)..." && read c
+	git clean -dffxi
+	$(MAKE) dockerclean
+	$(MAKE) clean
