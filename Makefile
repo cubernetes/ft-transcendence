@@ -1,11 +1,19 @@
+# Change to docker-compose if you need
 DC := docker compose
+# Change to podman if you need
 D := docker
+# Enables you do run `make` alone
+.DEFAULT_GOAL := dev
 
+# When registering a new service that needs vault, a file needs
+# to be added here for the exchange of the vault token. The
+# naming scheme is strict, it must be
+# ./.secrets/${service}_vault_token
+# where ${service} is the same as the JSON root subkeys in ./env.json
 VAULT_TOKEN_EXCHANGE_FILES := \
 	./.secrets/backend_vault_token
 
-.DEFAULT_GOAL := dev
-
+# Must be in standard dotenv format
 -include .env
 include config.env
 include Makefile.clean
@@ -60,8 +68,8 @@ define wait-progress
 	sleep 1
 endef
 
-# This target is needed for legacy docker compose versions where there's no `--watch' flag for `docker compose up'.
-# Use the `dev' target instead.
+# This target is needed for legacy docker compose versions where there is no `--watch' flag for `docker compose up'.
+# The `dev' target is preferred.
 .PHONY: dev-old-compose
 dev-old-compose: check-env clean-app-volumes ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
@@ -92,6 +100,7 @@ ensure-secret-files: clean-secrets-folder
 	@mkdir -p ./.secrets/
 	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
 
+# `clean' will remove all volumes and some files (e.g. node_modules), see Makefile.clean
 .PHONY: re
 re: clean
 	$(MAKE)
