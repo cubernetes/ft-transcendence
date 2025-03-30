@@ -38,11 +38,21 @@ dev-old-compose: check-env clean-app-volumes ensure-secret-files
 
 .PHONY: dev
 dev: check-env clean-frontend-volume ensure-secret-files
-	@$(call dev-env,up --remove-orphans --build --watch $(ARGS))
+	@$(call dev-env,
+		up
+		--remove-orphans
+		--build
+		--watch
+		$(ARGS))
 
 .PHONY: prod
 prod: check-env clean-frontend-volume ensure-secret-files
-	@$(call prod-env,up --remove-orphans --build --detach)
+	@$(call prod-env,
+		up
+		--remove-orphans
+		--build
+		--detach
+		$(ARGS))
 
 .PHONY: down
 down:
