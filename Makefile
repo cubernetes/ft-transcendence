@@ -18,8 +18,8 @@ VAULT_TOKEN_EXCHANGE_FILES := \
 include config.env
 
 # Helper Makefile
-include Makefile.clean
-include Makefile.aux
+include Makefile.clean.mk
+include Makefile.aux.mk
 
 # This target is needed for legacy docker compose versions where there is no `--watch' flag for `docker compose up'.
 # The `dev' target is preferred.
