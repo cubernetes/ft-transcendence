@@ -93,6 +93,8 @@ down:
 .PHONY: clean-app-volumes
 clean-app-volumes: down
 	$(D) volume rm --force ft-transcendence_frontend
+	$(D) volume rm --force ft-transcendence_vault-logs
+	$(D) volume rm --force ft-transcendence_elasticsearch-data
 
 .PHONY: clean
 clean:
