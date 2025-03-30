@@ -110,7 +110,7 @@ services:
             discovery.type: "single-node"
             xpack.security.enabled: "false"
         volumes:
-            - "elasticsearch_data:/usr/share/elasticsearch/data/"
+            - "elasticsearch-data:/usr/share/elasticsearch/data/"
         ports:
             - "9200:9200"
         networks:
@@ -217,7 +217,7 @@ volumes:
     caddy-data:
     drizzle:
     frontend:
-    elasticsearch_data:
+    elasticsearch-data:
 
 networks:
     ft-transcendence-net:
