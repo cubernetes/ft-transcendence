@@ -16,57 +16,10 @@ VAULT_TOKEN_EXCHANGE_FILES := \
 # Must be in standard dotenv format
 -include .env
 include config.env
+
+# Helper Makefile
 include Makefile.clean
-
-.EXPORT_ALL_VARIABLES:
-
-.PHONY: check-env
-check-env:
-	@test -e .env || {        \
-		printf '\033[33m%s \033[42;30m%s\033[m\033[33m\n%s\n%s\n%s\n%s\n%s\033[m'          \
-			"Warning: .env doesn't exist, trying to run" "cp .env.example .env"            \
-			"Warning: Since the file didn't exist, no environment variables from"          \
-			"Warning: that file will be included/exposed inside this Makefile."            \
-			"Warning: It is STRONGLY recommended you abort this step, manually"            \
-			"Warning: copy the file, adjust its contents, and then run make again."        \
-			"Warning: Press ENTER to continue (run the cp command) or CTRL-C to abort..."; \
-		read c;               \
-		cp .env.example .env; \
-	}
-
-define dev-env
-	[ -n "$(DEV_HTTP_PORT)" ]  &&  \
-	[ -n "$(DEV_HTTPS_PORT)" ] &&  \
-	[ -n "$(DEV_DOMAINS)" ]    &&  \
-	HTTP_PORT="$(DEV_HTTP_PORT)"   \
-	HTTPS_PORT="$(DEV_HTTPS_PORT)" \
-	DOMAINS="$(DEV_DOMAINS)"       \
-	NODE_ENV="development"         \
-	WATCH="1"                      \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
-	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(DEV_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) $(1)
-endef
-
-define prod-env
-	[ -n "$(PROD_HTTP_PORT)" ]  &&  \
-	[ -n "$(PROD_HTTPS_PORT)" ] &&  \
-	[ -n "$(PROD_DOMAINS)" ]    &&  \
-	HTTP_PORT="$(PROD_HTTP_PORT)"   \
-	HTTPS_PORT="$(PROD_HTTPS_PORT)" \
-	DOMAINS="$(PROD_DOMAINS)"       \
-	NODE_ENV="production"           \
-	WATCH="0"                       \
-	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
-	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
-	$(DC) $(1)
-endef
-
-define wait-progress
-	printf '\033[33m%s\033[m\n' \
-		"INFO: Starting to watch for filesystem changes in $(1) second(s)"
-	sleep 1
-endef
+include Makefile.aux
 
 # This target is needed for legacy docker compose versions where there is no `--watch' flag for `docker compose up'.
 # The `dev' target is preferred.
@@ -94,11 +47,6 @@ prod: check-env clean-frontend-volume ensure-secret-files
 .PHONY: down
 down:
 	$(DC) down
-
-.PHONY: ensure-secret-files
-ensure-secret-files: clean-secrets-folder
-	@mkdir -p ./.secrets/
-	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
 
 # `clean' will remove all volumes and some files (e.g. node_modules), see Makefile.clean
 .PHONY: re
