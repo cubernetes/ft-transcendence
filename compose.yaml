@@ -25,7 +25,7 @@ services:
             ft-transcendence-net:
                 ipv4_address: &caddy-ip 10.42.42.1
         volumes:
-            - "caddy_data:/frontend/.local/share/caddy/"
+            - "caddy-data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
         environment:
             <<: *env-caddy-backend
@@ -110,7 +110,7 @@ services:
             discovery.type: "single-node"
             xpack.security.enabled: "false"
         volumes:
-            - "elasticsearch_data:/usr/share/elasticsearch/data/"
+            - "elasticsearch-data:/usr/share/elasticsearch/data/"
         ports:
             - "9200:9200"
         networks:
@@ -181,7 +181,8 @@ services:
             - IPC_LOCK
         volumes:
             - "vault:/vault/file/"
-            - "vault_secret:/vault/secret/"
+            - "vault-secret:/vault/secret/"
+            - "vault-logs:/vault/logs/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             <<: *env-watch
@@ -212,11 +213,12 @@ services:
 
 volumes:
     vault:
-    vault_secret:
-    caddy_data:
+    vault-secret:
+    vault-logs:
+    caddy-data:
     drizzle:
     frontend:
-    elasticsearch_data:
+    elasticsearch-data:
 
 networks:
     ft-transcendence-net:
