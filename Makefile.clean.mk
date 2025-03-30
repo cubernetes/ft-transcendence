@@ -1,30 +1,31 @@
 ### clean specific volumes
 .PHONY: clean-frontend-volume
-clean-frontend-volume:
+clean-frontend-volume: down
 	$(D) volume rm --force ft-transcendence_frontend
 
 .PHONY: clean-vault
-clean-vault:
+clean-vault: down
 	$(D) volume rm --force ft-transcendence_vault
 	$(D) volume rm --force ft-transcendence_vault-logs
 	$(D) volume rm --force ft-transcendence_vault-secrets
 
 .PHONY: clean-db
-clean-db:
+clean-db: down
 	$(D) volume rm --force ft-transcendence_drizzle
 
 .PHONY: clean-elk
-clean-elk:
+clean-elk: down
 	$(D) volume rm --force ft-transcendence_elasticsearch-data
 
 .PHONY: clean-caddy
-clean-caddy:
+clean-caddy: down
 	$(D) volume rm --force ft-transcendence_elasticsearch-caddy-data
 
 ### clean all volumes, including caddy-db (user data) and caddy-data (TLS certificates)
 ### not suitable for production, obviously
 .PHONY: vclean
-vclean: clean-frontend-volume clean-vault clean-db clean-elk clean-caddy
+vclean: down
+	$(MAKE) clean-frontend-volume clean-vault clean-db clean-elk clean-caddy
 	$(D) system prune --force
 
 # Clean various files/folders
@@ -54,7 +55,7 @@ clean: vclean fclean
 
 # Remove (almost) EVERYTHING docker related
 .PHONY: dockerclean
-dockerclean:
+dockerclean: down
 	@printf '\033[33mWarning: %b\033[m'                                         \
 		"You're about the delete ALL:\n"                                        \
 		" - containers (running or not)\n"                                      \
