@@ -40,21 +40,21 @@ dev-old-compose: check-env
 .PHONY: dev
 dev: check-env
 	$(MAKE) clean-frontend-volume ensure-secret-files
-	@$(call dev-env,
-		up
-		--remove-orphans
-		--build
-		--watch
+	@$(call dev-env,     \
+		up               \
+		--remove-orphans \
+		--build          \
+		--watch          \
 		$(ARGS))
 
 # Don't depend on check-env (endless waiting), rather fail
 .PHONY: prod
 prod: clean-frontend-volume ensure-secret-files
-	@$(call prod-env,
-		up
-		--remove-orphans
-		--build
-		--detach
+	@$(call prod-env,    \
+		up               \
+		--remove-orphans \
+		--build          \
+		--detach         \
 		$(ARGS))
 
 .PHONY: down
