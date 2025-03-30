@@ -25,7 +25,7 @@ include Makefile.aux
 # The `dev' target is preferred.
 .PHONY: dev-old-compose
 dev-old-compose: check-env
-	$(MAKE) clean-app-volumes ensure-secret-files
+	$(MAKE) clean-frontend-volume ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
 	@$(call dev-env,build)
 	@$(call dev-env,up --remove-orphans --detach)
