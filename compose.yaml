@@ -182,6 +182,7 @@ services:
         volumes:
             - "vault:/vault/file/"
             - "vault-secret:/vault/secret/"
+            - "vault-logs:/vault/logs/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             LOGLEVEL: "debug"
@@ -212,6 +213,7 @@ services:
 volumes:
     vault:
     vault-secret:
+    vault-logs:
     caddy-data:
     drizzle:
     frontend:
