@@ -8,6 +8,8 @@ die () {
 	exit 1
 }
 
+plugin_path=./backend/node_modules/@trivago/prettier-plugin-sort-imports/lib/src/index.js
+
 # subshell to not clobber IFS
 format_staged () (
 	[ "$#" -lt 1 ] && die "format_staged function expects at least 1 extension as an argument"
@@ -18,7 +20,7 @@ format_staged () (
 	if git diff --name-only --cached --diff-filter=d | \
 		grep -E "\.($*)\$"                        | \
 		tr '\n' '\0'                              | \
-		xargs -r0 npx prettier --list-different 1>/dev/null; then
+		xargs -r0 npx prettier --plugin "$plugin_path" --list-different 1>/dev/null; then
 		all_good=1
 	else
 		all_good=0
@@ -27,7 +29,7 @@ format_staged () (
 	git diff --name-only --cached --diff-filter=d | \
 		grep -E "\.($*)\$"                        | \
 		tr '\n' '\0'                              | \
-		xargs -r0 npx prettier --write
+		xargs -r0 npx prettier --plugin "$plugin_path" --write
 
 	if [ ! "$all_good" = "1" ]; then
 		printf '\033[33m%s\033[m\n' "Warning: Not commiting since some files were formatted with prettier"

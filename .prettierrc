@@ -5,8 +5,6 @@
     "semi": true,
     "trailingComma": "es5",
     "arrowParens": "always",
-    "overrides": [
-        { "files": "*.json", "options": {} },
-        { "files": "*.ts", "options": {} }
-    ]
+    "importOrder": ["tap", "tap", "^[^\/]*$", "^[./]"],
+    "importOrderSortSpecifiers": true
 }
