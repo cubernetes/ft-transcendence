@@ -52,7 +52,7 @@ jobs:
                      git stash --include-untracked || : ; : 'git stash may fail (if it does, prolly docker related' ; \
                      git checkout --force ${{ secrets.PRODUCTION_BRANCH }} ;                                          \
                      git pull --rebase --force ${{ secrets.REMOTE_NAME }} ${{ secrets.PRODUCTION_BRANCH }} ;          \
-                     make clean ;                                                                                     \
+                     make down ;                                                                                      \
                      make prod"
 
             - name: Cleanup
