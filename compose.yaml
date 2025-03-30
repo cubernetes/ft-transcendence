@@ -25,7 +25,7 @@ services:
             ft-transcendence-net:
                 ipv4_address: &caddy-ip 10.42.42.1
         volumes:
-            - "caddy_data:/frontend/.local/share/caddy/"
+            - "caddy-data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
         environment:
             <<: *env-caddy-backend
@@ -181,7 +181,7 @@ services:
             - IPC_LOCK
         volumes:
             - "vault:/vault/file/"
-            - "vault_secret:/vault/secret/"
+            - "vault-secret:/vault/secret/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             LOGLEVEL: "debug"
@@ -211,8 +211,8 @@ services:
 
 volumes:
     vault:
-    vault_secret:
-    caddy_data:
+    vault-secret:
+    caddy-data:
     drizzle:
     frontend:
     elasticsearch_data:
