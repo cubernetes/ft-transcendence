@@ -45,8 +45,9 @@ dev: check-env clean-frontend-volume ensure-secret-files
 		--watch
 		$(ARGS))
 
+# Don't depend on check-env (endless waiting), rather fail
 .PHONY: prod
-prod: check-env clean-frontend-volume ensure-secret-files
+prod: clean-frontend-volume ensure-secret-files
 	@$(call prod-env,
 		up
 		--remove-orphans
