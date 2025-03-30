@@ -7,8 +7,10 @@ export const readVaultOnce = async (
     const tokenFile = "/run/secrets/backend_vault_token";
     const vaultToken = fs.readFileSync(tokenFile, "utf8").trim();
 
-    // Clear right away, since not needed anymore, but token-max-use should be set to 1 anyways
-    fs.writeFileSync(tokenFile, "");
+    // Clear token file in production right away
+    if (process.env.NODE_ENV === "production") {
+        fs.writeFileSync(tokenFile, "");
+    }
 
     const req = await fetch(`http://vault:8200/v1/${path}`, {
         headers: { "X-Vault-Token": vaultToken },
