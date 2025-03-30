@@ -108,6 +108,7 @@ cleandb: clean
 .PHONY: cleanvault
 cleanvault: clean
 	$(D) volume rm --force ft-transcendence_vault
+	$(D) volume rm --force ft-transcendence_vault-secrets
 
 .PHONY: fclean
 fclean: clean cleandb cleanvault
