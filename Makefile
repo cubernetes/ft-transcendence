@@ -1,12 +1,15 @@
 DC := docker compose
 D := docker
 
-VAULT_TOKEN_EXCHANGE_FILES := ./.secrets/backend_vault_token
+VAULT_TOKEN_EXCHANGE_FILES := \
+	./.secrets/backend_vault_token
 
 .DEFAULT_GOAL := dev
 
 -include .env
 include config.env
+include Makefile.clean
+
 .EXPORT_ALL_VARIABLES:
 
 .PHONY: check-env
@@ -57,12 +60,6 @@ define wait-progress
 	sleep 1
 endef
 
-.PHONY: ensure-secret-files
-ensure-secret-files:
-	@mkdir -p ./.secrets/
-	@$(RM) -r $(VAULT_TOKEN_EXCHANGE_FILES)
-	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
-
 # This target is needed for legacy docker compose versions where there's no `--watch' flag for `docker compose up'.
 # Use the `dev' target instead.
 .PHONY: dev-old-compose
@@ -79,61 +76,21 @@ dev-old-compose: check-env clean-app-volumes ensure-secret-files
 	@$(call dev-env,watch --no-up)
 
 .PHONY: dev
-dev: check-env clean-app-volumes ensure-secret-files
+dev: check-env clean-frontend-volume ensure-secret-files
 	@$(call dev-env,up --remove-orphans --build --watch $(ARGS))
 
 .PHONY: prod
-prod: check-env clean-app-volumes ensure-secret-files
+prod: check-env clean-frontend-volume ensure-secret-files
 	@$(call prod-env,up --remove-orphans --build --detach)
 
 .PHONY: down
 down:
 	$(DC) down
 
-.PHONY: clean-app-volumes
-clean-app-volumes: down
-	$(D) volume rm --force ft-transcendence_frontend
-	$(D) volume rm --force ft-transcendence_vault-logs
-	$(D) volume rm --force ft-transcendence_elasticsearch-data
-
-.PHONY: clean
-clean:
-	$(MAKE) clean-app-volumes
-	$(D) system prune --force
-
-.PHONY: cleandb
-cleandb: clean
-	$(D) volume rm --force ft-transcendence_drizzle
-
-.PHONY: cleanvault
-cleanvault: clean
-	$(D) volume rm --force ft-transcendence_vault
-	$(D) volume rm --force ft-transcendence_vault-secrets
-
-.PHONY: fclean
-fclean: clean cleandb cleanvault
-	$(RM) -r ./backend/node_modules/ backend/dist/ backend/.tap/
-	$(RM) -r ./frontend/node_modules/ frontend/dist/
-	$(RM) -r ./cli/node_modules/
-	$(RM) -r $(VAULT_TOKEN_EXCHANGE_FILES)
-
-.PHONY: deepclean
-deepclean: fclean
-	@printf '\033[33mWarning: %b\033[m'                                         \
-		"You're about the delete ALL:\n"                                        \
-		" - containers (running or not)\n"                                      \
-		" - docker images (dangling and unused)\n"                              \
-		" - volumes (named or unnamed)\n"                                       \
-		" - networks\n"                                                         \
-		" - build caches\n"                                                     \
-		"This is VERY, VERY LIKELY not needed. Images, containers, networks\n"  \
-		"volumes, and build caches NOT related to this project WILL BE LOST.\n" \
-		"Please make sure you fully understand what you're about to do\n"       \
-		"and consider 'make clean' instead.\n"                                  \
-		"Press ENTER to continue anyway..." && read c
-	$(MAKE) clean
-	$(D) ps --quiet --all | xargs -r $(D) rm -f # non-graceful shutdown because wdgaf
-	$(D) system prune --all --volumes --force        # dangerous
+.PHONY: ensure-secret-files
+ensure-secret-files: clean-secrets-folder
+	@mkdir -p ./.secrets/
+	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
 
 .PHONY: re
 re: clean
