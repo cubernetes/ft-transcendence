@@ -183,6 +183,7 @@ services:
             - "vault-storage:/vault/file/"
             - "vault-secret:/vault/secret/"
             - "vault-logs:/vault/logs/"
+            - "./env.json:/vault/config/env.json:ro"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             <<: *env-watch
