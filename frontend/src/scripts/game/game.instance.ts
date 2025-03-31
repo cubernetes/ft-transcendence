@@ -30,11 +30,12 @@ export class GameInstance {
 
         const engine = new Engine(canvas, true);
 
-        const { scene, controls } = SceneSetup.createScene(engine);
+        const { scene, controls, shadowGenerator } = SceneSetup.createScene(engine);
 
         this.babylon = {
             engine,
             scene,
+            shadowGenerator,
             controls,
             audioEngine: {} as AudioEngineV2,
             bgMusic: {} as StreamingSound,
@@ -63,7 +64,7 @@ export class GameInstance {
             Object.assign(GameInstance.instance.babylon, { hitSound, bounceSound, blopSound });
 
             const { board, paddle1, paddle2, ball } = await SceneSetup.createGameObjects(
-                GameInstance.instance.babylon.scene
+                GameInstance.instance.babylon
             );
             Object.assign(GameInstance.instance.babylon, { board, paddle1, paddle2, ball });
 
@@ -88,8 +89,9 @@ export class GameInstance {
         }
     }
 
+    // TODO: Change y-position in backend so it fits the paddles
     updateBallPosition(x: number, y: number, z: number) {
-        this.babylon.ball.position.set(x, y, z);
+        this.babylon.ball.position.set(x, 0.5, z);
     }
 
     updateLeftPaddlePosition(x: number, y: number, z: number) {

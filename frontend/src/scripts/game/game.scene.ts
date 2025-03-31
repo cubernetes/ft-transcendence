@@ -19,6 +19,10 @@ import {
     HemisphericLight,
     Tools,
     SoundState,
+    ShadowLight,
+    LightGizmo,
+    DirectionalLight,
+    UtilityLayerRenderer,
 } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
@@ -33,21 +37,50 @@ import {
 } from "@babylonjs/gui";
 import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
 import { ASSETS_DIR } from "../config";
+import { BabylonObjects } from "./game.types";
 
 export class SceneSetup {
-    static createScene(engine: any): { scene: Scene; controls: AdvancedDynamicTexture } {
+    static createScene(engine: any): {
+        scene: Scene;
+        shadowGenerator: ShadowGenerator;
+        controls: AdvancedDynamicTexture;
+    } {
         const scene = new Scene(engine);
         scene.audioEnabled = true;
-        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-        var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
 
-        // Default intensity is 1. Let's dim the light a small amount
-        light.intensity = 0.7;
+        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+        // var hemisphericLight = new HemisphericLight(
+        //     "hemisphericLight",
+        //     new Vector3(0, 1, 0),
+        //     scene
+        // );
+        // hemisphericLight.intensity = 0.7;
+
+        const light = new DirectionalLight("directionalLight", new Vector3(0, -8, 4), scene);
+
+        // const utilLayer = new UtilityLayerRenderer(scene, false, true);
+        // const lightGiszmo = new LightGizmo(utilLayer);
+        // lightGiszmo.light = light;
+
+        // light.intensity = 0.5;
+        light.shadowMinZ = 3.5;
+        light.shadowMaxZ = 15;
+        // light.shadowEnabled
+        // light.autoUpdateExtends = false;
+        // light.autoCalcShadowZBounds = true;
+
+        const shadowGenerator = new ShadowGenerator(1024, light);
+        shadowGenerator.setDarkness(0.5);
+        // shadowGenerator.useBlurExponentialShadowMap = true;
+        // shadowGenerator.forceBackFacesOnly = true;
+        shadowGenerator.useKernelBlur = true;
+        shadowGenerator.blurKernel = 64;
+        // shadowGenerator.useExponentialShadowMap = true;
 
         // GUI
         var controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-        return { scene, controls };
+        return { scene, controls, shadowGenerator };
     }
 
     static createControls(controls: AdvancedDynamicTexture, bgMusic: StreamingSound): void {
@@ -67,19 +100,19 @@ export class SceneSetup {
         grid.addRowDefinition(0.25);
         grid.addRowDefinition(0.25);
 
-        // // Create a button
-        var button1 = Button.CreateSimpleButton("but1", "Click Me");
-        button1.width = "150px";
-        button1.height = "40px";
-        button1.color = "white";
-        button1.cornerRadius = 20;
-        button1.background = "green";
-        button1.onPointerUpObservable.add(function () {
-            alert("You just clicked a button!");
-            // controls.rootContainer.fontSize = "9px";
-            //button1.children[0].fontSize = "9px";
-        });
-        controls.addControl(button1);
+        // // Create a clickable button
+        // var button1 = Button.CreateSimpleButton("but1", "Click Me");
+        // button1.width = "150px";
+        // button1.height = "40px";
+        // button1.color = "white";
+        // button1.cornerRadius = 20;
+        // button1.background = "green";
+        // button1.onPointerUpObservable.add(function () {
+        //     alert("You just clicked a button!");
+        //     // controls.rootContainer.fontSize = "9px";
+        //     //button1.children[0].fontSize = "9px";
+        // });
+        // controls.addControl(button1);
 
         // Create a button for the game music
         var buttonMusic = Button.CreateSimpleButton("bgMusic", "Mute\nMusic");
@@ -262,7 +295,7 @@ export class SceneSetup {
         return camera;
     }
 
-    static async createGameObjects(scene: Scene): Promise<{
+    static async createGameObjects(babylon: BabylonObjects): Promise<{
         board: Mesh;
         paddle1: Mesh;
         paddle2: Mesh;
@@ -275,9 +308,20 @@ export class SceneSetup {
         const positions = gameConfig.positions;
         const rotations = gameConfig.rotations;
         const materials = gameConfig.materials;
-        const boardMaterial = new StandardMaterial("board", scene);
-        const paddleMaterial = new StandardMaterial("paddle", scene);
-        const ballMaterial = new StandardMaterial("ball", scene);
+
+        const boardMaterial = new StandardMaterial("board", babylon.scene);
+        // boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
+        // boardMaterial.specularColor = materials.BOARD.specularColor;
+
+        const ballMaterial = new StandardMaterial("ball", babylon.scene);
+        // ballMaterial.wireframe = true;
+
+        const paddleMaterial = new StandardMaterial("paddle", babylon.scene);
+        const paddleMaterial2 = new StandardMaterial("paddle1Mat", babylon.scene);
+        // paddleMaterial2.alpha = 0.5;
+        // paddleMaterial2.alphaMode = Material.MATERIAL_ALPHABLEND;
+        paddleMaterial2.diffuseColor = new Color3(0, 0, 1);
+        paddleMaterial2.backFaceCulling = false;
 
         // Create game board
         const board = MeshBuilder.CreateBox(
@@ -287,44 +331,42 @@ export class SceneSetup {
                 height: objectConfigs.BOARD_HEIGHT,
                 depth: objectConfigs.BOARD_DEPTH,
             },
-            scene
+            babylon.scene
         );
         board.position = positions.BOARD;
-        boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
-        boardMaterial.specularColor = materials.BOARD.specularColor;
         board.material = boardMaterial;
-        // board.receiveShadows = true;
+        board.receiveShadows = true;
 
         const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
             {
-                width: objectConfigs.PADDLE_WIDTH,
-                height: objectConfigs.PADDLE_HEIGHT,
-                depth: objectConfigs.PADDLE_DEPTH,
+                diameterX: 2 * objectConfigs.PADDLE_WIDTH,
+                diameterY: objectConfigs.PADDLE_HEIGHT,
+                diameterZ: objectConfigs.PADDLE_DEPTH,
             },
-            scene
+            babylon.scene
         );
         paddle1.position = positions.PADDLE1;
         paddle1.rotation.x = rotations.PADDLE1;
         paddleMaterial.diffuseColor = materials.PADDLE1.diffuseColor;
-        paddle1.material = paddleMaterial;
+        paddle1.material = paddleMaterial2;
+        babylon.shadowGenerator.addShadowCaster(paddle1);
 
-        // const shadowGenerator = new ShadowGenerator(1024, light);
-        // shadowGenerator.addShadowCaster(sphere);
-
-        const paddle2 = MeshBuilder.CreateBox(
+        // const paddle2 = MeshBuilder.CreateBox(
+        const paddle2 = MeshBuilder.CreateSphere(
             "paddle2",
             {
-                width: objectConfigs.PADDLE_WIDTH,
-                height: objectConfigs.PADDLE_HEIGHT,
-                depth: objectConfigs.PADDLE_DEPTH,
+                diameterX: 2 * objectConfigs.PADDLE_WIDTH,
+                diameterY: objectConfigs.PADDLE_HEIGHT,
+                diameterZ: objectConfigs.PADDLE_DEPTH,
             },
-            scene
+            babylon.scene
         );
         paddle2.position = positions.PADDLE2;
         paddle2.rotation.x = rotations.PADDLE2;
         paddleMaterial.diffuseColor = materials.PADDLE2.diffuseColor;
-        paddle2.material = paddleMaterial;
+        paddle2.material = paddleMaterial2;
+        babylon.shadowGenerator.addShadowCaster(paddle2);
 
         // Create ball
         const ball = MeshBuilder.CreateSphere(
@@ -332,11 +374,12 @@ export class SceneSetup {
             {
                 diameter: objectConfigs.BALL_RADIUS * 2,
             },
-            scene
+            babylon.scene
         );
         ball.position = positions.BALL;
         ballMaterial.diffuseColor = materials.BALL.diffuseColor;
         ball.material = ballMaterial;
+        babylon.shadowGenerator.addShadowCaster(ball);
 
         return { board, paddle1, paddle2, ball };
     }
