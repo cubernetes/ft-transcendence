@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { RegisterBody, LoginBody, LeaderboardParams } from "./user.types.ts";
+import type { RegisterBody, LoginBody, TotpBody, LeaderboardParams } from "./user.types.ts";
 import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
 import { ApiError } from "../../utils/errors.ts";
 
@@ -25,12 +25,54 @@ const registerHandler = async (
     return reply.code(201).send({ success: true, data: { token } });
 };
 
+const totpSetupHandler = async (
+    req: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    const user = await req.server.userService.findById(req.userId);
+
+    if (user.isErr()) {
+        return user.error.send(reply);
+    }
+
+	user.value.totpSecret = 'iorhgoehgoihaeihgioeg';
+	req.server.userService.update(user.value.id, user.value);
+
+	const qrCode = user.value.totpSecret + user.value.totpSecret;
+
+    return reply.send({ success: true, data: { qrCode } });
+};
+
+const totpVerifyHandler = async (
+	{ body }: { body: TotpBody },
+    req: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    const user = await req.server.userService.findByUsername(body.username);
+
+    if (user.isErr()) {
+        return user.error.send(reply);
+    }
+
+	const totpToken = body.token;
+
+    if (totpToken !== '123456') {
+        const err = new ApiError("UNAUTHORIZED", 401, "Invalid 2FA TOTP token");
+        return err.send(reply);
+    }
+
+    const jwtToken = req.server.authService.generateToken(user.value);
+
+    return reply.send({ success: true, data: { token: jwtToken } });
+};
+
 const loginHandler = async (
     { body }: { body: LoginBody },
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
     const user = await req.server.userService.findByUsername(body.username);
+
     if (user.isErr()) {
         return user.error.send(reply);
     }
@@ -81,4 +123,6 @@ export default {
     login: loginHandler,
     leaderboard: getLeaderboardHandler,
     me: getMeHandler,
+    totpSetup: totpSetupHandler,
+    totpVerify: totpVerifyHandler,
 };

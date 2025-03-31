@@ -23,6 +23,12 @@ const loginBodySchema = z.object({
     password: z.string().min(8, { message: "Password is required" }),
 });
 
+const totpBodySchema = z.object({
+	// TODO: make it exact instead of min(6)
+    token: z.string().min(6, { message: "Token must 6 character required" }),
+    username: z.string(),
+});
+
 const leaderboardParamsSchema = z.object({
     n: z.coerce.number().int().gt(0),
 });
@@ -35,6 +41,10 @@ const PublicUserSchema = z.object({
     wins: z.number(),
     losses: z.number(),
     createdAt: z.string().datetime(),
+});
+
+const TotpQrCodeSchema = z.object({
+	qrCode: z.string()
 });
 
 const LoginResponseSchema = z.object({
@@ -78,6 +88,28 @@ const getMeRouteSchema = {
     },
 };
 
+const getTotpSetupRouteSchema = {
+    tags: ["User"],
+    description: "Get the data URI for a QR code image to provision the TOTP secret",
+    security: [{ bearerAuth: [] }],
+    response: {
+        200: zodToJsonSchema(apiSuccess(TotpQrCodeSchema)),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+    },
+};
+
+const getTotpVerifyRouteSchema = {
+    tags: ["User"],
+    description: "Verify a 6-digit TOTP token",
+    security: [{ bearerAuth: [] }],
+    response: {
+        200: zodToJsonSchema(apiSuccess(LoginResponseSchema)),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+    },
+};
+
 const getLeaderboardRouteSchema = {
     tags: ["User"],
     description: "Get top n users by wins",
@@ -92,6 +124,7 @@ const getLeaderboardRouteSchema = {
 export default {
     registerBody: registerBodySchema,
     loginBody: loginBodySchema,
+    totpBody: totpBodySchema,
     leaderboardParams: leaderboardParamsSchema,
     loginResponse: LoginResponseSchema,
     publicUser: PublicUserSchema,
@@ -99,6 +132,8 @@ export default {
         register: registerRouteSchema,
         login: loginRouteSchema,
         me: getMeRouteSchema,
+        totpSetup: getTotpSetupRouteSchema,
+        totpVerify: getTotpVerifyRouteSchema,
         leaderboard: getLeaderboardRouteSchema,
     },
 };
