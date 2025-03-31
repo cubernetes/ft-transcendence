@@ -58,14 +58,11 @@ export const createAIMode = (): HTMLElement => {
         setupSection.replaceWith(createGameModes());
     };
 
-    // Button click logic for active state
     const setActiveButton = (button: HTMLButtonElement) => {
-        // Remove the 'active' class from all buttons
         const buttons = difficultyButtons.querySelectorAll("button");
-        buttons.forEach((btn) => btn.classList.remove("bg-gray-600", "text-black"));
+        buttons.forEach((btn) => btn.classList.remove("bg-gray-400"));
 
-        // Add the 'active' class to the clicked button
-        button.classList.add("bg-gray-600", "text-black");
+        button.classList.add("bg-gray-400");
     };
 
     // Add click event listeners to the difficulty buttons

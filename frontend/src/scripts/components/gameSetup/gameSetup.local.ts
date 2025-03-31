@@ -96,6 +96,25 @@ export const createLocalMode = (): HTMLElement => {
         setupSection.replaceWith(createGameModes());
     };
 
+    const setActiveButton = (button: HTMLButtonElement) => {
+        let buttons = [
+            ...difficultyButtons.querySelectorAll("button"),
+            ...modeButtons.querySelectorAll("button"),
+        ];
+
+        buttons.forEach((btn) => btn.classList.remove("bg-gray-400"));
+
+        // Add the 'active' class to the clicked button
+        button.classList.add("bg-gray-400");
+    };
+
+    // Add click event listeners to the difficulty buttons
+    easyButton.onclick = () => setActiveButton(easyButton);
+    mediumButton.onclick = () => setActiveButton(mediumButton);
+    hardButton.onclick = () => setActiveButton(hardButton);
+    mode2P.onclick = () => setActiveButton(mode2P);
+    mode4P.onclick = () => setActiveButton(mode4P);
+
     setupSection.appendChild(returnButton);
     setupSection.appendChild(setupTitle);
     setupSection.appendChild(setupLine);
