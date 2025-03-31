@@ -34,7 +34,6 @@ export class WebSocketManager {
         if (this.socket.readyState === WebSocket.OPEN) {
             logger.info("Sending startPong");
             this.socket.send("startPong"); // Start the game
-            // this.gameStateManager
         } else {
             logger.error("WebSocket is not open.");
         }

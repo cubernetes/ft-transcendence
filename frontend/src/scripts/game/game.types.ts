@@ -2,11 +2,23 @@ import {
     Mesh,
     Engine,
     Scene,
-    AudioEngine as AudioEngineV2,
+    AudioEngineV2,
     StreamingSound,
     StaticSound,
+    IFontData,
+    ArcRotateCamera,
 } from "@babylonjs/core";
-
+import {
+    AdvancedDynamicTexture,
+    Control,
+    StackPanel,
+    Button,
+    TextBlock,
+    Slider,
+    ImageBasedSlider,
+    Image,
+    Grid,
+} from "@babylonjs/gui";
 // Game state
 export interface IBabylonGameState {
     score: { player1: number; player2: number };
@@ -47,4 +59,22 @@ export interface GameElements {
     paddle1: Mesh;
     paddle2: Mesh;
     ball: Mesh;
+}
+
+export interface BabylonObjects {
+    engine: Engine;
+    scene: Scene;
+    controls: AdvancedDynamicTexture;
+    audioEngine: AudioEngineV2;
+    bgMusic: StreamingSound;
+    hitSound: StaticSound;
+    bounceSound: StaticSound;
+    blopSound: StaticSound;
+    camera: ArcRotateCamera;
+    board: Mesh;
+    ball: Mesh;
+    paddle1: Mesh;
+    paddle2: Mesh;
+    fontData: IFontData;
+    // public scoreText!: Mesh;
 }

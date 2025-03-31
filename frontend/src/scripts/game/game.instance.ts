@@ -15,78 +15,65 @@ import { WebSocketManager } from "./managers/managers.sockets";
 import { GameStateManager } from "./managers/managers.state";
 import { SceneSetup } from "./game.scene";
 import { ASSETS_DIR } from "../config";
-import { ICollisionEvent } from "./game.types";
+import { ICollisionEvent, BabylonObjects } from "./game.types";
 
 export class GameInstance {
-    private static instance: GameInstance;
-    public engine: Engine;
-    public scene: Scene;
-    public controls!: AdvancedDynamicTexture;
-    public audioEngine!: AudioEngineV2;
-    public bgMusic!: StreamingSound;
-    public hitSound!: StaticSound;
-    public bounceSound!: StaticSound;
-    public blopSound!: StaticSound;
-    public camera: ArcRotateCamera;
-    public board!: Mesh;
-    public ball!: Mesh;
-    public paddle1!: Mesh;
-    public paddle2!: Mesh;
-    public fontData!: IFontData;
-    // public scoreText!: Mesh;
     private gameStateManager: GameStateManager;
     private webSocketManager: WebSocketManager;
 
+    private static instance: GameInstance | null = null;
+    public babylon: BabylonObjects;
+
     private constructor(canvas: HTMLCanvasElement) {
-        this.engine = new Engine(canvas, true);
-
-        const { scene, controls } = SceneSetup.createScene(this.engine);
-        this.scene = scene;
-        this.controls = controls;
-        // this.scene = SceneSetup.createScene(this.engine);
-
-        this.camera = SceneSetup.setCamera(this.scene);
-
         this.gameStateManager = new GameStateManager();
-        this.webSocketManager = new WebSocketManager(this.gameStateManager);
+        this.webSocketManager = new WebSocketManager(this.gameStateManager); // TODO: and maybe this as argument ?
 
-        SceneSetup.setupScene(this.scene);
+        const engine = new Engine(canvas, true);
+
+        const { scene, controls } = SceneSetup.createScene(engine);
+
+        this.babylon = {
+            engine,
+            scene,
+            controls,
+            audioEngine: {} as AudioEngineV2,
+            bgMusic: {} as StreamingSound,
+            hitSound: {} as StaticSound,
+            bounceSound: {} as StaticSound,
+            blopSound: {} as StaticSound,
+            camera: SceneSetup.setCamera(scene),
+            board: {} as Mesh,
+            ball: {} as Mesh,
+            paddle1: {} as Mesh,
+            paddle2: {} as Mesh,
+            fontData: {} as IFontData,
+        };
+
+        SceneSetup.setupScene(this.babylon.scene);
     }
 
-    // Static async initialization method
     public static async getInstance(canvas: HTMLCanvasElement): Promise<GameInstance> {
         if (!GameInstance.instance) {
             GameInstance.instance = new GameInstance(canvas);
 
-            // Wait for async operations here
             const { audioEngine, bgMusic } = await SceneSetup.createAudio();
-            GameInstance.instance.audioEngine = audioEngine;
-            GameInstance.instance.bgMusic = bgMusic;
+            Object.assign(GameInstance.instance.babylon, { audioEngine, bgMusic });
 
             const { hitSound, bounceSound, blopSound } = await SceneSetup.createSounds();
-            GameInstance.instance.hitSound = hitSound;
-            GameInstance.instance.bounceSound = bounceSound;
-            GameInstance.instance.blopSound = blopSound;
-
-            SceneSetup.setupScene(GameInstance.instance.scene);
+            Object.assign(GameInstance.instance.babylon, { hitSound, bounceSound, blopSound });
 
             const { board, paddle1, paddle2, ball } = await SceneSetup.createGameObjects(
-                GameInstance.instance.scene
+                GameInstance.instance.babylon.scene
             );
-            GameInstance.instance.board = board;
-            GameInstance.instance.ball = ball;
-            GameInstance.instance.paddle1 = paddle1;
-            GameInstance.instance.paddle2 = paddle2;
+            Object.assign(GameInstance.instance.babylon, { board, paddle1, paddle2, ball });
 
-            GameInstance.instance.fontData = (await (
+            GameInstance.instance.babylon.fontData = (await (
                 await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
             ).json()) as IFontData;
 
-            // GameInstance.instance.scoreText = SceneSetup.createScoreText();
-
             SceneSetup.createControls(
-                GameInstance.instance.controls,
-                GameInstance.instance.bgMusic
+                GameInstance.instance.babylon.controls,
+                GameInstance.instance.babylon.bgMusic
             );
 
             GameInstance.instance.setupRenderLoop();
@@ -94,21 +81,28 @@ export class GameInstance {
         return GameInstance.instance;
     }
 
+    public static destroyInstance() {
+        if (GameInstance.instance) {
+            GameInstance.instance.babylon.engine.dispose();
+            GameInstance.instance = null;
+        }
+    }
+
     updateBallPosition(x: number, y: number, z: number) {
-        this.ball.position.set(x, y, z);
+        this.babylon.ball.position.set(x, y, z);
     }
 
     updateLeftPaddlePosition(x: number, y: number, z: number) {
-        this.paddle1.position.set(x, y, z);
+        this.babylon.paddle1.position.set(x, y, z);
     }
 
     updateRightPaddlePosition(x: number, y: number, z: number) {
-        this.paddle2.position.set(x, y, z);
+        this.babylon.paddle2.position.set(x, y, z);
     }
 
     updateScore(score: { player1: number; player2: number }) {
         // Update score text
-        // this.scoreText.text = `Score: ${score.player1} - ${score.player2}`;
+        // this.babylon.scoreText.text = `Score: ${score.player1} - ${score.player2}`;
         console.log(`Score updated: ${score.player1} - ${score.player2}`);
     }
 
@@ -116,13 +110,13 @@ export class GameInstance {
         collisionEvents.forEach((event) => {
             switch (event.type) {
                 case "paddle":
-                    this.hitSound.play();
+                    this.babylon.hitSound.play();
                     break;
                 case "wall":
-                    this.bounceSound.play();
+                    this.babylon.bounceSound.play();
                     break;
                 case "score":
-                    this.blopSound.play();
+                    this.babylon.blopSound.play();
                     break;
                 default:
                     console.warn(`Unknown collision event type: ${event.type}`);
@@ -133,12 +127,12 @@ export class GameInstance {
     private setupRenderLoop() {
         this.webSocketManager.setupSocketHandlers();
 
-        this.engine.runRenderLoop(() => {
-            this.scene.render();
+        this.babylon.engine.runRenderLoop(() => {
+            this.babylon.scene.render();
         });
 
         window.addEventListener("resize", () => {
-            this.engine.resize();
+            this.babylon.engine.resize();
         });
     }
 
