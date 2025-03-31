@@ -15,7 +15,7 @@ import {
     DynamicTexture,
     CreateSoundAsync,
     Color4,
-    CreateText,
+    ShadowGenerator,
     HemisphericLight,
     Tools,
     SoundState,
@@ -244,6 +244,16 @@ export class SceneSetup {
             Vector3.Zero(), // target - looking at center
             scene
         );
+        // Set limits for zooming in/out
+        camera.lowerRadiusLimit = 10;
+        camera.upperRadiusLimit = 40;
+        // Set limits for rotation up/down
+        camera.lowerBetaLimit = 0.1;
+        camera.upperBetaLimit = Math.PI / 2;
+        // Set limits for rotation left/right
+        camera.upperAlphaLimit = 0;
+        camera.lowerAlphaLimit = -Math.PI;
+
         // Disable keyboard controls
         camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
         // camera.inputs.clear();
@@ -283,6 +293,7 @@ export class SceneSetup {
         boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
         boardMaterial.specularColor = materials.BOARD.specularColor;
         board.material = boardMaterial;
+        // board.receiveShadows = true;
 
         const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
@@ -297,6 +308,9 @@ export class SceneSetup {
         paddle1.rotation.x = rotations.PADDLE1;
         paddleMaterial.diffuseColor = materials.PADDLE1.diffuseColor;
         paddle1.material = paddleMaterial;
+
+        // const shadowGenerator = new ShadowGenerator(1024, light);
+        // shadowGenerator.addShadowCaster(sphere);
 
         const paddle2 = MeshBuilder.CreateBox(
             "paddle2",
