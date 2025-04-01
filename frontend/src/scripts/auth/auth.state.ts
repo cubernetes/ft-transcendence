@@ -1,5 +1,6 @@
 // src/auth/AuthState.ts
 import { jwtDecode } from "jwt-decode";
+import { USER_URL } from "../config";
 
 /// This is the data that is stored in the JWT token to identify the user, after successful login
 export interface UserData {
@@ -61,7 +62,7 @@ class AuthState {
             return false;
         }
         try {
-            const response = await fetch("/api/users/login", {
+            const response = await fetch(`${USER_URL}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
@@ -86,7 +87,7 @@ class AuthState {
 
     public async register(data: AuthFormData): Promise<boolean> {
         try {
-            const response = await fetch("/api/users/register", {
+            const response = await fetch(`${USER_URL}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),

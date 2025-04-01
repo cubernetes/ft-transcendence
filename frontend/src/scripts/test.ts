@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./config";
+import { USER_URL } from "./config";
 
 export const fetchTestData = async () => {
     try {
