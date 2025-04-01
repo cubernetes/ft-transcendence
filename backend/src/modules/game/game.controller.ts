@@ -1,5 +1,4 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest, WebSocket } from "fastify";
-import { v4 as uuidv4 } from "uuid";
 import { IncomingMessagePayloads, createPongEngine } from "@darrenkuro/pong-core";
 import { CreateGameDTO, GameIdDTO } from "./game.types.ts";
 
@@ -26,27 +25,12 @@ export const handleGameStart =
             });
         }
 
-        const gameEngine = createPongEngine();
-        const gameId = uuidv4();
-        app.gameService.gameSessions.set(gameId, gameEngine);
-        app.gameService.gamePlayers.set(gameId, [opponent.value, conn]);
-        gameEngine.start();
+        const engine = createPongEngine();
+        const gameId = app.gameService.registerGameSession(engine, [opponent.value, conn]);
+        app.gameService.registerCbHandlers(gameId);
 
-        app.wsService.send(conn, {
-            type: "game-start",
-            payload: {
-                gameId,
-                opponentId: opponent.value.userId!,
-            },
-        });
-
-        app.wsService.send(opponent.value, {
-            type: "game-start",
-            payload: {
-                gameId,
-                opponentId: conn.userId,
-            },
-        });
+        // Maybe hold off and don't start automatically
+        engine.start();
     };
 
 export const createGameHandler = async (
