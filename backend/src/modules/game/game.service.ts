@@ -2,6 +2,7 @@ import type { FastifyInstance, WebSocket } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { UserInput } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
 import { Game, GameId, NewGame, PongEngine } from "./game.types.ts";
 
@@ -108,6 +109,15 @@ export const createGameService = (app: FastifyInstance) => {
         return ok();
     };
 
+    const setUserInput = (id: string, i: number, action: UserInput): Result<void, Error> => {
+        const engine = gameSessions.get(id);
+        if (!engine) {
+            return err(new Error("Couldn't find game when trying to set user input"));
+        }
+        engine.setInput(i, action);
+        return ok();
+    };
+
     const create = async (data: NewGame): Promise<Game | null> =>
         (await db.insert(games).values(data).returning())?.[0] || null;
 
@@ -131,5 +141,6 @@ export const createGameService = (app: FastifyInstance) => {
         tryGetOpponent,
         registerGameSession,
         registerCbHandlers,
+        setUserInput,
     };
 };

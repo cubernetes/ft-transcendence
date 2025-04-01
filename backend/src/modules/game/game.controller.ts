@@ -33,6 +33,14 @@ export const handleGameStart =
         engine.start();
     };
 
+export const handleGameAction =
+    (app: FastifyInstance) =>
+    (_: WebSocket, payload: IncomingMessagePayloads["game-action"]): void => {
+        const { gameId, index, action } = payload;
+        app.gameService.setUserInput(gameId, index, action);
+        // Update right away? Don't do anything and wait for game state to update automatically?
+    };
+
 export const createGameHandler = async (
     { body }: { body: CreateGameDTO },
     req: FastifyRequest,
