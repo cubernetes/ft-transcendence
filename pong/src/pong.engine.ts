@@ -5,7 +5,7 @@ import {
     EventCallback,
     Paddle,
     PongConfig,
-    PongEngineEvent,
+    PongEngineEventMap,
     PongState,
     PongStatus,
     UserInput,
@@ -13,7 +13,7 @@ import {
 
 // Enforce 2 players for now
 export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
-    const listeners: Map<PongEngineEvent["type"], EventCallback[]> = new Map();
+    const listeners: { [K in keyof PongEngineEventMap]?: EventCallback<K>[] } = {};
     const userInputs: [UserInput, UserInput] = ["stop", "stop"];
     const scores: [number, number] = [0, 0];
     const paddles: [Paddle, Paddle] = config.paddles;
@@ -22,18 +22,21 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
     let interval: ReturnType<typeof setInterval> | null = null;
     let status: PongStatus = "waiting";
 
-    const emit = (event: PongEngineEvent) => {
-        const eventListeners = listeners.get(event.type);
-        if (eventListeners) {
-            eventListeners.forEach((cb) => cb(event));
-        }
+    const emit = <K extends keyof PongEngineEventMap>(
+        eventType: K,
+        payload: PongEngineEventMap[K]
+    ): void => {
+        listeners[eventType]?.forEach((cb) => cb(payload));
     };
 
-    const onEvent = (type: PongEngineEvent["type"], cb: EventCallback) => {
-        if (!listeners.has(type)) {
-            listeners.set(type, []);
+    const onEvent = <K extends keyof PongEngineEventMap>(
+        eventType: K,
+        cb: EventCallback<K>
+    ): void => {
+        listeners[eventType] ??= [];
+        if (!listeners[eventType].includes(cb)) {
+            listeners[eventType].push(cb);
         }
-        listeners.get(type)!.push(cb);
     };
 
     const movePaddle = (i: number, direction: UserInput): Result<void, Error> => {
@@ -73,7 +76,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         // Check collision with top and bottom walls
         if (ball.pos.z >= topLimit || ball.pos.z <= bottomLimit) {
             ball.vec.z = -ball.vec.z;
-            emit({ type: "wall-collision" });
+            emit("wall-collision", null);
         }
         return ok();
     };
@@ -94,7 +97,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             pos.z >= p[0].pos.z - p[0].size.depth / 2 - ball.r
         ) {
             ball.vec.x = -ball.vec.x;
-            emit({ type: "paddle-collision" });
+            emit("paddle-collision", null);
         }
 
         if (
@@ -104,7 +107,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             pos.z >= p[1].pos.z - p[1].size.depth / 2 - ball.r
         ) {
             ball.vec.x = -ball.vec.x;
-            emit({ type: "paddle-collision" });
+            emit("paddle-collision", null);
         }
         return ok();
     };
@@ -156,7 +159,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
         if (scores.some((n) => n >= config.playTo)) {
             status = "ended";
-            emit({ type: "game-end", winner: scores[0] >= config.playTo ? 0 : 1 });
+            emit("game-end", { winner: scores[0] >= config.playTo ? 0 : 1 });
         }
 
         return ok();
@@ -184,7 +187,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
         const state = getState();
         if (state.isOk()) {
-            emit({ type: "state-update", state: state.value });
+            emit("state-update", { state: state.value });
         }
 
         return ok();
@@ -197,17 +200,19 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
         status = "ongoing";
         interval = setInterval(tick, tickRate);
-        emit({ type: "game-start" });
+        emit("game-start", null);
         return ok();
     };
 
     const stop = () => {
-        status = "ended";
-        if (interval) {
-            clearInterval(interval);
-            interval = null;
+        if (status !== "ended") {
+            status = "ended";
+            if (interval) {
+                clearInterval(interval);
+                interval = null;
+            }
+            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1 });
         }
-        // Emit game end, depends on how this should be used
     };
 
     const setInput = (i: number, key: UserInput): Result<void, Error> => {
@@ -219,5 +224,5 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    return { start, stop, onEvent, setInput, getState };
+    return { start, stop, onEvent, setInput };
 };

@@ -1,25 +1,19 @@
-import { PongEngineEvent, PongState } from "./pong.types";
+import { PongEngineEventMap, UserInput } from "./pong.types";
 
 export type IncomingMessageType = "game-start" | "action";
-export type OutgoingMessageType = PongEngineEvent["type"] | "waiting-for-opponent";
+export type OutgoingMessageType = keyof PongEngineEventMap | "waiting-for-opponent";
 
 export type MessageType = IncomingMessageType | OutgoingMessageType;
 
-export interface IncomingMessagePayloads {
+export type IncomingMessagePayloads = {
     "game-start": { token: string };
-    action: { direction: "up" | "down" | "stop" }; // Get this from somewhere too
-}
+    action: { direction: UserInput };
+};
 
-export interface OutgoingMessagePayloads {
-    "wall-collision": null;
-    "paddle-collision": null;
-    "state-update": { state: PongState };
-    "game-start": { gameId: string; opponentId: number };
-    "game-end": { winner: number };
-    score: { scores: [number, number] };
+export type OutgoingMessagePayloads = Omit<PongEngineEventMap, "game-start"> & {
+    "game-start": { gameId: string; opponentId: number; index: 0 | 1 };
     "waiting-for-opponent": null;
-    "ball-reset": null;
-}
+};
 
 export interface IncomingMessage<T extends IncomingMessageType> {
     type: T;

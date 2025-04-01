@@ -43,17 +43,19 @@ export type UserInput = "up" | "down" | "stop";
 // Maybe add waiting, paused
 export type PongStatus = "waiting" | "ongoing" | "ended";
 
-// Maybe add start, pause, resume, end, error??
-export type PongEngineEvent =
-    | { type: "wall-collision" }
-    | { type: "paddle-collision" }
-    | { type: "state-update"; state: PongState }
-    | { type: "game-end"; winner: number }
-    | { type: "score"; scores: [number, number] }
-    | { type: "game-start" }
-    | { type: "ball-reset" };
+export type PongEngineEventMap = {
+    "wall-collision": null;
+    "paddle-collision": null;
+    "state-update": { state: PongState };
+    "game-end": { winner: number };
+    score: { scores: [number, number] };
+    "game-start": null;
+    "ball-reset": null;
+};
 
-export type EventCallback = (event: PongEngineEvent) => void;
+export type EventCallback<T extends keyof PongEngineEventMap> = (
+    event: PongEngineEventMap[T]
+) => void;
 
 export type PongState = {
     status: PongStatus;
