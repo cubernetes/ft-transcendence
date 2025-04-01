@@ -1,6 +1,45 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest, WebSocket } from "fastify";
+import { IncomingMessagePayloads, createPongEngine } from "@darrenkuro/pong-core";
 import { CreateGameDTO, GameIdDTO } from "./game.types.ts";
-import { GAME_CONSTANTS } from "./game.engine.ts";
+
+export const handleGameStart =
+    (app: FastifyInstance) =>
+    (conn: WebSocket, payload: IncomingMessagePayloads["game-start"]): void => {
+        const { token } = payload;
+        if (!token) {
+            return app.log.error("Game start message has no token");
+        }
+
+        const userId = app.authService.verifyToken(token);
+        if (userId.isErr()) {
+            return app.log.error("Invalid token");
+        }
+
+        conn.userId = Number(userId.value.id);
+
+        const opponent = app.gameService.tryGetOpponent(conn);
+        if (opponent.isErr()) {
+            return app.wsService.send(conn, {
+                type: "waiting-for-opponent",
+                payload: null,
+            });
+        }
+
+        const engine = createPongEngine();
+        const gameId = app.gameService.registerGameSession(engine, [opponent.value, conn]);
+        app.gameService.registerCbHandlers(gameId);
+
+        // Maybe hold off and don't start automatically
+        engine.start();
+    };
+
+export const handleGameAction =
+    (app: FastifyInstance) =>
+    (_: WebSocket, payload: IncomingMessagePayloads["game-action"]): void => {
+        const { gameId, index, action } = payload;
+        app.gameService.setUserInput(gameId, index, action);
+        // Update right away? Don't do anything and wait for game state to update automatically?
+    };
 
 export const createGameHandler = async (
     { body }: { body: CreateGameDTO },
@@ -16,8 +55,8 @@ export const createGameHandler = async (
         }
 
         return reply.code(201).send(game);
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to create game");
+    } catch (error) {
+        req.log.error({ error }, "Failed to create game");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -35,8 +74,8 @@ export const getGameByIdHandler = async (
         }
 
         return reply.send(game);
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to get game by ID");
+    } catch (error) {
+        req.log.error({ error }, "Failed to get game by ID");
         return reply.code(500).send({ error: "Internal server error" });
     }
 };
@@ -45,17 +84,8 @@ export const getAllGamesHandler = async (req: FastifyRequest, reply: FastifyRepl
     try {
         const games = await req.server.gameService.findAll();
         return reply.send(games);
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to get all games");
+    } catch (error) {
+        req.log.error({ error }, "Failed to get all games");
         return reply.code(500).send({ error: "Internal server error" });
-    }
-};
-
-export const getGameConfigHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    try {
-        return reply.send({ success: true, data: GAME_CONSTANTS });
-    } catch (e) {
-        req.log.error({ err: e }, "Failed to get game config");
-        return reply.code(500).send({ success: false, error: "Internal server error" });
     }
 };

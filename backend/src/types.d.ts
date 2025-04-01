@@ -1,11 +1,12 @@
 import type { DbClient } from "./core/db/db.plugin.ts";
 import type { AppConfig } from "./core/config/config.plugin.ts";
 import type { createWsService } from "./core/ws/ws.service.ts";
-import type { createAuthService } from "./modules/auth/auth.service.ts";
+import type { createAuthService } from "./core/auth/auth.service.ts";
 import type { createUserService } from "./modules/user/user.service.ts";
 import type { createGameService } from "./modules/game/game.service.ts";
 import type { createTournamentService } from "./modules/tournament/tournament.service.ts";
-import type { JwtPayload } from "./modules/auth/auth.types.ts";
+import type { createPongService } from "./core/pong/pong.service.ts";
+import type { WebSocket as WsWebSocket } from "ws";
 // import type { createFriendService } from "./friend/friend.service";
 // import type authRoutes from "./auth/auth.routes";
 import type userRoutes from "./modules/user/user.routes.ts";
@@ -34,5 +35,9 @@ declare module "fastify" {
 
     interface FastifyRequest {
         userId: number;
+    }
+
+    interface WebSocket extends WsWebSocket {
+        userId?: number;
     }
 }

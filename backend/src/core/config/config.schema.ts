@@ -21,13 +21,13 @@ export const configSchema = z.object({
             /^\/[a-z0-9/-]*[a-z0-9]$/i,
             "API_PREFIX must start with a slash, contain only URL-safe characters, and not end with a slash"
         )
-        .optional(),
+        .default("/api"),
 
-    HOST: z.string().ip("HOST must be a valid IP address").optional(),
+    HOST: z.string().ip("HOST must be a valid IP address").default("0.0.0.0"),
 
     DOMAINS: z
         .string()
-        .optional()
+        .default("localhost")
         .transform((val) => (val ? val.split(/\s+/).filter(Boolean) : []))
         .refine(
             (arr) => arr.every(isValidDomain),

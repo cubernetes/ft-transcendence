@@ -1,5 +1,4 @@
 import type { PinoLoggerOptions } from "fastify/types/logger.ts";
-import type { GameState } from "../modules/game/game.types.ts";
 import { ZodError } from "zod";
 
 const formatError = (e: unknown) => {
@@ -24,14 +23,14 @@ const formatError = (e: unknown) => {
     };
 };
 
-const formatGameState = (state: GameState) => {
-    return {
-        ballPosition: `x: ${state.ballPosition.x}, y: ${state.ballPosition.y}, z: ${state.ballPosition.z}`,
-        paddle1Position: `x: ${state.paddlePosition["player-1"].x}, y: ${state.paddlePosition["player-1"].y}, z: ${state.paddlePosition["player-1"].z}`,
-        paddle2Position: `x: ${state.paddlePosition["player-2"].x}, y: ${state.paddlePosition["player-2"].y}, z: ${state.paddlePosition["player-2"].z}`,
-        score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,
-    };
-};
+// const formatGameState = (state: GameState) => {
+//     return {
+//         ballPosition: `x: ${state.ballPosition.x}, y: ${state.ballPosition.y}, z: ${state.ballPosition.z}`,
+//         paddle1Position: `x: ${state.paddlePosition["player-1"].x}, y: ${state.paddlePosition["player-1"].y}, z: ${state.paddlePosition["player-1"].z}`,
+//         paddle2Position: `x: ${state.paddlePosition["player-2"].x}, y: ${state.paddlePosition["player-2"].y}, z: ${state.paddlePosition["player-2"].z}`,
+//         score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,
+//     };
+// };
 
 export const devLoggerConfig: PinoLoggerOptions = {
     level: "debug", // More detailed logs in dev
@@ -57,7 +56,7 @@ export const devLoggerConfig: PinoLoggerOptions = {
             }
         ]
     },
-    serializers: { e: formatError, gameState: formatGameState },
+    serializers: { error: formatError },
 };
 
 export const prodLoggerConfig: PinoLoggerOptions = {
@@ -84,5 +83,5 @@ export const prodLoggerConfig: PinoLoggerOptions = {
             }
         ]
     },
-    serializers: { e: formatError, gameState: formatGameState },
+    serializers: { error: formatError },
 };

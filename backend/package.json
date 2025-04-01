@@ -4,14 +4,14 @@
     "type": "module",
     "main": "dist/index.js",
     "scripts": {
-        "start": "node dist/index.js",
-        "start:dev": "npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
-        "build": "tsc --noEmit && node esbuild.config.js",
-        "build:dev": "tsc --noEmit && node esbuild.config.js --watch",
-        "test": "npx tap --allow-incomplete-coverage",
-        "test:dev": "npx tap --watch"
+        "start": "tsc && node dist/index.js",
+        "start:dev": "tsc && npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
+        "build": "tsc && node esbuild.config.js",
+        "build:dev": "tsc && node esbuild.config.js --watch",
+        "test": "BACKEND_PORT=3000 JWT_SECRET=1234567890abcdef1234567890abcdef DB_PATH=:memory: DB_DIR=drizzle npx tap --allow-incomplete-coverage"
     },
     "dependencies": {
+        "@darrenkuro/pong-core": "^1.0.9",
         "@faker-js/faker": "^9.6.0",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
@@ -26,13 +26,16 @@
         "neverthrow": "^8.2.0",
         "pino-pretty": "^13.0.0",
         "pino-socket": "^7.4.0",
+        "uuid": "^11.1.0",
         "zod": "^3.24.2"
     },
     "devDependencies": {
+        "@trivago/prettier-plugin-sort-imports": "^5.2.2",
         "@types/bcrypt": "^5.0.2",
         "@types/better-sqlite3": "^7.6.12",
         "@types/node": "^20.11.24",
         "@types/tap": "^15.0.12",
+        "@types/uuid": "^10.0.0",
         "@types/ws": "^8.18.0",
         "drizzle-kit": "^0.30.5",
         "esbuild": "^0.20.1",

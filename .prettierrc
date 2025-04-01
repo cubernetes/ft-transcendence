@@ -5,8 +5,17 @@
     "semi": true,
     "trailingComma": "es5",
     "arrowParens": "always",
-    "overrides": [
-        { "files": "*.json", "options": {} },
-        { "files": "*.ts", "options": {} }
-    ]
+    "plugins": ["./backend/node_modules/@trivago/prettier-plugin-sort-imports/lib/src/index.js"],
+    "importOrder": [
+        "<TS_TYPES>",
+        "tap",
+        "^fastify(.*)$",
+        "^@*fastify(.*)$",
+        "neverthrow",
+        "<THIRD_PARTY_MODULES>",
+        "<THIRD_PARTY_TS_TYPES>",
+        "@darrenkuro/pong-core",
+        "^[./]"
+    ],
+    "importOrderSortSpecifiers": true
 }
