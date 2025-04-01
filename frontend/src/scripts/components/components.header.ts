@@ -8,14 +8,14 @@ export const createHeader = async (): Promise<HTMLElement> => {
     const a = document.createElement("a");
     a.href = "#home";
     a.textContent = "ft-transcendence";
-    a.className = "text-2xl font-bold";
+    a.className = "text-3xl font-bold";
     title.appendChild(a);
 
     const nav = document.createElement("nav");
     nav.className = "flex items-center space-x-6";
 
     const navList = document.createElement("ul");
-    navList.className = "flex space-x-4";
+    navList.className = "flex text-1xl space-x-4";
 
     const navItems = ["Setup", "Game", "Leaderboard", "Profile", "Simulation"];
     navItems.forEach((item) => {
@@ -29,8 +29,6 @@ export const createHeader = async (): Promise<HTMLElement> => {
     });
 
     const loginStatus = document.createElement("li");
-    // loginStatus.className = "ml-auto";
-    // loginStatus.innerHTML = '<a href="#login" class="hover:underline">Login</a>';
     navList.appendChild(loginStatus);
 
     nav.appendChild(navList);
