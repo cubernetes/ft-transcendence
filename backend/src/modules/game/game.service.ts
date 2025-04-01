@@ -29,6 +29,12 @@ export const createGameService = (app: FastifyInstance) => {
             return err(new Error("Empty Queue, waiting..."));
         }
 
+        // If the both are the same player, rejoining to the queue
+        if (opponent.value.userId === conn.userId) {
+            matchmakingQueue.push(conn);
+            return err(new Error("Same player, requeueing..."));
+        }
+
         return ok(opponent.value);
     };
 
