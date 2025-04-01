@@ -1,8 +1,8 @@
+import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import websocket from "@fastify/websocket";
-import type { FastifyInstance } from "fastify";
-import { createWsService } from "./ws.service.ts";
 import { handleConnection } from "./ws.controller.ts";
+import { createWsService } from "./ws.service.ts";
 
 const wsPlugin = async (app: FastifyInstance) => {
     await app.register(websocket, { options: { maxPayload: 1048576 } });
@@ -13,5 +13,4 @@ const wsPlugin = async (app: FastifyInstance) => {
 
 export default fp(wsPlugin, {
     name: "ws-plugin",
-    dependencies: ["auth-plugin"],
 });
