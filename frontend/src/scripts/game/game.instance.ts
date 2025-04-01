@@ -30,12 +30,15 @@ export class GameInstance {
 
         const engine = new Engine(canvas, true);
 
-        const { scene, controls, shadowGenerator } = SceneSetup.createScene(engine);
+        const { scene, light, controls, shadowGenerator } = SceneSetup.createScene(engine);
+        // SceneSetup.setupScene(scene);
 
         this.babylon = {
             engine,
             scene,
+            light,
             shadowGenerator,
+            shadowsEnabled: false,
             controls,
             audioEngine: {} as AudioEngineV2,
             bgMusic: {} as StreamingSound,
@@ -50,7 +53,6 @@ export class GameInstance {
             fontData: {} as IFontData,
         };
 
-        SceneSetup.setupScene(this.babylon.scene);
     }
 
     public static async getInstance(canvas: HTMLCanvasElement): Promise<GameInstance> {
@@ -72,10 +74,7 @@ export class GameInstance {
                 await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
             ).json()) as IFontData;
 
-            SceneSetup.createControls(
-                GameInstance.instance.babylon.controls,
-                GameInstance.instance.babylon.bgMusic
-            );
+            SceneSetup.createControls(GameInstance.instance.babylon);
 
             GameInstance.instance.setupRenderLoop();
         }

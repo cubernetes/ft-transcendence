@@ -8,6 +8,7 @@ import {
     IFontData,
     ArcRotateCamera,
     ShadowGenerator,
+    DirectionalLight,
 } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
@@ -65,7 +66,9 @@ export interface GameElements {
 export interface BabylonObjects {
     engine: Engine;
     scene: Scene;
+    light: DirectionalLight;
     shadowGenerator: ShadowGenerator;
+    shadowsEnabled: boolean;
     controls: AdvancedDynamicTexture;
     audioEngine: AudioEngineV2;
     bgMusic: StreamingSound;

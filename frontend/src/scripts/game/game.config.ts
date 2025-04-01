@@ -4,6 +4,8 @@ import { Vector3, Color3 } from "@babylonjs/core";
 import { GAME_CONFIG_URL } from "../config";
 
 // TODO: Maybe set up shared types for the front and back end
+// TODO: PADDLE_SPEED and BALL_SPEED should be set by the back-end and not be sent
+//          There is missing PADDLE1/2_POSITION
 export type ObjectConfig = {
     BOARD_WIDTH: number;
     BOARD_HEIGHT: number;

@@ -23,6 +23,7 @@ import {
     LightGizmo,
     DirectionalLight,
     UtilityLayerRenderer,
+    CreateGroundFromHeightMap,
 } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
@@ -42,6 +43,7 @@ import { BabylonObjects } from "./game.types";
 export class SceneSetup {
     static createScene(engine: any): {
         scene: Scene;
+        light: DirectionalLight;
         shadowGenerator: ShadowGenerator;
         controls: AdvancedDynamicTexture;
     } {
@@ -80,13 +82,13 @@ export class SceneSetup {
         // GUI
         var controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-        return { scene, controls, shadowGenerator };
+        return { scene, light, controls, shadowGenerator };
     }
 
-    static createControls(controls: AdvancedDynamicTexture, bgMusic: StreamingSound): void {
+    static createControls(babylon: BabylonObjects): void {
         // Create a grid
         var grid = new Grid();
-        controls.addControl(grid);
+        babylon.controls.addControl(grid);
 
         grid.addColumnDefinition(0.2);
         grid.addColumnDefinition(0.2);
@@ -114,8 +116,34 @@ export class SceneSetup {
         // });
         // controls.addControl(button1);
 
-        // Create a button for the game music
-        var buttonMusic = Button.CreateSimpleButton("bgMusic", "Mute\nMusic");
+        // -------------- Button: SHADOWS
+        var shadowButton = Button.CreateSimpleButton("shadowToggle", "Shadows");
+        shadowButton.width = "100px";
+        shadowButton.height = "35px";
+        shadowButton.color = "white";
+        shadowButton.cornerRadius = 20;
+        shadowButton.background = "gray";
+
+        shadowButton.onPointerUpObservable.add(() => {
+            if (babylon.shadowsEnabled) {
+                babylon.shadowsEnabled = false;
+                babylon.shadowGenerator.getShadowMap()?.renderList?.splice(0);
+                shadowButton.textBlock!.text = "Shadows";
+                shadowButton.background = "gray";
+            } else {
+                babylon.shadowsEnabled = true;
+                babylon.shadowGenerator.addShadowCaster(babylon.paddle1);
+                babylon.shadowGenerator.addShadowCaster(babylon.paddle2);
+                babylon.shadowGenerator.addShadowCaster(babylon.ball);
+                shadowButton.textBlock!.text = "Shadows";
+                shadowButton.background = "blue";
+            }
+        });
+        grid.addControl(shadowButton, 0, 3);
+
+
+        // ----------------- Button: Mute/Play Music
+        var buttonMusic = Button.CreateSimpleButton("bgMusic", "Music");
         buttonMusic.fontSize = 15;
         buttonMusic.fontFamily = "Cambria";
         buttonMusic.fontStyle = "italic";
@@ -126,14 +154,14 @@ export class SceneSetup {
         buttonMusic.background = "green";
         buttonMusic.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
         buttonMusic.onPointerUpObservable.add(function () {
-            if (bgMusic.state === SoundState.Started) {
-                bgMusic.pause();
+            if (babylon.bgMusic.state === SoundState.Started) {
+                babylon.bgMusic.pause();
                 buttonMusic.background = "red";
-                buttonMusic.textBlock!.text = "Play\nMusic";
+                // buttonMusic.textBlock!.text = "Play\nMusic";
             } else {
-                bgMusic.play();
+                babylon.bgMusic.play();
                 buttonMusic.background = "green";
-                buttonMusic.textBlock!.text = "Mute\nMusic";
+                // buttonMusic.textBlock!.text = "Mute\nMusic";
             }
         });
         grid.addControl(buttonMusic, 0, 5);
@@ -166,7 +194,7 @@ export class SceneSetup {
         slider2.blur;
         slider2.onValueChangedObservable.add(function (value) {
             header.text = "Volume: " + (value | 0) + " %";
-            bgMusic.volume = value / 100;
+            babylon.bgMusic.volume = value / 100;
         });
         panelVol.addControl(slider2);
 
@@ -187,6 +215,8 @@ export class SceneSetup {
         //     bgMusic.volume = value / 100;
         // });
         // panelVol.addControl(slider);
+        
+
     }
 
     static setupScene(scene: Scene): void {
@@ -277,6 +307,7 @@ export class SceneSetup {
             Vector3.Zero(), // target - looking at center
             scene
         );
+
         // Set limits for zooming in/out
         camera.lowerRadiusLimit = 10;
         camera.upperRadiusLimit = 40;
@@ -308,14 +339,13 @@ export class SceneSetup {
         const positions = gameConfig.positions;
         const rotations = gameConfig.rotations;
         const materials = gameConfig.materials;
-
+        
         const boardMaterial = new StandardMaterial("board", babylon.scene);
-        // boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
-        // boardMaterial.specularColor = materials.BOARD.specularColor;
+        boardMaterial.backFaceCulling = true; // Turn off back face culling to render both sides of the mesh
+        boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
+        boardMaterial.specularColor = materials.BOARD.specularColor;
 
-        const ballMaterial = new StandardMaterial("ball", babylon.scene);
-        // ballMaterial.wireframe = true;
-
+        
         const paddleMaterial = new StandardMaterial("paddle", babylon.scene);
         const paddleMaterial2 = new StandardMaterial("paddle1Mat", babylon.scene);
         // paddleMaterial2.alpha = 0.5;
@@ -323,19 +353,29 @@ export class SceneSetup {
         paddleMaterial2.diffuseColor = new Color3(0, 0, 1);
         paddleMaterial2.backFaceCulling = false;
 
-        // Create game board
-        const board = MeshBuilder.CreateBox(
-            "board",
-            {
-                width: objectConfigs.BOARD_WIDTH,
-                height: objectConfigs.BOARD_HEIGHT,
-                depth: objectConfigs.BOARD_DEPTH,
-            },
-            babylon.scene
-        );
+        // ------------- Create game board:
+        // const board = MeshBuilder.CreateBox(
+        //     "board",
+        //     {
+        //         width: objectConfigs.BOARD_WIDTH,
+        //         height: objectConfigs.BOARD_HEIGHT,
+        //         depth: objectConfigs.BOARD_DEPTH,
+        //     },
+        //     babylon.scene
+        // );
+        const board = CreateGroundFromHeightMap('board', `${ASSETS_DIR}/height_map1.jpeg`, {
+            width: objectConfigs.BOARD_WIDTH,
+            height: objectConfigs.BOARD_DEPTH,
+            subdivisions: 50,
+            maxHeight: 0.3,
+            minHeight: -0.2,
+        }, babylon.scene);
         board.position = positions.BOARD;
         board.material = boardMaterial;
+        // board.material.wireframe = true;
         board.receiveShadows = true;
+
+
 
         const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
@@ -350,7 +390,6 @@ export class SceneSetup {
         paddle1.rotation.x = rotations.PADDLE1;
         paddleMaterial.diffuseColor = materials.PADDLE1.diffuseColor;
         paddle1.material = paddleMaterial2;
-        babylon.shadowGenerator.addShadowCaster(paddle1);
 
         // const paddle2 = MeshBuilder.CreateBox(
         const paddle2 = MeshBuilder.CreateSphere(
@@ -366,9 +405,11 @@ export class SceneSetup {
         paddle2.rotation.x = rotations.PADDLE2;
         paddleMaterial.diffuseColor = materials.PADDLE2.diffuseColor;
         paddle2.material = paddleMaterial2;
-        babylon.shadowGenerator.addShadowCaster(paddle2);
 
-        // Create ball
+        // ----------------- Create ball
+        const ballMaterial = new StandardMaterial("ball", babylon.scene);
+        // ballMaterial.wireframe = true;
+
         const ball = MeshBuilder.CreateSphere(
             "ball",
             {
@@ -379,7 +420,32 @@ export class SceneSetup {
         ball.position = positions.BALL;
         ballMaterial.diffuseColor = materials.BALL.diffuseColor;
         ball.material = ballMaterial;
-        babylon.shadowGenerator.addShadowCaster(ball);
+
+        
+        const cushions: Mesh[] = [];
+        const cushionMaterial = new StandardMaterial("cushion", babylon.scene);
+        cushionMaterial.diffuseColor = new Color3(0.7, 0, 0); // Red color for visibility
+
+        const cushionPositions = [
+            new Vector3(0, 0.1, objectConfigs.BOARD_DEPTH / 2 + 0.5),  // Top
+            new Vector3(0, 0.1, -objectConfigs.BOARD_DEPTH / 2 - 0.5), // Bottom
+            new Vector3(objectConfigs.BOARD_WIDTH / 2 + 0.5, 0.1, 0),  // Right
+            new Vector3(-objectConfigs.BOARD_WIDTH / 2 - 0.5, 0.1, 0), // Left
+        ];
+
+        cushionPositions.forEach(pos => {
+            const cushion = MeshBuilder.CreateBox("cushion", {
+                width: pos.z === 0 ? 1 : objectConfigs.BOARD_WIDTH + 2,
+                height: 0.2,
+                depth: pos.z === 0 ? objectConfigs.BOARD_DEPTH + 2 : 1,
+            }, babylon.scene);
+            
+            cushion.position = pos;
+            cushion.material = cushionMaterial;
+            babylon.shadowGenerator.addShadowCaster(cushion);
+            cushions.push(cushion);
+        });
+
 
         return { board, paddle1, paddle2, ball };
     }
