@@ -1,8 +1,9 @@
 import type { FastifyInstance, WebSocket } from "fastify";
-import { games } from "../../core/db/db.schema.ts";
-import { NewGame, Game, GameId, PongEngine } from "./game.types.ts";
+import { Result, err, ok } from "neverthrow";
 import { eq } from "drizzle-orm";
-import { err, ok, Result } from "neverthrow";
+import { games } from "../../core/db/db.schema.ts";
+import { Game, GameId, NewGame, PongEngine } from "./game.types.ts";
+
 // import { createPongEngine } from "@darrenkuro/pong-core";
 
 export const createGameService = (app: FastifyInstance) => {
@@ -10,11 +11,6 @@ export const createGameService = (app: FastifyInstance) => {
     const gameSessions: Map<GameId, PongEngine> = new Map();
     const gamePlayers: Map<GameId, WebSocket[]> = new Map();
     const db = app.db;
-
-    const enqueuePlayer = (conn: WebSocket): Result<void, Error> => {
-        matchmakingQueue.push(conn);
-        return ok();
-    };
 
     const dequeuePlayer = (): Result<WebSocket, Error> => {
         const opponent = matchmakingQueue.shift();
@@ -24,8 +20,16 @@ export const createGameService = (app: FastifyInstance) => {
         return ok(opponent);
     };
 
-    const hasWaitingPlayer = (): boolean => {
-        return matchmakingQueue.length > 0;
+    const tryGetOpponent = (conn: WebSocket): Result<WebSocket, Error> => {
+        const opponent = dequeuePlayer();
+
+        // Error means queue is empty, enqueue current socket
+        if (opponent.isErr()) {
+            matchmakingQueue.push(conn);
+            return err(new Error("Empty Queue, waiting..."));
+        }
+
+        return ok(opponent.value);
     };
 
     const create = async (data: NewGame): Promise<Game | null> =>
@@ -48,9 +52,7 @@ export const createGameService = (app: FastifyInstance) => {
         findAll,
         update,
         remove,
-        enqueuePlayer,
-        dequeuePlayer,
-        hasWaitingPlayer,
+        tryGetOpponent,
         gameSessions,
         gamePlayers,
     };
