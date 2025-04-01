@@ -1,6 +1,6 @@
 import { createHeader } from "../../components/components.header";
 import { createFooter } from "../../components/components.footer";
-import { fetchTestData } from "../../test";
+import { USER_URL } from "../../config";
 
 export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
@@ -16,7 +16,7 @@ export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const leaderboardTitle = document.createElement("h2");
     leaderboardTitle.className = "text-2xl font-bold mb-4";
     leaderboardTitle.textContent = "Leaderboard";
-
+    
     const table = document.createElement("table");
     table.className = "min-w-full divide-y divide-gray-200";
 
@@ -86,4 +86,35 @@ export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     container.appendChild(fragment);
 
     return container;
+};
+
+export const fetchTestData = async () => {
+    try {
+        const response = await fetch(`${USER_URL}/leaderboard/10`);
+        if (!response.ok) {
+            throw new Error("Failed to fetch users");
+        }
+
+        const data = await response.json();
+
+        // Process data into how it's typed on the leaderboard page
+        const processedData = data.data
+            .map((p: Record<string, any>) => ({
+                id: p.id,
+                name: p.username,
+                wins: p.wins,
+                losses: p.losses,
+            }))
+            .sort((a: Record<string, any>, b: Record<string, any>) => b.wins - a.wins)
+            .map((p: Record<string, any>, i: number) => ({
+                ...p,
+                rank: i + 1,
+            }));
+
+        return processedData;
+    } catch (error) {
+        console.error("Fetch error:", error);
+
+        throw error;
+    }
 };
