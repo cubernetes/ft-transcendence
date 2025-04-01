@@ -47,7 +47,7 @@ export type PongStatus = "waiting" | "ongoing" | "ended";
 export type PongEngineEvent =
     | { type: "wall-collision" }
     | { type: "paddle-collision" }
-    | { type: "stateUpdate"; state: PongState }
+    | { type: "state-update"; state: PongState }
     | { type: "game-end"; winner: number }
     | { type: "score"; scores: [number, number] }
     | { type: "game-start" }

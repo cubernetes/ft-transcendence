@@ -184,7 +184,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
         const state = getState();
         if (state.isOk()) {
-            emit({ type: "stateUpdate", state: state.value });
+            emit({ type: "state-update", state: state.value });
         }
 
         return ok();
