@@ -1,19 +1,19 @@
-import { err, ok, Result } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
 import { defaultGameConfig } from "./pong.config";
 import {
     Ball,
-    UserInput,
-    PongConfig,
-    PongStatus,
+    EventCallback,
     Paddle,
-    PongState,
+    PongConfig,
     PongEngineEvent,
+    PongState,
+    PongStatus,
+    UserInput,
 } from "./pong.types";
 
 // Enforce 2 players for now
-
 export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
-    const listeners: ((event: PongEngineEvent) => void)[] = [];
+    const listeners: Map<PongEngineEvent["type"], EventCallback[]> = new Map();
     const userInputs: [UserInput, UserInput] = ["stop", "stop"];
     const scores: [number, number] = [0, 0];
     const paddles: [Paddle, Paddle] = config.paddles;
@@ -23,11 +23,17 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
     let status: PongStatus = "waiting";
 
     const emit = (event: PongEngineEvent) => {
-        listeners.forEach((cb) => cb(event));
+        const eventListeners = listeners.get(event.type);
+        if (eventListeners) {
+            eventListeners.forEach((cb) => cb(event));
+        }
     };
 
-    const onEvent = (cb: (event: PongEngineEvent) => void) => {
-        listeners.push(cb);
+    const onEvent = (type: PongEngineEvent["type"], cb: EventCallback) => {
+        if (!listeners.has(type)) {
+            listeners.set(type, []);
+        }
+        listeners.get(type)!.push(cb);
     };
 
     const movePaddle = (i: number, direction: UserInput): Result<void, Error> => {
@@ -139,7 +145,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             if (Math.abs(ball.vec.x) < 0.3 * ball.speed) {
                 ball.vec.x = ball.vec.x > 0 ? 0.3 * ball.speed : -0.3 * ball.speed;
             }
-        }, 1500);
+        }, config.resetDelay);
         return ok();
     };
 
@@ -191,6 +197,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
         status = "ongoing";
         interval = setInterval(tick, tickRate);
+        emit({ type: "game-start" });
         return ok();
     };
 
@@ -200,6 +207,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             clearInterval(interval);
             interval = null;
         }
+        // Emit game end, depends on how this should be used
     };
 
     const setInput = (i: number, key: UserInput): Result<void, Error> => {

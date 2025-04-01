@@ -35,6 +35,7 @@ export type PongConfig = {
     ball: Ball;
     playTo: number;
     fps: number;
+    resetDelay: number;
 };
 
 export type UserInput = "up" | "down" | "stop";
@@ -49,7 +50,10 @@ export type PongEngineEvent =
     | { type: "stateUpdate"; state: PongState }
     | { type: "game-end"; winner: number }
     | { type: "score"; scores: [number, number] }
+    | { type: "game-start" }
     | { type: "ball-reset" };
+
+export type EventCallback = (event: PongEngineEvent) => void;
 
 export type PongState = {
     status: PongStatus;

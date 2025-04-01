@@ -29,4 +29,5 @@ export const defaultGameConfig: PongConfig = {
     ball: defaultBall,
     playTo: 11,
     fps: 60,
+    resetDelay: 1500,
 };
