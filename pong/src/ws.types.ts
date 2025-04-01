@@ -1,13 +1,13 @@
 import { PongEngineEventMap, UserInput } from "./pong.types";
 
-export type IncomingMessageType = "game-start" | "action";
+export type IncomingMessageType = "game-start" | "game-action";
 export type OutgoingMessageType = keyof PongEngineEventMap | "waiting-for-opponent";
 
 export type MessageType = IncomingMessageType | OutgoingMessageType;
 
 export type IncomingMessagePayloads = {
     "game-start": { token: string };
-    action: { direction: UserInput };
+    "game-action": { gameId: string; index: number; action: UserInput };
 };
 
 export type OutgoingMessagePayloads = Omit<PongEngineEventMap, "game-start"> & {
