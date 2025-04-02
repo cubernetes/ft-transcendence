@@ -1,5 +1,5 @@
-import { createHeader } from "../../components/components.header";
 import { createFooter } from "../../components/components.footer";
+import { createHeader } from "../../components/components.header";
 import { USER_URL } from "../../config";
 
 export const createLeaderboardPage = async (): Promise<HTMLElement> => {
@@ -16,7 +16,7 @@ export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const leaderboardTitle = document.createElement("h2");
     leaderboardTitle.className = "text-2xl font-bold mb-4";
     leaderboardTitle.textContent = "Leaderboard";
-    
+
     const table = document.createElement("table");
     table.className = "min-w-full divide-y divide-gray-200";
 

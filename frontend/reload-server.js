@@ -1,5 +1,5 @@
-import { WebSocketServer } from "ws";
 import chokidar from "chokidar";
+import { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ port: 35729, host: "0.0.0.0" }); // Classic livereload port
 

@@ -1,21 +1,22 @@
 import {
-    Scene,
-    Engine,
     ArcRotateCamera,
-    Vector3,
-    MeshBuilder,
-    Mesh,
-    StandardMaterial,
-    Color3,
-    Texture,
     AssetsManager,
-    CubeTexture,
     BackgroundMaterial,
+    Color3,
+    CubeTexture,
+    Engine,
+    Mesh,
+    MeshBuilder,
+    Scene,
+    StandardMaterial,
+    Texture,
+    Vector3,
 } from "@babylonjs/core";
-import earcut from "earcut";
 import { registerBuiltInLoaders } from "@babylonjs/loaders/dynamic";
-(window as any).earcut = earcut;
+import earcut from "earcut";
 import { logger } from "../utils/logger";
+
+(window as any).earcut = earcut;
 
 let GAME_CONSTANTS = {
     PADDLE_WIDTH: 0.5,

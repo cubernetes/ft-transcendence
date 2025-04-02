@@ -1,8 +1,8 @@
-import { createHeader } from "../../components/components.header";
 import { createFooter } from "../../components/components.footer";
+import { createHeader } from "../../components/components.header";
 import { createPaddles } from "../../components/components.paddles";
-import { createLocalMode } from "../../components/gameSetup/gameSetup.local";
 import { createAIMode } from "../../components/gameSetup/gameSetup.ai";
+import { createLocalMode } from "../../components/gameSetup/gameSetup.local";
 import { createOnlineMode } from "../../components/gameSetup/gameSetup.online";
 import { logger } from "../../utils/logger";
 

@@ -1,6 +1,6 @@
-declare const process: { env: { NODE_ENV: string } };
-
 import { LOG_LEVEL } from "../config";
+
+declare const process: { env: { NODE_ENV: string } };
 
 export type logLevel = "debug" | "info" | "warn" | "error";
 

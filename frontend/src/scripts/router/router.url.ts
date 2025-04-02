@@ -1,10 +1,10 @@
-import { createHomePage } from "../pages/pages.home";
-import { createGamePage } from "../pages/game/game.gameplay";
-import { createProfilePage } from "../pages/menu/menu.profile";
-import { createLeaderboardPage } from "../pages/menu/menu.leaderboard";
-import { createSimulationPage } from "../pages/menu/menu.simulation";
-import { createSetupPage } from "../pages/menu/menu.setup";
 import { checkAccess } from "../auth/auth.utils";
+import { createGamePage } from "../pages/game/game.gameplay";
+import { createLeaderboardPage } from "../pages/menu/menu.leaderboard";
+import { createProfilePage } from "../pages/menu/menu.profile";
+import { createSetupPage } from "../pages/menu/menu.setup";
+import { createSimulationPage } from "../pages/menu/menu.simulation";
+import { createHomePage } from "../pages/pages.home";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {

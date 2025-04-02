@@ -1,4 +1,4 @@
-import { authState, AuthFormData } from "../auth/auth.state";
+import { AuthFormData, authState } from "../auth/auth.state";
 import { logger } from "../utils/logger";
 
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
@@ -155,13 +155,3 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
 
     return wrapper;
 };
-
-export class AuthComponent {
-    async login(data: AuthFormData) {
-        logger.info("Logging in", data);
-    }
-
-    async register(data: AuthFormData) {
-        logger.info("Registering", data);
-    }
-}

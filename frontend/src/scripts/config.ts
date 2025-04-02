@@ -1,4 +1,5 @@
 import type { logLevel } from "./utils/logger";
+
 export const ASSETS_DIR = "./assets";
 
 export const API_URL = "/api";
