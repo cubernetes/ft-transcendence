@@ -76,6 +76,7 @@ export interface BabylonObjects {
     hitSound: StaticSound;
     bounceSound: StaticSound;
     blopSound: StaticSound;
+    soundsEnabled: boolean;
     camera: ArcRotateCamera;
     board: Mesh;
     ball: Mesh;

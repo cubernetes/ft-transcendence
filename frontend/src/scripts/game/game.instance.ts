@@ -1,17 +1,16 @@
 import {
     ArcRotateCamera,
     AudioEngineV2,
+    DirectionalLight,
     Engine,
-    FreeCamera,
     IFontData,
     Mesh,
     Scene,
+    ShadowGenerator,
     StaticSound,
     StreamingSound,
-    Vector3,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
-import { ASSETS_DIR } from "../config";
 import { SceneSetup } from "./game.scene";
 import { BabylonObjects, ICollisionEvent } from "./game.types";
 import { WebSocketManager } from "./managers/managers.sockets";
@@ -29,49 +28,44 @@ export class GameInstance {
         this.webSocketManager = new WebSocketManager(this.gameStateManager); // TODO: and maybe this as argument ?
 
         const engine = new Engine(canvas, true);
-
-        const { scene, light, controls, shadowGenerator } = SceneSetup.createScene(engine);
-        SceneSetup.setupScene(scene);
-
         this.babylon = {
             engine,
-            scene,
-            light,
-            shadowGenerator,
+            scene: {} as Scene,
+            light: {} as DirectionalLight,
+            shadowGenerator: {} as ShadowGenerator,
             shadowsEnabled: false,
-            controls,
+            controls: {} as AdvancedDynamicTexture,
             audioEngine: {} as AudioEngineV2,
             bgMusic: {} as StreamingSound,
             hitSound: {} as StaticSound,
             bounceSound: {} as StaticSound,
             blopSound: {} as StaticSound,
-            camera: SceneSetup.setCamera(scene),
+            soundsEnabled: true,
+            camera: {} as ArcRotateCamera,
             board: {} as Mesh,
             ball: {} as Mesh,
             paddle1: {} as Mesh,
             paddle2: {} as Mesh,
             fontData: {} as IFontData,
         };
+        SceneSetup.createScene(this.babylon);
+        SceneSetup.setCamera(this.babylon);
+        SceneSetup.setupScene(this.babylon.scene);
     }
 
     public static async getInstance(canvas: HTMLCanvasElement): Promise<GameInstance> {
         if (!GameInstance.instance) {
             GameInstance.instance = new GameInstance(canvas);
 
-            const { audioEngine, bgMusic } = await SceneSetup.createAudio();
-            Object.assign(GameInstance.instance.babylon, { audioEngine, bgMusic });
+            await SceneSetup.createAudio(GameInstance.instance.babylon);
 
-            const { hitSound, bounceSound, blopSound } = await SceneSetup.createSounds();
-            Object.assign(GameInstance.instance.babylon, { hitSound, bounceSound, blopSound });
+            await SceneSetup.createSounds(GameInstance.instance.babylon);
 
-            const { board, paddle1, paddle2, ball } = await SceneSetup.createGameObjects(
-                GameInstance.instance.babylon
-            );
-            Object.assign(GameInstance.instance.babylon, { board, paddle1, paddle2, ball });
+            await SceneSetup.createGameObjects(GameInstance.instance.babylon);
 
-            GameInstance.instance.babylon.fontData = (await (
-                await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
-            ).json()) as IFontData;
+            // GameInstance.instance.babylon.fontData = (await (
+            //     await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
+            // ).json()) as IFontData;
 
             SceneSetup.createControls(GameInstance.instance.babylon);
 
@@ -107,15 +101,21 @@ export class GameInstance {
     }
 
     handleWallCollision() {
-        this.babylon.bounceSound.play();
+        if (this.babylon.soundsEnabled) {
+            this.babylon.bounceSound.play();
+        }
     }
 
     handlePaddleCollision() {
-        this.babylon.hitSound.play();
+        if (this.babylon.soundsEnabled) {
+            this.babylon.hitSound.play();
+        }
     }
 
     handleScore() {
-        this.babylon.blopSound.play();
+        if (this.babylon.soundsEnabled) {
+            this.babylon.blopSound.play();
+        }
     }
 
     private setupRenderLoop() {

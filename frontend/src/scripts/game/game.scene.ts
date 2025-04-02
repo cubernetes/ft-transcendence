@@ -1,20 +1,21 @@
 import {
     ArcRotateCamera,
-    AudioEngineV2,
+    Axis,
+    BackgroundMaterial,
     Color3,
     CreateAudioEngineAsync,
     CreateGroundFromHeightMap,
     CreateSoundAsync,
     CreateStreamingSoundAsync,
+    CubeTexture,
     DirectionalLight,
     Mesh,
     MeshBuilder,
     Scene,
     ShadowGenerator,
     SoundState,
+    Space,
     StandardMaterial,
-    StaticSound,
-    StreamingSound,
     Texture,
     Vector3,
 } from "@babylonjs/core";
@@ -33,28 +34,13 @@ import { gameConfig } from "./game.config";
 import { BabylonObjects } from "./game.types";
 
 export class SceneSetup {
-    static createScene(engine: any): {
-        scene: Scene;
-        light: DirectionalLight;
-        shadowGenerator: ShadowGenerator;
-        controls: AdvancedDynamicTexture;
-    } {
-        const scene = new Scene(engine);
+    static createScene(babylon: BabylonObjects): void {
+        // --------- SCENE
+        const scene = new Scene(babylon.engine);
         scene.audioEnabled = true;
 
-        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-        // var hemisphericLight = new HemisphericLight(
-        //     "hemisphericLight",
-        //     new Vector3(0, 1, 0),
-        //     scene
-        // );
-        // hemisphericLight.intensity = 0.7;
-
+        // --------- LIGHT
         const light = new DirectionalLight("directionalLight", new Vector3(0, -8, 4), scene);
-
-        // const utilLayer = new UtilityLayerRenderer(scene, false, true);
-        // const lightGiszmo = new LightGizmo(utilLayer);
-        // lightGiszmo.light = light;
 
         // light.intensity = 0.5;
         light.shadowMinZ = 3.5;
@@ -63,6 +49,7 @@ export class SceneSetup {
         // light.autoUpdateExtends = false;
         // light.autoCalcShadowZBounds = true;
 
+        // --------- SHADOWS
         const shadowGenerator = new ShadowGenerator(1024, light);
         shadowGenerator.setDarkness(0.5);
         // shadowGenerator.useBlurExponentialShadowMap = true;
@@ -71,10 +58,13 @@ export class SceneSetup {
         shadowGenerator.blurKernel = 64;
         // shadowGenerator.useExponentialShadowMap = true;
 
-        // GUI
+        // --------- CONTROLS
         var controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-        return { scene, light, controls, shadowGenerator };
+        babylon.scene = scene;
+        babylon.light = light;
+        babylon.shadowGenerator = shadowGenerator;
+        babylon.controls = controls;
     }
 
     static createControls(babylon: BabylonObjects): void {
@@ -86,27 +76,12 @@ export class SceneSetup {
         grid.addColumnDefinition(0.2);
         grid.addColumnDefinition(0.2);
         grid.addColumnDefinition(0.1);
-        grid.addColumnDefinition(0.05);
-        grid.addColumnDefinition(0.05);
+        grid.addColumnDefinition(0.1);
         grid.addColumnDefinition(0.2);
         grid.addRowDefinition(0.07);
         grid.addRowDefinition(0.25);
         grid.addRowDefinition(0.25);
         grid.addRowDefinition(0.25);
-
-        // // Create a clickable button
-        // var button1 = Button.CreateSimpleButton("but1", "Click Me");
-        // button1.width = "150px";
-        // button1.height = "40px";
-        // button1.color = "white";
-        // button1.cornerRadius = 20;
-        // button1.background = "green";
-        // button1.onPointerUpObservable.add(function () {
-        //     alert("You just clicked a button!");
-        //     // controls.rootContainer.fontSize = "9px";
-        //     //button1.children[0].fontSize = "9px";
-        // });
-        // controls.addControl(button1);
 
         // -------------- Button: SHADOWS
         var shadowButton = Button.CreateSimpleButton("shadowToggle", "Shadows");
@@ -131,9 +106,31 @@ export class SceneSetup {
                 shadowButton.background = "blue";
             }
         });
-        grid.addControl(shadowButton, 0, 3);
+        grid.addControl(shadowButton, 0, 2);
 
-        // ----------------- Button: Mute/Play Music
+        // ----------------- Button: Mute/Play SFX
+        var buttonSFX = Button.CreateSimpleButton("sfx", "SFX");
+        buttonSFX.fontSize = 15;
+        buttonSFX.fontFamily = "Cambria";
+        buttonSFX.fontStyle = "italic";
+        buttonSFX.height = "35px";
+        buttonSFX.width = "60px";
+        buttonSFX.color = "white";
+        buttonSFX.cornerRadius = 20;
+        buttonSFX.background = "green";
+        buttonSFX.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        buttonSFX.onPointerUpObservable.add(function () {
+            if (babylon.soundsEnabled) {
+                babylon.soundsEnabled = false;
+                buttonSFX.background = "red";
+            } else {
+                babylon.soundsEnabled = true;
+                buttonSFX.background = "green";
+            }
+        });
+        grid.addControl(buttonSFX, 0, 3);
+
+        // ----------------- Button: Mute/Play MUSIC
         var buttonMusic = Button.CreateSimpleButton("bgMusic", "Music");
         buttonMusic.fontSize = 15;
         buttonMusic.fontFamily = "Cambria";
@@ -155,11 +152,9 @@ export class SceneSetup {
                 // buttonMusic.textBlock!.text = "Mute\nMusic";
             }
         });
-        grid.addControl(buttonMusic, 0, 5);
+        grid.addControl(buttonMusic, 0, 4);
 
-        // var buttonSFX = Button.CreateSimpleButton("sfx", "Mute\nSFX");
-
-        // Create a volume-slider
+        // ---------------- Button: VOLUME
         var panelVol = new StackPanel();
         panelVol.width = "220px";
         grid.addControl(panelVol, 0, 6);
@@ -209,32 +204,34 @@ export class SceneSetup {
     }
 
     static setupScene(scene: Scene): void {
-        // Create a background
-        const skybox = MeshBuilder.CreateBox(
-            "skybox",
-            {
-                width: 100,
-                height: 0.1,
-                depth: 100,
-            },
+        // Create a background -> SKYBOX
+        const sky = new BackgroundMaterial("skyMaterial", scene);
+        sky.backFaceCulling = false;
+        sky.reflectionTexture = new CubeTexture(`${ASSETS_DIR}/skybox/`, scene, [
+            "px.png",
+            "py.png",
+            "pz.png",
+            "nx.png",
+            "ny.png",
+            "nz.png",
+        ]);
+        sky.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+
+        const size = 1000;
+        const skydome = MeshBuilder.CreateBox(
+            "sky",
+            { size, sideOrientation: Mesh.BACKSIDE },
             scene
         );
-        const skyboxMaterial = new StandardMaterial("skyboxMaterial", scene);
-        skyboxMaterial.diffuseTexture = new Texture(
-            `${ASSETS_DIR}/sky-clouds-background.jpg`,
-            scene
-        );
-        skybox.material = skyboxMaterial;
-        skybox.position.y = -1;
+        skydome.position.y = 0.5;
+        skydome.infiniteDistance = true;
+        skydome.material = sky;
+        skydome.rotate(Axis.Y, Math.PI, Space.LOCAL);
 
         scene.createDefaultLight();
     }
 
-    // TODO: Check if audioEngine works like this
-    static async createAudio(): Promise<{
-        audioEngine: AudioEngineV2;
-        bgMusic: StreamingSound;
-    }> {
+    static async createAudio(babylon: BabylonObjects): Promise<void> {
         const audioEngine = await CreateAudioEngineAsync();
         await audioEngine.unlockAsync();
         await audioEngine.createMainBusAsync("mainBus", { volume: 1.0 });
@@ -249,22 +246,21 @@ export class SceneSetup {
             },
             audioEngine
         );
-        return { audioEngine, bgMusic };
+        babylon.bgMusic = bgMusic;
+        babylon.audioEngine = audioEngine;
     }
 
-    static async createSounds(): Promise<{
-        hitSound: StaticSound;
-        bounceSound: StaticSound;
-        blopSound: StaticSound;
-    }> {
+    static async createSounds(babylon: BabylonObjects): Promise<void> {
         const hitSound = await CreateSoundAsync("hitSound", `${ASSETS_DIR}/audio/hit.mp3`);
-        hitSound.volume = 0.1;
+        hitSound.volume = 1;
         const bounceSound = await CreateSoundAsync("bounceSound", `${ASSETS_DIR}/audio/bounce.mp3`);
-        bounceSound.volume = 0.1;
+        bounceSound.volume = 1;
         const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/audio/blop.mp3`);
         blopSound.pitch = 1.5;
 
-        return { hitSound, bounceSound, blopSound };
+        babylon.hitSound = hitSound;
+        babylon.bounceSound = bounceSound;
+        babylon.blopSound = blopSound;
     }
 
     static createFunctions(scene: Scene): void {
@@ -286,7 +282,7 @@ export class SceneSetup {
         });
     }
 
-    static setCamera(scene: Scene): ArcRotateCamera {
+    static setCamera(babylon: BabylonObjects): void {
         //TODO: check if Class TargetCamera makes more sense.
         const camera = new ArcRotateCamera(
             "pongCamera",
@@ -294,7 +290,7 @@ export class SceneSetup {
             0.1, // beta - slightly above (fixed)
             25, // radius - distance from center
             Vector3.Zero(), // target - looking at center
-            scene
+            babylon.scene
         );
 
         // Set limits for zooming in/out
@@ -310,17 +306,12 @@ export class SceneSetup {
         // Disable keyboard controls
         camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
         // camera.inputs.clear();
-        camera.attachControl(scene.getEngine().getRenderingCanvas(), true);
+        camera.attachControl(babylon.engine.getRenderingCanvas(), true);
 
-        return camera;
+        babylon.camera = camera;
     }
 
-    static async createGameObjects(babylon: BabylonObjects): Promise<{
-        board: Mesh;
-        paddle1: Mesh;
-        paddle2: Mesh;
-        ball: Mesh;
-    }> {
+    static async createGameObjects(babylon: BabylonObjects): Promise<void> {
         const defObj = defaultGameConfig; // as given from the PONG engine
 
         // Define consts -
@@ -370,6 +361,7 @@ export class SceneSetup {
         // board.material.wireframe = true;
         board.receiveShadows = true;
 
+        // ----------------- Create PADDLES
         const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
             {
@@ -399,7 +391,7 @@ export class SceneSetup {
         paddleMaterial.diffuseColor = materials.PADDLE2.diffuseColor;
         paddle2.material = paddleMaterial2;
 
-        // ----------------- Create ball
+        // ----------------- Create BALL
         const ballMaterial = new StandardMaterial("ball", babylon.scene);
         // ballMaterial.wireframe = true;
 
@@ -414,6 +406,7 @@ export class SceneSetup {
         ballMaterial.diffuseColor = materials.BALL.diffuseColor;
         ball.material = ballMaterial;
 
+        // ----------------- Create WALLS
         const cushions: Mesh[] = [];
         const cushionMaterial = new StandardMaterial("cushion", babylon.scene);
         cushionMaterial.diffuseColor = new Color3(0.7, 0, 0); // Red color for visibility
@@ -442,7 +435,10 @@ export class SceneSetup {
             cushions.push(cushion);
         });
 
-        return { board, paddle1, paddle2, ball };
+        babylon.board = board;
+        babylon.paddle1 = paddle1;
+        babylon.paddle2 = paddle2;
+        babylon.ball = ball;
     }
 
     // TODO: createScoreText(): Mesh {
