@@ -1,4 +1,4 @@
-import { UserData, authState } from "./../auth/auth.state";
+import { authState } from "./../auth/auth.state";
 
 export const showUserStatus = async (container: HTMLElement): Promise<Boolean> => {
     const loggedUser = authState.getUser();
