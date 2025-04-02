@@ -1,7 +1,5 @@
-import { IBabylonGameState, IServerGameState, ICollisionEvent } from "../game.types";
-// import { AudioManager } from "./managers.audio";
-import { IServerGameState } from "../game.types";
 import { GameInstance } from "../game.instance";
+import { IServerGameState } from "../game.types";
 
 export class GameStateManager {
     private state = {

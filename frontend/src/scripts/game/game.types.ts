@@ -1,26 +1,27 @@
 import {
-    Mesh,
-    Engine,
-    Scene,
-    AudioEngineV2,
-    StreamingSound,
-    StaticSound,
-    IFontData,
     ArcRotateCamera,
-    ShadowGenerator,
+    AudioEngineV2,
     DirectionalLight,
+    Engine,
+    IFontData,
+    Mesh,
+    Scene,
+    ShadowGenerator,
+    StaticSound,
+    StreamingSound,
 } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
-    Control,
-    StackPanel,
     Button,
-    TextBlock,
-    Slider,
-    ImageBasedSlider,
-    Image,
+    Control,
     Grid,
+    Image,
+    ImageBasedSlider,
+    Slider,
+    StackPanel,
+    TextBlock,
 } from "@babylonjs/gui";
+
 // Game state
 export interface IBabylonGameState {
     score: { player1: number; player2: number };

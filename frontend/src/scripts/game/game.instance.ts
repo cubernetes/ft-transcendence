@@ -1,21 +1,21 @@
 import {
-    Engine,
-    Scene,
-    AudioEngineV2,
-    StreamingSound,
-    StaticSound,
-    Mesh,
-    FreeCamera,
-    Vector3,
     ArcRotateCamera,
+    AudioEngineV2,
+    Engine,
+    FreeCamera,
     IFontData,
+    Mesh,
+    Scene,
+    StaticSound,
+    StreamingSound,
+    Vector3,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
+import { ASSETS_DIR } from "../config";
+import { SceneSetup } from "./game.scene";
+import { BabylonObjects, ICollisionEvent } from "./game.types";
 import { WebSocketManager } from "./managers/managers.sockets";
 import { GameStateManager } from "./managers/managers.state";
-import { SceneSetup } from "./game.scene";
-import { ASSETS_DIR } from "../config";
-import { ICollisionEvent, BabylonObjects } from "./game.types";
 
 export class GameInstance {
     private gameStateManager: GameStateManager;
@@ -31,7 +31,7 @@ export class GameInstance {
         const engine = new Engine(canvas, true);
 
         const { scene, light, controls, shadowGenerator } = SceneSetup.createScene(engine);
-        // SceneSetup.setupScene(scene);
+        SceneSetup.setupScene(scene);
 
         this.babylon = {
             engine,
@@ -52,7 +52,6 @@ export class GameInstance {
             paddle2: {} as Mesh,
             fontData: {} as IFontData,
         };
-
     }
 
     public static async getInstance(canvas: HTMLCanvasElement): Promise<GameInstance> {

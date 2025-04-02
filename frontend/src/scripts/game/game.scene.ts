@@ -1,43 +1,35 @@
 import {
-    Mesh,
-    Scene,
-    StandardMaterial,
-    Texture,
-    MeshBuilder,
     ArcRotateCamera,
-    Vector3,
+    AudioEngineV2,
     Color3,
     CreateAudioEngineAsync,
+    CreateGroundFromHeightMap,
+    CreateSoundAsync,
     CreateStreamingSoundAsync,
+    DirectionalLight,
+    Mesh,
+    MeshBuilder,
+    Scene,
+    ShadowGenerator,
+    SoundState,
+    StandardMaterial,
     StaticSound,
     StreamingSound,
-    AudioEngineV2,
-    DynamicTexture,
-    CreateSoundAsync,
-    Color4,
-    ShadowGenerator,
-    HemisphericLight,
-    Tools,
-    SoundState,
-    ShadowLight,
-    LightGizmo,
-    DirectionalLight,
-    UtilityLayerRenderer,
-    CreateGroundFromHeightMap,
+    Texture,
+    Vector3,
 } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
-    Control,
-    StackPanel,
     Button,
-    TextBlock,
-    Slider,
-    ImageBasedSlider,
-    Image,
+    Control,
     Grid,
+    Slider,
+    StackPanel,
+    TextBlock,
 } from "@babylonjs/gui";
-import { getObjectConfigs, gameConfig, ObjectConfig } from "./game.config";
+import { defaultGameConfig } from "@darrenkuro/pong-core";
 import { ASSETS_DIR } from "../config";
+import { ObjectConfig, gameConfig, getObjectConfigs } from "./game.config";
 import { BabylonObjects } from "./game.types";
 
 export class SceneSetup {
@@ -141,7 +133,6 @@ export class SceneSetup {
         });
         grid.addControl(shadowButton, 0, 3);
 
-
         // ----------------- Button: Mute/Play Music
         var buttonMusic = Button.CreateSimpleButton("bgMusic", "Music");
         buttonMusic.fontSize = 15;
@@ -215,8 +206,6 @@ export class SceneSetup {
         //     bgMusic.volume = value / 100;
         // });
         // panelVol.addControl(slider);
-        
-
     }
 
     static setupScene(scene: Scene): void {
@@ -332,20 +321,36 @@ export class SceneSetup {
         paddle2: Mesh;
         ball: Mesh;
     }> {
-        const objectConfigs = (await (await getObjectConfigs()).json())
-            .data as unknown as ObjectConfig;
+        // const objectConfigs = (await (await getObjectConfigs()).json())
+        //     .data as unknown as ObjectConfig;
+        const objectConfigs = defaultGameConfig as unknown as ObjectConfig;
+
+        // export type PongConfig = {
+        //     board: { size: Size3D };
+        //     paddles: [Paddle, Paddle];
+        //     ball: Ball;
+        //     playTo: number;
+        //     fps: number;
+        //     resetDelay: number;
+        // };
+
+        // export type PongState = {
+        //     status: PongStatus;
+        //     scores: [number, number];
+        //     ball: Ball;
+        //     paddles: [Paddle, Paddle];
+        // };
 
         // Define consts
         const positions = gameConfig.positions;
         const rotations = gameConfig.rotations;
         const materials = gameConfig.materials;
-        
+
         const boardMaterial = new StandardMaterial("board", babylon.scene);
         boardMaterial.backFaceCulling = true; // Turn off back face culling to render both sides of the mesh
         boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
         boardMaterial.specularColor = materials.BOARD.specularColor;
 
-        
         const paddleMaterial = new StandardMaterial("paddle", babylon.scene);
         const paddleMaterial2 = new StandardMaterial("paddle1Mat", babylon.scene);
         // paddleMaterial2.alpha = 0.5;
@@ -363,19 +368,24 @@ export class SceneSetup {
         //     },
         //     babylon.scene
         // );
-        const board = CreateGroundFromHeightMap('board', `${ASSETS_DIR}/height_map1.jpeg`, {
-            width: objectConfigs.BOARD_WIDTH,
-            height: objectConfigs.BOARD_DEPTH,
-            subdivisions: 50,
-            maxHeight: 0.3,
-            minHeight: -0.2,
-        }, babylon.scene);
+
+        const board = CreateGroundFromHeightMap(
+            "board",
+            `${ASSETS_DIR}/height_map1.jpeg`,
+            {
+                width: objectConfigs.BOARD_WIDTH,
+                height: objectConfigs.BOARD_DEPTH,
+                subdivisions: 50,
+                maxHeight: 0.3,
+                minHeight: -0.2,
+            },
+            babylon.scene
+        );
+
         board.position = positions.BOARD;
         board.material = boardMaterial;
         // board.material.wireframe = true;
         board.receiveShadows = true;
-
-
 
         const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
@@ -421,31 +431,33 @@ export class SceneSetup {
         ballMaterial.diffuseColor = materials.BALL.diffuseColor;
         ball.material = ballMaterial;
 
-        
         const cushions: Mesh[] = [];
         const cushionMaterial = new StandardMaterial("cushion", babylon.scene);
         cushionMaterial.diffuseColor = new Color3(0.7, 0, 0); // Red color for visibility
 
         const cushionPositions = [
-            new Vector3(0, 0.1, objectConfigs.BOARD_DEPTH / 2 + 0.5),  // Top
+            new Vector3(0, 0.1, objectConfigs.BOARD_DEPTH / 2 + 0.5), // Top
             new Vector3(0, 0.1, -objectConfigs.BOARD_DEPTH / 2 - 0.5), // Bottom
-            new Vector3(objectConfigs.BOARD_WIDTH / 2 + 0.5, 0.1, 0),  // Right
+            new Vector3(objectConfigs.BOARD_WIDTH / 2 + 0.5, 0.1, 0), // Right
             new Vector3(-objectConfigs.BOARD_WIDTH / 2 - 0.5, 0.1, 0), // Left
         ];
 
-        cushionPositions.forEach(pos => {
-            const cushion = MeshBuilder.CreateBox("cushion", {
-                width: pos.z === 0 ? 1 : objectConfigs.BOARD_WIDTH + 2,
-                height: 0.2,
-                depth: pos.z === 0 ? objectConfigs.BOARD_DEPTH + 2 : 1,
-            }, babylon.scene);
-            
+        cushionPositions.forEach((pos) => {
+            const cushion = MeshBuilder.CreateBox(
+                "cushion",
+                {
+                    width: pos.z === 0 ? 1 : objectConfigs.BOARD_WIDTH + 2,
+                    height: 0.2,
+                    depth: pos.z === 0 ? objectConfigs.BOARD_DEPTH + 2 : 1,
+                },
+                babylon.scene
+            );
+
             cushion.position = pos;
             cushion.material = cushionMaterial;
             babylon.shadowGenerator.addShadowCaster(cushion);
             cushions.push(cushion);
         });
-
 
         return { board, paddle1, paddle2, ball };
     }
