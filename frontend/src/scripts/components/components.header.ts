@@ -2,7 +2,7 @@ import { showUserStatus } from "./components.loginStatus";
 
 export const createHeader = async (): Promise<HTMLElement> => {
     const header = document.createElement("header");
-    header.className = "bg-red-500 p-4 text-white justify-between items-center font-medieval";
+    header.className = "bg-black/50 p-4 text-white justify-between items-center font-medieval";
 
     const title = document.createElement("h1");
     const a = document.createElement("a");

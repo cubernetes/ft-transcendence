@@ -112,6 +112,10 @@ export const createLocalMode = (): HTMLElement => {
     };
 
     const setDifficultyButton = (button: HTMLButtonElement) => {
+        if (button.classList.contains("bg-gray-400")) {
+            button.classList.remove("bg-gray-400");
+            return;
+        }
         let buttons = [...difficultyButtons.querySelectorAll("button")];
 
         buttons.forEach((btn) => btn.classList.remove("bg-gray-400"));
@@ -121,6 +125,10 @@ export const createLocalMode = (): HTMLElement => {
     };
 
     const setModeButton = (button: HTMLButtonElement) => {
+        if (button.classList.contains("bg-gray-400")) {
+            button.classList.remove("bg-gray-400");
+            return;
+        }
         let buttons = [...modeButtons.querySelectorAll("button")];
 
         buttons.forEach((btn) => btn.classList.remove("bg-gray-400"));

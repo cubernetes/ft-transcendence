@@ -54,11 +54,30 @@ export const createAIMode = (): HTMLElement => {
         "absolute top-8 left-8 p-2 bg-gray-400 text-black rounded text-xl hover:bg-gray-600";
     returnButton.innerHTML = "&#8617;";
 
+    const errorMessage = document.createElement("div");
+    errorMessage.id = "formError";
+    errorMessage.className = "hidden p-2 bg-red-100 text-red-500 rounded text-sm mt-4";
+    errorMessage.textContent = "";
+
+    const showError = (message: string) => {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+    };
+
+    const hideError = () => {
+        errorMessage.textContent = "";
+        errorMessage.classList.add("hidden");
+    };
+
     returnButton.onclick = () => {
         setupSection.replaceWith(createGameModes());
     };
 
     const setActiveButton = (button: HTMLButtonElement) => {
+        if (button.classList.contains("bg-gray-400")) {
+            button.classList.remove("bg-gray-400");
+            return;
+        }
         const buttons = difficultyButtons.querySelectorAll("button");
         buttons.forEach((btn) => btn.classList.remove("bg-gray-400"));
 
@@ -70,11 +89,31 @@ export const createAIMode = (): HTMLElement => {
     mediumButton.onclick = () => setActiveButton(mediumButton);
     hardButton.onclick = () => setActiveButton(hardButton);
 
+    playButton.onclick = () => {
+        const selectedDifficulty = difficultyButtons.querySelector(".bg-gray-400");
+        if (!selectedDifficulty) {
+            showError("Please select a difficulty.");
+            return;
+        }
+        const difficulty =
+            selectedDifficulty.textContent === "Easy"
+                ? "easy"
+                : selectedDifficulty.textContent === "Medium"
+                  ? "medium"
+                  : "hard";
+        const gameData = {
+            difficulty: difficulty,
+        };
+        hideError();
+        console.log("Game Data:", gameData);
+    };
+
     setupSection.appendChild(returnButton);
     setupSection.appendChild(setupTitle);
     setupSection.appendChild(setupLine);
     setupSection.appendChild(difficultySection);
     setupSection.appendChild(playButton);
+    setupSection.appendChild(errorMessage);
 
     return setupSection;
 };
