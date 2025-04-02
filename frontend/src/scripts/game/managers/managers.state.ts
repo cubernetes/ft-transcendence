@@ -1,43 +1,99 @@
+import {
+    Ball,
+    Paddle,
+    PongConfig,
+    PongState,
+    PongStatus,
+    Position3D,
+    Size3D,
+    Vector3D,
+} from "@darrenkuro/pong-core";
 import { GameInstance } from "../game.instance";
 import { IServerGameState } from "../game.types";
 
 export class GameStateManager {
     private state = {
-        score: { player1: 0, player2: 0 },
-        lastCollisionEvents: [],
-    };
+        status: "waiting",
+        scores: [0, 0],
+        ball: {
+            pos: { x: 0, y: 0, z: 0 },
+            vec: { x: 0, y: 0, z: 0 },
+            r: 0.3,
+            speed: 0.2,
+        } as Ball,
+        paddles: [
+            {
+                pos: { x: -10, y: 0.5, z: 0 },
+                size: { width: 0.2, height: 0.3, depth: 5 } as Size3D,
+                speed: 0.3,
+            } as Paddle,
+            {
+                pos: { x: 10, y: 0.5, z: 0 },
+                size: { width: 0.2, height: 0.3, depth: 5 } as Size3D,
+                speed: 0.3,
+            } as Paddle,
+        ],
+    } as PongState;
 
-    async updateGameObjects(eventData: string) {
-        const gameState: IServerGameState = JSON.parse(eventData);
+    async startGame(payload: { gameId: string; opponentId: string; index: number }) {
+        this.state.status = "ongoing";
+        // const instance = await GameInstance.getInstance(
+        //     document.getElementById("renderCanvas") as HTMLCanvasElement
+        // );
+        // instance.startGame(payload);
+    }
+
+    async endGame(winner: string) {
+        this.state.status = "ended";
+        // const instance = await GameInstance.getInstance(
+        //     document.getElementById("renderCanvas") as HTMLCanvasElement
+        // );
+        // instance.endGame(winner);
+    }
+
+    async updateScore(score: [number, number]) {
+        this.state.scores = score;
         const instance = await GameInstance.getInstance(
             document.getElementById("renderCanvas") as HTMLCanvasElement
         );
-        if (!gameState) return;
+        instance.updateScore(score);
+    }
 
-        const ballPosition = gameState.ballPosition;
-        instance.updateBallPosition(ballPosition.x, ballPosition.y, ballPosition.z);
+    async handleWallCollision() {
+        const instance = await GameInstance.getInstance(
+            document.getElementById("renderCanvas") as HTMLCanvasElement
+        );
+        instance.handleWallCollision();
+    }
 
-        const leftPaddlePosition = gameState.paddlePosition["player-1"];
-        const rightPaddlePosition = gameState.paddlePosition["player-2"];
+    async handlePaddleCollision() {
+        const instance = await GameInstance.getInstance(
+            document.getElementById("renderCanvas") as HTMLCanvasElement
+        );
+        instance.handlePaddleCollision();
+    }
+
+    async updateGameObjects(payload: PongState) {
+        const instance = await GameInstance.getInstance(
+            document.getElementById("renderCanvas") as HTMLCanvasElement
+        );
+        if (!payload) return;
+
+        instance.updateBallPosition(payload.ball.pos.x, payload.ball.pos.y, payload.ball.pos.z);
+
         instance.updateLeftPaddlePosition(
-            leftPaddlePosition.x,
-            leftPaddlePosition.y,
-            leftPaddlePosition.z
+            payload.paddles[0].pos.x,
+            payload.paddles[0].pos.y,
+            payload.paddles[0].pos.z
         );
+
         instance.updateRightPaddlePosition(
-            rightPaddlePosition.x,
-            rightPaddlePosition.y,
-            rightPaddlePosition.z
+            payload.paddles[1].pos.x,
+            payload.paddles[1].pos.y,
+            payload.paddles[1].pos.z
         );
 
-        // this.updateScore(gameState, scene);
-        if (gameState.score) {
-            instance.updateScore(gameState.score);
-        }
-
-        if (gameState.collisionEvents && gameState.collisionEvents.length) {
-            instance.handleCollisionEvents(gameState.collisionEvents);
-        }
+        instance.updateScore(payload.scores);
     }
 
     // async updateScore(gameState: IServerGameState, scene: Scene) {

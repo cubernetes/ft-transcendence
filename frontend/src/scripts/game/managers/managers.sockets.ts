@@ -13,8 +13,46 @@ export class WebSocketManager {
 
     setupSocketHandlers() {
         this.socket.onmessage = (event) => {
-            // console.log("Message received from server:", event.data);
-            this.gameStateManager.updateGameObjects(event.data);
+            try {
+                const message = JSON.parse(event.data); // Parse incoming message
+
+                if (!message.type) {
+                    logger.warn("Received WebSocket message without a type:", message);
+                    return;
+                }
+                logger.info("Received WebSocket message:", message);
+
+                switch (message.type) {
+                    case "game-start":
+                        this.gameStateManager.startGame(message.payload);
+                        break;
+
+                    case "game-end":
+                        this.gameStateManager.endGame(message.payload.winner);
+                        break;
+
+                    case "score":
+                        this.gameStateManager.updateScore(message.payload.scores);
+                        break;
+
+                    case "wall-collision":
+                        this.gameStateManager.handleWallCollision();
+                        break;
+
+                    case "paddle-collision":
+                        this.gameStateManager.handlePaddleCollision();
+                        break;
+
+                    case "state-update":
+                        this.gameStateManager.updateGameObjects(message.payload);
+                        break;
+
+                    default:
+                        logger.warn("Unknown WebSocket event type:", message.type);
+                }
+            } catch (error) {
+                logger.error("Error parsing WebSocket message:", error, event.data);
+            }
         };
 
         this.socket.onopen = () => {

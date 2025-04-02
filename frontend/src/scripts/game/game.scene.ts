@@ -29,7 +29,7 @@ import {
 } from "@babylonjs/gui";
 import { defaultGameConfig } from "@darrenkuro/pong-core";
 import { ASSETS_DIR } from "../config";
-import { ObjectConfig, gameConfig, getObjectConfigs } from "./game.config";
+import { gameConfig } from "./game.config";
 import { BabylonObjects } from "./game.types";
 
 export class SceneSetup {
@@ -321,27 +321,9 @@ export class SceneSetup {
         paddle2: Mesh;
         ball: Mesh;
     }> {
-        // const objectConfigs = (await (await getObjectConfigs()).json())
-        //     .data as unknown as ObjectConfig;
-        const objectConfigs = defaultGameConfig as unknown as ObjectConfig;
+        const defObj = defaultGameConfig; // as given from the PONG engine
 
-        // export type PongConfig = {
-        //     board: { size: Size3D };
-        //     paddles: [Paddle, Paddle];
-        //     ball: Ball;
-        //     playTo: number;
-        //     fps: number;
-        //     resetDelay: number;
-        // };
-
-        // export type PongState = {
-        //     status: PongStatus;
-        //     scores: [number, number];
-        //     ball: Ball;
-        //     paddles: [Paddle, Paddle];
-        // };
-
-        // Define consts
+        // Define consts -
         const positions = gameConfig.positions;
         const rotations = gameConfig.rotations;
         const materials = gameConfig.materials;
@@ -373,14 +355,15 @@ export class SceneSetup {
             "board",
             `${ASSETS_DIR}/height_map1.jpeg`,
             {
-                width: objectConfigs.BOARD_WIDTH,
-                height: objectConfigs.BOARD_DEPTH,
+                width: defObj.board.size.width,
+                height: defObj.board.size.depth,
                 subdivisions: 50,
                 maxHeight: 0.3,
                 minHeight: -0.2,
             },
             babylon.scene
         );
+        babylon.board = board;
 
         board.position = positions.BOARD;
         board.material = boardMaterial;
@@ -390,9 +373,9 @@ export class SceneSetup {
         const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
             {
-                diameterX: 2 * objectConfigs.PADDLE_WIDTH,
-                diameterY: objectConfigs.PADDLE_HEIGHT,
-                diameterZ: objectConfigs.PADDLE_DEPTH,
+                diameterX: defObj.paddles[0].size.width,
+                diameterY: defObj.paddles[0].size.height,
+                diameterZ: defObj.paddles[0].size.depth,
             },
             babylon.scene
         );
@@ -405,9 +388,9 @@ export class SceneSetup {
         const paddle2 = MeshBuilder.CreateSphere(
             "paddle2",
             {
-                diameterX: 2 * objectConfigs.PADDLE_WIDTH,
-                diameterY: objectConfigs.PADDLE_HEIGHT,
-                diameterZ: objectConfigs.PADDLE_DEPTH,
+                diameterX: defObj.paddles[1].size.width,
+                diameterY: defObj.paddles[1].size.height,
+                diameterZ: defObj.paddles[1].size.depth,
             },
             babylon.scene
         );
@@ -423,7 +406,7 @@ export class SceneSetup {
         const ball = MeshBuilder.CreateSphere(
             "ball",
             {
-                diameter: objectConfigs.BALL_RADIUS * 2,
+                diameter: defObj.ball.r * 2,
             },
             babylon.scene
         );
@@ -436,19 +419,19 @@ export class SceneSetup {
         cushionMaterial.diffuseColor = new Color3(0.7, 0, 0); // Red color for visibility
 
         const cushionPositions = [
-            new Vector3(0, 0.1, objectConfigs.BOARD_DEPTH / 2 + 0.5), // Top
-            new Vector3(0, 0.1, -objectConfigs.BOARD_DEPTH / 2 - 0.5), // Bottom
-            new Vector3(objectConfigs.BOARD_WIDTH / 2 + 0.5, 0.1, 0), // Right
-            new Vector3(-objectConfigs.BOARD_WIDTH / 2 - 0.5, 0.1, 0), // Left
+            new Vector3(0, 0.1, defObj.board.size.depth / 2 + 0.5), // Top
+            new Vector3(0, 0.1, -defObj.board.size.depth / 2 - 0.5), // Bottom
+            new Vector3(defObj.board.size.width / 2 + 0.5, 0.1, 0), // Right
+            new Vector3(-defObj.board.size.width / 2 - 0.5, 0.1, 0), // Left
         ];
 
         cushionPositions.forEach((pos) => {
             const cushion = MeshBuilder.CreateBox(
                 "cushion",
                 {
-                    width: pos.z === 0 ? 1 : objectConfigs.BOARD_WIDTH + 2,
+                    width: pos.z === 0 ? 1 : defObj.board.size.width + 2,
                     height: 0.2,
-                    depth: pos.z === 0 ? objectConfigs.BOARD_DEPTH + 2 : 1,
+                    depth: pos.z === 0 ? defObj.board.size.depth + 2 : 1,
                 },
                 babylon.scene
             );
@@ -462,7 +445,5 @@ export class SceneSetup {
         return { board, paddle1, paddle2, ball };
     }
 
-    // createScoreText(): Mesh {
-    //     //
-    // }
+    // TODO: createScoreText(): Mesh {
 }

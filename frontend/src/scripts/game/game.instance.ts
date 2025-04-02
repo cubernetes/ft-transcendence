@@ -89,7 +89,7 @@ export class GameInstance {
 
     // TODO: Change y-position in backend so it fits the paddles
     updateBallPosition(x: number, y: number, z: number) {
-        this.babylon.ball.position.set(x, 0.5, z);
+        this.babylon.ball.position.set(x, y, z);
     }
 
     updateLeftPaddlePosition(x: number, y: number, z: number) {
@@ -100,28 +100,22 @@ export class GameInstance {
         this.babylon.paddle2.position.set(x, y, z);
     }
 
-    updateScore(score: { player1: number; player2: number }) {
+    updateScore(score: [number, number]) {
         // Update score text
         // this.babylon.scoreText.text = `Score: ${score.player1} - ${score.player2}`;
-        console.log(`Score updated: ${score.player1} - ${score.player2}`);
+        console.log(`Score updated: ${score[0]} - ${score[1]}`);
     }
 
-    handleCollisionEvents(collisionEvents: ICollisionEvent[]) {
-        collisionEvents.forEach((event) => {
-            switch (event.type) {
-                case "paddle":
-                    this.babylon.hitSound.play();
-                    break;
-                case "wall":
-                    this.babylon.bounceSound.play();
-                    break;
-                case "score":
-                    this.babylon.blopSound.play();
-                    break;
-                default:
-                    console.warn(`Unknown collision event type: ${event.type}`);
-            }
-        });
+    handleWallCollision() {
+        this.babylon.bounceSound.play();
+    }
+
+    handlePaddleCollision() {
+        this.babylon.hitSound.play();
+    }
+
+    handleScore() {
+        this.babylon.blopSound.play();
     }
 
     private setupRenderLoop() {
