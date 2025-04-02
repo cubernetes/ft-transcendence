@@ -241,7 +241,7 @@ export class SceneSetup {
 
         const bgMusic = await CreateStreamingSoundAsync(
             "bgMusic",
-            `${ASSETS_DIR}/neon-gaming.mp3`,
+            `${ASSETS_DIR}/audio/neon-gaming.mp3`,
             {
                 loop: true,
                 autoplay: true,
@@ -257,11 +257,11 @@ export class SceneSetup {
         bounceSound: StaticSound;
         blopSound: StaticSound;
     }> {
-        const hitSound = await CreateSoundAsync("hitSound", `${ASSETS_DIR}/hit.mp3`);
+        const hitSound = await CreateSoundAsync("hitSound", `${ASSETS_DIR}/audio/hit.mp3`);
         hitSound.volume = 0.1;
-        const bounceSound = await CreateSoundAsync("bounceSound", `${ASSETS_DIR}/bounce.mp3`);
+        const bounceSound = await CreateSoundAsync("bounceSound", `${ASSETS_DIR}/audio/bounce.mp3`);
         bounceSound.volume = 0.1;
-        const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/blop.mp3`);
+        const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/audio/blop.mp3`);
         blopSound.pitch = 1.5;
 
         return { hitSound, bounceSound, blopSound };
