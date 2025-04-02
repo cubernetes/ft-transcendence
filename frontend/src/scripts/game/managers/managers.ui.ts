@@ -39,6 +39,8 @@ export class GameUIManager {
             return;
         }
         this.gameInstance.getWebSocketManager().setupSocketHandlers();
+        this.gameInstance.getWebSocketManager().sendGameStart();
+
         this.setupKeyboardControls();
     }
 

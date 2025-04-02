@@ -20,7 +20,8 @@ export class WebSocketManager {
                     logger.warn("Received WebSocket message without a type:", message);
                     return;
                 }
-                logger.info("Received WebSocket message:", message);
+                // logger.info("Received WebSocket message:", message);
+                console.log("Received WebSocket message:", message);
 
                 switch (message.type) {
                     case "game-start":
@@ -68,17 +69,27 @@ export class WebSocketManager {
         };
     }
 
-    startGame() {
+    sendGameStart() {
+        console.log("in function sendGameStart");
         if (this.socket.readyState === WebSocket.OPEN) {
             logger.info("Sending game-start");
+
+            const jwtToken: string | null = localStorage.getItem("token");
+            if (!jwtToken) {
+                logger.error("JWT token not found in local storage.");
+                return;
+            }
+
+            logger.info("JWT token:", jwtToken);
 
             const message = JSON.stringify({
                 type: "game-start",
                 payload: {
-                    token: 0, // Replace with actual token
+                    token: jwtToken,
                 },
             });
             this.socket.send(message);
+            console.log("Game start message sent:", message);
         } else {
             logger.error("WebSocket is not open.");
         }
@@ -90,8 +101,8 @@ export class WebSocketManager {
             const message = JSON.stringify({
                 type: "game-action",
                 payload: {
-                    gameId: "gameId", // Replace with actual game ID
-                    index: 0, // Replace with actual player index
+                    gameId: this.gameStateManager.getGameId(),
+                    index: this.gameStateManager.getPlayerIndex(),
                     action: direction,
                 },
             });

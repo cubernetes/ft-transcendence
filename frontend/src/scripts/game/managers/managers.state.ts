@@ -34,9 +34,31 @@ export class GameStateManager {
             } as Paddle,
         ],
     } as PongState;
+    private gameId = "";
+    private index = 0;
+    private opponentId = "";
+
+    getGameId() {
+        return this.gameId;
+    }
+
+    getOpponentId() {
+        return this.opponentId;
+    }
+
+    getPlayerIndex() {
+        return this.index;
+    }
+
+    getState() {
+        return this.state;
+    }
 
     async startGame(payload: { gameId: string; opponentId: string; index: number }) {
         this.state.status = "ongoing";
+        this.gameId = payload.gameId;
+        this.index = payload.index;
+        this.opponentId = payload.opponentId;
         // const instance = await GameInstance.getInstance(
         //     document.getElementById("renderCanvas") as HTMLCanvasElement
         // );
