@@ -70,17 +70,32 @@ export class WebSocketManager {
 
     startGame() {
         if (this.socket.readyState === WebSocket.OPEN) {
-            logger.info("Sending startPong");
-            this.socket.send("startPong"); // Start the game
+            logger.info("Sending game-start");
+
+            const message = JSON.stringify({
+                type: "game-start",
+                payload: {
+                    token: 0, // Replace with actual token
+                },
+            });
+            this.socket.send(message);
         } else {
             logger.error("WebSocket is not open.");
         }
     }
 
     sendDirection(direction: Direction) {
-        logger.info("Sending direction:", direction);
+        logger.info(`Sending direction: ${direction}`);
         if (direction !== this.lastDirection && this.socket.readyState === WebSocket.OPEN) {
-            this.socket.send(`move ${direction}`);
+            const message = JSON.stringify({
+                type: "game-action",
+                payload: {
+                    gameId: "gameId", // Replace with actual game ID
+                    index: 0, // Replace with actual player index
+                    action: direction,
+                },
+            });
+            this.socket.send(message);
             this.lastDirection = direction;
         }
     }
