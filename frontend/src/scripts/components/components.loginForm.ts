@@ -1,11 +1,5 @@
 import { authState, AuthFormData } from "../auth/auth.state";
-
-// export type AuthFormData = {
-//     username: string;
-//     password: string;
-//     displayName?: string;
-//     confirmPassword?: string;
-// };
+import { logger } from "../utils/logger";
 
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
@@ -145,10 +139,14 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         if (mode === "login") {
             if (await authState.login(formData)) {
                 window.location.href = "#setup";
+            } else {
+                showError("Login failed");
             }
         } else {
             if (await authState.register(formData)) {
                 window.location.href = "#setup";
+            } else {
+                showError("Register failed");
             }
         }
     });

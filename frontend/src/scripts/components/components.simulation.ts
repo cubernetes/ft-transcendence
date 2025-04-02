@@ -15,6 +15,7 @@ import {
 import earcut from "earcut";
 import { registerBuiltInLoaders } from "@babylonjs/loaders/dynamic";
 (window as any).earcut = earcut;
+import { logger } from "../utils/logger";
 
 let GAME_CONSTANTS = {
     PADDLE_WIDTH: 0.5,
@@ -49,7 +50,7 @@ export async function createSimulation(): Promise<HTMLElement> {
     container.appendChild(gameSection);
 
     container.addEventListener("destroy", () => {
-        console.log("received destroy");
+        logger.info("received destroy");
     });
 
     // Initialize game only after user interaction
@@ -211,19 +212,19 @@ async function addModels(scene: Scene): Promise<AssetsManager> {
     };
 
     meshTask1.onError = function (task, message, exception) {
-        console.log(message, exception);
+        logger.info(message, exception);
     };
 
     meshTask2.onError = function (task, message, exception) {
-        console.log(message, exception);
+        logger.info(message, exception);
     };
 
     meshTask3.onError = function (task, message, exception) {
-        console.log(message, exception);
+        logger.info(message, exception);
     };
 
     meshTask4.onError = function (task, message, exception) {
-        console.log(message, exception);
+        logger.info(message, exception);
     };
 
     return assetsManager;

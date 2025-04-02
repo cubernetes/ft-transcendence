@@ -4,6 +4,7 @@ import { createPaddles } from "../../components/components.paddles";
 import { createLocalMode } from "../../components/gameSetup/gameSetup.local";
 import { createAIMode } from "../../components/gameSetup/gameSetup.ai";
 import { createOnlineMode } from "../../components/gameSetup/gameSetup.online";
+import { logger } from "../../utils/logger";
 
 export const createSetupPage = async (): Promise<HTMLElement> => {
     const container = document.createElement("div");
@@ -73,22 +74,22 @@ export const createGameModes = (): HTMLElement => {
     setupSection.appendChild(tournamentButton); // Append the container for proper alignment
 
     localButton.onclick = async () => {
-        console.log("Local Game Mode");
+        logger.info("Local Game Mode");
         setupSection.replaceWith(createLocalMode());
     };
 
     onlineButton.onclick = async () => {
-        console.log("Online Game Mode");
+        logger.info("Online Game Mode");
         setupSection.replaceWith(createOnlineMode());
     };
 
     aiButton.onclick = async () => {
-        console.log("AI Game Mode");
+        logger.info("AI Game Mode");
         setupSection.replaceWith(createAIMode());
     };
 
     tournamentButton.onclick = async () => {
-        console.log("Tournament Game Mode");
+        logger.info("Tournament Game Mode");
     };
 
     return setupSection;

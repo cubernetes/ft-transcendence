@@ -1,6 +1,7 @@
 // src/auth/AuthState.ts
 import { jwtDecode } from "jwt-decode";
 import { USER_URL } from "../config";
+import { logger } from "../utils/logger";
 
 /// This is the data that is stored in the JWT token to identify the user, after successful login
 export interface UserData {
@@ -35,6 +36,7 @@ class AuthState {
 
     private loadUserFromToken(): UserData | null {
         const token = localStorage.getItem("token");
+        logger.info(`Token is: ${token}`);
         if (token) {
             try {
                 const decoded: UserData = jwtDecode(token);
@@ -58,7 +60,7 @@ class AuthState {
         const username = data.username;
         const password = data.password;
         if (!username || !password) {
-            console.error("Username and password are required");
+            logger.info("Username and password are required");
             return false;
         }
         try {
@@ -69,18 +71,17 @@ class AuthState {
             });
 
             const result = await response.json();
-
             if (!response.ok) {
-                console.error(result.message || "Login failed");
+                logger.info(result.message || "Login failed");
                 return false;
             }
 
             localStorage.setItem("token", result.data.token);
             this.loadUserFromToken();
-            console.log("Login successful");
+            logger.info("Login successful");
             return true;
         } catch (error) {
-            console.error("Login error:", error);
+            logger.info("Login error:", error);
             return false;
         }
     }
@@ -96,16 +97,16 @@ class AuthState {
             const result = await response.json();
 
             if (!response.ok) {
-                console.error(result.message || "Registration failed");
+                logger.info(result.message || "Registration failed");
                 return false;
             }
 
             localStorage.setItem("token", result.data.token);
             this.loadUserFromToken();
-            console.log("Login successful");
+            logger.info("Login successful");
             return true;
         } catch (error) {
-            console.error("Registration error:", error);
+            logger.info("Registration error:", error);
             return false;
         }
     }
