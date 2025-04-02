@@ -92,15 +92,36 @@ export const createLocalMode = (): HTMLElement => {
         "absolute top-8 left-8 p-2 bg-gray-400 text-black rounded text-xl hover:bg-gray-600";
     returnButton.innerHTML = "&#8617;";
 
+    const errorMessage = document.createElement("div");
+    errorMessage.id = "formError";
+    errorMessage.className = "hidden p-2 bg-red-100 text-red-500 rounded text-sm mt-4";
+    errorMessage.textContent = "";
+
+    const showError = (message: string) => {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+    };
+
+    const hideError = () => {
+        errorMessage.textContent = "";
+        errorMessage.classList.add("hidden");
+    };
+
     returnButton.onclick = () => {
         setupSection.replaceWith(createGameModes());
     };
 
-    const setActiveButton = (button: HTMLButtonElement) => {
-        let buttons = [
-            ...difficultyButtons.querySelectorAll("button"),
-            ...modeButtons.querySelectorAll("button"),
-        ];
+    const setDifficultyButton = (button: HTMLButtonElement) => {
+        let buttons = [...difficultyButtons.querySelectorAll("button")];
+
+        buttons.forEach((btn) => btn.classList.remove("bg-gray-400"));
+
+        // Add the 'active' class to the clicked button
+        button.classList.add("bg-gray-400");
+    };
+
+    const setModeButton = (button: HTMLButtonElement) => {
+        let buttons = [...modeButtons.querySelectorAll("button")];
 
         buttons.forEach((btn) => btn.classList.remove("bg-gray-400"));
 
@@ -109,11 +130,45 @@ export const createLocalMode = (): HTMLElement => {
     };
 
     // Add click event listeners to the difficulty buttons
-    easyButton.onclick = () => setActiveButton(easyButton);
-    mediumButton.onclick = () => setActiveButton(mediumButton);
-    hardButton.onclick = () => setActiveButton(hardButton);
-    mode2P.onclick = () => setActiveButton(mode2P);
-    mode4P.onclick = () => setActiveButton(mode4P);
+    easyButton.onclick = () => setDifficultyButton(easyButton);
+    mediumButton.onclick = () => setDifficultyButton(mediumButton);
+    hardButton.onclick = () => setDifficultyButton(hardButton);
+    mode2P.onclick = () => setModeButton(mode2P);
+    mode4P.onclick = () => setModeButton(mode4P);
+
+    playButton.onclick = () => {
+        const player1Name = player1.value.trim();
+        const player2Name = player2.value.trim();
+        const selectedMode = modeButtons.querySelector(".bg-gray-400");
+        const selectedDifficulty = difficultyButtons.querySelector(".bg-gray-400");
+        if (!player1Name || !player2Name) {
+            showError("Please enter names for both players.");
+            return;
+        }
+        if (!selectedMode) {
+            showError("Please select a mode.");
+            return;
+        }
+        if (!selectedDifficulty) {
+            showError("Please select a difficulty.");
+            return;
+        }
+        const mode = selectedMode.textContent === "2P" ? "2P" : "4P";
+        const difficulty =
+            selectedDifficulty.textContent === "Easy"
+                ? "easy"
+                : selectedDifficulty.textContent === "Medium"
+                  ? "medium"
+                  : "hard";
+        const gameData = {
+            player1: player1Name,
+            player2: player2Name,
+            mode: mode,
+            difficulty: difficulty,
+        };
+        hideError();
+        console.log("Game Data:", gameData);
+    };
 
     setupSection.appendChild(returnButton);
     setupSection.appendChild(setupTitle);
@@ -122,6 +177,7 @@ export const createLocalMode = (): HTMLElement => {
     setupSection.appendChild(modeSection);
     setupSection.appendChild(difficultySection);
     setupSection.appendChild(playButton);
+    setupSection.appendChild(errorMessage);
 
     return setupSection;
 };
