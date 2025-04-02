@@ -59,7 +59,8 @@ export class SceneSetup {
         grid.addColumnDefinition(0.2);
         grid.addColumnDefinition(0.2);
         grid.addColumnDefinition(0.1);
-        grid.addColumnDefinition(0.1);
+        grid.addColumnDefinition(0.05);
+        grid.addColumnDefinition(0.05);
         grid.addColumnDefinition(0.2);
         grid.addRowDefinition(0.07);
         grid.addRowDefinition(0.25);
@@ -102,12 +103,14 @@ export class SceneSetup {
                 buttonMusic.textBlock!.text = "Mute\nMusic";
             }
         });
-        grid.addControl(buttonMusic, 0, 4);
+        grid.addControl(buttonMusic, 0, 5);
+
+        // var buttonSFX = Button.CreateSimpleButton("sfx", "Mute\nSFX");
 
         // Create a volume-slider
         var panelVol = new StackPanel();
         panelVol.width = "220px";
-        grid.addControl(panelVol, 0, 5);
+        grid.addControl(panelVol, 0, 6);
 
         var header = new TextBlock();
         header.text = "Volume: 50 %";
