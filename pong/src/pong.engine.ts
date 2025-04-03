@@ -51,7 +51,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
         const { board } = config;
         const topLimit = board.size.depth / 2 - paddle.size.depth / 2;
-        const bottomLimit = board.size.depth / 2 + paddle.size.depth / 2;
+        const bottomLimit = -board.size.depth / 2 + paddle.size.depth / 2;
         if (direction === "up") {
             paddle.pos.z = Math.min(paddle.pos.z + paddle.speed, topLimit);
         } else if (direction === "down") {
@@ -144,10 +144,10 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             ball.vec.x = ball.speed * Math.cos(randomAngle);
             ball.vec.z = ball.speed * Math.sin(randomAngle);
 
-            // Check out why this adjument is needed
-            if (Math.abs(ball.vec.x) < 0.3 * ball.speed) {
-                ball.vec.x = ball.vec.x > 0 ? 0.3 * ball.speed : -0.3 * ball.speed;
-            }
+            // Ensures the ball to move at intended speed
+            const speedFactor = ball.speed / Math.sqrt(ball.vec.x ** 2 + ball.vec.z ** 2);
+            ball.vec.x *= speedFactor;
+            ball.vec.z *= speedFactor;
         }, config.resetDelay);
         return ok();
     };
@@ -179,8 +179,8 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             return err(new Error("Game is not ongoing"));
         }
 
-        moveBall();
         userInputs.forEach((input, i) => movePaddle(i, input));
+        moveBall();
         detectCollisions();
         detectOutOfBounds();
         checkWins();
