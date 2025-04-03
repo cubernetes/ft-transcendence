@@ -1,4 +1,26 @@
-import { Mesh } from "@babylonjs/core";
+import {
+    ArcRotateCamera,
+    AudioEngineV2,
+    DirectionalLight,
+    Engine,
+    IFontData,
+    Mesh,
+    Scene,
+    ShadowGenerator,
+    StaticSound,
+    StreamingSound,
+} from "@babylonjs/core";
+import {
+    AdvancedDynamicTexture,
+    Button,
+    Control,
+    Grid,
+    Image,
+    ImageBasedSlider,
+    Slider,
+    StackPanel,
+    TextBlock,
+} from "@babylonjs/gui";
 
 // Game state
 export interface IBabylonGameState {
@@ -27,3 +49,39 @@ export interface ICollisionEvent {
 
 export type SoundType = "background" | "bounce" | "hit";
 export type Direction = "up" | "down" | "stop";
+
+export interface GameElements {
+    engine: Engine;
+    scene: Scene;
+    audioEngine: AudioEngineV2;
+    bgMusic: StreamingSound;
+    hitSound: StaticSound;
+    bounceSound: StaticSound;
+    blopSound: StaticSound;
+    board: Mesh;
+    paddle1: Mesh;
+    paddle2: Mesh;
+    ball: Mesh;
+}
+
+export interface BabylonObjects {
+    engine: Engine;
+    scene: Scene;
+    light: DirectionalLight;
+    shadowGenerator: ShadowGenerator;
+    shadowsEnabled: boolean;
+    controls: AdvancedDynamicTexture;
+    audioEngine: AudioEngineV2;
+    bgMusic: StreamingSound;
+    hitSound: StaticSound;
+    bounceSound: StaticSound;
+    blopSound: StaticSound;
+    soundsEnabled: boolean;
+    camera: ArcRotateCamera;
+    board: Mesh;
+    ball: Mesh;
+    paddle1: Mesh;
+    paddle2: Mesh;
+    fontData: IFontData;
+    // public scoreText!: Mesh;
+}

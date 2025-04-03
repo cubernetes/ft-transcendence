@@ -1,5 +1,5 @@
-import * as esbuild from "esbuild";
 import chokidar from "chokidar";
+import * as esbuild from "esbuild";
 import fse from "fs-extra";
 import * as path from "path";
 

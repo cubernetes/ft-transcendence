@@ -1,15 +1,12 @@
-import { AudioManager } from "./managers/managers.audio";
-import { GameStateManager } from "./managers/managers.state";
-import { WebSocketManager } from "./managers/managers.sockets";
 import { GameUIManager } from "./managers/managers.ui";
 import earcut from "earcut";
 (window as any).earcut = earcut;
 
-export const create3DGameSection = async (): Promise<HTMLElement> => {
-    const audioManager = new AudioManager();
-    const gameStateManager = new GameStateManager(audioManager);
-    const webSocketManager = new WebSocketManager(gameStateManager);
-    const gameUIManager = new GameUIManager(audioManager, gameStateManager, webSocketManager);
+let gameUIManager: GameUIManager | null = null;
 
+export const create3DGameSection = async (): Promise<HTMLElement> => {
+    if (!gameUIManager) {
+        gameUIManager = new GameUIManager();
+    }
     return gameUIManager.getContainer();
 };

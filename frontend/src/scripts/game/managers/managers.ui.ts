@@ -1,29 +1,20 @@
-import { Scene, Engine } from "@babylonjs/core";
-import { AudioManager } from "./managers.audio";
-import { GameStateManager } from "./managers.state";
-import { WebSocketManager } from "./managers.sockets";
-import { SceneSetup } from "../game.scene";
-import { Direction } from "../game.types";
 import { logger } from "../../utils/logger";
+import { GameInstance } from "../game.instance";
 
 export class GameUIManager {
     private container: HTMLElement;
     private gameSection: HTMLCanvasElement;
     private playButton: HTMLButtonElement;
+    private gameInstance!: GameInstance;
 
-    constructor(
-        private audioManager: AudioManager,
-        private gameStateManager: GameStateManager,
-        private webSocketManager: WebSocketManager
-    ) {
+    constructor() {
         this.container = document.createElement("div");
-        this.container.className = "w-full h-[600px] relative"; // Set explicit height
+        this.container.className = "w-full h-[600px] relative";
 
         this.gameSection = document.createElement("canvas");
         this.gameSection.className = "w-full h-full";
         this.gameSection.id = "renderCanvas";
 
-        // Add a play button
         this.playButton = document.createElement("button");
         this.playButton.textContent = "Click to Start Game";
         this.playButton.className = "container mx-auto";
@@ -37,55 +28,36 @@ export class GameUIManager {
     setupEventListeners() {
         this.playButton?.addEventListener("click", () => {
             this.playButton?.remove();
-            this.webSocketManager.startGame();
-            this.audioManager.playSound("background");
             this.initGame();
-        });
-
-        this.container?.addEventListener("destroy", () => {
-            this.audioManager.stopAllSounds();
-            //TODO: Add additional functionality when window is closed such as websockets closing?
         });
     }
 
     async initGame() {
-        const engine = new Engine(this.gameSection);
-        const scene = new Scene(engine);
-
-        SceneSetup.setupScene(scene);
-        SceneSetup.setCamera(scene);
-
-        const { board, paddle1, paddle2, ball } = await SceneSetup.createGameObjects(scene);
-        this.gameStateManager.setBall(ball);
-        this.gameStateManager.setPaddles(paddle1, paddle2);
+        this.gameInstance = await GameInstance.getInstance(this.gameSection);
+        if (!this.gameInstance) {
+            console.error("Game instance not found");
+            return;
+        }
+        this.gameInstance.getWebSocketManager().setupSocketHandlers();
+        this.gameInstance.getWebSocketManager().sendGameStart();
 
         this.setupKeyboardControls();
-
-        this.webSocketManager.setupMessageHandler(scene);
-
-        engine.runRenderLoop(() => {
-            scene.render();
-        });
-
-        window.addEventListener("resize", () => {
-            engine.resize();
-        });
     }
 
     setupKeyboardControls() {
         document.addEventListener("keydown", (event) => {
             logger.info(`Key pressed: ${event.key}`);
             if (event.key === "ArrowUp" || event.key === "w") {
-                this.webSocketManager.sendDirection("up");
+                this.gameInstance.getWebSocketManager().sendDirection("up");
             } else if (event.key === "ArrowDown" || event.key === "s") {
-                this.webSocketManager.sendDirection("down");
+                this.gameInstance.getWebSocketManager().sendDirection("down");
             }
         });
 
         document.addEventListener("keyup", (event) => {
             logger.info(`Key released: ${event.key}`);
             if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
-                this.webSocketManager.sendDirection("stop");
+                this.gameInstance.getWebSocketManager().sendDirection("stop");
             }
         });
     }
