@@ -25,7 +25,7 @@ const loginBodySchema = z.object({
 
 const totpBodySchema = z.object({
 	// TODO: make it exact instead of min(6)
-    token: z.string().min(6, { message: "Token must 6 character required" }),
+    token: z.string().min(6, { message: "Token must be 6 characters" }),
     username: z.string(),
 });
 
