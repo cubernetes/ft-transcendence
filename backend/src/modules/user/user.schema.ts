@@ -100,7 +100,7 @@ const getMeRouteSchema = {
 
 const getTotpSetupRouteSchema = {
     tags: ["User"],
-    description: "Get the data URI for a QR code image to provision the TOTP secret",
+    description: "Get the data URI for a QR code image to provision the TOTP 2FA",
     security: [{ bearerAuth: [] }],
     response: {
         200: zodToJsonSchema(apiSuccess(TotpQrCodeSchema)),
