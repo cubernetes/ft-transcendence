@@ -1,11 +1,11 @@
-import { createFooter } from "../components/components.footer";
-import { createHeader } from "../components/components.header";
-import { API_URL } from "../config";
+import { createFooter } from "../../components/components.footer";
+import { createHeader } from "../../components/components.header";
+import { API_URL } from "../../config";
 
 export const createTotpSetupPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
-    const header = createHeader();
+    const header = await createHeader();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4 flex flex-col items-center";
@@ -39,7 +39,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
 
     main.appendChild(totpSetupContainer);
 
-    const footer = createFooter();
+    const footer = await createFooter();
 
     fragment.appendChild(header);
     fragment.appendChild(main);

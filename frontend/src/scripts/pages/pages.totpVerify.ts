@@ -5,7 +5,7 @@ import { API_URL } from "../config";
 export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
-    const header = createHeader();
+    const header = await createHeader();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4 flex flex-col items-center";
@@ -38,7 +38,7 @@ export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
 
     main.appendChild(totpVerifyContainer);
 
-    const footer = createFooter();
+    const footer = await createFooter();
 
     fragment.appendChild(header);
     fragment.appendChild(main);
