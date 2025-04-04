@@ -3,6 +3,7 @@ import {
     Axis,
     BackgroundMaterial,
     Color3,
+    Color4,
     CreateAudioEngineAsync,
     CreateGroundFromHeightMap,
     CreateSoundAsync,
@@ -29,6 +30,7 @@ import {
     TextBlock,
 } from "@babylonjs/gui";
 import { defaultGameConfig } from "@darrenkuro/pong-core";
+import { PongState } from "@darrenkuro/pong-core";
 import { ASSETS_DIR } from "../config";
 import { gameConfig } from "./game.config";
 import { BabylonObjects } from "./game.types";
@@ -311,6 +313,31 @@ export class SceneSetup {
         babylon.camera = camera;
     }
 
+    static createScore(score: [number, number], babylon: BabylonObjects): void {
+        const scorePrint = MeshBuilder.CreateText(
+            "scorePrint",
+            `${score[0]} : ${score[1]}`,
+            babylon.fontData,
+            {
+                size: 7,
+                resolution: 32,
+                depth: 5,
+            },
+            babylon.scene
+        );
+        scorePrint!.position = new Vector3(0, 2, defaultGameConfig.board.size.depth / 2 + 0.5);
+        scorePrint!.rotation = new Vector3(0, Math.PI / 2, 0);
+        scorePrint!.scaling = new Vector3(0.2, 0.2, 0.2);
+        scorePrint!.rotate(Axis.Y, -Math.PI / 2, Space.LOCAL);
+        // scorePrint!.material = new StandardMaterial("scoreMat", babylon.scene);
+
+        if (babylon.score) {
+            babylon.score.dispose();
+            babylon.score = null!;
+        }
+        babylon.score = scorePrint!;
+    }
+
     static async createGameObjects(babylon: BabylonObjects): Promise<void> {
         const defObj = defaultGameConfig; // as given from the PONG engine
 
@@ -360,6 +387,14 @@ export class SceneSetup {
         board.material = boardMaterial;
         // board.material.wireframe = true;
         board.receiveShadows = true;
+
+        // --------------- Create SCORE
+        var fontData = await (await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)).json();
+        if (!fontData) {
+            throw new Error("Failed to load font data");
+        }
+        babylon.fontData = fontData;
+        this.createScore([0, 0], babylon);
 
         // ----------------- Create PADDLES
         const paddle1 = MeshBuilder.CreateSphere(

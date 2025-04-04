@@ -1,13 +1,4 @@
-import {
-    Ball,
-    Paddle,
-    PongConfig,
-    PongState,
-    PongStatus,
-    Position3D,
-    Size3D,
-    Vector3D,
-} from "@darrenkuro/pong-core";
+import { Ball, Paddle, PongState, Size3D } from "@darrenkuro/pong-core";
 import { GameInstance } from "../game.instance";
 import { IServerGameState } from "../game.types";
 
@@ -74,6 +65,9 @@ export class GameStateManager {
     }
 
     async updateScore(score: [number, number]) {
+        if (!score || score !== this.state.scores) {
+            return;
+        }
         this.state.scores = score;
         const instance = await GameInstance.getInstance(
             document.getElementById("renderCanvas") as HTMLCanvasElement
