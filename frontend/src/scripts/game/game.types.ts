@@ -79,9 +79,9 @@ export interface BabylonObjects {
     soundsEnabled: boolean;
     camera: ArcRotateCamera;
     board: Mesh;
+    fontData: IFontData;
+    score: Mesh | null;
     ball: Mesh;
     paddle1: Mesh;
     paddle2: Mesh;
-    fontData: IFontData;
-    // public scoreText!: Mesh;
 }

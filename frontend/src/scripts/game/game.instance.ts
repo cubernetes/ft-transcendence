@@ -11,6 +11,7 @@ import {
     StreamingSound,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
+import { PongState } from "@darrenkuro/pong-core";
 import { SceneSetup } from "./game.scene";
 import { BabylonObjects, ICollisionEvent } from "./game.types";
 import { WebSocketManager } from "./managers/managers.sockets";
@@ -43,10 +44,11 @@ export class GameInstance {
             soundsEnabled: true,
             camera: {} as ArcRotateCamera,
             board: {} as Mesh,
+            score: null,
+            fontData: {} as IFontData,
             ball: {} as Mesh,
             paddle1: {} as Mesh,
             paddle2: {} as Mesh,
-            fontData: {} as IFontData,
         };
         SceneSetup.createScene(this.babylon);
         SceneSetup.setCamera(this.babylon);
@@ -62,10 +64,6 @@ export class GameInstance {
             await SceneSetup.createSounds(GameInstance.instance.babylon);
 
             await SceneSetup.createGameObjects(GameInstance.instance.babylon);
-
-            // GameInstance.instance.babylon.fontData = (await (
-            //     await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
-            // ).json()) as IFontData;
 
             SceneSetup.createControls(GameInstance.instance.babylon);
 
@@ -95,8 +93,7 @@ export class GameInstance {
     }
 
     updateScore(score: [number, number]) {
-        // Update score text
-        // this.babylon.scoreText.text = `Score: ${score.player1} - ${score.player2}`;
+        SceneSetup.createScore(score, this.babylon);
         console.log(`Score updated: ${score[0]} - ${score[1]}`);
     }
 
