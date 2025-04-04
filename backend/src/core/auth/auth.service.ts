@@ -1,9 +1,10 @@
 import type { User } from "../../modules/user/user.types.ts";
-import type { JwtPayload } from "./auth.types.ts";
+import type { JwtPayload } from "@darrenkuro/pong-core";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import bcrypt from "bcrypt";
 import { ApiError } from "../../utils/errors.ts";
+import { JwtPayloadSchema } from "./auth.schema.ts";
 
 export const createAuthService = (app: FastifyInstance) => {
     const { jwt } = app;
@@ -14,10 +15,11 @@ export const createAuthService = (app: FastifyInstance) => {
     const comparePassword = (password: string, hash: string): Promise<boolean> =>
         bcrypt.compare(password, hash);
 
+    // TODO: exp to be defined in jwt plugin; also, maybe use access/refresh token?
     const generateToken = (user: User, exp: string = "1d"): string => {
         const { id, username, displayName } = user;
 
-        const payload: JwtPayload = { id: String(id), username, displayName } satisfies Omit<
+        const payload = { id: String(id), username, displayName } satisfies Omit<
             JwtPayload,
             "iat" | "exp"
         >;
@@ -25,13 +27,13 @@ export const createAuthService = (app: FastifyInstance) => {
         return jwt.sign(payload, { expiresIn: exp });
     };
 
-    // Figure out if this throws or what
     const verifyToken = (token: string): Result<JwtPayload, Error> => {
         try {
             const payload = jwt.verify(token) as JwtPayload;
+            JwtPayloadSchema.parse(payload); // Runtime type check to ensure token is valid
             return ok(payload);
         } catch (error) {
-            return err(new Error("Invalid JWT token"));
+            return err(new Error("Invalid JWT token or payload"));
         }
     };
 

@@ -24,3 +24,11 @@ export interface OutgoingMessage<T extends OutgoingMessageType> {
     type: T;
     payload: OutgoingMessagePayloads[T];
 }
+
+export type JwtPayload = {
+    id: string;
+    username: string;
+    displayName: string;
+    iat: number; // Signed automatically by the JWT library
+    exp: number; // Signed automatically by the JWT library
+};

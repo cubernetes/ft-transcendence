@@ -1,8 +1,9 @@
 // src/auth/AuthState.ts
 import { jwtDecode } from "jwt-decode";
+import { JwtPayload as UserData } from "@darrenkuro/pong-core";
 import { USER_URL } from "../config";
 import { logger } from "../utils/logger";
-import { AuthFormData, UserData } from "./auth.types";
+import { AuthFormData } from "./auth.types";
 
 class AuthState {
     private static instance: AuthState;
