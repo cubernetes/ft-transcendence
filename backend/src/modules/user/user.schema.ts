@@ -23,6 +23,17 @@ const loginBodySchema = z.object({
     password: z.string().min(8, { message: "Password is required" }),
 });
 
+const totpBodySchema = z.object({
+	// TODO: make it exact instead of min(6)
+    token: z.string().min(6, { message: "Token must be 6 characters" }),
+    username: z.string(),
+});
+
+const totpBodyInitialSchema = z.object({
+    // TODO: make it exact instead of min(6)
+    token: z.string().min(6, { message: "Token must 6 character required" }),
+});
+
 const leaderboardParamsSchema = z.object({
     n: z.coerce.number().int().gt(0),
 });
@@ -37,7 +48,17 @@ const PublicUserSchema = z.object({
     createdAt: z.string().datetime(),
 });
 
+const TotpQrCodeSchema = z.object({
+	qrCode: z.string(),
+	b32secret: z.string(),
+});
+
 const LoginResponseSchema = z.object({
+    token: z.string(),
+    totpEnabled: z.coerce.number().int().gte(0),
+});
+
+const TotpVerifyResponseSchema = z.object({
     token: z.string(),
 });
 
@@ -78,6 +99,27 @@ const getMeRouteSchema = {
     },
 };
 
+const getTotpSetupRouteSchema = {
+    tags: ["User"],
+    description: "Get the data URI for a QR code image to provision the TOTP 2FA",
+    security: [{ bearerAuth: [] }],
+    response: {
+        200: zodToJsonSchema(apiSuccess(TotpQrCodeSchema)),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+    },
+};
+
+const getTotpVerifyRouteSchema = {
+    tags: ["User"],
+    description: "Verify a 6-digit TOTP token",
+    response: {
+        200: zodToJsonSchema(apiSuccess(TotpVerifyResponseSchema)),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+    },
+};
+
 const getLeaderboardRouteSchema = {
     tags: ["User"],
     description: "Get top n users by wins",
@@ -92,6 +134,8 @@ const getLeaderboardRouteSchema = {
 export default {
     registerBody: registerBodySchema,
     loginBody: loginBodySchema,
+    totpBody: totpBodySchema,
+    totpBodyInitial: totpBodyInitialSchema,
     leaderboardParams: leaderboardParamsSchema,
     loginResponse: LoginResponseSchema,
     publicUser: PublicUserSchema,
@@ -99,6 +143,8 @@ export default {
         register: registerRouteSchema,
         login: loginRouteSchema,
         me: getMeRouteSchema,
+        totpSetup: getTotpSetupRouteSchema,
+        totpVerify: getTotpVerifyRouteSchema,
         leaderboard: getLeaderboardRouteSchema,
     },
 };

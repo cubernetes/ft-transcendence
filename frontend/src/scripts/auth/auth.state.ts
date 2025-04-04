@@ -41,12 +41,15 @@ class AuthState {
         return this.user;
     }
 
-    public async login(data: AuthFormData): Promise<boolean> {
+    public async login(data: AuthFormData): Promise<number> {
         const username = data.username;
         const password = data.password;
+
+        localStorage.setItem("username", username); // needed for TOTP, TODO: can be cleared after successful TOTP verification
+
         if (!username || !password) {
             logger.info("Username and password are required");
-            return false;
+            return 0;
         }
         try {
             const response = await fetch(`${USER_URL}/login`, {
@@ -58,16 +61,21 @@ class AuthState {
             const result = await response.json();
             if (!response.ok) {
                 logger.info(result.message || "Login failed");
-                return false;
+                return 0;
             }
 
-            localStorage.setItem("token", result.data.token);
-            this.loadUserFromToken();
-            logger.info("Login successful");
-            return true;
+			if (result.data.totpEnabled) {
+				logger.info("Login credentials correct, but TOTP is required");
+				return 2;
+			} else {
+				localStorage.setItem("token", result.data.token);
+				this.loadUserFromToken();
+				logger.info("Login successful");
+				return 1;
+			}
         } catch (error) {
             logger.info("Login error:", error);
-            return false;
+            return 0;
         }
     }
 

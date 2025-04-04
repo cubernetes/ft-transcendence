@@ -5,6 +5,8 @@ import { createProfilePage } from "../pages/menu/menu.profile";
 import { createSetupPage } from "../pages/menu/menu.setup";
 import { createSimulationPage } from "../pages/menu/menu.simulation";
 import { createHomePage } from "../pages/pages.home";
+import { createTotpSetupPage } from "../pages/menu/pages.totpSetup";
+import { createTotpVerifyPage } from "../pages/pages.totpVerify";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {
@@ -14,6 +16,8 @@ export const createRouter = (container: HTMLElement): void => {
         leaderboard: createLeaderboardPage,
         simulation: createSimulationPage,
         setup: createSetupPage,
+        totpSetup: createTotpSetupPage,
+        totpVerify: createTotpVerifyPage,
     };
 
     async function handleRouteChange() {
@@ -31,7 +35,9 @@ export const createRouter = (container: HTMLElement): void => {
         }
 
         // Check access for protected routes
-        checkAccess();
+		if (route != "totpVerify") { // TODO: code smell
+			checkAccess();
+		}
 
         // Render the appropriate page
         const createPage = routes[route];

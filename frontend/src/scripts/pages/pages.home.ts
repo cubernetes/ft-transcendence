@@ -1,8 +1,5 @@
 import { checkAccess } from "../auth/auth.utils";
-import { createFooter } from "../components/components.footer";
-import { createHeader } from "../components/components.header";
 import { createLoginForm } from "../components/components.loginForm";
-import { showUserStatus } from "../components/components.loginStatus";
 
 export const createHomePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();

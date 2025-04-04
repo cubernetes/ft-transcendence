@@ -18,6 +18,20 @@ const userRoutes: FastifyPluginAsync = async (app) => {
 
     app.get("/me", { preHandler: [app.requireAuth], schema: schemas.routes.me }, handlers.me);
 
+    app.get("/totpSetup", { preHandler: [app.requireAuth], schema: schemas.routes.totpSetup }, handlers.totpSetup);
+
+    app.post(
+		"/totpVerifyInitial",
+		 { preHandler: [app.requireAuth], schema: schemas.routes.totpVerify },
+        withZod({ body: schemas.totpBodyInitial }, handlers.totpVerifyInitial)
+	);
+
+    app.post(
+		"/totpVerify",
+		 { schema: schemas.routes.totpVerify },
+		 withZod({ body: schemas.totpBody }, handlers.totpVerify )
+	);
+
     app.get(
         "/leaderboard/:n",
         { schema: schemas.routes.leaderboard },
