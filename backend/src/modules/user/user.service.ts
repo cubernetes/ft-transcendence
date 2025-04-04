@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { ok, err, Result } from "neverthrow";
-import { eq, count } from "drizzle-orm";
+import { Result, err, ok } from "neverthrow";
+import { count, eq } from "drizzle-orm";
 import { users } from "../../core/db/db.schema.ts";
+import { ApiError, UnknownError, errUniqueConstraintOn } from "../../utils/errors.ts";
 import { NewUser, User } from "./user.types.ts";
-import { ApiError, errUniqueConstraintOn, UnknownError } from "../../utils/errors.ts";
 
 export const createUserService = (app: FastifyInstance) => {
     const db = app.db;

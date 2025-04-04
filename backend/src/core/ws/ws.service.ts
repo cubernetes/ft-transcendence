@@ -1,7 +1,7 @@
 import type { FastifyInstance, WebSocket } from "fastify";
-import { MessageHandler } from "./ws.types.ts";
+import { Result, err, ok } from "neverthrow";
 import { IncomingMessageType, OutgoingMessage, OutgoingMessageType } from "@darrenkuro/pong-core";
-import { err, ok, Result } from "neverthrow";
+import { MessageHandler } from "./ws.types.ts";
 
 export const createWsService = (_: FastifyInstance) => {
     const connections = new Set<WebSocket>();

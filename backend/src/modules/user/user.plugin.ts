@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
-import { createUserService } from "./user.service.ts";
-import userRoutes from "./user.routes.ts";
 import fp from "fastify-plugin";
+import userRoutes from "./user.routes.ts";
+import { createUserService } from "./user.service.ts";
 
 const userPlugin = async (app: FastifyInstance) => {
     app.decorate("userService", createUserService(app));

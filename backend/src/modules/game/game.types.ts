@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { games } from "../../core/db/db.schema.ts";
 import { createPongEngine } from "@darrenkuro/pong-core";
+import { games } from "../../core/db/db.schema.ts";
+
 export const createGameSchema = z.object({});
 export const gameIdSchema = z.object({ id: z.coerce.number().int().gt(0) });
 

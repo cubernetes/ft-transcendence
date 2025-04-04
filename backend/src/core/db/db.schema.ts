@@ -1,5 +1,5 @@
-import { sqliteTable, check, integer, text, numeric, primaryKey } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+import { check, integer, numeric, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
     id: integer().primaryKey({ autoIncrement: true }),
@@ -7,6 +7,8 @@ export const users = sqliteTable("users", {
     displayName: text("display_name").notNull(),
     passwordHash: text("password_hash").notNull(),
     totpSecret: text("totp_secret"),
+    temporaryTotpSecret: text("temporary_totp_secret"),
+    totpEnabled: integer("totp_enabled").default(0),
     avatarUrl: text("avatar_url").default("/assets/default-avatar.png"),
     wins: integer().default(0),
     losses: integer().default(0),

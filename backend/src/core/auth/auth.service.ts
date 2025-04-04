@@ -1,9 +1,9 @@
-import bcrypt from "bcrypt";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import type { User } from "../../modules/user/user.types.ts";
 import type { JwtPayload } from "./auth.types.ts";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { Result, err, ok } from "neverthrow";
+import bcrypt from "bcrypt";
 import { ApiError } from "../../utils/errors.ts";
-import { err, ok, Result } from "neverthrow";
 
 export const createAuthService = (app: FastifyInstance) => {
     const { jwt } = app;

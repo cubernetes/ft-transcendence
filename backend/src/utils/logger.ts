@@ -51,10 +51,10 @@ export const devLoggerConfig: PinoLoggerOptions = {
                     mode: "tcp",
                     address: process.env.LOGSTASH_HOST || "logstash",
                     port: parseInt(process.env.LOGSTASH_PORT || "5000"),
-                    reconnectTimeout: 5000,  // Increased reconnect timeout
-                }
-            }
-        ]
+                    reconnectTimeout: 5000, // Increased reconnect timeout
+                },
+            },
+        ],
     },
     serializers: { error: formatError },
 };
@@ -79,9 +79,9 @@ export const prodLoggerConfig: PinoLoggerOptions = {
                     address: process.env.LOGSTASH_HOST || "logstash",
                     port: parseInt(process.env.LOGSTASH_PORT || "5000"),
                     reconnectTimeout: 5000,
-                }
-            }
-        ]
+                },
+            },
+        ],
     },
     serializers: { error: formatError },
 };

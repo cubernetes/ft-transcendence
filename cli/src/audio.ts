@@ -1,7 +1,7 @@
+import { ChildProcess, spawn } from "child_process";
 import fs from "fs";
-import { spawn, ChildProcess } from "child_process";
+import { getStartedMenuMusic, setStartedMenuMusic } from "./index";
 import { userOptions } from "./options";
-import { setStartedMenuMusic, getStartedMenuMusic } from "./index";
 
 export class AudioManager {
     private musicProcess: ChildProcess | null = null;

@@ -1,8 +1,8 @@
-import { ICLIGameState, IServerGameState } from "./game.types";
 import WebSocket from "ws";
 import { renderGameState } from "./GameRendering";
+import { ICLIGameState, IServerGameState } from "./game.types";
+import { getGameActive, mainMenu } from "./index";
 import { vec3ToVec2D } from "./utils";
-import { mainMenu, getGameActive } from "./index";
 
 export class WebSocketManager {
     private ws: WebSocket;

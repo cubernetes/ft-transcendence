@@ -1,10 +1,10 @@
 import fp from "fastify-plugin";
-import Database from "better-sqlite3";
-import { drizzle, BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import * as schema from "./db.schema.ts";
-import path from "path";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { FastifyInstance } from "fastify/types/instance";
+import Database from "better-sqlite3";
+import { BetterSQLite3Database, drizzle } from "drizzle-orm/better-sqlite3";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import path from "path";
+import * as schema from "./db.schema.ts";
 
 export type DbClient = BetterSQLite3Database<typeof schema> & { $client: Database.Database };
 

@@ -1,9 +1,9 @@
 import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
-import { ok, err, Result } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
 import { ZodError } from "zod";
 import corePlugin from "../core/core.plugin.ts";
-import modulesPlugin from "../modules/modules.plugin.ts";
 import { seed } from "../core/db/db.seed.ts";
+import modulesPlugin from "../modules/modules.plugin.ts";
 
 const buildApp = async (opts: FastifyServerOptions): Promise<Result<FastifyInstance, Error>> => {
     const app = fastify(opts);

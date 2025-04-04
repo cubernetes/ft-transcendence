@@ -1,9 +1,9 @@
 import { test } from "tap";
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
-import { createAuthService } from "../auth.service.ts";
 import { faker } from "@faker-js/faker";
 import { mockUser } from "../../../modules/user/user.helpers.ts";
+import { createAuthService } from "../auth.service.ts";
 
 test("authService - hashPassword + comparePassword", async (t) => {
     const app = Fastify({ logger: false });

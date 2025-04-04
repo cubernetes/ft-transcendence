@@ -1,5 +1,5 @@
-import type { FastifyRequest, FastifyReply } from "fastify";
-import { z, ZodError, ZodTypeAny } from "zod";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import { ZodError, ZodTypeAny, z } from "zod";
 import { ApiError } from "./errors.ts";
 
 type ZodTarget = "body" | "query" | "params" | "headers";

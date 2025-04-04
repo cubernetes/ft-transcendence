@@ -1,0 +1,24 @@
+#!/bin/sh
+# Runs prettier on all files
+
+set -eu
+
+die () {
+	printf '\033[31mError: %s\033[m\n' "${1:-"Script $0 exited with unknown error"}"
+	exit 1
+}
+
+# subshell to not clobber IFS
+format_all () (
+	[ "$#" -lt 1 ] && die "format_all function expects at least 1 extension as an argument"
+	command -v npx 1>/dev/null 2>&1 || die "Please install npx to run pre-commit hooks"
+	npx prettier --version 1>/dev/null 2>&1 || die "Please install prettier through npx to run pre-commit hooks"
+
+	IFS='/'
+	patterns=$(printf %s "$*" | sed 's/\// **\/*./g; s/^/**\/*./')
+	set -f
+	IFS=" "
+	npx prettier --config=.prettierrc --write $patterns
+)
+
+format_all ts js json css html md yaml yml
