@@ -1,8 +1,8 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import { mainMenu, cleanup } from "./index";
+import inquirer from "inquirer";
 import { audioManager } from "./audio";
+import { cleanup, mainMenu } from "./index";
 
 export type PlayStyle = "normal" | "stylish" | "crazy";
 export type Resolution = "80x20" | "160x40" | "240x60" | "320x80";

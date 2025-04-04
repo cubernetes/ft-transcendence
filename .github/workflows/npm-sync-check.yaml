@@ -1,0 +1,41 @@
+name: Check npm dependencies sync
+
+on:
+    pull_request:
+        paths:
+            - "backend/package.json"
+            - "backend/package-lock.json"
+            - "frontend/package.json"
+            - "frontend/package-lock.json"
+
+jobs:
+    check-npm-sync:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "23"
+
+            - name: Check backend package sync
+              if: ${{ hashFiles('backend/package.json') != '' && hashFiles('backend/package-lock.json') != '' }}
+              run: |
+                  cd backend
+                  npm install --package-lock-only
+                  if git diff --name-only | grep -q "package-lock.json"; then
+                    echo "::error::Backend package.json and package-lock.json are out of sync. Please run 'npm install' in the backend directory to update the lock file."
+                    exit 1
+                  fi
+
+            - name: Check frontend package sync
+              if: ${{ hashFiles('frontend/package.json') != '' && hashFiles('frontend/package-lock.json') != '' }}
+              run: |
+                  cd frontend
+                  npm install --package-lock-only
+                  if git diff --name-only | grep -q "package-lock.json"; then
+                    echo "::error::Frontend package.json and package-lock.json are out of sync. Please run 'npm install' in the frontend directory to update the lock file."
+                    exit 1
+                  fi

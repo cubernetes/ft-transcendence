@@ -14,7 +14,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
     totpSetupContainer.className =
         "flex flex-col items-center gap-4 bg-white shadow-md rounded p-6";
 
-	const [qrCodeData, b32secretData] = await fetchQrCode();
+    const [qrCodeData, b32secretData] = await fetchQrCode();
 
     const qrCode = document.createElement("img");
     qrCode.src = qrCodeData;

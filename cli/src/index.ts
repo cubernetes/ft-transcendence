@@ -1,12 +1,12 @@
-import inquirer from "inquirer";
 import chalk from "chalk";
 import figlet from "figlet";
-import { WebSocketManager } from "./WebSocketManager";
-import { startKeyListener } from "./input";
+import inquirer from "inquirer";
 import { setGameConfig } from "./GameRendering";
-import { GameConfig } from "./game.types";
-import { optionsMenu, userOptions } from "./options";
+import { WebSocketManager } from "./WebSocketManager";
 import { audioManager } from "./audio";
+import { GameConfig } from "./game.types";
+import { startKeyListener } from "./input";
+import { optionsMenu, userOptions } from "./options";
 
 let wsManager: WebSocketManager | null = null;
 let token: string | null = null;

@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
-import handlers from "./user.controller.ts";
 import { withZod } from "../../utils/zod-validate.ts";
+import handlers from "./user.controller.ts";
 import schemas from "./user.schema.ts";
 
 const userRoutes: FastifyPluginAsync = async (app) => {
@@ -18,19 +18,23 @@ const userRoutes: FastifyPluginAsync = async (app) => {
 
     app.get("/me", { preHandler: [app.requireAuth], schema: schemas.routes.me }, handlers.me);
 
-    app.get("/totpSetup", { preHandler: [app.requireAuth], schema: schemas.routes.totpSetup }, handlers.totpSetup);
+    app.get(
+        "/totpSetup",
+        { preHandler: [app.requireAuth], schema: schemas.routes.totpSetup },
+        handlers.totpSetup
+    );
 
     app.post(
-		"/totpVerifyInitial",
-		 { preHandler: [app.requireAuth], schema: schemas.routes.totpVerify },
+        "/totpVerifyInitial",
+        { preHandler: [app.requireAuth], schema: schemas.routes.totpVerify },
         withZod({ body: schemas.totpBodyInitial }, handlers.totpVerifyInitial)
-	);
+    );
 
     app.post(
-		"/totpVerify",
-		 { schema: schemas.routes.totpVerify },
-		 withZod({ body: schemas.totpBody }, handlers.totpVerify )
-	);
+        "/totpVerify",
+        { schema: schemas.routes.totpVerify },
+        withZod({ body: schemas.totpBody }, handlers.totpVerify)
+    );
 
     app.get(
         "/leaderboard/:n",

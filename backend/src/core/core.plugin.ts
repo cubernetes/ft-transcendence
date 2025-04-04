@@ -2,11 +2,11 @@ import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
+import apiPlugin from "./api/api.plugin.ts";
+import authPlugin from "./auth/auth.plugin.ts";
 import configPlugin from "./config/config.plugin.ts";
 import dbPlugin from "./db/db.plugin.ts";
-import authPlugin from "./auth/auth.plugin.ts";
 import wsPlugin from "./ws/ws.plugin.ts";
-import apiPlugin from "./api/api.plugin.ts";
 
 const corePlugin = async (app: FastifyInstance) => {
     // Register configs, check integrity of the env variables

@@ -1,9 +1,15 @@
+import type {
+    LeaderboardParams,
+    LoginBody,
+    RegisterBody,
+    TotpBody,
+    TotpBodyInitial,
+} from "./user.types.ts";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { RegisterBody, LoginBody, TotpBody, TotpBodyInitial, LeaderboardParams } from "./user.types.ts";
-import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
 import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
 import { ApiError } from "../../utils/errors.ts";
+import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
 
 const registerHandler = async (
     { body }: { body: RegisterBody },
@@ -32,10 +38,7 @@ const registerHandler = async (
     return reply.code(201).send({ success: true, data: { token, totpEnabled } });
 };
 
-const totpSetupHandler = async (
-    req: FastifyRequest,
-    reply: FastifyReply
-): Promise<void> => {
+const totpSetupHandler = async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const user = await req.server.userService.findById(req.userId);
 
     if (user.isErr()) {
@@ -43,8 +46,8 @@ const totpSetupHandler = async (
     }
 
     const secret = speakeasy.generateSecret();
-	const b32secret = secret.base32
-	user.value.temporaryTotpSecret = b32secret;
+    const b32secret = secret.base32;
+    user.value.temporaryTotpSecret = b32secret;
     req.server.userService.update(user.value.id, user.value);
 
     if (!secret?.otpauth_url) {
@@ -123,7 +126,7 @@ const totpVerifyInitialHandler = async (
     }
 
     user.value.totpEnabled = 1;
-	user.value.totpSecret = user.value.temporaryTotpSecret;
+    user.value.totpSecret = user.value.temporaryTotpSecret;
     req.server.userService.update(user.value.id, user.value);
 
     const jwtToken = req.server.authService.generateToken(user.value);

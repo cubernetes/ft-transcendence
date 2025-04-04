@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
-import path from "path";
 import fs from "fs";
+import path from "path";
 import { configSchema } from "./config.schema.ts";
 import { AppConfig } from "./config.types.ts";
 

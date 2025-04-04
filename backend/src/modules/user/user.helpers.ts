@@ -20,7 +20,7 @@ export const mockUser = (): User => {
         displayName: faker.person.firstName(),
         passwordHash: faker.string.alphanumeric(60),
         totpSecret: faker.string.uuid(),
-        temporaryTotpSecret: '',
+        temporaryTotpSecret: "",
         totpEnabled: faker.number.int({ min: 0, max: 1 }),
         avatarUrl: faker.image.avatar(),
         wins: faker.number.int({ min: 0, max: 1000 }),

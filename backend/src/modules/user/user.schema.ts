@@ -24,7 +24,7 @@ const loginBodySchema = z.object({
 });
 
 const totpBodySchema = z.object({
-	// TODO: make it exact instead of min(6)
+    // TODO: make it exact instead of min(6)
     token: z.string().min(6, { message: "Token must be 6 characters" }),
     username: z.string(),
 });
@@ -49,8 +49,8 @@ const PublicUserSchema = z.object({
 });
 
 const TotpQrCodeSchema = z.object({
-	qrCode: z.string(),
-	b32secret: z.string(),
+    qrCode: z.string(),
+    b32secret: z.string(),
 });
 
 const LoginResponseSchema = z.object({
