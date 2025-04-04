@@ -14,17 +14,22 @@ const registerHandler = async (
     const { confirmPassword, ...userData } = body;
 
     const passwordHash = await req.server.authService.hashPassword(userData.password);
-    const user = await req.server.userService.create({
+
+    const userWithHash = {
         ...userData,
         passwordHash,
-    });
+    };
+
+    const user = await req.server.userService.create(userWithHash);
 
     if (user.isErr()) {
         return user.error.send(reply);
     }
 
     const token = req.server.authService.generateToken(user.value);
-    return reply.code(201).send({ success: true, data: { token } });
+    const totpEnabled = user.value.totpEnabled;
+
+    return reply.code(201).send({ success: true, data: { token, totpEnabled } });
 };
 
 const totpSetupHandler = async (
