@@ -5,6 +5,7 @@ import { users } from "../../core/db/db.schema.ts";
 export type RegisterBody = z.infer<typeof schemas.registerBody>;
 export type LoginBody = z.infer<typeof schemas.loginBody>;
 export type TotpBody = z.infer<typeof schemas.totpBody>;
+export type TotpBodyInitial = z.infer<typeof schemas.totpBodyInitial>;
 export type LeaderboardParams = z.infer<typeof schemas.leaderboardParams>;
 
 export type PublicUser = z.infer<typeof schemas.publicUser>;

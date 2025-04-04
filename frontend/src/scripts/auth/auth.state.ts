@@ -44,6 +44,9 @@ class AuthState {
     public async login(data: AuthFormData): Promise<boolean> {
         const username = data.username;
         const password = data.password;
+
+        localStorage.setItem("username", username); // needed for TOTP, TODO: can be cleared after successful TOTP verification
+
         if (!username || !password) {
             logger.info("Username and password are required");
             return false;
@@ -61,10 +64,15 @@ class AuthState {
                 return false;
             }
 
-            localStorage.setItem("token", result.data.token);
-            this.loadUserFromToken();
-            logger.info("Login successful");
-            return true;
+			if (result.data.totpEnabled) {
+				logger.info("Login credentials correct, but TOTP is required");
+				return true;
+			} else {
+				localStorage.setItem("token", result.data.token);
+				this.loadUserFromToken();
+				logger.info("Login successful");
+				return true;
+			}
         } catch (error) {
             logger.info("Login error:", error);
             return false;

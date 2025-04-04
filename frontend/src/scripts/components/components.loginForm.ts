@@ -1,6 +1,5 @@
 import { authState } from "../auth/auth.state";
 import { AuthFormData } from "../auth/auth.types";
-import { logger } from "../utils/logger";
 
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");

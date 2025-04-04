@@ -23,7 +23,7 @@ const userRoutes: FastifyPluginAsync = async (app) => {
     app.post(
 		"/totpVerifyInitial",
 		 { preHandler: [app.requireAuth], schema: schemas.routes.totpVerify },
-		 withZod({ body: schemas.totpBody }, handlers.totpVerify )
+        withZod({ body: schemas.totpBodyInitial }, handlers.totpVerifyInitial)
 	);
 
     app.post(

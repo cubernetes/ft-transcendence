@@ -29,6 +29,11 @@ const totpBodySchema = z.object({
     username: z.string(),
 });
 
+const totpBodyInitialSchema = z.object({
+    // TODO: make it exact instead of min(6)
+    token: z.string().min(6, { message: "Token must 6 character required" }),
+});
+
 const leaderboardParamsSchema = z.object({
     n: z.coerce.number().int().gt(0),
 });
@@ -48,6 +53,11 @@ const TotpQrCodeSchema = z.object({
 });
 
 const LoginResponseSchema = z.object({
+    token: z.string(),
+    totpEnabled: z.coerce.number().int().gte(0),
+});
+
+const TotpVerifyResponseSchema = z.object({
     token: z.string(),
 });
 
@@ -102,9 +112,8 @@ const getTotpSetupRouteSchema = {
 const getTotpVerifyRouteSchema = {
     tags: ["User"],
     description: "Verify a 6-digit TOTP token",
-    security: [{ bearerAuth: [] }],
     response: {
-        200: zodToJsonSchema(apiSuccess(LoginResponseSchema)),
+        200: zodToJsonSchema(apiSuccess(TotpVerifyResponseSchema)),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },
@@ -125,6 +134,7 @@ export default {
     registerBody: registerBodySchema,
     loginBody: loginBodySchema,
     totpBody: totpBodySchema,
+    totpBodyInitial: totpBodyInitialSchema,
     leaderboardParams: leaderboardParamsSchema,
     loginResponse: LoginResponseSchema,
     publicUser: PublicUserSchema,
