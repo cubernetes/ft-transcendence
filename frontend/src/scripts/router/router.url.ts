@@ -35,7 +35,9 @@ export const createRouter = (container: HTMLElement): void => {
         }
 
         // Check access for protected routes
-        checkAccess();
+		if (route != "totpVerify") {
+			checkAccess();
+		}
 
         // Render the appropriate page
         const createPage = routes[route];

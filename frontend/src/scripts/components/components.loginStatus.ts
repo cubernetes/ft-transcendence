@@ -27,7 +27,8 @@ export const showUserStatus = async (container: HTMLElement): Promise<Boolean> =
         localStorage.removeItem("token");
         localStorage.removeItem("username");
         container.innerHTML = ""; // clear the status
-        window.location.reload(); // or redirect to login page
+		window.location.href = "#home";
+        window.location.reload();
     };
 
     statusWrapper.appendChild(userNameEl);

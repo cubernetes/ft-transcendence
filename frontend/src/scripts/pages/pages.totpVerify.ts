@@ -1,11 +1,11 @@
 import { createFooter } from "../components/components.footer";
-import { createHeader } from "../components/components.header";
+//import { createHeader } from "../components/components.header";
 import { API_URL } from "../config";
 
 export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
 
-    const header = await createHeader();
+    //const header = await createHeader();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4 flex flex-col items-center";
@@ -38,9 +38,9 @@ export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
 
     main.appendChild(totpVerifyContainer);
 
-    const footer = await createFooter();
+    const footer = createFooter();
 
-    fragment.appendChild(header);
+    //fragment.appendChild(header);
     fragment.appendChild(main);
     fragment.appendChild(footer);
 
@@ -86,7 +86,8 @@ export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
                 window.location.reload();
             } else {
                 localStorage.setItem("token", jwt);
-                window.location.href = "/";
+                window.location.href = "#setup";
+				window.location.reload(); // TODO: code smell, we shouldn't need to reload the page here
             }
         }
     });

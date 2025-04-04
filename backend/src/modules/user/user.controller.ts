@@ -43,8 +43,7 @@ const totpSetupHandler = async (
     }
 
     const secret = speakeasy.generateSecret();
-    user.value.totpSecret = secret.base32;
-    user.value.totpEnabled = 0;
+	user.value.temporaryTotpSecret = secret.base32;
     req.server.userService.update(user.value.id, user.value);
 
     if (!secret?.otpauth_url) {
@@ -104,7 +103,7 @@ const totpVerifyInitialHandler = async (
     }
 
     const totpToken = body.token;
-    const totpSecret = user.value.totpSecret;
+    const totpSecret = user.value.temporaryTotpSecret;
 
     if (!totpSecret) {
         const err = new ApiError("BAD_REQUEST", 400, "User does not have TOTP enabled");
@@ -123,6 +122,7 @@ const totpVerifyInitialHandler = async (
     }
 
     user.value.totpEnabled = 1;
+	user.value.totpSecret = user.value.temporaryTotpSecret;
     req.server.userService.update(user.value.id, user.value);
 
     const jwtToken = req.server.authService.generateToken(user.value);

@@ -137,8 +137,12 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
 
         if (mode === "login") {
-            if (await authState.login(formData)) {
+			const loginState = await authState.login(formData);
+
+            if (loginState == 1) {
                 window.location.href = "#setup";
+			} else if (loginState == 2) {
+                window.location.href = "#totpVerify";
             } else {
                 showError("Login failed");
             }

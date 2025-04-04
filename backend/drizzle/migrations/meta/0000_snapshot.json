@@ -320,6 +320,13 @@
                     "notNull": false,
                     "autoincrement": false
                 },
+                "temporary_totp_secret": {
+                    "name": "temporary_totp_secret",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
                 "totp_enabled": {
                     "name": "totp_enabled",
                     "type": "integer",

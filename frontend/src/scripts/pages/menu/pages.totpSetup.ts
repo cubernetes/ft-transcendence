@@ -39,7 +39,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
 
     main.appendChild(totpSetupContainer);
 
-    const footer = await createFooter();
+    const footer = createFooter();
 
     fragment.appendChild(header);
     fragment.appendChild(main);
@@ -95,7 +95,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
                 window.location.reload();
             } else {
                 localStorage.setItem("token", jwt);
-                window.location.href = "/";
+                window.location.href = "#setup";
             }
         }
     });
