@@ -320,6 +320,14 @@
                     "notNull": false,
                     "autoincrement": false
                 },
+                "totp_enabled": {
+                    "name": "totp_enabled",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false,
+                    "default": 0
+                },
                 "avatar_url": {
                     "name": "avatar_url",
                     "type": "text",

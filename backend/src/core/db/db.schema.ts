@@ -7,6 +7,7 @@ export const users = sqliteTable("users", {
     displayName: text("display_name").notNull(),
     passwordHash: text("password_hash").notNull(),
     totpSecret: text("totp_secret"),
+    totpEnabled: integer("totp_enabled").default(0),
     avatarUrl: text("avatar_url").default("/assets/default-avatar.png"),
     wins: integer().default(0),
     losses: integer().default(0),
