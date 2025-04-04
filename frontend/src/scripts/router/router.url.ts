@@ -35,7 +35,7 @@ export const createRouter = (container: HTMLElement): void => {
         }
 
         // Check access for protected routes
-		if (route != "totpVerify") {
+		if (route != "totpVerify") { // TODO: code smell
 			checkAccess();
 		}
 

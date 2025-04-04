@@ -14,10 +14,16 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
     totpSetupContainer.className =
         "flex flex-col items-center gap-4 bg-white shadow-md rounded p-6";
 
+	const [qrCodeData, b32secretData] = await fetchQrCode();
+
     const qrCode = document.createElement("img");
-    qrCode.src = await fetchQrCode();
+    qrCode.src = qrCodeData;
     qrCode.alt = "You have to be logged in to set up 2FA";
     qrCode.className = "w-48 h-48";
+
+    const b32secret = document.createElement("span");
+    b32secret.textContent = b32secretData;
+    b32secret.className = "w-128 p-2 border border-gray-300 rounded text-xs";
 
     const tokenInput = document.createElement("input");
     tokenInput.type = "number";
@@ -34,6 +40,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
 
     // Append all to container
     totpSetupContainer.appendChild(qrCode);
+    totpSetupContainer.appendChild(b32secret);
     totpSetupContainer.appendChild(tokenInput);
     totpSetupContainer.appendChild(submitButton);
 
@@ -103,7 +110,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
     return container;
 };
 
-const fetchQrCode = async (): Promise<string> => {
+const fetchQrCode = async () => {
     const resp = await fetch(`${API_URL}/user/totpSetup`, {
         headers: {
             Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
@@ -111,8 +118,8 @@ const fetchQrCode = async (): Promise<string> => {
     });
     try {
         const data = await resp.json();
-        return data?.data?.qrCode;
+        return [data?.data?.qrCode, data?.data?.b32secret];
     } catch (error) {
-        return "";
+        return ["", ""];
     }
 };

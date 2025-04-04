@@ -43,7 +43,8 @@ const totpSetupHandler = async (
     }
 
     const secret = speakeasy.generateSecret();
-	user.value.temporaryTotpSecret = secret.base32;
+	const b32secret = secret.base32
+	user.value.temporaryTotpSecret = b32secret;
     req.server.userService.update(user.value.id, user.value);
 
     if (!secret?.otpauth_url) {
@@ -53,7 +54,7 @@ const totpSetupHandler = async (
 
     const qrCode = await QRCode.toDataURL(secret.otpauth_url);
 
-    return reply.send({ success: true, data: { qrCode } });
+    return reply.send({ success: true, data: { qrCode, b32secret } });
 };
 
 const totpVerifyHandler = async (

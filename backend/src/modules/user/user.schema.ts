@@ -49,7 +49,8 @@ const PublicUserSchema = z.object({
 });
 
 const TotpQrCodeSchema = z.object({
-	qrCode: z.string()
+	qrCode: z.string(),
+	b32secret: z.string(),
 });
 
 const LoginResponseSchema = z.object({
