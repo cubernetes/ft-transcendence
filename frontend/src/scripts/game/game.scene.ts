@@ -1,9 +1,9 @@
 import {
+    Animation,
     ArcRotateCamera,
     Axis,
     BackgroundMaterial,
     Color3,
-    Color4,
     CreateAudioEngineAsync,
     CreateGroundFromHeightMap,
     CreateSoundAsync,
@@ -30,7 +30,6 @@ import {
     TextBlock,
 } from "@babylonjs/gui";
 import { defaultGameConfig } from "@darrenkuro/pong-core";
-import { PongState } from "@darrenkuro/pong-core";
 import { ASSETS_DIR } from "../config";
 import { gameConfig } from "./game.config";
 import { BabylonObjects } from "./game.types";
@@ -259,10 +258,13 @@ export class SceneSetup {
         bounceSound.volume = 1;
         const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/audio/blop.mp3`);
         blopSound.pitch = 1.5;
+        const ballSound = await CreateSoundAsync("ballSound", `${ASSETS_DIR}/audio/tatata.mp3`);
+        ballSound.playbackRate = 1.5;
 
         babylon.hitSound = hitSound;
         babylon.bounceSound = bounceSound;
         babylon.blopSound = blopSound;
+        babylon.ballSound = ballSound;
     }
 
     static createFunctions(scene: Scene): void {
@@ -289,21 +291,11 @@ export class SceneSetup {
         const camera = new ArcRotateCamera(
             "pongCamera",
             -Math.PI / 2, // alpha - side view (fixed)
-            0.1, // beta - slightly above (fixed)
-            25, // radius - distance from center
+            Math.PI / 4,
+            200, // radius - distance from center
             Vector3.Zero(), // target - looking at center
             babylon.scene
         );
-
-        // Set limits for zooming in/out
-        camera.lowerRadiusLimit = 10;
-        camera.upperRadiusLimit = 40;
-        // Set limits for rotation up/down
-        camera.lowerBetaLimit = 0.1;
-        camera.upperBetaLimit = Math.PI / 2;
-        // Set limits for rotation left/right
-        camera.upperAlphaLimit = 0;
-        camera.lowerAlphaLimit = -Math.PI;
 
         // Disable keyboard controls
         camera.inputs.removeByType("ArcRotateCameraKeyboardMoveInput");
@@ -311,6 +303,57 @@ export class SceneSetup {
         camera.attachControl(babylon.engine.getRenderingCanvas(), true);
 
         babylon.camera = camera;
+
+        // ----- CAMERA SLIDE-IN ANIMATION -----
+        // ------------ RADIUS
+        var radAnim = new Animation("animCam", "radius", 10, Animation.ANIMATIONTYPE_FLOAT);
+        var keysPosition = [];
+        keysPosition.push({
+            frame: 0,
+            value: 200,
+        });
+        keysPosition.push({
+            frame: 80,
+            value: 40,
+        });
+        keysPosition.push({
+            frame: 100,
+            value: 25,
+        });
+        radAnim.setKeys(keysPosition);
+        camera.animations.push(radAnim);
+
+        // ------------ ALPHA
+        var alphaAnim = new Animation("animCam", "alpha", 10, Animation.ANIMATIONTYPE_FLOAT);
+        var keysPosition = [];
+        keysPosition.push({
+            frame: 0,
+            value: -Math.PI,
+        });
+        keysPosition.push({
+            frame: 50,
+            value: 0,
+        });
+        keysPosition.push({
+            frame: 100,
+            value: -Math.PI / 2,
+        });
+        alphaAnim.setKeys(keysPosition);
+        camera.animations.push(alphaAnim);
+
+        function setCameraLimits(): void {
+            // Set limits for zooming in/out
+            camera.lowerRadiusLimit = 10;
+            camera.upperRadiusLimit = 40;
+            // Set limits for rotation up/down
+            camera.lowerBetaLimit = 0.1;
+            camera.upperBetaLimit = Math.PI / 2;
+            // Set limits for rotation left/right
+            camera.upperAlphaLimit = 0;
+            camera.lowerAlphaLimit = -Math.PI;
+        }
+
+        babylon.scene.beginAnimation(camera, 0, 100, false, 1.0, setCameraLimits);
     }
 
     static createScore(score: [number, number], babylon: BabylonObjects): void {
@@ -319,21 +362,18 @@ export class SceneSetup {
             `${score[0]} : ${score[1]}`,
             babylon.fontData,
             {
-                size: 7,
-                resolution: 32,
-                depth: 5,
+                size: 2,
+                resolution: 8,
+                depth: 1,
             },
             babylon.scene
         );
-        scorePrint!.position = new Vector3(0, 2, defaultGameConfig.board.size.depth / 2 + 0.5);
-        scorePrint!.rotation = new Vector3(0, Math.PI / 2, 0);
-        scorePrint!.scaling = new Vector3(0.2, 0.2, 0.2);
-        scorePrint!.rotate(Axis.Y, -Math.PI / 2, Space.LOCAL);
+        scorePrint!.position = new Vector3(0, 1, defaultGameConfig.board.size.depth / 2 + 0.5);
         // scorePrint!.material = new StandardMaterial("scoreMat", babylon.scene);
 
         if (babylon.score) {
             babylon.score.dispose();
-            babylon.score = null!;
+            babylon.score = null;
         }
         babylon.score = scorePrint!;
     }
@@ -466,7 +506,7 @@ export class SceneSetup {
 
             cushion.position = pos;
             cushion.material = cushionMaterial;
-            babylon.shadowGenerator.addShadowCaster(cushion);
+            // babylon.shadowGenerator.addShadowCaster(cushion);
             cushions.push(cushion);
         });
 
