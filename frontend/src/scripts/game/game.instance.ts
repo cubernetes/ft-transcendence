@@ -11,9 +11,8 @@ import {
     StreamingSound,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
-import { PongState } from "@darrenkuro/pong-core";
 import { SceneSetup } from "./game.scene";
-import { BabylonObjects, ICollisionEvent } from "./game.types";
+import { BabylonObjects } from "./game.types";
 import { WebSocketManager } from "./managers/managers.sockets";
 import { GameStateManager } from "./managers/managers.state";
 
@@ -41,6 +40,7 @@ export class GameInstance {
             hitSound: {} as StaticSound,
             bounceSound: {} as StaticSound,
             blopSound: {} as StaticSound,
+            ballSound: {} as StaticSound,
             soundsEnabled: true,
             camera: {} as ArcRotateCamera,
             board: {} as Mesh,
@@ -94,6 +94,9 @@ export class GameInstance {
 
     updateScore(score: [number, number]) {
         SceneSetup.createScore(score, this.babylon);
+        if (this.babylon.soundsEnabled) {
+            this.babylon.ballSound.play();
+        }
         console.log(`Score updated: ${score[0]} - ${score[1]}`);
     }
 
@@ -109,9 +112,9 @@ export class GameInstance {
         }
     }
 
-    handleScore() {
+    handleBallReset() {
         if (this.babylon.soundsEnabled) {
-            this.babylon.blopSound.play();
+            this.babylon.ballSound.play();
         }
     }
 

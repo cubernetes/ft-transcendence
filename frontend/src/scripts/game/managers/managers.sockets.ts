@@ -48,6 +48,14 @@ export class WebSocketManager {
                         this.gameStateManager.updateGameObjects(message.payload);
                         break;
 
+                    case "waiting-for-opponent":
+                        logger.info("Waiting for opponent...");
+                        break;
+
+                    case "ball-reset":
+                        this.gameStateManager.resetBall();
+                        break;
+
                     default:
                         logger.warn("Unknown WebSocket event type:", message.type);
                 }
