@@ -1,5 +1,5 @@
-import type { FastifyReply } from "fastify";
 import type { ErrorCode } from "../core/api/api.schema.ts";
+import type { FastifyReply } from "fastify";
 
 export class ApiError extends Error {
     constructor(

@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
-import { createTournamentService } from "./tournament.service.ts";
-import tournamentRoutes from "./tournament.routes.ts";
 import fp from "fastify-plugin";
+import tournamentRoutes from "./tournament.routes.ts";
+import { createTournamentService } from "./tournament.service.ts";
 
 const tournamentPlugin = async (app: FastifyInstance) => {
     app.decorate("tournamentService", createTournamentService(app));

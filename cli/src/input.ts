@@ -1,5 +1,5 @@
-import { setGameActive, mainMenu, cleanup } from "./index";
 import { audioManager } from "./audio";
+import { cleanup, mainMenu, setGameActive } from "./index";
 import { userOptions } from "./options";
 
 // Function to start listening for key presses

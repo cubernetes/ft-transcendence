@@ -64,15 +64,15 @@ class AuthState {
                 return 0;
             }
 
-			if (result.data.totpEnabled) {
-				logger.info("Login credentials correct, but TOTP is required");
-				return 2;
-			} else {
-				localStorage.setItem("token", result.data.token);
-				this.loadUserFromToken();
-				logger.info("Login successful");
-				return 1;
-			}
+            if (result.data.totpEnabled) {
+                logger.info("Login credentials correct, but TOTP is required");
+                return 2;
+            } else {
+                localStorage.setItem("token", result.data.token);
+                this.loadUserFromToken();
+                logger.info("Login successful");
+                return 1;
+            }
         } catch (error) {
             logger.info("Login error:", error);
             return 0;

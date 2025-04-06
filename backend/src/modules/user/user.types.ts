@@ -1,6 +1,6 @@
 import { z } from "zod";
-import schemas from "./user.schema.ts";
 import { users } from "../../core/db/db.schema.ts";
+import schemas from "./user.schema.ts";
 
 export type RegisterBody = z.infer<typeof schemas.registerBody>;
 export type LoginBody = z.infer<typeof schemas.loginBody>;

@@ -4,8 +4,8 @@ import { createLeaderboardPage } from "../pages/menu/menu.leaderboard";
 import { createProfilePage } from "../pages/menu/menu.profile";
 import { createSetupPage } from "../pages/menu/menu.setup";
 import { createSimulationPage } from "../pages/menu/menu.simulation";
-import { createHomePage } from "../pages/pages.home";
 import { createTotpSetupPage } from "../pages/menu/pages.totpSetup";
+import { createHomePage } from "../pages/pages.home";
 import { createTotpVerifyPage } from "../pages/pages.totpVerify";
 
 export const createRouter = (container: HTMLElement): void => {
@@ -35,9 +35,10 @@ export const createRouter = (container: HTMLElement): void => {
         }
 
         // Check access for protected routes
-		if (route != "totpVerify") { // TODO: code smell
-			checkAccess();
-		}
+        if (route != "totpVerify") {
+            // TODO: code smell
+            checkAccess();
+        }
 
         // Render the appropriate page
         const createPage = routes[route];

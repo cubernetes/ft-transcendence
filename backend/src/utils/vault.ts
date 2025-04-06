@@ -1,5 +1,5 @@
+import { Result, err, ok } from "neverthrow";
 import fs from "fs";
-import { err, ok, Result } from "neverthrow";
 
 export const readVaultOnce = async (
     path: string

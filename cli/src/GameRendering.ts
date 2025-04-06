@@ -1,6 +1,6 @@
-import { Vec2D, ICLIGameState, GameConfig, FieldConfig } from "./game.types";
-import { userOptions } from "./options.js";
 import { audioManager } from "./audio";
+import { FieldConfig, GameConfig, ICLIGameState, Vec2D } from "./game.types";
+import { userOptions } from "./options.js";
 
 const BALL_TRAIL_LENGTH = 5;
 

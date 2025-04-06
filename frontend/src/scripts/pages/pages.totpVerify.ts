@@ -87,7 +87,7 @@ export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
             } else {
                 localStorage.setItem("token", jwt);
                 window.location.href = "#setup";
-				window.location.reload(); // TODO: code smell, we shouldn't need to reload the page here
+                window.location.reload(); // TODO: code smell, we shouldn't need to reload the page here
             }
         }
     });

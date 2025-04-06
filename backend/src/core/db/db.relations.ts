@@ -1,7 +1,6 @@
 // Pulled with drizzle-kit, maybe automatically generate it during build so no need to mannually update it?
-
 import { relations } from "drizzle-orm/relations";
-import { users, games, tournaments, friends } from "./db.schema.ts";
+import { friends, games, tournaments, users } from "./db.schema.ts";
 
 export const gamesRelations = relations(games, ({ one }) => ({
     user_winnerId: one(users, {
