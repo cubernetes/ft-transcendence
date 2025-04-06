@@ -10,7 +10,7 @@ export const toPersonalUser = (user: User): Omit<User, "passwordHash"> => {
 /** Remove sensitive fields from user before sending response to public. */
 export const toPublicUser = (user: User): PublicUser => {
     const { passwordHash, totpSecret, ...publicUser } = user;
-    return publicUser as PublicUser; // TODI: Fix Type
+    return publicUser as PublicUser; // TODO: Fix Type
 };
 
 export const mockUser = (): User => {
@@ -20,6 +20,8 @@ export const mockUser = (): User => {
         displayName: faker.person.firstName(),
         passwordHash: faker.string.alphanumeric(60),
         totpSecret: faker.string.uuid(),
+        temporaryTotpSecret: '',
+        totpEnabled: faker.number.int({ min: 0, max: 1 }),
         avatarUrl: faker.image.avatar(),
         wins: faker.number.int({ min: 0, max: 1000 }),
         losses: faker.number.int({ min: 0, max: 1000 }),

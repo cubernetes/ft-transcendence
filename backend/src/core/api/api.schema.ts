@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const errorCodeEnum = z.enum([
+    "BAD_REQUEST",
     "VALIDATION_ERROR",
     "USERNAME_TAKEN",
     "NOT_FOUND",

@@ -1,5 +1,5 @@
 #!/bin/sh
-# Runs prettier on all files
+# Runs prettier on all staged files
 
 set -eu
 

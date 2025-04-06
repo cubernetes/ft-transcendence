@@ -1,6 +1,8 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import type { RegisterBody, LoginBody, LeaderboardParams } from "./user.types.ts";
+import type { RegisterBody, LoginBody, TotpBody, TotpBodyInitial, LeaderboardParams } from "./user.types.ts";
 import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
+import QRCode from "qrcode";
+import * as speakeasy from "speakeasy";
 import { ApiError } from "../../utils/errors.ts";
 
 const registerHandler = async (
@@ -12,17 +14,121 @@ const registerHandler = async (
     const { confirmPassword, ...userData } = body;
 
     const passwordHash = await req.server.authService.hashPassword(userData.password);
-    const user = await req.server.userService.create({
+
+    const userWithHash = {
         ...userData,
         passwordHash,
-    });
+    };
+
+    const user = await req.server.userService.create(userWithHash);
 
     if (user.isErr()) {
         return user.error.send(reply);
     }
 
     const token = req.server.authService.generateToken(user.value);
-    return reply.code(201).send({ success: true, data: { token } });
+    const totpEnabled = user.value.totpEnabled;
+
+    return reply.code(201).send({ success: true, data: { token, totpEnabled } });
+};
+
+const totpSetupHandler = async (
+    req: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    const user = await req.server.userService.findById(req.userId);
+
+    if (user.isErr()) {
+        return user.error.send(reply);
+    }
+
+    const secret = speakeasy.generateSecret();
+	const b32secret = secret.base32
+	user.value.temporaryTotpSecret = b32secret;
+    req.server.userService.update(user.value.id, user.value);
+
+    if (!secret?.otpauth_url) {
+        const err = new ApiError("INTERNAL_SERVER_ERROR", 500, "Could not generate OTP auth URL");
+        return err.send(reply);
+    }
+
+    const qrCode = await QRCode.toDataURL(secret.otpauth_url);
+
+    return reply.send({ success: true, data: { qrCode, b32secret } });
+};
+
+const totpVerifyHandler = async (
+    { body }: { body: TotpBody },
+    req: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    const user = await req.server.userService.findByUsername(body.username);
+
+    if (user.isErr()) {
+        return user.error.send(reply);
+    }
+
+    const totpToken = body.token;
+    const totpSecret = user.value.totpSecret;
+
+    if (!totpSecret) {
+        const err = new ApiError("BAD_REQUEST", 400, "User does not have TOTP enabled");
+        return err.send(reply);
+    }
+
+    const verified = speakeasy.totp.verify({
+        secret: totpSecret,
+        encoding: "base32",
+        token: totpToken,
+    });
+
+    if (!verified) {
+        const err = new ApiError("UNAUTHORIZED", 401, "Invalid TOTP token");
+        return err.send(reply);
+    }
+
+    const jwtToken = req.server.authService.generateToken(user.value);
+
+    return reply.send({ success: true, data: { token: jwtToken } });
+};
+
+const totpVerifyInitialHandler = async (
+    { body }: { body: TotpBodyInitial },
+    req: FastifyRequest,
+    reply: FastifyReply
+): Promise<void> => {
+    const user = await req.server.userService.findById(req.userId);
+
+    if (user.isErr()) {
+        return user.error.send(reply);
+    }
+
+    const totpToken = body.token;
+    const totpSecret = user.value.temporaryTotpSecret;
+
+    if (!totpSecret) {
+        const err = new ApiError("BAD_REQUEST", 400, "User does not have TOTP enabled");
+        return err.send(reply);
+    }
+
+    const verified = speakeasy.totp.verify({
+        secret: totpSecret,
+        encoding: "base32",
+        token: totpToken,
+    });
+
+    if (!verified) {
+        const err = new ApiError("UNAUTHORIZED", 401, "Invalid TOTP token");
+        return err.send(reply);
+    }
+
+    user.value.totpEnabled = 1;
+	user.value.totpSecret = user.value.temporaryTotpSecret;
+    req.server.userService.update(user.value.id, user.value);
+
+    const jwtToken = req.server.authService.generateToken(user.value);
+
+    return reply.send({ success: true, data: { token: jwtToken } });
 };
 
 const loginHandler = async (
@@ -31,6 +137,7 @@ const loginHandler = async (
     reply: FastifyReply
 ): Promise<void> => {
     const user = await req.server.userService.findByUsername(body.username);
+
     if (user.isErr()) {
         return user.error.send(reply);
     }
@@ -44,8 +151,16 @@ const loginHandler = async (
         return err.send(reply);
     }
 
-    const token = req.server.authService.generateToken(user.value);
-    return reply.send({ success: true, data: { token } });
+    const totpEnabled = user.value.totpEnabled;
+
+    let token;
+    if (totpEnabled) {
+        token = "totp-needed";
+    } else {
+        token = req.server.authService.generateToken(user.value);
+    }
+
+    return reply.send({ success: true, data: { token, totpEnabled } });
 };
 
 const getLeaderboardHandler = async (
@@ -81,4 +196,7 @@ export default {
     login: loginHandler,
     leaderboard: getLeaderboardHandler,
     me: getMeHandler,
+    totpSetup: totpSetupHandler,
+    totpVerify: totpVerifyHandler,
+    totpVerifyInitial: totpVerifyInitialHandler,
 };

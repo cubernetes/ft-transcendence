@@ -48,6 +48,8 @@ CREATE TABLE `users` (
 	`display_name` text NOT NULL,
 	`password_hash` text NOT NULL,
 	`totp_secret` text,
+	`temporary_totp_secret` text,
+	`totp_enabled` integer DEFAULT 0,
 	`avatar_url` text DEFAULT '/assets/default-avatar.png',
 	`wins` integer DEFAULT 0,
 	`losses` integer DEFAULT 0,
