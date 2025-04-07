@@ -95,7 +95,7 @@ See [vault/README.md](./vault/README.md)
 |     Game      |    Remote Players     |                                                   |   1   |      100%       | Not thoroughly tested
 | Cybersecurity |   Secret Management   |         WAF/ModSecurity + HashiCorp Vault         |   1   |       95%       | Potentially missing for ELK
 |               |       2FA + JWT       |                                                   |   1   |      100%       | Can't disable 2FA
-|    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       70%       | Not sure what's exactly missing
+|    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       50%       | Not sure what's exactly missing
 |   Graphics    |     3D Techniques     |                    Babylon.js                     |   1   |      100%       | Not INSANE, but would pass this module
 | Accessibility | Browser Compatibility |             Firefox Default + Chrome              |  0.5  |      100%       | Not tested thoroughly
 |     Pong      |   Server-side Pong    |                                                   |   1   |      100%       |
@@ -105,12 +105,12 @@ See [vault/README.md](./vault/README.md)
 |               |                       |             🟡 Partially Committed 🟡             | 11.5  |                 |
 |     User      | Remote Authentication | Google Sign-in, Simple But Extra API Key Required |   1   |        0%       |
 |     Game      |     Customization     |                                                   |  0.5  |       10%       | Some foundations set, but not fleshed out
-|     Algo      |      AI Opponent      |                                                   |   1   |        2%       | Plans are being made how to integrate it into game engine
+|     Algo      |      AI Opponent      |                                                   |   1   |       50%       | Plans are being made how to integrate it into game engine
 |     Algo      |    Stats Dashboard    |                                                   |  0.5  |        5%       | Backend only stores game history, no frontend code
 | Accessibility |   Multiple Language   |                   Ultra-simple                    |  0.5  |        0%       |
 | Accessibility | Server-side Rendering |                   Ultra-simple                    |  0.5  |        0%       |
 | Cybersecurity |    GDPR Compliance    |                                                   |  0.5  |        0%       |
-|    Devops     |   Monitoring System   |               Prometheus + Grafana                |  0.5  |        0%       |
+|    Devops     |   Monitoring System   |               Prometheus + Grafana                |  0.5  |        0%       | Finish before end of April
 |               |                       |                ⏳ Total Planned ⏳                | 16.5  |                 |
 
 ## License
