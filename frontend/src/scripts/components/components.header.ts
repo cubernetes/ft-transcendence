@@ -4,18 +4,16 @@ import { showUserStatus } from "./components.loginStatus";
 export const createHeader = async (): Promise<HTMLElement> => {
     const a = createEl("a", "text-3xl font-bold", {
         text: "ft-transcendence",
-        attributes: { href: "#home" },
+        attributes: { href: "#setup" },
     });
 
     const title = createEl("h1", "", { children: [a] });
 
     const navItems = {
-        Home: "home",
-        Game: "game",
+        Home: "setup",
+        Game: "setup",
         Leaderboard: "leaderboard",
         Profile: "profile",
-        Login: "login",
-        "2FA Setup": "totpSetup",
     };
 
     const navList = createEl("ul", "flex text-1xl space-x-4");

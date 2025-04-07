@@ -1,10 +1,11 @@
+import { logger } from "../utils/logger";
 import { authState } from "./../auth/auth.state";
 
 export const showUserStatus = async (container: HTMLElement): Promise<Boolean> => {
     const loggedUser = authState.getUser();
 
     if (!loggedUser) {
-        console.error("No user logged in.");
+        logger.error("No user logged in.");
         return false;
     }
     // Create status wrapper
@@ -27,7 +28,7 @@ export const showUserStatus = async (container: HTMLElement): Promise<Boolean> =
         localStorage.removeItem("token");
         localStorage.removeItem("username");
         container.innerHTML = ""; // clear the status
-        window.location.href = "#home";
+        window.location.href = "#landing";
         window.location.reload();
     };
 
