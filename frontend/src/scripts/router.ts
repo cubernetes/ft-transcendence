@@ -1,9 +1,9 @@
 import { checkAccess } from "./auth/auth.utils";
-// import { createProfilePage } from "./pages/menu/menu.profile";
-// import { createSetupPage } from "./pages/menu/menu.setup";
 // import { createTotpSetupPage } from "./pages/menu/pages.totpSetup";
 import { createHomePage } from "./pages/home/home.page";
 import { createLeaderboardPage } from "./pages/leaderboard/leaderboard.page";
+// import { createProfilePage } from "./pages/menu/menu.profile";
+import { createSetupPage } from "./pages/setup/setup.page";
 
 // import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 
@@ -13,7 +13,7 @@ export const createRouter = (container: HTMLElement): void => {
         // game: createGamePage,
         // profile: createProfilePage,
         leaderboard: createLeaderboardPage,
-        // setup: createSetupPage,
+        setup: createSetupPage,
         // totpSetup: createTotpSetupPage,
         // totpVerify: createTotpVerifyPage,
     };
@@ -41,8 +41,12 @@ export const createRouter = (container: HTMLElement): void => {
         // Render the appropriate page
         const createPage = routes[route];
         const pageEl = await createPage();
+
+        const fragment = document.createDocumentFragment();
+        fragment.appendChild(pageEl);
+
         container.innerHTML = "";
-        container.appendChild(pageEl);
+        container.appendChild(fragment);
     };
 
     // Listen for hash changes
