@@ -1,3 +1,4 @@
+import earcut from "earcut";
 import { createRouter } from "./router";
 import { logger } from "./utils/logger";
 
@@ -9,6 +10,7 @@ const launchSite = (): void => {
     }
 };
 
+window.earcut = earcut; // Need for babylonJS
 document.addEventListener("DOMContentLoaded", launchSite);
 
 /** Register WebSocket for live reload */

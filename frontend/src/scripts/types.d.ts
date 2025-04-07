@@ -1,5 +1,4 @@
-/** Mark file as a module */
-export {};
+import type { earcut } from "earcut";
 
 declare global {
     const process: {
@@ -11,5 +10,6 @@ declare global {
 
     interface Window {
         ethereum?: any; // TODO: shouldn't use any if it can be helped?
+        earcut: earcut;
     }
 }

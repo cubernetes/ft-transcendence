@@ -13,10 +13,7 @@ import {
     Vector3,
 } from "@babylonjs/core";
 import { registerBuiltInLoaders } from "@babylonjs/loaders/dynamic";
-import earcut from "earcut";
 import { logger } from "../utils/logger";
-
-(window as any).earcut = earcut;
 
 let GAME_CONSTANTS = {
     PADDLE_WIDTH: 0.5,
