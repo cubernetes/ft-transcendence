@@ -1,4 +1,4 @@
-import { createRouter } from "./router/router.url";
+import { createRouter } from "./router";
 import { logger } from "./utils/logger";
 
 const launchSite = (): void => {
