@@ -12,22 +12,22 @@ const logLevelIndex = logLevels.indexOf(logLevel);
 
 export const logger = {
     debug: (...args: any[]) => {
-        if (logLevelIndex >= logLevels.indexOf("debug")) {
+        if (logLevelIndex <= logLevels.indexOf("debug")) {
             console.debug(...args);
         }
     },
     info: (...args: any[]) => {
-        if (logLevelIndex >= logLevels.indexOf("info")) {
+        if (logLevelIndex <= logLevels.indexOf("info")) {
             console.info(...args);
         }
     },
     warn: (...args: any[]) => {
-        if (logLevelIndex >= logLevels.indexOf("warn")) {
+        if (logLevelIndex <= logLevels.indexOf("warn")) {
             console.warn(...args);
         }
     },
     error: (...args: any[]) => {
-        if (logLevelIndex >= logLevels.indexOf("error")) {
+        if (logLevelIndex <= logLevels.indexOf("error")) {
             console.error(...args);
         }
     },
