@@ -1,6 +1,6 @@
 import { createFooter } from "../../components/components.footer";
 import { createHeader } from "../../components/components.header";
-import { USER_URL } from "../../config";
+import { fetchLeaderboard } from "./leaderboard.api";
 
 export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
@@ -40,8 +40,7 @@ export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     const tbody = document.createElement("tbody");
     tbody.className = "bg-white divide-y divide-gray-200";
 
-    // Sample data - in a real app, this would come from your backend
-    const players = await fetchTestData();
+    const players = await fetchLeaderboard(10);
 
     players.forEach((player: Record<string, any>) => {
         const row = document.createElement("tr");
@@ -86,35 +85,4 @@ export const createLeaderboardPage = async (): Promise<HTMLElement> => {
     container.appendChild(fragment);
 
     return container;
-};
-
-export const fetchTestData = async () => {
-    try {
-        const response = await fetch(`${USER_URL}/leaderboard/10`);
-        if (!response.ok) {
-            throw new Error("Failed to fetch users");
-        }
-
-        const data = await response.json();
-
-        // Process data into how it's typed on the leaderboard page
-        const processedData = data.data
-            .map((p: Record<string, any>) => ({
-                id: p.id,
-                name: p.username,
-                wins: p.wins,
-                losses: p.losses,
-            }))
-            .sort((a: Record<string, any>, b: Record<string, any>) => b.wins - a.wins)
-            .map((p: Record<string, any>, i: number) => ({
-                ...p,
-                rank: i + 1,
-            }));
-
-        return processedData;
-    } catch (error) {
-        console.error("Fetch error:", error);
-
-        throw error;
-    }
 };
