@@ -1,6 +1,6 @@
 import { checkAccess } from "./auth/auth.utils";
 // import { createTotpSetupPage } from "./pages/menu/pages.totpSetup";
-import { createHomePage } from "./pages/home/home.page";
+import { createLandingPage } from "./pages/landing/landing.page";
 import { createLeaderboardPage } from "./pages/leaderboard/leaderboard.page";
 // import { createProfilePage } from "./pages/menu/menu.profile";
 import { createSetupPage } from "./pages/setup/setup.page";
@@ -9,11 +9,10 @@ import { createSetupPage } from "./pages/setup/setup.page";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement[]> } = {
-        home: createHomePage,
-        // game: createGamePage,
-        // profile: createProfilePage,
-        leaderboard: createLeaderboardPage,
         setup: createSetupPage,
+        landing: createLandingPage,
+        //profile: createProfilePage,
+        leaderboard: createLeaderboardPage,
         // totpSetup: createTotpSetupPage,
         // totpVerify: createTotpVerifyPage,
     };
@@ -22,8 +21,9 @@ export const createRouter = (container: HTMLElement): void => {
         const route = window.location.hash.slice(1);
 
         // Redirect to home upon invalid route
+        // Should probably make a 404
         if (!(route in routes)) {
-            window.location.href = "#home";
+            window.location.href = "#landing";
             return;
         }
 

@@ -4,7 +4,7 @@ import { ASSETS_DIR } from "../../config";
 import { createEl } from "../../utils/dom.helper";
 import { logger } from "../../utils/logger";
 
-export const createHomePage = async (): Promise<HTMLElement[]> => {
+export const createLandingPage = async (): Promise<HTMLElement[]> => {
     // Background video
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: {
