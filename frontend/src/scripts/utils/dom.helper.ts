@@ -8,7 +8,7 @@ type ElementParams = {
 
 export const createEl = <T extends keyof HTMLElementTagNameMap>(
     tag: T,
-    className: string,
+    className: string = "",
     { text, attributes, props, events, children }: ElementParams = {}
 ): HTMLElementTagNameMap[T] => {
     const el = document.createElement(tag);
