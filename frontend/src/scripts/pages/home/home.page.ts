@@ -1,5 +1,6 @@
 import { checkAccess } from "../../auth/auth.utils";
 import { createLoginForm } from "../../components/components.loginForm";
+import { ASSETS_DIR } from "../../config";
 
 export const createHomePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
@@ -9,7 +10,7 @@ export const createHomePage = async (): Promise<HTMLElement> => {
 
     // Background video
     const video = document.createElement("video");
-    video.src = "/assets/videos/pong_simulation.webm";
+    video.src = `${ASSETS_DIR}/videos/pong_simulation.webm`;
     video.autoplay = true;
     video.loop = true;
     video.muted = true;
@@ -42,7 +43,7 @@ export const createHomePage = async (): Promise<HTMLElement> => {
         ctaButton.replaceWith(loginForm);
     };
 
-    const mainMusic = new Audio("/assets/audio/main.mp3");
+    const mainMusic = new Audio(`${ASSETS_DIR}/audio/main.mp3`);
     mainMusic.loop = true;
     mainMusic.volume = 0.4;
 
