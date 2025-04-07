@@ -103,6 +103,7 @@ export class SceneSetup {
                 babylon.shadowGenerator.addShadowCaster(babylon.paddle1);
                 babylon.shadowGenerator.addShadowCaster(babylon.paddle2);
                 babylon.shadowGenerator.addShadowCaster(babylon.ball);
+                // babylon.shadowGenerator.getShadowMap().renderList = [babylon.paddle1, babylon.paddle2, babylon.ball];
                 shadowButton.textBlock!.text = "Shadows";
                 shadowButton.background = "blue";
             }
@@ -178,10 +179,10 @@ export class SceneSetup {
         slider2.color = "lightblue";
         slider2.background = "black";
         slider2.displayThumb = false;
-        slider2.blur;
+        // slider2.blur;
         slider2.onValueChangedObservable.add(function (value) {
             header.text = "Volume: " + (value | 0) + " %";
-            babylon.bgMusic.volume = value / 100;
+            babylon.audioEngine.volume = value / 100;
         });
         panelVol.addControl(slider2);
 
@@ -235,8 +236,9 @@ export class SceneSetup {
     static async createAudio(babylon: BabylonObjects): Promise<void> {
         const audioEngine = await CreateAudioEngineAsync();
         await audioEngine.unlockAsync();
-        await audioEngine.createMainBusAsync("mainBus", { volume: 1.0 });
+        babylon.audioEngine = audioEngine;
 
+        // -------------- BACKGROUND MUSIC
         const bgMusic = await CreateStreamingSoundAsync(
             "bgMusic",
             `${ASSETS_DIR}/audio/neon-gaming.mp3`,
@@ -248,22 +250,54 @@ export class SceneSetup {
             audioEngine
         );
         babylon.bgMusic = bgMusic;
-        babylon.audioEngine = audioEngine;
-    }
 
-    static async createSounds(babylon: BabylonObjects): Promise<void> {
-        const hitSound = await CreateSoundAsync("hitSound", `${ASSETS_DIR}/audio/hit.mp3`);
-        hitSound.volume = 1;
-        const bounceSound = await CreateSoundAsync("bounceSound", `${ASSETS_DIR}/audio/bounce.mp3`);
-        bounceSound.volume = 1;
-        const blopSound = await CreateSoundAsync("blopSound", `${ASSETS_DIR}/audio/blop.mp3`);
-        blopSound.pitch = 1.5;
-        const ballSound = await CreateSoundAsync("ballSound", `${ASSETS_DIR}/audio/tatata.mp3`);
-        ballSound.playbackRate = 1.5;
-
+        // -------------- SOUNDS
+        const hitSound = await CreateSoundAsync(
+            "hitSound",
+            `${ASSETS_DIR}/audio/hit.mp3`,
+            {
+                maxInstances: 2,
+                volume: 0.8,
+                spatialEnabled: true,
+            },
+            audioEngine
+        );
         babylon.hitSound = hitSound;
+
+        const bounceSound = await CreateSoundAsync(
+            "bounceSound",
+            `${ASSETS_DIR}/audio/bounce.mp3`,
+            {
+                maxInstances: 2,
+                volume: 0.8,
+                spatialEnabled: true,
+            },
+            audioEngine
+        );
         babylon.bounceSound = bounceSound;
+
+        const blopSound = await CreateSoundAsync(
+            "blopSound",
+            `${ASSETS_DIR}/audio/blop.mp3`,
+            {
+                maxInstances: 2,
+                pitch: 1.5,
+                spatialEnabled: true,
+            },
+            audioEngine
+        );
         babylon.blopSound = blopSound;
+
+        const ballSound = await CreateSoundAsync(
+            "ballSound",
+            `${ASSETS_DIR}/audio/tatata.mp3`,
+            {
+                maxInstances: 2,
+                playbackRate: 1.5,
+                spatialEnabled: true,
+            },
+            audioEngine
+        );
         babylon.ballSound = ballSound;
     }
 
@@ -422,7 +456,6 @@ export class SceneSetup {
             babylon.scene
         );
         babylon.board = board;
-
         board.position = positions.BOARD;
         board.material = boardMaterial;
         // board.material.wireframe = true;
@@ -480,6 +513,10 @@ export class SceneSetup {
         ball.position = positions.BALL;
         ballMaterial.diffuseColor = materials.BALL.diffuseColor;
         ball.material = ballMaterial;
+        babylon.hitSound.spatial.attach(ball);
+        babylon.bounceSound.spatial.attach(ball);
+        babylon.blopSound.spatial.attach(ball);
+        babylon.ballSound.spatial.attach(ball);
 
         // ----------------- Create WALLS
         const cushions: Mesh[] = [];
@@ -515,6 +552,4 @@ export class SceneSetup {
         babylon.paddle2 = paddle2;
         babylon.ball = ball;
     }
-
-    // TODO: createScoreText(): Mesh {
 }

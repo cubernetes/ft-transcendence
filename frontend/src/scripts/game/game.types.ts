@@ -4,6 +4,7 @@ import {
     DirectionalLight,
     Engine,
     IFontData,
+    MainAudioBus,
     Mesh,
     Scene,
     ShadowGenerator,

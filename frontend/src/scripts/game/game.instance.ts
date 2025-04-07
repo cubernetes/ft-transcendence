@@ -4,6 +4,7 @@ import {
     DirectionalLight,
     Engine,
     IFontData,
+    MainAudioBus,
     Mesh,
     Scene,
     ShadowGenerator,
@@ -60,8 +61,6 @@ export class GameInstance {
             GameInstance.instance = new GameInstance(canvas);
 
             await SceneSetup.createAudio(GameInstance.instance.babylon);
-
-            await SceneSetup.createSounds(GameInstance.instance.babylon);
 
             await SceneSetup.createGameObjects(GameInstance.instance.babylon);
 
