@@ -1,18 +1,13 @@
+import { createEl } from "../utils/dom.helper";
 import { showUserStatus } from "./components.loginStatus";
 
 export const createHeader = async (): Promise<HTMLElement> => {
-    const header = document.createElement("header");
-    header.className = "bg-black/50 p-4 text-white justify-between items-center font-medieval";
+    const a = createEl("a", "text-3xl font-bold", {
+        text: "ft-transcendence",
+        attributes: { href: "#home" },
+    });
 
-    const title = document.createElement("h1");
-    const a = document.createElement("a");
-    a.href = "#home";
-    a.textContent = "ft-transcendence";
-    a.className = "text-3xl font-bold";
-    title.appendChild(a);
-
-    const nav = document.createElement("nav");
-    nav.className = "flex items-center space-x-6";
+    const title = createEl("h1", "", { children: [a] });
 
     const navItems = {
         Home: "home",
@@ -22,27 +17,29 @@ export const createHeader = async (): Promise<HTMLElement> => {
         Login: "login",
         "2FA Setup": "totpSetup",
     };
-    const navList = document.createElement("ul");
-    navList.className = "flex text-1xl space-x-4";
+
+    const navList = createEl("ul", "flex text-1xl space-x-4");
 
     for (const [title, hashId] of Object.entries(navItems)) {
-        const li = document.createElement("li");
-        const link = document.createElement("a");
-        link.href = `#${hashId}`;
-        link.textContent = title;
-        link.className = "hover:underline";
-        li.appendChild(link);
+        const link = createEl("a", "hover:underline", {
+            text: title,
+            attributes: { href: `#${hashId}` },
+        });
+        const li = createEl("li", "", { children: [link] });
         navList.appendChild(li);
     }
 
-    const loginStatus = document.createElement("li");
+    const loginStatus = createEl("li");
     navList.appendChild(loginStatus);
+    await showUserStatus(loginStatus); // FIX
 
-    nav.appendChild(navList);
-    header.appendChild(title);
-    header.appendChild(nav);
+    const nav = createEl("nav", "flex items-center space-x-6", { children: [navList] });
 
-    await showUserStatus(loginStatus);
+    const header = createEl(
+        "header",
+        "bg-black/50 p-4 text-white justify-between items-center font-medieval",
+        { children: [title, nav] }
+    );
 
     return header;
 };
