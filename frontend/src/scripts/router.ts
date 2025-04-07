@@ -4,6 +4,7 @@ import { createLandingPage } from "./pages/landing/landing.page";
 import { createLeaderboardPage } from "./pages/leaderboard/leaderboard.page";
 // import { createProfilePage } from "./pages/menu/menu.profile";
 import { createSetupPage } from "./pages/setup/setup.page";
+import { logger } from "./utils/logger";
 
 // import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 
@@ -27,10 +28,18 @@ export const createRouter = (container: HTMLElement): void => {
             return;
         }
 
-        const currentPage = container.firstElementChild;
-        if (currentPage) {
-            currentPage.dispatchEvent(new Event("destroy"));
-        }
+        // Functionally dispatch the event bubbling down to all children elements
+        const dispatchEventDown = (parent: HTMLElement, event: Event) => {
+            // Dispatch the event to the parent first
+            parent.dispatchEvent(event);
+
+            // Dispatch the event to all child elements
+            parent.querySelectorAll("*").forEach((child) => {
+                child.dispatchEvent(event);
+            });
+        };
+
+        dispatchEventDown(container, new Event("destroy"));
 
         // Check access for protected routes
         if (route != "totpVerify") {
