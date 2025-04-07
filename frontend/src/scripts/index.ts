@@ -1,6 +1,7 @@
 import { createRouter } from "./router";
 import { logger } from "./utils/logger";
 
+// Register global states? Websocket? Auth? earcut?
 const launchSite = (): void => {
     const appElement = document.getElementById("app");
     if (appElement) {
@@ -11,7 +12,6 @@ const launchSite = (): void => {
 document.addEventListener("DOMContentLoaded", launchSite);
 
 /** Register WebSocket for live reload */
-declare const process: { env: { WATCH: string } };
 if (process.env.WATCH === "1") {
     const ws = new WebSocket("ws://localhost:35729");
     logger.info("WebSocket for live reload connected");

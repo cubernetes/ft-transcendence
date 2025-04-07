@@ -1,15 +1,13 @@
 import { LOG_LEVEL } from "../config";
 
-declare const process: { env: { NODE_ENV: string } };
-
 export type logLevel = "debug" | "info" | "warn" | "error";
 
 const logLevels: logLevel[] = ["debug", "info", "warn", "error"];
 
-// Change the log level fro dev mode here manually
+/** Change the log level fro dev mode here manually */
 const logLevel: logLevel = process.env.NODE_ENV === "production" ? "error" : LOG_LEVEL;
 
-// Find the index of the current log level
+/** Find the index of the current log level */
 const logLevelIndex = logLevels.indexOf(logLevel);
 
 export const logger = {
