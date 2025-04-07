@@ -1,5 +1,6 @@
 import {
     Animation,
+    AppendSceneAsync,
     ArcRotateCamera,
     Axis,
     BackgroundMaterial,
@@ -10,14 +11,19 @@ import {
     CreateStreamingSoundAsync,
     CubeTexture,
     DirectionalLight,
+    GlowLayer,
+    HemisphericLight,
     Mesh,
     MeshBuilder,
+    PBRMaterial,
+    Quaternion,
     Scene,
     ShadowGenerator,
     SoundState,
     Space,
     StandardMaterial,
     Texture,
+    TrailMesh,
     Vector3,
 } from "@babylonjs/core";
 import {
@@ -39,19 +45,25 @@ export class SceneSetup {
         // --------- SCENE
         const scene = new Scene(babylon.engine);
         scene.audioEnabled = true;
+        // scene.environmentIntensity = 0.5;
+        babylon.scene = scene;
 
         // --------- LIGHT
-        const light = new DirectionalLight("directionalLight", new Vector3(0, -8, 4), scene);
-
-        // light.intensity = 0.5;
+        const light = new DirectionalLight("directionalLight", new Vector3(0, -2, 1), scene);
+        babylon.light = light;
+        light.intensity = 1.0;
         light.shadowMinZ = 3.5;
         light.shadowMaxZ = 15;
-        // light.shadowEnabled
+        light.shadowEnabled;
         // light.autoUpdateExtends = false;
         // light.autoCalcShadowZBounds = true;
 
+        const hemiLight = new HemisphericLight("hemiLight", new Vector3(0, 1, 0), scene);
+        hemiLight.intensity = 0.5;
+
         // --------- SHADOWS
         const shadowGenerator = new ShadowGenerator(1024, light);
+        babylon.shadowGenerator = shadowGenerator;
         shadowGenerator.setDarkness(0.5);
         // shadowGenerator.useBlurExponentialShadowMap = true;
         // shadowGenerator.forceBackFacesOnly = true;
@@ -61,10 +73,6 @@ export class SceneSetup {
 
         // --------- CONTROLS
         var controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
-
-        babylon.scene = scene;
-        babylon.light = light;
-        babylon.shadowGenerator = shadowGenerator;
         babylon.controls = controls;
     }
 
@@ -217,20 +225,20 @@ export class SceneSetup {
             "ny.png",
             "nz.png",
         ]);
+        // scene.environmentTexture = sky.reflectionTexture;
         sky.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
 
-        const size = 1000;
         const skydome = MeshBuilder.CreateBox(
             "sky",
-            { size, sideOrientation: Mesh.BACKSIDE },
+            {
+                size: 1000,
+                sideOrientation: Mesh.BACKSIDE,
+            },
             scene
         );
-        skydome.position.y = 0.5;
-        skydome.infiniteDistance = true;
+        // skydome.infiniteDistance = true;
         skydome.material = sky;
         skydome.rotate(Axis.Y, Math.PI, Space.LOCAL);
-
-        scene.createDefaultLight();
     }
 
     static async createAudio(babylon: BabylonObjects): Promise<void> {
@@ -412,6 +420,30 @@ export class SceneSetup {
         babylon.score = scorePrint!;
     }
 
+    static createBallMaterial(babylon: BabylonObjects): PBRMaterial {
+        //Note the textures for this method are not included in the code
+
+        const pbr = new PBRMaterial("ballMat", babylon.scene);
+        // pbr.environmentIntensity = 0.25;
+
+        pbr.albedoColor = new Color3(1, 0.2, 0.6);
+        pbr.albedoTexture = new Texture(
+            `${ASSETS_DIR}/textures/red_ground/cracked_red_ground_diff_1k.jpg`,
+            babylon.scene
+        );
+
+        pbr.metallic = 0.2;
+        pbr.roughness = 0.5;
+
+        pbr.bumpTexture = new Texture(
+            `${ASSETS_DIR}/textures/red_ground/cracked_red_ground_nor_dx_1k.jpg`,
+            babylon.scene
+        );
+        pbr.bumpTexture.level = 20;
+
+        return pbr;
+    }
+
     static async createGameObjects(babylon: BabylonObjects): Promise<void> {
         const defObj = defaultGameConfig; // as given from the PONG engine
 
@@ -421,9 +453,23 @@ export class SceneSetup {
         const materials = gameConfig.materials;
 
         const boardMaterial = new StandardMaterial("board", babylon.scene);
-        boardMaterial.backFaceCulling = true; // Turn off back face culling to render both sides of the mesh
-        boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
-        boardMaterial.specularColor = materials.BOARD.specularColor;
+        // boardMaterial.backFaceCulling = true; // Turn off back face culling to render both sides of the mesh
+        // boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
+        // boardMaterial.specularColor = materials.BOARD.specularColor;
+        boardMaterial.diffuseTexture = new Texture(
+            `${ASSETS_DIR}/textures/tiles/rubber_tiles_diff_1k.jpg`,
+            babylon.scene
+        );
+        var texture = boardMaterial.diffuseTexture as Texture;
+        texture.uScale = 4;
+        texture.vScale = 5;
+        boardMaterial.specularTexture = new Texture(
+            `${ASSETS_DIR}/textures/tiles/rubber_tiles_disp_1k.jpg`,
+            babylon.scene
+        );
+        var texture = boardMaterial.specularTexture as Texture;
+        texture.uScale = 4;
+        texture.vScale = 5;
 
         const paddleMaterial = new StandardMaterial("paddle", babylon.scene);
         const paddleMaterial2 = new StandardMaterial("paddle1Mat", babylon.scene);
@@ -432,33 +478,37 @@ export class SceneSetup {
         paddleMaterial2.diffuseColor = new Color3(0, 0, 1);
         paddleMaterial2.backFaceCulling = false;
 
-        // ------------- Create game board:
-        // const board = MeshBuilder.CreateBox(
-        //     "board",
-        //     {
-        //         width: objectConfigs.BOARD_WIDTH,
-        //         height: objectConfigs.BOARD_HEIGHT,
-        //         depth: objectConfigs.BOARD_DEPTH,
-        //     },
-        //     babylon.scene
-        // );
+        const paddleMaterial3 = new StandardMaterial("paddleMat", babylon.scene);
+        paddleMaterial3.diffuseColor = new Color3(0.2, 0.7, 1);
+        paddleMaterial3.specularPower = 64;
+        paddleMaterial3.emissiveColor = new Color3(0.1, 0.3, 1);
 
-        const board = CreateGroundFromHeightMap(
+        // ------------- Create game board:
+        const board = MeshBuilder.CreateBox(
             "board",
-            `${ASSETS_DIR}/height_map1.jpeg`,
             {
                 width: defObj.board.size.width,
-                height: defObj.board.size.depth,
-                subdivisions: 50,
-                maxHeight: 0.3,
-                minHeight: -0.2,
+                height: defObj.board.size.height,
+                depth: defObj.board.size.depth,
             },
             babylon.scene
         );
+
+        // const board = CreateGroundFromHeightMap(
+        //     "board",
+        //     `${ASSETS_DIR}/height_map1.jpeg`,
+        //     {
+        //         width: defObj.board.size.width,
+        //         height: defObj.board.size.depth,
+        //         subdivisions: 50,
+        //         maxHeight: 0.3,
+        //         minHeight: -0.2,
+        //     },
+        //     babylon.scene
+        // );
         babylon.board = board;
         board.position = positions.BOARD;
         board.material = boardMaterial;
-        // board.material.wireframe = true;
         board.receiveShadows = true;
 
         // --------------- Create SCORE
@@ -482,7 +532,7 @@ export class SceneSetup {
         paddle1.position = positions.PADDLE1;
         paddle1.rotation.x = rotations.PADDLE1;
         paddleMaterial.diffuseColor = materials.PADDLE1.diffuseColor;
-        paddle1.material = paddleMaterial2;
+        paddle1.material = paddleMaterial3;
 
         // const paddle2 = MeshBuilder.CreateBox(
         const paddle2 = MeshBuilder.CreateSphere(
@@ -500,9 +550,14 @@ export class SceneSetup {
         paddle2.material = paddleMaterial2;
 
         // ----------------- Create BALL
-        const ballMaterial = new StandardMaterial("ball", babylon.scene);
-        // ballMaterial.wireframe = true;
 
+        // await AppendSceneAsync(
+        //     "https://playground.babylonjs.com/scenes/BoomBox.glb",
+        //     babylon.scene
+        // );
+
+        // const ballMaterial = new StandardMaterial("ball", babylon.scene);
+        // ballMaterial.diffuseColor = materials.BALL.diffuseColor;
         const ball = MeshBuilder.CreateSphere(
             "ball",
             {
@@ -511,12 +566,20 @@ export class SceneSetup {
             babylon.scene
         );
         ball.position = positions.BALL;
-        ballMaterial.diffuseColor = materials.BALL.diffuseColor;
-        ball.material = ballMaterial;
+        ball.rotationQuaternion = Quaternion.Identity();
+        ball.material = SceneSetup.createBallMaterial(babylon);
+
         babylon.hitSound.spatial.attach(ball);
         babylon.bounceSound.spatial.attach(ball);
         babylon.blopSound.spatial.attach(ball);
         babylon.ballSound.spatial.attach(ball);
+        // ------------------- BALL TRAIL
+
+        const trail = new TrailMesh("ballTrail", ball, babylon.scene, defObj.ball.r, 30);
+        const trailMaterial = new StandardMaterial("trailMat", babylon.scene);
+        trailMaterial.diffuseColor = materials.BALL.diffuseColor;
+        trailMaterial.alpha = 0.5;
+        trail.material = trailMaterial;
 
         // ----------------- Create WALLS
         const cushions: Mesh[] = [];

@@ -93,7 +93,6 @@ export class GameStateManager {
         );
         this.state.ball.pos = { x: 0, y: 0, z: 0 };
         this.state.ball.vec = { x: 0, y: 0, z: 0 };
-        instance.updateBallPosition(0, 0, 0);
         instance.handleBallReset();
     }
 
@@ -103,15 +102,15 @@ export class GameStateManager {
         );
         if (!payload) return;
 
-        instance.updateBallPosition(payload.ball.pos.x, payload.ball.pos.y, payload.ball.pos.z);
+        instance.updateBall(this.state.ball, payload.ball);
 
-        instance.updateLeftPaddlePosition(
+        instance.updateLeftPaddle(
             payload.paddles[0].pos.x,
             payload.paddles[0].pos.y,
             payload.paddles[0].pos.z
         );
 
-        instance.updateRightPaddlePosition(
+        instance.updateRightPaddle(
             payload.paddles[1].pos.x,
             payload.paddles[1].pos.y,
             payload.paddles[1].pos.z
@@ -121,8 +120,8 @@ export class GameStateManager {
             payload.scores[0] !== this.state.scores[0] ||
             payload.scores[1] !== this.state.scores[1]
         ) {
-            this.state.scores = payload.scores;
             instance.updateScore(payload.scores);
         }
+        this.state = payload;
     }
 }

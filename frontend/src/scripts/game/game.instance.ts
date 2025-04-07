@@ -6,12 +6,15 @@ import {
     IFontData,
     MainAudioBus,
     Mesh,
+    Quaternion,
     Scene,
     ShadowGenerator,
     StaticSound,
     StreamingSound,
+    Vector3,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
+import { Ball } from "@darrenkuro/pong-core";
 import { SceneSetup } from "./game.scene";
 import { BabylonObjects } from "./game.types";
 import { WebSocketManager } from "./managers/managers.sockets";
@@ -79,15 +82,28 @@ export class GameInstance {
     }
 
     // TODO: Change y-position in backend so it fits the paddles
-    updateBallPosition(x: number, y: number, z: number) {
-        this.babylon.ball.position.set(x, y, z);
+    updateBall(oldBall: Ball, newBall: Ball) {
+        // ------ POSITION:
+        this.babylon.ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);
+
+        // ------ ROTATION:
+        // ------ Movement in XZ-plane:
+        const dx = newBall.pos.x - oldBall.pos.x;
+        const dz = newBall.pos.z - oldBall.pos.z;
+        const distance = Math.hypot(dx, dz);
+        const angle = distance / newBall.r;
+        const axis = new Vector3(-dz, 0.5, dx).normalize();
+
+        // Convert angle+axis to quaternion
+        const q = Quaternion.RotationAxis(axis, angle);
+        this.babylon.ball.rotationQuaternion = q.multiply(this.babylon.ball.rotationQuaternion!);
     }
 
-    updateLeftPaddlePosition(x: number, y: number, z: number) {
+    updateLeftPaddle(x: number, y: number, z: number) {
         this.babylon.paddle1.position.set(x, y, z);
     }
 
-    updateRightPaddlePosition(x: number, y: number, z: number) {
+    updateRightPaddle(x: number, y: number, z: number) {
         this.babylon.paddle2.position.set(x, y, z);
     }
 
