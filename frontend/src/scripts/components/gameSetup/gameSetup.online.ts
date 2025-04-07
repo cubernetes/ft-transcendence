@@ -1,4 +1,4 @@
-import { createGameModes } from "../../pages/menu/menu.setup";
+import { createGameModes } from "../../pages/setup/setup.page";
 import { logger } from "../../utils/logger";
 
 export const createOnlineMode = (): HTMLElement => {

@@ -1,4 +1,4 @@
-import { createGameModes } from "../../pages/menu/menu.setup";
+import { createGameModes } from "../../pages/setup/setup.page";
 
 export const createLocalMode = (): HTMLElement => {
     const setupSection = document.createElement("section");
