@@ -1,5 +1,5 @@
 import { logger } from "../../../utils/logger";
-import { GameInstance } from "../game.instance";
+import { GameInstance } from "../renderer/game.instance";
 
 export class GameUIManager {
     private container: HTMLElement;

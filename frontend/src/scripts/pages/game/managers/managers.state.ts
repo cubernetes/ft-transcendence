@@ -1,6 +1,18 @@
-import { Ball, Paddle, PongState, Size3D } from "@darrenkuro/pong-core";
+import {
+    Ball,
+    Paddle,
+    PongConfig,
+    PongState,
+    PongStatus,
+    Position3D,
+    Size3D,
+    Vector3D,
+} from "@darrenkuro/pong-core";
 import { GameInstance } from "../game.instance";
 import { SceneSetup } from "../game.scene";
+
+// import { IServerGameState } from "../game.types";
+// import { GameInstance } from "../renderer/game.instance";
 
 export class GameStateManager {
     private state = {

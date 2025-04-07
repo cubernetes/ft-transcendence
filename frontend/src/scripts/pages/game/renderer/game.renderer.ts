@@ -34,9 +34,9 @@ import {
     TextBlock,
 } from "@babylonjs/gui";
 import { defaultGameConfig } from "@darrenkuro/pong-core";
-import { ASSETS_DIR } from "../../config";
-import { gameConfig } from "./game.config";
-import { BabylonObjects } from "./game.types";
+import { ASSETS_DIR } from "../../../config";
+import { gameConfig } from "../game.config";
+import { BabylonObjects } from "../game.types";
 
 export class SceneSetup {
     static createScene(babylon: BabylonObjects): void {
