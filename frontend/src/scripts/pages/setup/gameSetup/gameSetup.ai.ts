@@ -1,4 +1,4 @@
-import { createGameModes } from "../../pages/setup/setup.page";
+import { createGameModes } from "../setup.page";
 
 export const createAIMode = (): HTMLElement => {
     const setupSection = document.createElement("section");

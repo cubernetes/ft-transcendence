@@ -1,6 +1,6 @@
 //TODO: These variables should be set by the back-end not here. Maybe via an API call?
 import { Color3, Vector3 } from "@babylonjs/core";
-import { GAME_CONFIG_URL } from "../config";
+import { GAME_CONFIG_URL } from "../../config";
 
 export const getObjectConfigs = () => fetch(GAME_CONFIG_URL);
 

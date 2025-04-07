@@ -2,7 +2,6 @@ import earcut from "earcut";
 import { createRouter } from "./router";
 import { logger } from "./utils/logger";
 
-// Register global states? Websocket? Auth? earcut?
 const launchSite = (): void => {
     const appElement = document.getElementById("app");
     if (appElement) {
@@ -10,7 +9,9 @@ const launchSite = (): void => {
     }
 };
 
-window.earcut = earcut; // Need for babylonJS
+// Register global states? Websocket? Auth? earcut?
+window.earcut = earcut; // Needed for babylonJS
+
 document.addEventListener("DOMContentLoaded", launchSite);
 
 /** Register WebSocket for live reload */

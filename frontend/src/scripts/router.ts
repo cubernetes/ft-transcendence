@@ -1,26 +1,24 @@
-import { checkAccess } from "../auth/auth.utils";
-import { createGamePage } from "../pages/game/game.gameplay";
-import { createLeaderboardPage } from "../pages/menu/menu.leaderboard";
-import { createProfilePage } from "../pages/menu/menu.profile";
-import { createSetupPage } from "../pages/menu/menu.setup";
-import { createSimulationPage } from "../pages/menu/menu.simulation";
-import { createTotpSetupPage } from "../pages/menu/pages.totpSetup";
-import { createHomePage } from "../pages/pages.home";
-import { createTotpVerifyPage } from "../pages/pages.totpVerify";
+import { checkAccess } from "./auth/auth.utils";
+// import { createProfilePage } from "./pages/menu/menu.profile";
+// import { createSetupPage } from "./pages/menu/menu.setup";
+// import { createTotpSetupPage } from "./pages/menu/pages.totpSetup";
+import { createHomePage } from "./pages/home/home.page";
+import { createLeaderboardPage } from "./pages/leaderboard/leaderboard.page";
+
+// import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement> } = {
         home: createHomePage,
-        game: createGamePage,
-        profile: createProfilePage,
+        // game: createGamePage,
+        // profile: createProfilePage,
         leaderboard: createLeaderboardPage,
-        simulation: createSimulationPage,
-        setup: createSetupPage,
-        totpSetup: createTotpSetupPage,
-        totpVerify: createTotpVerifyPage,
+        // setup: createSetupPage,
+        // totpSetup: createTotpSetupPage,
+        // totpVerify: createTotpVerifyPage,
     };
 
-    async function handleRouteChange() {
+    const handleRouteChange = async () => {
         const route = window.location.hash.slice(1);
 
         // Redirect to home upon invalid route
@@ -45,7 +43,7 @@ export const createRouter = (container: HTMLElement): void => {
         const pageEl = await createPage();
         container.innerHTML = "";
         container.appendChild(pageEl);
-    }
+    };
 
     // Listen for hash changes
     window.addEventListener("hashchange", handleRouteChange);

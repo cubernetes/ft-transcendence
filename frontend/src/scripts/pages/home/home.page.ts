@@ -1,5 +1,5 @@
-import { checkAccess } from "../auth/auth.utils";
-import { createLoginForm } from "../components/components.loginForm";
+import { checkAccess } from "../../auth/auth.utils";
+import { createLoginForm } from "../../components/components.loginForm";
 
 export const createHomePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();
@@ -7,7 +7,7 @@ export const createHomePage = async (): Promise<HTMLElement> => {
     const main = document.createElement("main");
     main.className = "w-full h-screen relative";
 
-    //Background video
+    // Background video
     const video = document.createElement("video");
     video.src = "/assets/videos/pong_simulation.webm";
     video.autoplay = true;

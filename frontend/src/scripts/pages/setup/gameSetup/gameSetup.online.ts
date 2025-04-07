@@ -1,5 +1,5 @@
-import { createGameModes } from "../../pages/setup/setup.page";
-import { logger } from "../../utils/logger";
+import { logger } from "../../../utils/logger";
+import { createGameModes } from "../setup.page";
 
 export const createOnlineMode = (): HTMLElement => {
     const setupSection = document.createElement("section");

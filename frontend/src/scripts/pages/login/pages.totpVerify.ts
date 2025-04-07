@@ -1,6 +1,6 @@
-import { createFooter } from "../components/components.footer";
+import { createFooter } from "../../components/components.footer";
 //import { createHeader } from "../components/components.header";
-import { API_URL } from "../config";
+import { API_URL } from "../../config";
 
 export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();

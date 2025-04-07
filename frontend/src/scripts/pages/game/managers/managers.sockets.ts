@@ -1,4 +1,4 @@
-import { logger } from "../../utils/logger";
+import { logger } from "../../../utils/logger";
 import { Direction } from "../game.types";
 import { GameStateManager } from "./managers.state";
 
