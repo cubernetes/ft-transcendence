@@ -97,7 +97,7 @@ See [vault/README.md](./vault/README.md)
 |               |       2FA + JWT       |                                                   |   1   |      100%       | Can't disable 2FA
 |    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       70%       | Not sure what's exactly missing
 |   Graphics    |     3D Techniques     |                    Babylon.js                     |   1   |      100%       | Not INSANE, but would pass this module
-| Accessiblity  | Browser Compatability |             Firefox Default + Chrome              |  0.5  |      100%       | Not tested thoroughly
+| Accessibility | Browser Compatibility |             Firefox Default + Chrome              |  0.5  |      100%       | Not tested thoroughly
 |     Pong      |   Server-side Pong    |                                                   |   1   |      100%       |
 |               |      CLI Client       |                                                   |   1   |       80%       | Game engine (not needed for eval), 2FA & JWT integation missing
 |               |                       |                  ✅ Committed ✅                  | 10.5  |                 |
