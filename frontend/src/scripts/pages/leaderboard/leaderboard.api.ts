@@ -1,4 +1,5 @@
 import { USER_URL } from "../../config";
+import { logger } from "../../utils/logger";
 
 export const fetchLeaderboard = async (n: number) => {
     try {
@@ -25,7 +26,7 @@ export const fetchLeaderboard = async (n: number) => {
 
         return processedData;
     } catch (error) {
-        console.error("Fetch error:", error);
+        logger.debug("Fetch error:", error);
 
         throw error;
     }

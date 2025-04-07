@@ -20,8 +20,7 @@ export class WebSocketManager {
                     logger.warn("Received WebSocket message without a type:", message);
                     return;
                 }
-                // logger.info("Received WebSocket message:", message);
-                console.log("Received WebSocket message:", message);
+                logger.info("Received WebSocket message:", message);
 
                 switch (message.type) {
                     case "game-start":
@@ -78,7 +77,7 @@ export class WebSocketManager {
     }
 
     sendGameStart() {
-        console.log("in function sendGameStart");
+        logger.debug("in function sendGameStart");
         if (this.socket.readyState === WebSocket.OPEN) {
             logger.info("Sending game-start");
 
@@ -97,7 +96,7 @@ export class WebSocketManager {
                 },
             });
             this.socket.send(message);
-            console.log("Game start message sent:", message);
+            logger.debug("Game start message sent:", message);
         } else {
             logger.error("WebSocket is not open.");
         }

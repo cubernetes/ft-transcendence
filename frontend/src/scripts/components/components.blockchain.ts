@@ -33,7 +33,7 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
                 transport: custom(window.ethereum),
             });
         } catch (error) {
-            console.error("Failed to initialize wallet client:", error);
+            logger.error("Failed to initialize wallet client:", error);
             return null;
         }
     })();

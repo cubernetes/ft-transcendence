@@ -35,7 +35,7 @@ export class GameUIManager {
     async initGame() {
         this.gameInstance = await GameInstance.getInstance(this.gameSection);
         if (!this.gameInstance) {
-            console.error("Game instance not found");
+            logger.debug("Game instance not found");
             return;
         }
         this.gameInstance.getWebSocketManager().setupSocketHandlers();
