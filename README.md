@@ -99,7 +99,7 @@ See [vault/README.md](./vault/README.md)
 |   Graphics    |     3D Techniques     |                    Babylon.js                     |   1   |      100%       | Not INSANE, but would pass this module
 | Accessibility | Browser Compatibility |             Firefox Default + Chrome              |  0.5  |      100%       | Not tested thoroughly
 |     Pong      |   Server-side Pong    |                                                   |   1   |      100%       |
-|               |      CLI Client       |                                                   |   1   |       80%       | Game engine (not needed for eval), 2FA & JWT integation missing
+|               |      CLI Client       |                                                   |   1   |       80%       | Game engine (not needed for eval), 2FA & JWT integration missing
 |               |                       |                  ✅ Committed ✅                  | 10.5  |                 |
 |     User      |  Standard Management  |           Tedious Albeit Weird Without            |   1   |       60%       | Frontend implementation missing, see 2FA
 |               |                       |             🟡 Partially Committed 🟡             | 11.5  |                 |
