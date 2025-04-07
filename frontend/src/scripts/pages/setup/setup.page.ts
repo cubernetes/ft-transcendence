@@ -6,7 +6,7 @@ import { createAIMode } from "./gameSetup/gameSetup.ai";
 import { createLocalMode } from "./gameSetup/gameSetup.local";
 import { createOnlineMode } from "./gameSetup/gameSetup.online";
 
-export const createSetupPage = async (): Promise<HTMLElement> => {
+export const createSetupPage = async (): Promise<HTMLElement[]> => {
     const container = document.createElement("div");
     container.className = "flex flex-col min-h-screen font-medieval";
 
@@ -27,7 +27,7 @@ export const createSetupPage = async (): Promise<HTMLElement> => {
     container.appendChild(main);
     container.appendChild(footer);
 
-    return container;
+    return [container];
 };
 
 export const createGameModes = (): HTMLElement => {

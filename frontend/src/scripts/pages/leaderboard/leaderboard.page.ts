@@ -2,10 +2,9 @@ import { createFooter } from "../../components/components.footer";
 import { createHeader } from "../../components/components.header";
 import { fetchLeaderboard } from "./leaderboard.api";
 
-export const createLeaderboardPage = async (): Promise<HTMLElement> => {
-    const fragment = document.createDocumentFragment();
-
+export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
     const header = await createHeader();
+    const footer = createFooter();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4 font-medieval";
@@ -75,14 +74,5 @@ export const createLeaderboardPage = async (): Promise<HTMLElement> => {
 
     main.appendChild(leaderboardSection);
 
-    const footer = createFooter();
-
-    fragment.appendChild(header);
-    fragment.appendChild(main);
-    fragment.appendChild(footer);
-
-    const container = document.createElement("div");
-    container.appendChild(fragment);
-
-    return container;
+    return [header, main, footer];
 };

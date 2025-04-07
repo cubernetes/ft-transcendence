@@ -8,7 +8,7 @@ import { createSetupPage } from "./pages/setup/setup.page";
 // import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 
 export const createRouter = (container: HTMLElement): void => {
-    const routes: { [key: string]: () => Promise<HTMLElement> } = {
+    const routes: { [key: string]: () => Promise<HTMLElement[]> } = {
         home: createHomePage,
         // game: createGamePage,
         // profile: createProfilePage,
@@ -40,10 +40,10 @@ export const createRouter = (container: HTMLElement): void => {
 
         // Render the appropriate page
         const createPage = routes[route];
-        const pageEl = await createPage();
+        const pageElements = await createPage();
 
         const fragment = document.createDocumentFragment();
-        fragment.appendChild(pageEl);
+        pageElements.forEach((el) => fragment.appendChild(el));
 
         container.innerHTML = "";
         container.appendChild(fragment);
