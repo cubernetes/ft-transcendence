@@ -4,8 +4,8 @@ import {
     DirectionalLight,
     Engine,
     IFontData,
-    MainAudioBus,
     Mesh,
+    PBRMaterial,
     Scene,
     ShadowGenerator,
     StaticSound,
@@ -34,6 +34,7 @@ export interface BabylonObjects {
     fontData: IFontData;
     score: Mesh | null;
     ball: Mesh;
+    ballMat: PBRMaterial;
     paddle1: Mesh;
     paddle2: Mesh;
 }

@@ -545,7 +545,8 @@ export class SceneSetup {
         );
         ball.position = positions.BALL;
         ball.rotationQuaternion = Quaternion.Identity();
-        ball.material = SceneSetup.createBallMaterial(babylon);
+        babylon.ballMat = SceneSetup.createBallMaterial(babylon);
+        ball.material = babylon.ballMat;
 
         babylon.hitSound.spatial.attach(ball);
         babylon.bounceSound.spatial.attach(ball);
@@ -691,5 +692,18 @@ export class SceneSetup {
 
         babylon.light.animations.push(flashAnim);
         babylon.scene.beginAnimation(babylon.light, 0, duration, false);
+    }
+
+    static pulseBall(babylon: BabylonObjects): void {
+        const anim = new Animation("glow", "emissiveColor", 60, Animation.ANIMATIONTYPE_COLOR3);
+
+        anim.setKeys([
+            { frame: 0, value: Color3.Black() },
+            { frame: 3, value: new Color3(0, 0.7, 0.5) },
+            { frame: 6, value: new Color3(0.7, 0, 0.5) },
+            { frame: 10, value: Color3.Black() },
+        ]);
+        babylon.ballMat.animations = [anim];
+        babylon.scene.beginAnimation(babylon.ballMat, 0, 10, false);
     }
 }

@@ -5,6 +5,7 @@ import {
     Engine,
     IFontData,
     Mesh,
+    PBRMaterial,
     Quaternion,
     Scene,
     ShadowGenerator,
@@ -50,6 +51,7 @@ export class GameInstance {
             score: null,
             fontData: {} as IFontData,
             ball: {} as Mesh,
+            ballMat: {} as PBRMaterial,
             paddle1: {} as Mesh,
             paddle2: {} as Mesh,
         };
@@ -120,6 +122,7 @@ export class GameInstance {
         if (this.babylon.soundsEnabled) {
             this.babylon.bounceSound.play();
         }
+        SceneSetup.pulseBall(this.babylon);
     }
 
     handlePaddleCollision() {
