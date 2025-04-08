@@ -1,5 +1,6 @@
 import { Ball, Paddle, PongState, Size3D } from "@darrenkuro/pong-core";
 import { GameInstance } from "../game.instance";
+import { SceneSetup } from "../game.scene";
 
 export class GameStateManager {
     private state = {
@@ -55,12 +56,13 @@ export class GameStateManager {
         // instance.startGame(payload);
     }
 
+    // TODO: Winner name needs to be fetched from backend routes!
     async endGame(winner: string) {
         this.state.status = "ended";
-        // const instance = await GameInstance.getInstance(
-        //     document.getElementById("renderCanvas") as HTMLCanvasElement
-        // );
-        // instance.endGame(winner);
+        const instance = await GameInstance.getInstance(
+            document.getElementById("renderCanvas") as HTMLCanvasElement
+        );
+        SceneSetup.showGameOver(instance.babylon, winner);
     }
 
     async updateScore(score: [number, number]) {
