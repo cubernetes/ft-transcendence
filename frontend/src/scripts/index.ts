@@ -1,5 +1,5 @@
 import earcut from "earcut";
-import { createRouter } from "./router";
+import { createRouter } from "./global/router";
 import { logger } from "./utils/logger";
 
 const launchSite = (): void => {

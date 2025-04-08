@@ -1,5 +1,5 @@
+import { logger } from "../../../utils/logger";
 import { USER_URL } from "../../config";
-import { logger } from "../../utils/logger";
 
 export const fetchLeaderboard = async (n: number) => {
     try {

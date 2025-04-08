@@ -1,10 +1,11 @@
-import { checkAccess } from "./auth/auth.utils";
+import { checkAccess } from "../modules/auth/auth.utils";
+import { createLocalGamePage } from "../ui/pages/game/game.page.local";
 // import { createTotpSetupPage } from "./pages/menu/pages.totpSetup";
-import { createLandingPage } from "./pages/landing/landing.page";
-import { createLeaderboardPage } from "./pages/leaderboard/leaderboard.page";
+import { createLandingPage } from "../ui/pages/landing/landing.page";
+import { createLeaderboardPage } from "../ui/pages/leaderboard/leaderboard.page";
 // import { createProfilePage } from "./pages/menu/menu.profile";
-import { createSetupPage } from "./pages/setup/setup.page";
-import { logger } from "./utils/logger";
+import { createSetupPage } from "../ui/pages/setup/setup.page";
+import { logger } from "../utils/logger";
 
 // import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 
@@ -12,6 +13,7 @@ export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: () => Promise<HTMLElement[]> } = {
         setup: createSetupPage,
         landing: createLandingPage,
+        localgame: createLocalGamePage,
         //profile: createProfilePage,
         leaderboard: createLeaderboardPage,
         // totpSetup: createTotpSetupPage,

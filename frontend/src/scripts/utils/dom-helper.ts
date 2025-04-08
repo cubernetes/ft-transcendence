@@ -6,6 +6,12 @@ type ElementParams = {
     children?: HTMLElement[];
 };
 
+/**
+ * A general type-safe wrapper for creating a HTMLElement.
+ * @param tag HTMLElement tag, i.e. `div', `main', etc.
+ * @param className optional, for tailwind css classes most
+ * @param params optional - available fields: text, attributes, props, events, children
+ */
 export const createEl = <T extends keyof HTMLElementTagNameMap>(
     tag: T,
     className: string = "",

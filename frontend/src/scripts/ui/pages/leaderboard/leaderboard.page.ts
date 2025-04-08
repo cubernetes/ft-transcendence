@@ -1,7 +1,7 @@
+import { createEl } from "../../../utils/dom-helper";
 import { createFooter } from "../../components/components.footer";
 import { createHeader } from "../../components/components.header";
 import { createTable } from "../../components/components.table";
-import { createEl } from "../../utils/dom-helper";
 import { fetchLeaderboard } from "./leaderboard.api";
 
 export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {

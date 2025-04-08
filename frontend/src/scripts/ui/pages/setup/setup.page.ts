@@ -1,7 +1,7 @@
+import { logger } from "../../../utils/logger";
 import { createFooter } from "../../components/components.footer";
 import { createHeader } from "../../components/components.header";
 import { createPaddles } from "../../components/components.paddles";
-import { logger } from "../../utils/logger";
 import { createAIMode } from "./gameSetup/gameSetup.ai";
 import { createLocalMode } from "./gameSetup/gameSetup.local";
 import { createOnlineMode } from "./gameSetup/gameSetup.online";

@@ -1,7 +1,6 @@
-import { LOG_LEVEL } from "../config";
+import { LOG_LEVEL } from "../global/config";
 
-export type logLevel = "debug" | "info" | "warn" | "error";
-
+type logLevel = "debug" | "info" | "warn" | "error";
 const logLevels: logLevel[] = ["debug", "info", "warn", "error"];
 
 /** Change the log level fro dev mode here manually */

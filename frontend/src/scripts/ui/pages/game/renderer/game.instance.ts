@@ -11,7 +11,7 @@ import {
     StreamingSound,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
-import { logger } from "../../../utils/logger";
+import { logger } from "../../../../utils/logger";
 import { BabylonObjects, ICollisionEvent } from "../game.types";
 import { WebSocketManager } from "../managers/managers.sockets";
 import { GameStateManager } from "../managers/managers.state";
