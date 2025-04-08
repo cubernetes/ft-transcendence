@@ -1,6 +1,15 @@
 import type config from "./global/config";
 import type { logger } from "./utils/logger";
-import type { StaticSound, StreamingSound } from "@babylonjs/core";
+import type {
+    ArcRotateCamera,
+    DirectionalLight,
+    Mesh,
+    PBRMaterial,
+    Scene,
+    ShadowGenerator,
+    StaticSound,
+    StreamingSound,
+} from "@babylonjs/core";
 import type { earcut } from "earcut";
 
 declare global {
@@ -28,10 +37,27 @@ declare global {
 }
 
 declare module "@babylonjs/core" {
+    interface Engine {
+        shadowsEnabled: boolean;
+        soundsEnabled: boolean;
+        shadowGenerator: ShadowGenerator;
+        directionalLight: DirectionalLight;
+        camera: ArcRotateCamera;
+        scene: Scene;
+        audio: AudioEngineV2;
+        board: Mesh;
+        ball: Mesh;
+        leftPaddle: Mesh;
+        rightPaddle: Mesh;
+        score: Mesh;
+        ballMat: PBRMaterial;
+    }
+
     interface AudioEngineV2 {
-        bgMusic?: StreamingSound;
-        hitSound?: StaticSound;
-        bounceSound?: StaticSound;
-        blopSound?: StaticSound;
+        bgMusic: StreamingSound;
+        hitSound: StaticSound;
+        bounceSound: StaticSound;
+        blopSound: StaticSound;
+        ballSound: StaticSound;
     }
 }

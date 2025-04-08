@@ -7,6 +7,7 @@ const config = {
         video: `${ASSETS_DIR}/videos`, // TODO: make consistent
         audio: `${ASSETS_DIR}/audio`,
         texture: `${ASSETS_DIR}/textures`,
+        tile: `${ASSETS_DIR}/textures/tiles`,
     },
     url: {
         api: API_URL,
