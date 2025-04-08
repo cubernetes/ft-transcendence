@@ -14,7 +14,7 @@
     "dependencies": {
         "@babylonjs/core": "^8.0.1",
         "@babylonjs/gui": "^8.0.1",
-        "@darrenkuro/pong-core": "^1.0.11",
+        "@darrenkuro/pong-core": "^1.0.17",
         "@types/earcut": "^3.0.0",
         "earcut": "^3.0.1",
         "jwt-decode": "^4.0.0",
