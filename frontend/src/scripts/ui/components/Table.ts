@@ -1,5 +1,5 @@
 import { Result, err, ok } from "neverthrow";
-import { createEl } from "../utils/dom.helper";
+import { createEl } from "../../utils/dom-helper";
 
 /**
  * Generate a table.

@@ -2,7 +2,6 @@ import { Color3, Mesh, MeshBuilder, Scene, StandardMaterial, Vector3 } from "@ba
 import { Size3D } from "@darrenkuro/pong-core";
 
 const wallConfig = (scene: Scene, size: Size3D) => {
-    const cushions: Mesh[] = [];
     const material = new StandardMaterial("cushion", scene);
     material.diffuseColor = new Color3(0.6, 0, 0); // Red color for visibility
 
