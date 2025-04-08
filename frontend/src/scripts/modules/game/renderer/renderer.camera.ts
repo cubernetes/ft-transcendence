@@ -77,7 +77,7 @@ export const createCamera = (engine: Engine, scene: Scene): ArcRotateCamera => {
     return camera;
 };
 
-export const shakeCamera = (camera: Camera, scene: Scene) => {
+export const shakeCamera = (camera: ArcRotateCamera, scene: Scene) => {
     if (!camera.animations) {
         camera.animations = []; // Initialize
     }

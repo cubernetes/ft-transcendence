@@ -1,5 +1,4 @@
-import { Engine, GlowLayer, Scene } from "@babylonjs/core";
-import { createEl } from "../../../utils/dom-helper";
+import { Engine } from "@babylonjs/core";
 import { createAudioEngine } from "./renderer.audio";
 import { createCamera } from "./renderer.camera";
 import { createControls } from "./renderer.controls";
@@ -11,13 +10,14 @@ import { createShadowGenerator } from "./renderer.shadow";
 /**
  * Engine will be initilized only once. Canvas element is persisted. So it's less expensive.
  */
-export const createRendererEngine = async (canvasEl: HTMLCanvasElement) => {
+export const createRendererEngine = async (canvasEl: HTMLCanvasElement): Promise<Engine> => {
     // const canvasEl = createEl("canvas", "w-full h-full", {
     //     attributes: { id: window.cfg.id.canvas },
     // });
 
     const engine = new Engine(canvasEl, true);
     const audioEngine = await createAudioEngine();
+    engine.audio = audioEngine;
 
     // Initialize options
     engine.shadowsEnabled = false;
@@ -30,5 +30,15 @@ export const createRendererEngine = async (canvasEl: HTMLCanvasElement) => {
 
     createHemisphericLight(scene);
     createControls(engine, audioEngine);
-    createObjects(scene);
+    createObjects(engine, scene);
+
+    return engine;
+    // These should be on page!!
+    // Start rendering
+    engine.runRenderLoop(() => {
+        scene.render();
+    });
+
+    // Destory this properly
+    window.addEventListener("resize", () => engine.resize());
 };
