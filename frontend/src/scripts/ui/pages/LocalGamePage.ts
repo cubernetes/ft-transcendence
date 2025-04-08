@@ -1,6 +1,7 @@
 import { PongState, createPongEngine } from "@darrenkuro/pong-core";
 import { createGameController } from "../../modules/game/game.controller";
-import { createRendererEngine } from "../../modules/game/renderer/renderer.engine";
+import { createRenderer, disposeRenderer } from "../../modules/game/game.renderer";
+// import { createRenderer } from "../../modules/game/game.renderer";
 import { createEl } from "../../utils/dom-helper";
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
@@ -12,7 +13,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     const canvas = createEl("canvas", "w-full h-full", { attributes: { id: "renderCanvas" } });
     const container = createEl("div", "w-full h-[600px] relative", { children: [canvas] });
 
-    const renderer = await createRendererEngine(canvas);
+    const renderer = await createRenderer(canvas);
     const controller = createGameController(renderer);
     const engine = createPongEngine();
 
@@ -56,7 +57,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     setupEventListeners();
     const result = engine.start();
     if (result.isOk()) {
-        window.log.info("engine ok!");
+        window.log.info("Pong engine ok!");
     }
 
     // Destroy and clean up
@@ -65,6 +66,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
         document.removeEventListener("keydown", handleKeydown);
         window.log.info("keyup and keydown event listeners removed");
 
+        disposeRenderer(renderer);
         //GameInstance.destroyInstance(); // This doesn't clean, music still playing?
     });
 

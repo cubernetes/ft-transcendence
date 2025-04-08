@@ -11,6 +11,7 @@ import type {
     StreamingSound,
 } from "@babylonjs/core";
 import type { earcut } from "earcut";
+import { AdvancedDynamicTexture } from "@babylonjs/gui";
 
 declare global {
     const process: {
@@ -42,10 +43,10 @@ declare module "@babylonjs/core" {
         soundsEnabled: boolean;
         shadowGenerator: ShadowGenerator;
         directionalLight: DirectionalLight;
+        controls: AdvancedDynamicTexture;
         camera: ArcRotateCamera;
         scene: Scene;
         audio: AudioEngineV2;
-        board: Mesh;
         ball: Mesh;
         leftPaddle: Mesh;
         rightPaddle: Mesh;

@@ -153,7 +153,7 @@ const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
 
 // #endregion
 
-export const createControls = (engine: Engine, audio: AudioEngineV2) => {
+export const createControls = (engine: Engine, audio: AudioEngineV2): AdvancedDynamicTexture => {
     const controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     const grid = new Grid();
     controls.addControl(grid);

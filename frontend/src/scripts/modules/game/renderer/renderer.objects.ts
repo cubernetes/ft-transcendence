@@ -7,9 +7,10 @@ import { createScore } from "../objects/objects.score";
 import { createWalls } from "../objects/objects.wall";
 
 export const createObjects = (engine: Engine, scene: Scene) => {
-    engine.board = createBoard(scene, new Vector3(0, -0.5, 0), defaultGameConfig.board.size);
-
+    // Create board
+    createBoard(scene, new Vector3(0, -0.5, 0), defaultGameConfig.board.size);
     createWalls(scene, defaultGameConfig.board.size);
+
     // Create ball
     const ballPos = new Vector3(0, 0, 0);
     const ballRadius = defaultGameConfig.ball.r;
