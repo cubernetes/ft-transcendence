@@ -9,6 +9,7 @@ import {
     TextBlock,
 } from "@babylonjs/gui";
 
+// #region: Control components
 /** Set the column and the row definition of the grid */
 const scaleGrid = (grid: Grid) => {
     grid.addColumnDefinition(0.2);
@@ -83,6 +84,7 @@ const styleSoundButton = (button: Button) => {
     button.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
 };
 
+/** Create the SFX toggle button */
 const createSFXButton = (grid: Grid, { soundsEnabled }: ControlState) => {
     const buttonSFX = Button.CreateSimpleButton("sfx", "SFX");
     styleSoundButton(buttonSFX);
@@ -98,6 +100,7 @@ const createSFXButton = (grid: Grid, { soundsEnabled }: ControlState) => {
     grid.addControl(buttonSFX, 0, 3);
 };
 
+/** Create the music toggle button */
 const createMusicButton = (grid: Grid, audio: AudioEngineV2) => {
     const buttonHandler = (button: Button, audio: AudioEngineV2) => {
         if (!audio.bgMusic) {
@@ -119,6 +122,41 @@ const createMusicButton = (grid: Grid, audio: AudioEngineV2) => {
     button.onPointerUpObservable.add(() => buttonHandler(button, audio));
     grid.addControl(button, 0, 4);
 };
+
+/** Create volume slider */
+const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
+    const panelVol = new StackPanel();
+    panelVol.width = "220px";
+    grid.addControl(panelVol, 0, 6);
+
+    const header = new TextBlock();
+    header.text = "Volume: 50 %";
+    header.fontSize = 16;
+    header.fontStyle = "italic";
+    header.fontFamily = "Calibri";
+    header.height = "15px";
+    header.color = "white";
+    panelVol.addControl(header);
+
+    const slider2 = new Slider();
+    slider2.minimum = 0;
+    slider2.maximum = 100;
+    slider2.value = 50;
+    slider2.height = "20px";
+    slider2.width = "100px";
+    slider2.color = "lightblue";
+    slider2.background = "black";
+    slider2.displayThumb = false;
+    // slider2.blur;
+    slider2.onValueChangedObservable.add(function (value) {
+        header.text = "Volume: " + (value | 0) + " %";
+        engine.volume = value / 100;
+    });
+    panelVol.addControl(slider2);
+    return panelVol;
+};
+
+// #endregion
 
 type ControlState = {
     shadowsEnabled: boolean;
@@ -145,54 +183,7 @@ export const createControls = (
     createShadowButton(grid, shadowGenerator, objs, state);
     createSFXButton(grid, state);
     createMusicButton(grid, audio);
-
-    // ---------------- Button: VOLUME
-    var panelVol = new StackPanel();
-    panelVol.width = "220px";
-    grid.addControl(panelVol, 0, 6);
-
-    var header = new TextBlock();
-    header.text = "Volume: 50 %";
-    header.fontSize = 16;
-    header.fontStyle = "italic";
-    header.fontFamily = "Calibri";
-    header.height = "15px";
-    header.color = "white";
-    panelVol.addControl(header);
-
-    var slider2 = new Slider();
-    slider2.minimum = 0;
-    slider2.maximum = 100;
-    slider2.value = 50;
-    slider2.height = "20px";
-    slider2.width = "100px";
-    slider2.color = "lightblue";
-    slider2.background = "black";
-    slider2.displayThumb = false;
-    slider2.blur;
-    slider2.onValueChangedObservable.add(function (value) {
-        header.text = "Volume: " + (value | 0) + " %";
-        babylon.bgMusic.volume = value / 100;
-    });
-    panelVol.addControl(slider2);
-
-    // Create a image-slider
-    // var slider = new ImageBasedSlider();
-    // slider.minimum = 0;
-    // slider.maximum = 100;
-    // slider.value = 100;
-    // slider.height = "20px";
-    // slider.width = "200px";
-    // slider.isThumbClamped = true;
-    // // slider.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    // slider.backgroundImage = new Image("back", "/assets/bgSlider.png");
-    // slider.valueBarImage = new Image("value", "/assets/fgSlider.png");
-    // slider.thumbImage = new Image("thumb", "/assets/knSlider.png");
-    // slider.onValueChangedObservable.add(function(value) {
-    //     header.text = "Volume: " + (value | 0) + " %";
-    //     bgMusic.volume = value / 100;
-    // });
-    // panelVol.addControl(slider);
+    createVolumePanel(grid, audio);
 
     return controls;
 };
