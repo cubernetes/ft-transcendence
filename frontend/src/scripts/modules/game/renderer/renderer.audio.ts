@@ -16,20 +16,27 @@ const bgMusicConfig: SoundConfig = {
 const hitSoundConfig: SoundConfig = {
     name: "hitSound",
     src: `${window.cfg.dir.audio}/hit.mp3`,
-    options: { volume: 1 },
+    options: { maxInstances: 2, volume: 0.8, spatialEnabled: true },
 };
 
 const bounceSoundConfig: SoundConfig = {
     name: "bounceSound",
     src: `${window.cfg.dir.audio}/bounce.mp3`,
-    options: { volume: 1 },
+    options: { maxInstances: 2, volume: 0.8, spatialEnabled: true },
 };
 
 const blopSoundConfig: SoundConfig = {
     name: "blopSound",
     src: `${window.cfg.dir.audio}/blop.mp3`,
-    options: { pitch: 1.5 },
+    options: { maxInstances: 2, pitch: 1.5, spatialEnabled: true },
 };
+
+const ballSoundConfig: SoundConfig = {
+    name: "ballSound",
+    src: `${window.cfg.dir.audio}/tatata.mp3`,
+    options: { maxInstances: 2, playbackRate: 1.5, spatialEnabled: true },
+};
+
 // #endregion
 
 /** Create a static sound on the engine */
@@ -42,19 +49,18 @@ const createSound = async (
 };
 
 export const createAudioEngine = async () => {
-    // Configuration
-    const volume = 1.0;
-
     const engine = await CreateAudioEngineAsync();
     await engine.unlockAsync();
-    await engine.createMainBusAsync("mainBus", { volume });
 
+    // Attach background music to audio engine
     const { name, src, options } = bgMusicConfig;
     engine.bgMusic = await CreateStreamingSoundAsync(name, src, options, engine);
 
+    // Attach static sounds to audio engine
     engine.hitSound = await createSound(engine, hitSoundConfig);
     engine.bounceSound = await createSound(engine, bounceSoundConfig);
     engine.blopSound = await createSound(engine, blopSoundConfig);
+    engine.ballSound = await createSound(engine, ballSoundConfig);
 
     return engine;
 };
