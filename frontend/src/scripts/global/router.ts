@@ -1,8 +1,8 @@
 import { checkAccess } from "../modules/auth/auth.utils";
+import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createLocalGamePage } from "../ui/pages/game/game.page.local";
 // import { createTotpSetupPage } from "./pages/menu/pages.totpSetup";
 import { createLandingPage } from "../ui/pages/landing/landing.page";
-import { createLeaderboardPage } from "../ui/pages/leaderboard/leaderboard.page";
 // import { createProfilePage } from "./pages/menu/menu.profile";
 import { createSetupPage } from "../ui/pages/setup/setup.page";
 import { logger } from "../utils/logger";
