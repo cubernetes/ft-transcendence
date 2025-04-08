@@ -7,7 +7,7 @@ import {
     Vector3,
 } from "@babylonjs/core";
 
-export const setupCamera = (engine: Engine, scene: Scene): Camera => {
+export const createCamera = (engine: Engine, scene: Scene): Camera => {
     //TODO: check if Class TargetCamera makes more sense.
     const camera = new ArcRotateCamera(
         "pongCamera",
@@ -75,4 +75,44 @@ export const setupCamera = (engine: Engine, scene: Scene): Camera => {
     scene.beginAnimation(camera, 0, 100, false, 1.0, setCameraLimits);
 
     return camera;
+};
+
+export const shakeCamera = (camera: Camera, scene: Scene) => {
+    if (!camera.animations) {
+        camera.animations = []; // Initialize
+    }
+
+    let shakeAnim = camera.animations.find((anim) => anim.name === "shake");
+
+    if (!shakeAnim) {
+        shakeAnim = new Animation(
+            "shake",
+            "position",
+            60,
+            Animation.ANIMATIONTYPE_VECTOR3,
+            Animation.ANIMATIONLOOPMODE_CYCLE
+        );
+        // shakeAnim.enableBlending = true;
+        camera.animations.push(shakeAnim);
+    }
+    const start = camera.position.clone();
+    const keys = [];
+
+    for (let i = 0; i <= 5; i++) {
+        keys.push({
+            frame: i * 2,
+            value: start.addInPlace(
+                new Vector3(
+                    (Math.random() - 0.5) * 0.3,
+                    (Math.random() - 0.5) * 0.3,
+                    (Math.random() - 0.5) * 0.3
+                )
+            ),
+        });
+    }
+    keys.push({ frame: 12, value: start });
+
+    shakeAnim.setKeys(keys);
+
+    scene.beginAnimation(camera, 0, 12, false, 3);
 };
