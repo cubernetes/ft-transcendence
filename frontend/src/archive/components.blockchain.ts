@@ -1,7 +1,7 @@
 import { createPublicClient, createWalletClient, custom, http } from "viem";
 import { holesky } from "viem/chains";
-import { CONTRACT_ABI } from "../../../contracts/contracts.abi.js";
-import { CONTRACT_ADDRESS, CONTRACT_NAME } from "../../../contracts/contracts.constants.js";
+import { CONTRACT_ABI } from "../contracts/contracts.abi.js";
+import { CONTRACT_ADDRESS, CONTRACT_NAME } from "../contracts/contracts.constants.js";
 
 export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLElement> => {
     const connectButton = document.createElement("button");
