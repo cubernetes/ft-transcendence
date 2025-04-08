@@ -2,7 +2,6 @@ import { createPongEngine } from "@darrenkuro/pong-core";
 import { createFooter } from "../../components/components.footer";
 import { createHeader } from "../../components/components.header";
 import { createEl } from "../../utils/dom-helper";
-import { logger } from "../../utils/logger";
 import { GameInstance } from "./renderer/game.instance";
 
 /**
@@ -19,13 +18,13 @@ export const createRemoteGamePage = async (
 
     const gameInstance = await GameInstance.getInstance(canvas);
     if (!gameInstance) {
-        logger.error("Couldn't find game instance");
+        window.log.error("Couldn't find game instance");
     }
 
     if (mode === "remote") {
         // socket, send game start
         document.addEventListener("keydown", (event) => {
-            logger.info(`Key pressed: ${event.key}`);
+            window.log.info(`Key pressed: ${event.key}`);
             if (event.key === "ArrowUp" || event.key === "w") {
                 gameInstance.getWebSocketManager().sendDirection("up");
             } else if (event.key === "ArrowDown" || event.key === "s") {
@@ -34,7 +33,7 @@ export const createRemoteGamePage = async (
         });
 
         document.addEventListener("keyup", (event) => {
-            logger.info(`Key released: ${event.key}`);
+            window.log.info(`Key released: ${event.key}`);
             if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
                 gameInstance.getWebSocketManager().sendDirection("stop");
             }

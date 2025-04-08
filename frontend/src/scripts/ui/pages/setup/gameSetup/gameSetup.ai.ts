@@ -1,4 +1,3 @@
-import { logger } from "../../../../utils/logger";
 import { createGameModes } from "../../SetupPage";
 
 export const createAIMode = (): HTMLElement => {
@@ -106,7 +105,7 @@ export const createAIMode = (): HTMLElement => {
             difficulty: difficulty,
         };
         hideError();
-        logger.debug("Game Data:", gameData);
+        window.log.debug("Game Data:", gameData);
     };
 
     setupSection.appendChild(returnButton);

@@ -1,7 +1,6 @@
 // src/auth/AuthState.ts
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload as UserData } from "@darrenkuro/pong-core";
-import { logger } from "../../utils/logger";
 import { AuthFormData } from "./auth.types";
 
 class AuthState {
@@ -21,7 +20,7 @@ class AuthState {
 
     private loadUserFromToken(): UserData | null {
         const token = localStorage.getItem("token");
-        logger.info(`Token is: ${token}`);
+        window.log.info(`Token is: ${token}`);
         if (token) {
             try {
                 const decoded: UserData = jwtDecode(token);
@@ -48,7 +47,7 @@ class AuthState {
         localStorage.setItem("username", username); // needed for TOTP, TODO: can be cleared after successful TOTP verification
 
         if (!username || !password) {
-            logger.info("Username and password are required");
+            window.log.info("Username and password are required");
             return 0;
         }
         try {
@@ -60,21 +59,21 @@ class AuthState {
 
             const result = await response.json();
             if (!response.ok) {
-                logger.info(result.message || "Login failed");
+                window.log.info(result.message || "Login failed");
                 return 0;
             }
 
             if (result.data.totpEnabled) {
-                logger.info("Login credentials correct, but TOTP is required");
+                window.log.info("Login credentials correct, but TOTP is required");
                 return 2;
             } else {
                 localStorage.setItem("token", result.data.token);
                 this.loadUserFromToken();
-                logger.info("Login successful");
+                window.log.info("Login successful");
                 return 1;
             }
         } catch (error) {
-            logger.info("Login error:", error);
+            window.log.info("Login error:", error);
             return 0;
         }
     }
@@ -90,16 +89,16 @@ class AuthState {
             const result = await response.json();
 
             if (!response.ok) {
-                logger.info(result.message || "Registration failed");
+                window.log.info(result.message || "Registration failed");
                 return false;
             }
 
             localStorage.setItem("token", result.data.token);
             this.loadUserFromToken();
-            logger.info("Login successful");
+            window.log.info("Login successful");
             return true;
         } catch (error) {
-            logger.info("Registration error:", error);
+            window.log.info("Registration error:", error);
             return false;
         }
     }

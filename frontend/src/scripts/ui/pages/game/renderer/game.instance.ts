@@ -11,7 +11,6 @@ import {
     StreamingSound,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
-import { logger } from "../../../../utils/logger";
 import { BabylonObjects, ICollisionEvent } from "../game.types";
 import { WebSocketManager } from "../managers/managers.sockets";
 import { GameStateManager } from "../managers/managers.state";
@@ -98,7 +97,7 @@ export class GameInstance {
     updateScore(score: [number, number]) {
         // Update score text
         // this.babylon.scoreText.text = `Score: ${score.player1} - ${score.player2}`;
-        logger.info(`Score updated: ${score[0]} - ${score[1]}`);
+        window.log.info(`Score updated: ${score[0]} - ${score[1]}`);
     }
 
     handleWallCollision() {

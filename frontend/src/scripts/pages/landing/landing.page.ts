@@ -1,6 +1,5 @@
 import { checkAccess } from "../../modules/auth/auth.utils";
 import { createEl } from "../../utils/dom-helper";
-import { logger } from "../../utils/logger";
 import { createLoginForm } from "./landing.loginForm";
 
 export const createLandingPage = async (): Promise<HTMLElement[]> => {

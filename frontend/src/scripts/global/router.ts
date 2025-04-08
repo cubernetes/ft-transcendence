@@ -5,7 +5,6 @@ import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createLocalGamePage } from "../ui/pages/LocalGamePage";
 // import { createProfilePage } from "./pages/menu/menu.profile";
 import { createSetupPage } from "../ui/pages/SetupPage";
-import { logger } from "../utils/logger";
 
 // import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 

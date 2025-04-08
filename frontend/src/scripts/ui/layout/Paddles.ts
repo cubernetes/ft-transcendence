@@ -1,5 +1,4 @@
 import { createEl } from "../../utils/dom-helper";
-import { logger } from "../../utils/logger";
 
 export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
     const paddleTailwind =
@@ -29,11 +28,11 @@ export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
         }
     };
 
-    logger.debug("Registering paddle listener");
+    window.log.debug("Registering paddle listener");
     document.addEventListener("mousemove", handleMouseMove);
 
     paddleContainer.addEventListener("destroy", () => {
-        logger.debug("Destroying paddle listener");
+        window.log.debug("Destroying paddle listener");
         document.removeEventListener("mousemove", handleMouseMove);
     });
 

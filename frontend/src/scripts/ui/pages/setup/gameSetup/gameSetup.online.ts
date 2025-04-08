@@ -1,4 +1,3 @@
-import { logger } from "../../../../utils/logger";
 import { createGameModes } from "../../SetupPage";
 
 export const createOnlineMode = (): HTMLElement => {
@@ -37,11 +36,11 @@ export const createOnlineMode = (): HTMLElement => {
     returnButton.innerHTML = "&#8617;";
 
     createLobbyButton.onclick = () => {
-        logger.info("Creating a new lobby...");
+        window.log.info("Creating a new lobby...");
     };
 
     joinLobbyButton.onclick = () => {
-        logger.info("Joining a lobby...");
+        window.log.info("Joining a lobby...");
     };
 
     returnButton.onclick = () => {

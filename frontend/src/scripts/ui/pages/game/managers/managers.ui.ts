@@ -1,4 +1,3 @@
-import { logger } from "../../../../utils/logger";
 import { GameInstance } from "../renderer/game.instance";
 
 export class GameUIManager {
@@ -35,7 +34,7 @@ export class GameUIManager {
     async initGame() {
         this.gameInstance = await GameInstance.getInstance(this.gameSection);
         if (!this.gameInstance) {
-            logger.debug("Game instance not found");
+            window.log.debug("Game instance not found");
             return;
         }
         this.gameInstance.getWebSocketManager().setupSocketHandlers();
@@ -46,7 +45,7 @@ export class GameUIManager {
 
     setupKeyboardControls() {
         document.addEventListener("keydown", (event) => {
-            logger.info(`Key pressed: ${event.key}`);
+            window.log.info(`Key pressed: ${event.key}`);
             if (event.key === "ArrowUp" || event.key === "w") {
                 this.gameInstance.getWebSocketManager().sendDirection("up");
             } else if (event.key === "ArrowDown" || event.key === "s") {
@@ -55,7 +54,7 @@ export class GameUIManager {
         });
 
         document.addEventListener("keyup", (event) => {
-            logger.info(`Key released: ${event.key}`);
+            window.log.info(`Key released: ${event.key}`);
             if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
                 this.gameInstance.getWebSocketManager().sendDirection("stop");
             }

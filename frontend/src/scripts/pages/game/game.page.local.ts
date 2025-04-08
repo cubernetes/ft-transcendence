@@ -2,7 +2,6 @@ import { PongState, createPongEngine } from "@darrenkuro/pong-core";
 import { createFooter } from "../../components/components.footer";
 import { createHeader } from "../../components/components.header";
 import { createEl } from "../../utils/dom-helper";
-import { logger } from "../../utils/logger";
 import { GameInstance } from "./renderer/game.instance";
 
 export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
@@ -14,13 +13,13 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
 
     const gameInstance = await GameInstance.getInstance(canvas);
     if (!gameInstance) {
-        logger.error("Couldn't find game instance");
+        window.log.error("Couldn't find game instance");
     }
 
     const engine = createPongEngine();
 
     const handleKeydown = (event: KeyboardEvent) => {
-        logger.debug(`Key pressed: ${event.key}`);
+        window.log.debug(`Key pressed: ${event.key}`);
         if (event.key === "w") {
             engine.setInput(0, "up");
         } else if (event.key === "s") {
@@ -35,7 +34,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     document.addEventListener("keydown", handleKeydown);
 
     const handleKeyup = (event: KeyboardEvent) => {
-        logger.debug(`Key released: ${event.key}`);
+        window.log.debug(`Key released: ${event.key}`);
         if (["w", "s"].includes(event.key)) {
             engine.setInput(0, "stop");
         } else if (["ArrowUp", "ArrowDown"].includes(event.key)) {
@@ -65,7 +64,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
             instance.handleScore();
         });
         engine.onEvent("state-update", async (evt: { state: PongState }) => {
-            logger.info("state update!");
+            window.log.info("state update!");
             const instance = await GameInstance.getInstance(
                 document.getElementById("renderCanvas") as HTMLCanvasElement
             );
@@ -81,14 +80,14 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     setupEventListeners();
     const result = engine.start();
     if (result.isOk()) {
-        logger.info("engine ok!");
+        window.log.info("engine ok!");
     }
 
     // Destroy and clean up
     container.addEventListener("destroy", () => {
         document.removeEventListener("keyup", handleKeyup);
         document.removeEventListener("keydown", handleKeydown);
-        logger.info("keyup and keydown event listeners removed");
+        window.log.info("keyup and keydown event listeners removed");
 
         GameInstance.destroyInstance(); // This doesn't clean, music still playing?
     });

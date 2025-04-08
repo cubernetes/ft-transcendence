@@ -2,7 +2,6 @@ import { createPublicClient, createWalletClient, custom, http } from "viem";
 import { holesky } from "viem/chains";
 import { CONTRACT_ABI } from "../../contracts/contracts.abi.js";
 import { CONTRACT_ADDRESS, CONTRACT_NAME } from "../../contracts/contracts.constants.js";
-import { logger } from "../utils/logger";
 
 export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLElement> => {
     const connectButton = document.createElement("button");
@@ -33,7 +32,7 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
                 transport: custom(window.ethereum),
             });
         } catch (error) {
-            logger.error("Failed to initialize wallet client:", error);
+            window.log.error("Failed to initialize wallet client:", error);
             return null;
         }
     })();
@@ -46,18 +45,18 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
 
     const connectWallet = async (): Promise<`0x${string}` | undefined> => {
         if (!walletClient) {
-            logger.info("No wallet detected! Please install MetaMask or another web3 wallet.");
+            window.log.info("No wallet detected! Please install MetaMask or another web3 wallet.");
             return undefined;
         }
         try {
             const [address] = await walletClient.requestAddresses();
             if (address) {
                 setAccount(address);
-                logger.info("Connected account:", address);
+                window.log.info("Connected account:", address);
                 return address;
             }
         } catch (error) {
-            logger.info(error);
+            window.log.info(error);
         }
         return undefined;
     };
@@ -78,7 +77,7 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
             functionName: "getGame",
             args: [gameId],
         });
-        logger.info("Game Got:", gameResult);
+        window.log.info("Game Got:", gameResult);
     });
 
     // Contract interactions
@@ -92,7 +91,7 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
     writeButton.addEventListener("click", async () => {
         const gameId = BigInt(inputWrite.value || "0");
         if (!account || !walletClient) {
-            logger.info("No account connected");
+            window.log.info("No account connected");
             return;
         }
         const gameResult = {
@@ -109,7 +108,7 @@ export const connectBlockchain = async (): Promise<HTMLButtonElement | HTMLEleme
             account,
         });
         const hash = await walletClient.writeContract(request);
-        logger.info("Transaction hash:", hash);
+        window.log.info("Transaction hash:", hash);
     });
 
     connectButton.addEventListener("click", async () => {

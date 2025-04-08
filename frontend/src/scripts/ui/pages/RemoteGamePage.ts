@@ -1,9 +1,8 @@
 import { createPongEngine } from "@darrenkuro/pong-core";
-import { createEl } from "../../../utils/dom-helper";
-import { logger } from "../../../utils/logger";
-import { createFooter } from "../../layout/Footer";
-import { createHeader } from "../../layout/Header";
-import { GameInstance } from "./renderer/game.instance";
+import { createEl } from "../../utils/dom-helper";
+import { createFooter } from "../layout/Footer";
+import { createHeader } from "../layout/Header";
+import { GameInstance } from "./game/renderer/game.instance";
 
 /**
  * Remote vs local vs "ai".
@@ -19,13 +18,13 @@ export const createRemoteGamePage = async (
 
     const gameInstance = await GameInstance.getInstance(canvas);
     if (!gameInstance) {
-        logger.error("Couldn't find game instance");
+        window.log.error("Couldn't find game instance");
     }
 
     if (mode === "remote") {
         // socket, send game start
         document.addEventListener("keydown", (event) => {
-            logger.info(`Key pressed: ${event.key}`);
+            window.log.info(`Key pressed: ${event.key}`);
             if (event.key === "ArrowUp" || event.key === "w") {
                 gameInstance.getWebSocketManager().sendDirection("up");
             } else if (event.key === "ArrowDown" || event.key === "s") {
@@ -34,7 +33,7 @@ export const createRemoteGamePage = async (
         });
 
         document.addEventListener("keyup", (event) => {
-            logger.info(`Key released: ${event.key}`);
+            window.log.info(`Key released: ${event.key}`);
             if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
                 gameInstance.getWebSocketManager().sendDirection("stop");
             }

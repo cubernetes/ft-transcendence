@@ -17,10 +17,10 @@ export class WebSocketManager {
                 const message = JSON.parse(event.data); // Parse incoming message
 
                 if (!message.type) {
-                    logger.warn("Received WebSocket message without a type:", message);
+                    window.log.warn("Received WebSocket message without a type:", message);
                     return;
                 }
-                logger.info("Received WebSocket message:", message);
+                window.log.info("Received WebSocket message:", message);
 
                 switch (message.type) {
                     case "game-start":
@@ -56,38 +56,38 @@ export class WebSocketManager {
                         break;
 
                     default:
-                        logger.warn("Unknown WebSocket event type:", message.type);
+                        window.log.warn("Unknown WebSocket event type:", message.type);
                 }
             } catch (error) {
-                logger.error("Error parsing WebSocket message:", error, event.data);
+                window.log.error("Error parsing WebSocket message:", error, event.data);
             }
         };
 
         this.socket.onopen = () => {
-            logger.info("WebSocket connection established.");
+            window.log.info("WebSocket connection established.");
         };
 
         this.socket.onerror = (error) => {
-            logger.error("WebSocket error:", error);
+            window.log.error("WebSocket error:", error);
         };
 
         this.socket.onclose = () => {
-            logger.info("WebSocket connection closed.");
+            window.log.info("WebSocket connection closed.");
         };
     }
 
     sendGameStart() {
-        logger.debug("in function sendGameStart");
+        window.log.debug("in function sendGameStart");
         if (this.socket.readyState === WebSocket.OPEN) {
-            logger.info("Sending game-start");
+            window.log.info("Sending game-start");
 
             const jwtToken: string | null = localStorage.getItem("token");
             if (!jwtToken) {
-                logger.error("JWT token not found in local storage.");
+                window.log.error("JWT token not found in local storage.");
                 return;
             }
 
-            logger.info("JWT token:", jwtToken);
+            window.log.info("JWT token:", jwtToken);
 
             const message = JSON.stringify({
                 type: "game-start",
@@ -96,14 +96,14 @@ export class WebSocketManager {
                 },
             });
             this.socket.send(message);
-            logger.debug("Game start message sent:", message);
+            window.log.debug("Game start message sent:", message);
         } else {
-            logger.error("WebSocket is not open.");
+            window.log.error("WebSocket is not open.");
         }
     }
 
     sendDirection(direction: Direction) {
-        logger.info(`Sending direction: ${direction}`);
+        window.log.info(`Sending direction: ${direction}`);
         if (direction !== this.lastDirection && this.socket.readyState === WebSocket.OPEN) {
             const message = JSON.stringify({
                 type: "game-action",

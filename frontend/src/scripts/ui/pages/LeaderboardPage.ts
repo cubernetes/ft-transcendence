@@ -1,6 +1,5 @@
 import { Result } from "neverthrow";
 import { createEl } from "../../utils/dom-helper";
-import { logger } from "../../utils/logger";
 import { createTable } from "../components/Table";
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
@@ -35,7 +34,7 @@ const fetchLeaderboard = async (n: number): Promise<Result<Record<string, unknow
 
         return processedData;
     } catch (error) {
-        logger.debug("Fetch error:", error);
+        window.log.debug("Fetch error:", error);
 
         throw error;
     }

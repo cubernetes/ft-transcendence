@@ -1,11 +1,10 @@
 import { authState } from "../modules/auth/auth.state";
-import { logger } from "../utils/logger";
 
 export const showUserStatus = async (container: HTMLElement): Promise<Boolean> => {
     const loggedUser = authState.getUser();
 
     if (!loggedUser) {
-        logger.error("No user logged in.");
+        window.log.error("No user logged in.");
         return false;
     }
     // Create status wrapper
