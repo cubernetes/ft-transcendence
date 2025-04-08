@@ -649,24 +649,34 @@ export class SceneSetup {
     }
 
     static shakeCamera(babylon: BabylonObjects): void {
-        const shakeAnim = new Animation(
-            "shake",
-            "position",
-            60,
-            Animation.ANIMATIONTYPE_VECTOR3,
-            Animation.ANIMATIONLOOPMODE_CYCLE
-        );
+        if (!babylon.camera.animations) {
+            babylon.camera.animations = []; // Initialize
+        }
+
+        let shakeAnim = babylon.camera.animations.find((anim) => anim.name === "shake");
+
+        if (!shakeAnim) {
+            shakeAnim = new Animation(
+                "shake",
+                "position",
+                60,
+                Animation.ANIMATIONTYPE_VECTOR3,
+                Animation.ANIMATIONLOOPMODE_CYCLE
+            );
+            // shakeAnim.enableBlending = true;
+            babylon.camera.animations.push(shakeAnim);
+        }
         const start = babylon.camera.position.clone();
         const keys = [];
 
         for (let i = 0; i <= 5; i++) {
             keys.push({
                 frame: i * 2,
-                value: start.add(
+                value: start.addInPlace(
                     new Vector3(
-                        (Math.random() - 0.5) * 0.5,
-                        (Math.random() - 0.5) * 0.5,
-                        (Math.random() - 0.5) * 0.5
+                        (Math.random() - 0.5) * 0.3,
+                        (Math.random() - 0.5) * 0.3,
+                        (Math.random() - 0.5) * 0.3
                     )
                 ),
             });
@@ -674,39 +684,57 @@ export class SceneSetup {
         keys.push({ frame: 12, value: start });
 
         shakeAnim.setKeys(keys);
-        babylon.camera.animations.push(shakeAnim);
+
         babylon.scene.beginAnimation(babylon.camera, 0, 12, false, 3);
     }
 
-    static pulseLight(babylon: BabylonObjects, intensity: number = 5, duration: number = 10) {
-        const flashAnim = new Animation(
-            "lightPulse",
-            "intensity",
-            60,
-            Animation.ANIMATIONTYPE_FLOAT,
-            Animation.ANIMATIONLOOPMODE_CONSTANT
-        );
+    static pulseLight(babylon: BabylonObjects): void {
+        if (!babylon.light.animations) {
+            babylon.light.animations = []; // Initialize if null
+        }
+        let anim = babylon.light.animations.find((anim) => anim.name === "lightPulse");
 
-        flashAnim.setKeys([
-            { frame: 0, value: babylon.light.intensity },
-            { frame: duration / 2, value: intensity },
-            { frame: duration, value: babylon.light.intensity },
-        ]);
+        if (!anim) {
+            const flashAnim = new Animation(
+                "lightPulse",
+                "intensity",
+                60,
+                Animation.ANIMATIONTYPE_FLOAT,
+                Animation.ANIMATIONLOOPMODE_CONSTANT
+            );
 
-        babylon.light.animations.push(flashAnim);
-        babylon.scene.beginAnimation(babylon.light, 0, duration, false);
+            flashAnim.setKeys([
+                { frame: 0, value: babylon.light.intensity },
+                { frame: 5, value: 5 },
+                { frame: 10, value: babylon.light.intensity },
+                { frame: 15, value: 10 },
+                { frame: 20, value: babylon.light.intensity },
+            ]);
+            babylon.light.animations.push(flashAnim);
+        }
+
+        babylon.scene.beginAnimation(babylon.light, 0, 20, false);
     }
 
     static pulseBall(babylon: BabylonObjects): void {
-        const anim = new Animation("glow", "emissiveColor", 60, Animation.ANIMATIONTYPE_COLOR3);
+        if (!babylon.ballMat.animations) {
+            babylon.ballMat.animations = []; // Initialize if null or undefined
+        }
+        let anim = babylon.ballMat.animations.find((anim) => anim.name === "glow");
 
-        anim.setKeys([
-            { frame: 0, value: Color3.Black() },
-            { frame: 3, value: new Color3(0, 0.7, 0.5) },
-            { frame: 6, value: new Color3(0.7, 0, 0.5) },
-            { frame: 10, value: Color3.Black() },
-        ]);
-        babylon.ballMat.animations = [anim];
+        if (!anim) {
+            anim = new Animation("glow", "emissiveColor", 60, Animation.ANIMATIONTYPE_COLOR3);
+
+            anim.setKeys([
+                { frame: 0, value: Color3.Black() },
+                { frame: 3, value: new Color3(0, 0.7, 0.5) },
+                { frame: 6, value: new Color3(0.7, 0, 0.5) },
+                { frame: 10, value: Color3.Black() },
+            ]);
+
+            babylon.ballMat.animations.push(anim);
+        }
+
         babylon.scene.beginAnimation(babylon.ballMat, 0, 10, false);
     }
 }
