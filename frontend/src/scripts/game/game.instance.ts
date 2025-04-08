@@ -5,14 +5,18 @@ import {
     Engine,
     IFontData,
     Mesh,
+    PBRMaterial,
+    Quaternion,
     Scene,
     ShadowGenerator,
     StaticSound,
     StreamingSound,
+    Vector3,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
+import { Ball } from "@darrenkuro/pong-core";
 import { SceneSetup } from "./game.scene";
-import { BabylonObjects, ICollisionEvent } from "./game.types";
+import { BabylonObjects } from "./game.types";
 import { WebSocketManager } from "./managers/managers.sockets";
 import { GameStateManager } from "./managers/managers.state";
 
@@ -40,13 +44,16 @@ export class GameInstance {
             hitSound: {} as StaticSound,
             bounceSound: {} as StaticSound,
             blopSound: {} as StaticSound,
+            ballSound: {} as StaticSound,
             soundsEnabled: true,
             camera: {} as ArcRotateCamera,
             board: {} as Mesh,
+            score: null,
+            fontData: {} as IFontData,
             ball: {} as Mesh,
+            ballMat: {} as PBRMaterial,
             paddle1: {} as Mesh,
             paddle2: {} as Mesh,
-            fontData: {} as IFontData,
         };
         SceneSetup.createScene(this.babylon);
         SceneSetup.setCamera(this.babylon);
@@ -59,13 +66,7 @@ export class GameInstance {
 
             await SceneSetup.createAudio(GameInstance.instance.babylon);
 
-            await SceneSetup.createSounds(GameInstance.instance.babylon);
-
             await SceneSetup.createGameObjects(GameInstance.instance.babylon);
-
-            // GameInstance.instance.babylon.fontData = (await (
-            //     await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
-            // ).json()) as IFontData;
 
             SceneSetup.createControls(GameInstance.instance.babylon);
 
@@ -81,22 +82,39 @@ export class GameInstance {
         }
     }
 
-    // TODO: Change y-position in backend so it fits the paddles
-    updateBallPosition(x: number, y: number, z: number) {
-        this.babylon.ball.position.set(x, y, z);
+    // TODO: Change y-position (up/down) in backend so it fits the paddles
+    updateBall(oldBall: Ball, newBall: Ball) {
+        // ------ POSITION:
+        this.babylon.ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);
+
+        // ------ ROTATION:
+        // ------ Movement in XZ-plane:
+        const dx = newBall.pos.x - oldBall.pos.x;
+        const dz = newBall.pos.z - oldBall.pos.z;
+        const distance = Math.hypot(dx, dz);
+        const angle = distance / newBall.r;
+        const axis = new Vector3(-dz, 0.5, dx).normalize();
+
+        // Convert angle+axis to quaternion
+        const q = Quaternion.RotationAxis(axis, angle);
+        this.babylon.ball.rotationQuaternion = q.multiply(this.babylon.ball.rotationQuaternion!);
     }
 
-    updateLeftPaddlePosition(x: number, y: number, z: number) {
+    updateLeftPaddle(x: number, y: number, z: number) {
         this.babylon.paddle1.position.set(x, y, z);
     }
 
-    updateRightPaddlePosition(x: number, y: number, z: number) {
+    updateRightPaddle(x: number, y: number, z: number) {
         this.babylon.paddle2.position.set(x, y, z);
     }
 
     updateScore(score: [number, number]) {
-        // Update score text
-        // this.babylon.scoreText.text = `Score: ${score.player1} - ${score.player2}`;
+        SceneSetup.createScore(score, this.babylon);
+        if (this.babylon.soundsEnabled) {
+            this.babylon.ballSound.play();
+        }
+        SceneSetup.pulseLight(this.babylon);
+        // SceneSetup.blinkScore(this.babylon, score);  // TODO: OR blink the score?
         console.log(`Score updated: ${score[0]} - ${score[1]}`);
     }
 
@@ -104,6 +122,7 @@ export class GameInstance {
         if (this.babylon.soundsEnabled) {
             this.babylon.bounceSound.play();
         }
+        SceneSetup.pulseBall(this.babylon);
     }
 
     handlePaddleCollision() {
@@ -112,9 +131,9 @@ export class GameInstance {
         }
     }
 
-    handleScore() {
+    handleBallReset() {
         if (this.babylon.soundsEnabled) {
-            this.babylon.blopSound.play();
+            this.babylon.ballSound.play();
         }
     }
 

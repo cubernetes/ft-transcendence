@@ -1,15 +1,6 @@
-import {
-    Ball,
-    Paddle,
-    PongConfig,
-    PongState,
-    PongStatus,
-    Position3D,
-    Size3D,
-    Vector3D,
-} from "@darrenkuro/pong-core";
+import { Ball, Paddle, PongState, Size3D } from "@darrenkuro/pong-core";
 import { GameInstance } from "../game.instance";
-import { IServerGameState } from "../game.types";
+import { SceneSetup } from "../game.scene";
 
 export class GameStateManager {
     private state = {
@@ -65,20 +56,23 @@ export class GameStateManager {
         // instance.startGame(payload);
     }
 
+    // TODO: Winner name needs to be fetched from backend routes!
     async endGame(winner: string) {
         this.state.status = "ended";
-        // const instance = await GameInstance.getInstance(
-        //     document.getElementById("renderCanvas") as HTMLCanvasElement
-        // );
-        // instance.endGame(winner);
-    }
-
-    async updateScore(score: [number, number]) {
-        this.state.scores = score;
         const instance = await GameInstance.getInstance(
             document.getElementById("renderCanvas") as HTMLCanvasElement
         );
-        instance.updateScore(score);
+        SceneSetup.showGameOver(instance.babylon, winner);
+    }
+
+    async updateScore(score: [number, number]) {
+        if (score[0] !== this.state.scores[0] || score[1] !== this.state.scores[1]) {
+            this.state.scores = score;
+            const instance = await GameInstance.getInstance(
+                document.getElementById("renderCanvas") as HTMLCanvasElement
+            );
+            instance.updateScore(score);
+        }
     }
 
     async handleWallCollision() {
@@ -93,6 +87,16 @@ export class GameStateManager {
             document.getElementById("renderCanvas") as HTMLCanvasElement
         );
         instance.handlePaddleCollision();
+        SceneSetup.shakeCamera(instance.babylon);
+    }
+
+    async resetBall() {
+        const instance = await GameInstance.getInstance(
+            document.getElementById("renderCanvas") as HTMLCanvasElement
+        );
+        this.state.ball.pos = { x: 0, y: 0, z: 0 };
+        this.state.ball.vec = { x: 0, y: 0, z: 0 };
+        instance.handleBallReset();
     }
 
     async updateGameObjects(payload: PongState) {
@@ -101,49 +105,26 @@ export class GameStateManager {
         );
         if (!payload) return;
 
-        instance.updateBallPosition(payload.ball.pos.x, payload.ball.pos.y, payload.ball.pos.z);
+        instance.updateBall(this.state.ball, payload.ball);
 
-        instance.updateLeftPaddlePosition(
+        instance.updateLeftPaddle(
             payload.paddles[0].pos.x,
             payload.paddles[0].pos.y,
             payload.paddles[0].pos.z
         );
 
-        instance.updateRightPaddlePosition(
+        instance.updateRightPaddle(
             payload.paddles[1].pos.x,
             payload.paddles[1].pos.y,
             payload.paddles[1].pos.z
         );
 
-        instance.updateScore(payload.scores);
+        if (
+            payload.scores[0] !== this.state.scores[0] ||
+            payload.scores[1] !== this.state.scores[1]
+        ) {
+            instance.updateScore(payload.scores);
+        }
+        this.state = payload;
     }
-
-    // async updateScore(gameState: IServerGameState, scene: Scene) {
-    //     // Check if the score has changed
-    //     if (
-    //         !gameState.score ||
-    //         (gameState.score.player1 === this.state.score.player1 &&
-    //             gameState.score.player2 === this.state.score.player2)
-    //     ) {
-    //         return;
-    //     }
-    //     this.state.score = gameState.score;
-    //     // Create initial score text
-    //     const text = CreateText(
-    //         "scoreText",
-    //         `Score: ${this.state.score.player1} - ${this.state.score.player2}`,
-    //         this.state.fontData,
-    //         {
-    //             size: 0.5, // text size
-    //             depth: 0.1, // extrusion depth
-    //             resolution: 32, // curve resolution
-    //         }
-    //     );
-    //     //TODO: handle error checks after creating babylon objects.
-
-    //     if (!text) throw new Error("Failed to create score text");
-    //     this.state.scoreText = text;
-    //     this.state.scoreText.position = gameConfig.positions.SCORE;
-    //     this.state.scoreText.rotation.x = gameConfig.rotations.SCORE;
-    // }
 }
