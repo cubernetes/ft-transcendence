@@ -1,5 +1,6 @@
 import type config from "./global/config";
 import type { logger } from "./utils/logger";
+import type { StaticSound, StreamingSound } from "@babylonjs/core";
 import type { earcut } from "earcut";
 
 declare global {
@@ -19,4 +20,18 @@ declare global {
 
     // Globally defined types so no need to import
     type PageRenderer = () => Promise<HTMLElement[]>;
+    type SoundConfig = {
+        name: string;
+        src: string;
+        options: Record<string, unknown>;
+    };
+}
+
+declare module "@babylonjs/core" {
+    interface AudioEngineV2 {
+        bgMusic?: StreamingSound;
+        hitSound?: StaticSound;
+        bounceSound?: StaticSound;
+        blopSound?: StaticSound;
+    }
 }
