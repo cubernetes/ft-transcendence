@@ -1,8 +1,7 @@
 import { Result } from "neverthrow";
-import { USER_URL } from "../../global/config";
 import { createEl } from "../../utils/dom-helper";
 import { logger } from "../../utils/logger";
-import { createTable } from "../components/components.table";
+import { createTable } from "../components/Table";
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
 
@@ -13,7 +12,7 @@ import { createHeader } from "../layout/Header";
  */
 const fetchLeaderboard = async (n: number): Promise<Result<Record<string, unknown>[], Error>> => {
     try {
-        const response = await fetch(`${USER_URL}/leaderboard/${n}`);
+        const response = await fetch(`${window.cfg.url.user}/leaderboard/${n}`);
         if (!response.ok) {
             throw new Error("Failed to fetch users");
         }

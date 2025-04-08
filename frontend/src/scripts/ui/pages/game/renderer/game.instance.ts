@@ -65,7 +65,7 @@ export class GameInstance {
             await SceneSetup.createGameObjects(GameInstance.instance.babylon);
 
             // GameInstance.instance.babylon.fontData = (await (
-            //     await fetch(`${ASSETS_DIR}/Montserrat_Regular.json`)
+            //     await fetch(`${window.cfg.dir.assets}/Montserrat_Regular.json`)
             // ).json()) as IFontData;
 
             SceneSetup.createControls(GameInstance.instance.babylon);

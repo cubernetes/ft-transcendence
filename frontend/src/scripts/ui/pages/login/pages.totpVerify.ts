@@ -1,5 +1,4 @@
 //import { createHeader } from "../components/components.header";
-import { API_URL } from "../../config";
 import { createFooter } from "../../layout/Footer";
 
 export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
@@ -58,7 +57,7 @@ export const createTotpVerifyPage = async (): Promise<HTMLElement> => {
     submitButton.addEventListener("click", async () => {
         const username = localStorage.getItem("username") || "";
 
-        const resp = await fetch(`${API_URL}/user/totpVerify`, {
+        const resp = await fetch(`${window.cfg.url.user}/totpVerify`, {
             headers: {
                 "Content-Type": "application/json",
             },

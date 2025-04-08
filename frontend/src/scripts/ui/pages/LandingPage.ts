@@ -1,14 +1,13 @@
-import { ASSETS_DIR } from "../../config";
 import { checkAccess } from "../../modules/auth/auth.utils";
 import { createEl } from "../../utils/dom-helper";
 import { logger } from "../../utils/logger";
 import { createLoginForm } from "../layout/LoginForm";
 
-export const createLandingPage = async (): Promise<HTMLElement[]> => {
+export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
     // Background video
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: {
-            src: `${ASSETS_DIR}/videos/pong_simulation.webm`,
+            src: `${window.cfg.dir.assets}/videos/pong_simulation.webm`,
         },
         props: { autoplay: true, loop: true, muted: true },
     });
@@ -45,7 +44,7 @@ export const createLandingPage = async (): Promise<HTMLElement[]> => {
     );
 
     const musicEl = createEl("audio", "", {
-        attributes: { src: `${ASSETS_DIR}/audio/main.mp3` },
+        attributes: { src: `${window.cfg.dir.assets}/audio/main.mp3` },
         props: { loop: true, volume: 0.4 },
     });
 

@@ -1,4 +1,5 @@
 import earcut from "earcut";
+import config from "./global/config";
 import { createRouter } from "./global/router";
 import { logger } from "./utils/logger";
 
@@ -10,6 +11,7 @@ const launchSite = (): void => {
 };
 
 // Register global states? Websocket? Auth? earcut?
+window.cfg = config;
 window.earcut = earcut; // Needed for babylonJS
 
 document.addEventListener("DOMContentLoaded", launchSite);

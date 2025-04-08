@@ -1,4 +1,3 @@
-import { API_URL } from "../../config";
 import { createFooter } from "../../layout/Footer";
 import { createHeader } from "../../layout/Header";
 
@@ -73,7 +72,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
             return;
         }
 
-        const resp = await fetch(`${API_URL}/user/totpVerifyInitial`, {
+        const resp = await fetch(`${window.cfg.url.user}/totpVerifyInitial`, {
             headers: {
                 "Content-Type": "application/json",
                 Authorization: "Bearer " + jwt,
@@ -111,7 +110,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
 };
 
 const fetchQrCode = async () => {
-    const resp = await fetch(`${API_URL}/user/totpSetup`, {
+    const resp = await fetch(`${window.cfg.url.user}/totpSetup`, {
         headers: {
             Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
         },

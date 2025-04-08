@@ -10,7 +10,7 @@ import { logger } from "../utils/logger";
 // import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 
 export const createRouter = (container: HTMLElement): void => {
-    const routes: { [key: string]: () => Promise<HTMLElement[]> } = {
+    const routes: { [key: string]: PageRenderer } = {
         setup: createSetupPage,
         landing: createLandingPage,
         localgame: createLocalGamePage,

@@ -1,7 +1,6 @@
 // src/auth/AuthState.ts
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload as UserData } from "@darrenkuro/pong-core";
-import { USER_URL } from "../../config";
 import { logger } from "../../utils/logger";
 import { AuthFormData } from "./auth.types";
 
@@ -53,7 +52,7 @@ class AuthState {
             return 0;
         }
         try {
-            const response = await fetch(`${USER_URL}/login`, {
+            const response = await fetch(`${window.cfg.url.user}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
@@ -82,7 +81,7 @@ class AuthState {
 
     public async register(data: AuthFormData): Promise<boolean> {
         try {
-            const response = await fetch(`${USER_URL}/register`, {
+            const response = await fetch(`${window.cfg.url.user}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data),

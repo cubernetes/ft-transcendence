@@ -1,3 +1,4 @@
+import type config from "./global/config";
 import type { earcut } from "earcut";
 
 // TODO: Check if correct for earcut type
@@ -13,5 +14,9 @@ declare global {
     interface Window {
         ethereum?: any; // TODO: shouldn't use any if it can be helped?
         earcut: earcut;
+        cfg: typeof config;
     }
+
+    // Globally defined types so no need to import
+    type PageRenderer = () => Promise<HTMLElement[]>;
 }

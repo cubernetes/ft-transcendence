@@ -34,7 +34,6 @@ import {
     TextBlock,
 } from "@babylonjs/gui";
 import { defaultGameConfig } from "@darrenkuro/pong-core";
-import { ASSETS_DIR } from "../../../config";
 import { gameConfig } from "../game.config";
 import { BabylonObjects } from "../game.types";
 
@@ -197,7 +196,7 @@ export class SceneSetup {
         // ---------------- SKYBOX
         const sky = new BackgroundMaterial("skyMaterial", scene);
         sky.backFaceCulling = false;
-        sky.reflectionTexture = new CubeTexture(`${ASSETS_DIR}/skybox/`, scene, [
+        sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.assets}/skybox/`, scene, [
             "px.png",
             "py.png",
             "pz.png",
@@ -229,7 +228,7 @@ export class SceneSetup {
         // -------------- BACKGROUND MUSIC
         const bgMusic = await CreateStreamingSoundAsync(
             "bgMusic",
-            `${ASSETS_DIR}/audio/neon-gaming.mp3`,
+            `${window.cfg.dir.assets}/audio/neon-gaming.mp3`,
             {
                 loop: true,
                 autoplay: true,
@@ -451,6 +450,7 @@ export class SceneSetup {
 
         const board = MeshBuilder.CreateGround(
             "board",
+            `${window.cfg.dir.assets}/height_map1.jpeg`,
             {
                 width: defObj.board.size.width,
                 height: defObj.board.size.depth,
