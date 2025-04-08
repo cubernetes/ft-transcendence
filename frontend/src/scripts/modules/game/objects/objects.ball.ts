@@ -1,5 +1,6 @@
 import {
     Color3,
+    Engine,
     Mesh,
     MeshBuilder,
     PBRMaterial,
@@ -47,20 +48,20 @@ const ballConfig = (scene: Scene, radius: number) => {
     };
 };
 
-export const createBall = (scene: Scene, pos: Vector3, radius: number): Mesh => {
+export const createBall = (engine: Engine, scene: Scene, pos: Vector3, radius: number): Mesh => {
     const config = ballConfig(scene, radius);
     const { name, options, material, trailMaterial } = config;
     const ball = MeshBuilder.CreateSphere(name, options, scene);
 
     ball.position = pos;
     ball.rotationQuaternion = Quaternion.Identity();
-    // babylon.ballMat = SceneSetup.createBallMaterial(babylon);
     ball.material = material;
+    engine.ballMat = material;
 
-    // babylon.hitSound.spatial.attach(ball);
-    // babylon.bounceSound.spatial.attach(ball);
-    // babylon.blopSound.spatial.attach(ball);
-    // babylon.ballSound.spatial.attach(ball);
+    engine.audio.hitSound.spatial.attach(ball);
+    engine.audio.bounceSound.spatial.attach(ball);
+    engine.audio.blopSound.spatial.attach(ball);
+    engine.audio.ballSound.spatial.attach(ball);
 
     const trail = new TrailMesh("ballTrail", ball, scene, radius, 30);
     trail.material = trailMaterial;

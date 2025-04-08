@@ -50,9 +50,9 @@ const createShadowButton = (grid: Grid, engine: Engine) => {
             button.background = "gray";
         } else {
             engine.shadowsEnabled = true;
-            engine.shadowGenerator.addShadowCaster(engine.objs.leftPaddle);
-            engine.shadowGenerator.addShadowCaster(engine.objs.rightPaddle);
-            engine.shadowGenerator.addShadowCaster(engine.objs.ball);
+            engine.shadowGenerator.addShadowCaster(engine.leftPaddle);
+            engine.shadowGenerator.addShadowCaster(engine.rightPaddle);
+            engine.shadowGenerator.addShadowCaster(engine.ball);
             //shadowButton.textBlock!.text = "Shadows";
             button.background = "blue";
         }

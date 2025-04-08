@@ -68,7 +68,7 @@ const createMiddleline = (scene: Scene): Mesh => {
     return middleLine;
 };
 
-const createBoard = (scene: Scene, pos: Vector3, size: Size3D) => {
+export const createBoard = (scene: Scene, pos: Vector3, size: Size3D) => {
     const config = boardConfig(scene, size);
 
     const { name, options } = config;
@@ -79,5 +79,6 @@ const createBoard = (scene: Scene, pos: Vector3, size: Size3D) => {
     board.position = pos;
     board.receiveShadows = true;
 
+    createMiddleline(scene);
     return board;
 };

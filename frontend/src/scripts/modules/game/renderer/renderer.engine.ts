@@ -24,7 +24,9 @@ export const createRendererEngine = async (canvasEl: HTMLCanvasElement): Promise
     engine.soundsEnabled = true;
 
     const scene = createScene(engine);
+    engine.scene = scene;
     const directionalLight = createDirectionalLight(scene);
+    engine.directionalLight = directionalLight;
     engine.shadowGenerator = createShadowGenerator(directionalLight);
     engine.camera = createCamera(engine, scene); // TODO: check if attaching camera is needed
 
@@ -33,12 +35,4 @@ export const createRendererEngine = async (canvasEl: HTMLCanvasElement): Promise
     createObjects(engine, scene);
 
     return engine;
-    // These should be on page!!
-    // Start rendering
-    engine.runRenderLoop(() => {
-        scene.render();
-    });
-
-    // Destory this properly
-    window.addEventListener("resize", () => engine.resize());
 };
