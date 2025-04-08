@@ -1,10 +1,10 @@
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
 
-export const createProfilePage = async (): Promise<HTMLElement> => {
-    const fragment = document.createDocumentFragment();
-
+// TODO: 2FA, upload profile picture; profile pic, basic info
+export const createProfilePage: PageRenderer = async (): Promise<HTMLElement[]> => {
     const header = await createHeader();
+    const footer = createFooter();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4";
@@ -32,14 +32,5 @@ export const createProfilePage = async (): Promise<HTMLElement> => {
 
     main.appendChild(profileSection);
 
-    const footer = createFooter();
-
-    fragment.appendChild(header);
-    fragment.appendChild(main);
-    fragment.appendChild(footer);
-
-    const container = document.createElement("div");
-    container.appendChild(fragment);
-
-    return container;
+    return [header, main, footer];
 };

@@ -1,42 +1,36 @@
 import { checkAccess } from "../modules/auth/auth.utils";
-// import { createTotpSetupPage } from "./pages/menu/pages.totpSetup";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createLocalGamePage } from "../ui/pages/LocalGamePage";
-// import { createProfilePage } from "./pages/menu/menu.profile";
+import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
-
-// import { createTotpVerifyPage } from "./pages/pages.totpVerify";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes: { [key: string]: PageRenderer } = {
         setup: createSetupPage,
         landing: createLandingPage,
         localgame: createLocalGamePage,
-        //profile: createProfilePage,
+        profile: createProfilePage,
         leaderboard: createLeaderboardPage,
-        // totpSetup: createTotpSetupPage,
-        // totpVerify: createTotpVerifyPage,
     };
 
     const handleRouteChange = async () => {
         const route = window.location.hash.slice(1);
 
-        // Redirect to home upon invalid route
-        // Should probably make a 404
+        // Redirect to default page upon invalid route
         if (!(route in routes)) {
-            window.location.href = "#landing";
+            window.location.href = window.cfg.url.default;
             return;
         }
 
         // Functionally dispatch the event bubbling down to all children elements
-        const dispatchEventDown = (parent: HTMLElement, event: Event) => {
+        const dispatchEventDown = (parent: HTMLElement, evt: Event) => {
             // Dispatch the event to the parent first
-            parent.dispatchEvent(event);
+            parent.dispatchEvent(evt);
 
             // Dispatch the event to all child elements
             parent.querySelectorAll("*").forEach((child) => {
-                child.dispatchEvent(event);
+                child.dispatchEvent(evt);
             });
         };
 
@@ -55,6 +49,8 @@ export const createRouter = (container: HTMLElement): void => {
         const fragment = document.createDocumentFragment();
         pageElements.forEach((el) => fragment.appendChild(el));
 
+        // TODO: persist canvas maybe so renderer doesn't have to be recreated every single time?
+        // const canvasEl = document.getElementById(window.cfg.id.canvas);
         container.innerHTML = "";
         container.appendChild(fragment);
     };

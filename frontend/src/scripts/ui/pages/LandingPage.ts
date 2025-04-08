@@ -47,6 +47,14 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         props: { loop: true, volume: 0.4 },
     });
 
+    // Dispose audio once leaving the page?
+    // musicEl.addEventListener("destory", () => {
+    //     musicEl.pause();
+    //     musicEl.src = "";
+    //     musicEl.removeAttribute("src");
+    //     musicEl.load();
+    // });
+
     const mainEl = createEl("main", "w-full h-screen relative", {
         children: [videoEl, overlayEl, heroEl],
     });
