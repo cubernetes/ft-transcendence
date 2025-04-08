@@ -1,5 +1,5 @@
 import { logger } from "../../../../utils/logger";
-import { createGameModes } from "../setup.page";
+import { createGameModes } from "../../SetupPage";
 
 export const createLocalMode = (): HTMLElement => {
     const setupSection = document.createElement("section");

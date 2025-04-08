@@ -1,10 +1,10 @@
 import { checkAccess } from "../modules/auth/auth.utils";
-import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
-import { createLocalGamePage } from "../ui/pages/game/game.page.local";
 // import { createTotpSetupPage } from "./pages/menu/pages.totpSetup";
-import { createLandingPage } from "../ui/pages/landing/landing.page";
+import { createLandingPage } from "../ui/pages/LandingPage";
+import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
+import { createLocalGamePage } from "../ui/pages/LocalGamePage";
 // import { createProfilePage } from "./pages/menu/menu.profile";
-import { createSetupPage } from "../ui/pages/setup/setup.page";
+import { createSetupPage } from "../ui/pages/SetupPage";
 import { logger } from "../utils/logger";
 
 // import { createTotpVerifyPage } from "./pages/pages.totpVerify";

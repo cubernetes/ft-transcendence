@@ -1,10 +1,10 @@
-import { logger } from "../../../utils/logger";
-import { createFooter } from "../../components/components.footer";
-import { createHeader } from "../../components/components.header";
-import { createPaddles } from "../../components/components.paddles";
-import { createAIMode } from "./gameSetup/gameSetup.ai";
-import { createLocalMode } from "./gameSetup/gameSetup.local";
-import { createOnlineMode } from "./gameSetup/gameSetup.online";
+import { logger } from "../../utils/logger";
+import { createPaddles } from "../components/components.paddles";
+import { createFooter } from "../layout/Footer";
+import { createHeader } from "../layout/Header";
+import { createAIMode } from "./setup/gameSetup/gameSetup.ai";
+import { createLocalMode } from "./setup/gameSetup/gameSetup.local";
+import { createOnlineMode } from "./setup/gameSetup/gameSetup.online";
 
 export const createSetupPage = async (): Promise<HTMLElement[]> => {
     const container = document.createElement("div");

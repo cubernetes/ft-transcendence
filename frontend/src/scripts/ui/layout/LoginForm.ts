@@ -1,5 +1,5 @@
-import { authState } from "../../../modules/auth/auth.state";
-import { AuthFormData } from "../../../modules/auth/auth.types";
+import { authState } from "../../modules/auth/auth.state";
+import { AuthFormData } from "../../modules/auth/auth.types";
 
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");

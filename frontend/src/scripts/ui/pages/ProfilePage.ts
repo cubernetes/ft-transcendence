@@ -1,5 +1,5 @@
-import { createFooter } from "../../components/components.footer";
-import { createHeader } from "../../components/components.header";
+import { createFooter } from "../layout/Footer";
+import { createHeader } from "../layout/Header";
 
 export const createProfilePage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();

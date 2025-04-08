@@ -1,4 +1,4 @@
-import { createEl } from "../utils/dom.helper";
+import { createEl } from "../../utils/dom-helper";
 
 export const createFooter = (): HTMLElement => {
     const footer = createEl("footer", "bg-gray-200 p-4 text-center font-medieval", {

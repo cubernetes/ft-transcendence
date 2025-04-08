@@ -1,9 +1,9 @@
 import { PongState, createPongEngine } from "@darrenkuro/pong-core";
-import { createEl } from "../../../utils/dom-helper";
-import { logger } from "../../../utils/logger";
-import { createFooter } from "../../components/components.footer";
-import { createHeader } from "../../components/components.header";
-import { GameInstance } from "./renderer/game.instance";
+import { createEl } from "../../utils/dom-helper";
+import { logger } from "../../utils/logger";
+import { createFooter } from "../layout/Footer";
+import { createHeader } from "../layout/Header";
+import { GameInstance } from "./game/renderer/game.instance";
 
 export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     const header = await createHeader();

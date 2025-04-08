@@ -1,8 +1,8 @@
 import { createPongEngine } from "@darrenkuro/pong-core";
 import { createEl } from "../../../utils/dom-helper";
 import { logger } from "../../../utils/logger";
-import { createFooter } from "../../components/components.footer";
-import { createHeader } from "../../components/components.header";
+import { createFooter } from "../../layout/Footer";
+import { createHeader } from "../../layout/Header";
 import { GameInstance } from "./renderer/game.instance";
 
 /**

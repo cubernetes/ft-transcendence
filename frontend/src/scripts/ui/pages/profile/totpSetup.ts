@@ -1,6 +1,6 @@
-import { createFooter } from "../../components/components.footer";
-import { createHeader } from "../../components/components.header";
 import { API_URL } from "../../config";
+import { createFooter } from "../../layout/Footer";
+import { createHeader } from "../../layout/Header";
 
 export const createTotpSetupPage = async (): Promise<HTMLElement> => {
     const fragment = document.createDocumentFragment();

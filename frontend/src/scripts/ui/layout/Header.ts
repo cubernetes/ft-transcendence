@@ -1,5 +1,5 @@
-import { createEl } from "../utils/dom.helper";
-import { showUserStatus } from "./components.loginStatus";
+import { createEl } from "../../utils/dom-helper";
+import { showUserStatus } from "../components/components.loginStatus";
 
 export const createHeader = async (): Promise<HTMLElement> => {
     const a = createEl("a", "text-3xl font-bold", {

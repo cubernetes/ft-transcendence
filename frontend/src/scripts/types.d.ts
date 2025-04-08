@@ -1,5 +1,7 @@
 import type { earcut } from "earcut";
 
+// TODO: Check if correct for earcut type
+
 declare global {
     const process: {
         env: {

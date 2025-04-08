@@ -2,9 +2,9 @@ import { Result } from "neverthrow";
 import { USER_URL } from "../../global/config";
 import { createEl } from "../../utils/dom-helper";
 import { logger } from "../../utils/logger";
-import { createFooter } from "../components/components.footer";
-import { createHeader } from "../components/components.header";
 import { createTable } from "../components/components.table";
+import { createFooter } from "../layout/Footer";
+import { createHeader } from "../layout/Header";
 
 /**
  * Fetch Leaderboard userdata.

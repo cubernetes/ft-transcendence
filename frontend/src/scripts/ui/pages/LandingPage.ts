@@ -1,8 +1,8 @@
-import { checkAccess } from "../../../modules/auth/auth.utils";
-import { createEl } from "../../../utils/dom-helper";
-import { logger } from "../../../utils/logger";
 import { ASSETS_DIR } from "../../config";
-import { createLoginForm } from "./landing.loginForm";
+import { checkAccess } from "../../modules/auth/auth.utils";
+import { createEl } from "../../utils/dom-helper";
+import { logger } from "../../utils/logger";
+import { createLoginForm } from "../layout/LoginForm";
 
 export const createLandingPage = async (): Promise<HTMLElement[]> => {
     // Background video

@@ -1,5 +1,5 @@
-import { createEl } from "../utils/dom.helper";
-import { logger } from "../utils/logger";
+import { createEl } from "../../utils/dom-helper";
+import { logger } from "../../utils/logger";
 
 export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
     const paddleTailwind =
