@@ -643,4 +643,34 @@ export class SceneSetup {
         advancedTexture.addControl(gameOverText);
         advancedTexture.addControl(winnerText);
     }
+
+    static applyCameraShake(babylon: BabylonObjects): void {
+        const shakeAnim = new Animation(
+            "shake",
+            "position",
+            60,
+            Animation.ANIMATIONTYPE_VECTOR3,
+            Animation.ANIMATIONLOOPMODE_CYCLE
+        );
+        const start = babylon.camera.position.clone();
+        const keys = [];
+
+        for (let i = 0; i <= 5; i++) {
+            keys.push({
+                frame: i * 2,
+                value: start.add(
+                    new Vector3(
+                        (Math.random() - 0.5) * 0.5,
+                        (Math.random() - 0.5) * 0.5,
+                        (Math.random() - 0.5) * 0.5
+                    )
+                ),
+            });
+        }
+        keys.push({ frame: 12, value: start });
+
+        shakeAnim.setKeys(keys);
+        babylon.camera.animations.push(shakeAnim);
+        babylon.scene.beginAnimation(babylon.camera, 0, 12, false, 3);
+    }
 }
