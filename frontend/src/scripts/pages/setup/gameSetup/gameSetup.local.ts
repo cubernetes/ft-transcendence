@@ -1,3 +1,4 @@
+import { logger } from "../../../utils/logger";
 import { createGameModes } from "../setup.page";
 
 export const createLocalMode = (): HTMLElement => {
@@ -175,7 +176,8 @@ export const createLocalMode = (): HTMLElement => {
             difficulty: difficulty,
         };
         hideError();
-        console.log("Game Data:", gameData);
+        logger.debug("Game Data:", gameData);
+        window.location.href = "#localgame";
     };
 
     setupSection.appendChild(returnButton);
