@@ -4,7 +4,6 @@ import {
     DirectionalLight,
     Engine,
     IFontData,
-    MainAudioBus,
     Mesh,
     Quaternion,
     Scene,
@@ -81,7 +80,7 @@ export class GameInstance {
         }
     }
 
-    // TODO: Change y-position in backend so it fits the paddles
+    // TODO: Change y-position (up/down) in backend so it fits the paddles
     updateBall(oldBall: Ball, newBall: Ball) {
         // ------ POSITION:
         this.babylon.ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);

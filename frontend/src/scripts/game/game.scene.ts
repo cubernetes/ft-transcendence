@@ -49,7 +49,7 @@ export class SceneSetup {
         babylon.scene = scene;
 
         // --------- LIGHT
-        const light = new DirectionalLight("directionalLight", new Vector3(0, -2, 1), scene);
+        const light = new DirectionalLight("directionalLight", new Vector3(0, -4, 0), scene);
         babylon.light = light;
         light.intensity = 1.0;
         light.shadowMinZ = 3.5;
@@ -64,12 +64,10 @@ export class SceneSetup {
         // --------- SHADOWS
         const shadowGenerator = new ShadowGenerator(1024, light);
         babylon.shadowGenerator = shadowGenerator;
-        shadowGenerator.setDarkness(0.5);
-        // shadowGenerator.useBlurExponentialShadowMap = true;
-        // shadowGenerator.forceBackFacesOnly = true;
+        shadowGenerator.setDarkness(0.2);
+        shadowGenerator.useBlurExponentialShadowMap = true;
         shadowGenerator.useKernelBlur = true;
-        shadowGenerator.blurKernel = 64;
-        // shadowGenerator.useExponentialShadowMap = true;
+        shadowGenerator.blurKernel = 6;
 
         // --------- CONTROLS
         var controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
@@ -193,28 +191,10 @@ export class SceneSetup {
             babylon.audioEngine.volume = value / 100;
         });
         panelVol.addControl(slider2);
-
-        // Create a image-slider
-        // var slider = new ImageBasedSlider();
-        // slider.minimum = 0;
-        // slider.maximum = 100;
-        // slider.value = 100;
-        // slider.height = "20px";
-        // slider.width = "200px";
-        // slider.isThumbClamped = true;
-        // // slider.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        // slider.backgroundImage = new Image("back", "/assets/bgSlider.png");
-        // slider.valueBarImage = new Image("value", "/assets/fgSlider.png");
-        // slider.thumbImage = new Image("thumb", "/assets/knSlider.png");
-        // slider.onValueChangedObservable.add(function(value) {
-        //     header.text = "Volume: " + (value | 0) + " %";
-        //     bgMusic.volume = value / 100;
-        // });
-        // panelVol.addControl(slider);
     }
 
     static setupScene(scene: Scene): void {
-        // Create a background -> SKYBOX
+        // ---------------- SKYBOX
         const sky = new BackgroundMaterial("skyMaterial", scene);
         sky.backFaceCulling = false;
         sky.reflectionTexture = new CubeTexture(`${ASSETS_DIR}/skybox/`, scene, [
@@ -348,7 +328,7 @@ export class SceneSetup {
 
         // ----- CAMERA SLIDE-IN ANIMATION -----
         // ------------ RADIUS
-        var radAnim = new Animation("animCam", "radius", 10, Animation.ANIMATIONTYPE_FLOAT);
+        var radAnim = new Animation("animCam", "radius", 15, Animation.ANIMATIONTYPE_FLOAT);
         var keysPosition = [];
         keysPosition.push({
             frame: 0,
@@ -366,7 +346,7 @@ export class SceneSetup {
         camera.animations.push(radAnim);
 
         // ------------ ALPHA
-        var alphaAnim = new Animation("animCam", "alpha", 10, Animation.ANIMATIONTYPE_FLOAT);
+        var alphaAnim = new Animation("animCam", "alpha", 15, Animation.ANIMATIONTYPE_FLOAT);
         var keysPosition = [];
         keysPosition.push({
             frame: 0,
@@ -394,7 +374,6 @@ export class SceneSetup {
             camera.upperAlphaLimit = 0;
             camera.lowerAlphaLimit = -Math.PI;
         }
-
         babylon.scene.beginAnimation(camera, 0, 100, false, 1.0, setCameraLimits);
     }
 
@@ -452,60 +431,57 @@ export class SceneSetup {
         const rotations = gameConfig.rotations;
         const materials = gameConfig.materials;
 
-        const boardMaterial = new StandardMaterial("board", babylon.scene);
-        // boardMaterial.backFaceCulling = true; // Turn off back face culling to render both sides of the mesh
-        // boardMaterial.diffuseColor = materials.BOARD.diffuseColor;
-        // boardMaterial.specularColor = materials.BOARD.specularColor;
-        boardMaterial.diffuseTexture = new Texture(
-            `${ASSETS_DIR}/textures/tiles/rubber_tiles_diff_1k.jpg`,
-            babylon.scene
-        );
-        var texture = boardMaterial.diffuseTexture as Texture;
-        texture.uScale = 4;
-        texture.vScale = 5;
-        boardMaterial.specularTexture = new Texture(
-            `${ASSETS_DIR}/textures/tiles/rubber_tiles_disp_1k.jpg`,
-            babylon.scene
-        );
-        var texture = boardMaterial.specularTexture as Texture;
-        texture.uScale = 4;
-        texture.vScale = 5;
-
-        const paddleMaterial = new StandardMaterial("paddle", babylon.scene);
-        const paddleMaterial2 = new StandardMaterial("paddle1Mat", babylon.scene);
-        // paddleMaterial2.alpha = 0.5;
-        // paddleMaterial2.alphaMode = Material.MATERIAL_ALPHABLEND;
-        paddleMaterial2.diffuseColor = new Color3(0, 0, 1);
-        paddleMaterial2.backFaceCulling = false;
-
-        const paddleMaterial3 = new StandardMaterial("paddleMat", babylon.scene);
-        paddleMaterial3.diffuseColor = new Color3(0.2, 0.7, 1);
-        paddleMaterial3.specularPower = 64;
-        paddleMaterial3.emissiveColor = new Color3(0.1, 0.3, 1);
-
-        // ------------- Create game board:
-        const board = MeshBuilder.CreateBox(
-            "board",
+        // --------------- Create GROUND
+        const middleLine = MeshBuilder.CreateBox(
+            "middleLine",
             {
-                width: defObj.board.size.width,
-                height: defObj.board.size.height,
-                depth: defObj.board.size.depth,
+                width: 0.1,
+                height: defObj.board.size.depth,
+                depth: 0.1,
             },
             babylon.scene
         );
+        middleLine.rotation.x = Math.PI / 2;
+        middleLine.position = new Vector3(0, -0.5, 0);
+        const middleLineMaterial = new StandardMaterial("middleLine", babylon.scene);
+        middleLineMaterial.diffuseColor = new Color3(1, 1, 1);
+        middleLineMaterial.specularColor = new Color3(1, 0, 0);
+        middleLine.material = middleLineMaterial;
+        middleLine.receiveShadows = true;
 
-        // const board = CreateGroundFromHeightMap(
-        //     "board",
-        //     `${ASSETS_DIR}/height_map1.jpeg`,
-        //     {
-        //         width: defObj.board.size.width,
-        //         height: defObj.board.size.depth,
-        //         subdivisions: 50,
-        //         maxHeight: 0.3,
-        //         minHeight: -0.2,
-        //     },
-        //     babylon.scene
-        // );
+        const board = MeshBuilder.CreateGround(
+            "board",
+            {
+                width: defObj.board.size.width,
+                height: defObj.board.size.depth,
+                subdivisions: 4,
+            },
+            babylon.scene
+        );
+        board.position.y = -0.5;
+        const boardMaterial = new StandardMaterial("board", babylon.scene);
+
+        boardMaterial.diffuseTexture = new Texture(
+            `${ASSETS_DIR}/textures/tiles/rubber_tiles_nor_gl_1k.jpg`,
+            babylon.scene
+        );
+        boardMaterial.diffuseColor = new Color3(0.8, 1, 0.8);
+        var texture = boardMaterial.diffuseTexture as Texture;
+        texture.uScale = 4;
+        texture.vScale = 3;
+
+        boardMaterial.specularTexture = new Texture(
+            `${ASSETS_DIR}/textures/tiles/rubber_tiles_diff_1k.jpg`,
+            babylon.scene
+        );
+        boardMaterial.specularColor = new Color3(0.5, 0.2, 0);
+
+        boardMaterial.bumpTexture = new Texture(
+            `${ASSETS_DIR}/textures/tiles/rubber_tiles_rough_1k.jpg`,
+            babylon.scene
+        );
+        boardMaterial.roughness = 50;
+
         babylon.board = board;
         board.position = positions.BOARD;
         board.material = boardMaterial;
@@ -520,6 +496,20 @@ export class SceneSetup {
         this.createScore([0, 0], babylon);
 
         // ----------------- Create PADDLES
+        const paddleMaterial = new StandardMaterial("paddleMat", babylon.scene);
+        const paddleMaterial2 = new StandardMaterial("paddleMat2", babylon.scene);
+        paddleMaterial2.diffuseColor = new Color3(0, 0.5, 0);
+        paddleMaterial2.specularPower = 64;
+        paddleMaterial2.emissiveColor = new Color3(0, 0, 1);
+        paddleMaterial2.backFaceCulling = false;
+
+        const paddleMaterial3 = new StandardMaterial("paddleMat3", babylon.scene);
+        paddleMaterial3.diffuseColor = new Color3(0.2, 0.7, 1);
+        paddleMaterial3.specularPower = 64;
+        paddleMaterial3.emissiveColor = new Color3(0.1, 0.3, 1);
+        paddleMaterial3.backFaceCulling = false;
+        paddleMaterial3.alphaMode = 1;
+
         const paddle1 = MeshBuilder.CreateSphere(
             "paddle1",
             {
@@ -532,9 +522,8 @@ export class SceneSetup {
         paddle1.position = positions.PADDLE1;
         paddle1.rotation.x = rotations.PADDLE1;
         paddleMaterial.diffuseColor = materials.PADDLE1.diffuseColor;
-        paddle1.material = paddleMaterial3;
+        paddle1.material = paddleMaterial2;
 
-        // const paddle2 = MeshBuilder.CreateBox(
         const paddle2 = MeshBuilder.CreateSphere(
             "paddle2",
             {
@@ -550,14 +539,6 @@ export class SceneSetup {
         paddle2.material = paddleMaterial2;
 
         // ----------------- Create BALL
-
-        // await AppendSceneAsync(
-        //     "https://playground.babylonjs.com/scenes/BoomBox.glb",
-        //     babylon.scene
-        // );
-
-        // const ballMaterial = new StandardMaterial("ball", babylon.scene);
-        // ballMaterial.diffuseColor = materials.BALL.diffuseColor;
         const ball = MeshBuilder.CreateSphere(
             "ball",
             {
@@ -573,8 +554,8 @@ export class SceneSetup {
         babylon.bounceSound.spatial.attach(ball);
         babylon.blopSound.spatial.attach(ball);
         babylon.ballSound.spatial.attach(ball);
-        // ------------------- BALL TRAIL
 
+        // ------------------- BALL TRAIL
         const trail = new TrailMesh("ballTrail", ball, babylon.scene, defObj.ball.r, 30);
         const trailMaterial = new StandardMaterial("trailMat", babylon.scene);
         trailMaterial.diffuseColor = materials.BALL.diffuseColor;
@@ -584,21 +565,20 @@ export class SceneSetup {
         // ----------------- Create WALLS
         const cushions: Mesh[] = [];
         const cushionMaterial = new StandardMaterial("cushion", babylon.scene);
-        cushionMaterial.diffuseColor = new Color3(0.7, 0, 0); // Red color for visibility
+        cushionMaterial.diffuseColor = new Color3(0.6, 0, 0); // Red color for visibility
 
         const cushionPositions = [
-            new Vector3(0, 0.1, defObj.board.size.depth / 2 + 0.5), // Top
-            new Vector3(0, 0.1, -defObj.board.size.depth / 2 - 0.5), // Bottom
-            new Vector3(defObj.board.size.width / 2 + 0.5, 0.1, 0), // Right
-            new Vector3(-defObj.board.size.width / 2 - 0.5, 0.1, 0), // Left
+            new Vector3(0, -0.1, defObj.board.size.depth / 2 + 0.5), // Top
+            new Vector3(0, -0.1, -defObj.board.size.depth / 2 - 0.5), // Bottom
+            new Vector3(defObj.board.size.width / 2 + 0.5, -0.1, 0), // Right
+            new Vector3(-defObj.board.size.width / 2 - 0.5, -0.1, 0), // Left
         ];
-
         cushionPositions.forEach((pos) => {
             const cushion = MeshBuilder.CreateBox(
                 "cushion",
                 {
                     width: pos.z === 0 ? 1 : defObj.board.size.width + 2,
-                    height: 0.2,
+                    height: 0.5,
                     depth: pos.z === 0 ? defObj.board.size.depth + 2 : 1,
                 },
                 babylon.scene
@@ -606,7 +586,6 @@ export class SceneSetup {
 
             cushion.position = pos;
             cushion.material = cushionMaterial;
-            // babylon.shadowGenerator.addShadowCaster(cushion);
             cushions.push(cushion);
         });
 
