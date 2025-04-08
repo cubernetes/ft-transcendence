@@ -1,4 +1,4 @@
-import { Result } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
 import { createEl } from "../../utils/dom-helper";
 import { createTable } from "../components/Table";
 import { createFooter } from "../layout/Footer";
@@ -32,11 +32,11 @@ const fetchLeaderboard = async (n: number): Promise<Result<Record<string, unknow
                 rank: i + 1,
             }));
 
-        return processedData;
+        return ok(processedData);
     } catch (error) {
         window.log.debug("Fetch error:", error);
 
-        throw error;
+        return err(new Error("Fail to fetch leaderboard"));
     }
 };
 
