@@ -25,39 +25,39 @@ export const createCamera = (engine: Engine, scene: Scene): ArcRotateCamera => {
 
     // ----- CAMERA SLIDE-IN ANIMATION -----
     // ------------ RADIUS
-    var radAnim = new Animation("animCam", "radius", 15, Animation.ANIMATIONTYPE_FLOAT);
-    var keysPosition = [];
-    keysPosition.push({
+    const radAnim = new Animation("animCam", "radius", 15, Animation.ANIMATIONTYPE_FLOAT);
+    const radKeysPosition = [];
+    radKeysPosition.push({
         frame: 0,
         value: 200,
     });
-    keysPosition.push({
+    radKeysPosition.push({
         frame: 80,
         value: 40,
     });
-    keysPosition.push({
+    radKeysPosition.push({
         frame: 100,
         value: 25,
     });
-    radAnim.setKeys(keysPosition);
+    radAnim.setKeys(radKeysPosition);
     camera.animations.push(radAnim);
 
     // ------------ ALPHA
-    var alphaAnim = new Animation("animCam", "alpha", 15, Animation.ANIMATIONTYPE_FLOAT);
-    var keysPosition = [];
-    keysPosition.push({
+    const alphaAnim = new Animation("animCam", "alpha", 15, Animation.ANIMATIONTYPE_FLOAT);
+    const alphaKeysPosition = [];
+    alphaKeysPosition.push({
         frame: 0,
         value: -Math.PI,
     });
-    keysPosition.push({
+    alphaKeysPosition.push({
         frame: 50,
         value: 0,
     });
-    keysPosition.push({
+    alphaKeysPosition.push({
         frame: 100,
         value: -Math.PI / 2,
     });
-    alphaAnim.setKeys(keysPosition);
+    alphaAnim.setKeys(alphaKeysPosition);
     camera.animations.push(alphaAnim);
 
     const setCameraLimits = (): void => {
