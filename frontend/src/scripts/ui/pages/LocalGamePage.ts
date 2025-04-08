@@ -17,26 +17,26 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     const controller = createGameController(renderer);
     const engine = createPongEngine();
 
-    const handleKeydown = (event: KeyboardEvent) => {
-        window.log.debug(`Key pressed: ${event.key}`);
-        if (event.key === "w") {
+    const handleKeydown = (evt: KeyboardEvent) => {
+        window.log.debug(`Key pressed: ${evt.key}`);
+        if (evt.key === "w") {
             engine.setInput(0, "up");
-        } else if (event.key === "s") {
+        } else if (evt.key === "s") {
             engine.setInput(0, "down");
-        } else if (event.key === "ArrowUp") {
+        } else if (evt.key === "ArrowUp") {
             engine.setInput(1, "up");
-        } else if (event.key === "ArrowDown") {
+        } else if (evt.key === "ArrowDown") {
             engine.setInput(1, "down");
         }
     };
 
     document.addEventListener("keydown", handleKeydown);
 
-    const handleKeyup = (event: KeyboardEvent) => {
-        window.log.debug(`Key released: ${event.key}`);
-        if (["w", "s"].includes(event.key)) {
+    const handleKeyup = (evt: KeyboardEvent) => {
+        window.log.debug(`Key released: ${evt.key}`);
+        if (["w", "s"].includes(evt.key)) {
             engine.setInput(0, "stop");
-        } else if (["ArrowUp", "ArrowDown"].includes(event.key)) {
+        } else if (["ArrowUp", "ArrowDown"].includes(evt.key)) {
             engine.setInput(1, "stop");
         }
     };

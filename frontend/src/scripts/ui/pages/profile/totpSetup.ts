@@ -54,9 +54,9 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
     const container = document.createElement("div");
     container.appendChild(fragment);
 
-    tokenInput.addEventListener("keypress", (event) => {
-        if (event.key == "Enter") {
-            event.preventDefault();
+    tokenInput.addEventListener("keypress", (evt) => {
+        if (evt.key == "Enter") {
+            evt.preventDefault();
 
             document.getElementById("submit")?.click();
         }

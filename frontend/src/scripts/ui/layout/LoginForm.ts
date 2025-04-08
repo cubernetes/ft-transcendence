@@ -120,8 +120,8 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         updateToggleButtons();
     });
 
-    authForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
+    authForm.addEventListener("submit", async (evt) => {
+        evt.preventDefault();
         const formData: AuthFormData = {
             username: usernameInput.value,
             password: passwordInput.value,
