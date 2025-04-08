@@ -196,7 +196,7 @@ export class SceneSetup {
         // ---------------- SKYBOX
         const sky = new BackgroundMaterial("skyMaterial", scene);
         sky.backFaceCulling = false;
-        sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.assets}/skybox/`, scene, [
+        sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.asset}/skybox/`, scene, [
             "px.png",
             "py.png",
             "pz.png",
@@ -228,7 +228,7 @@ export class SceneSetup {
         // -------------- BACKGROUND MUSIC
         const bgMusic = await CreateStreamingSoundAsync(
             "bgMusic",
-            `${window.cfg.dir.assets}/audio/neon-gaming.mp3`,
+            `${window.cfg.dir.audio}/neon-gaming.mp3`,
             {
                 loop: true,
                 autoplay: true,
@@ -450,7 +450,7 @@ export class SceneSetup {
 
         const board = MeshBuilder.CreateGround(
             "board",
-            `${window.cfg.dir.assets}/height_map1.jpeg`,
+            `${window.cfg.dir.asset}/height_map1.jpeg`,
             {
                 width: defObj.board.size.width,
                 height: defObj.board.size.depth,

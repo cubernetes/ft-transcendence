@@ -113,7 +113,7 @@ function setScene(scene: Scene): Scene {
     );
     ground.position.y = -0.9;
     const groundMaterial = new StandardMaterial("groundMaterial", scene);
-    groundMaterial.diffuseTexture = new Texture(`${window.cfg.dir.assets}/ground.jpg`, scene);
+    groundMaterial.diffuseTexture = new Texture(`${window.cfg.dir.asset}/ground.jpg`, scene);
     ground.material = groundMaterial;
     // Create default lighting
     scene.createDefaultLight();
@@ -130,7 +130,7 @@ function setScene(scene: Scene): Scene {
     sky.projectedGroundRadius = 20;
     sky.projectedGroundHeight = 3;
     skydome.material = sky;
-    sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.assets}/skybox/`, scene, [
+    sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.asset}/skybox/`, scene, [
         "px.png",
         "py.png",
         "pz.png",
@@ -155,19 +155,19 @@ async function addModels(scene: Scene): Promise<AssetsManager> {
     var meshTask2 = assetsManager.addMeshTask(
         "asset task 2",
         "",
-        `${window.cfg.dir.assets}/textures/`,
+        window.cfg.dir.texture,
         "dragon.glb"
     );
     var meshTask3 = assetsManager.addMeshTask(
         "asset task 3",
         "",
-        `${window.cfg.dir.assets}/assets/textures/`,
+        window.cfg.dir.texture,
         "mythcreature.glb"
     );
     var meshTask4 = assetsManager.addMeshTask(
         "asset task 4",
         "",
-        `${window.cfg.dir.assets}//textures/`,
+        window.cfg.dir.texture,
         "mythcreature.glb"
     );
 

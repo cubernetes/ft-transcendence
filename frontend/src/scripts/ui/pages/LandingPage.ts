@@ -6,7 +6,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     // Background video
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: {
-            src: `${window.cfg.dir.assets}/videos/pong_simulation.webm`,
+            src: `${window.cfg.dir.video}/pong_simulation.webm`,
         },
         props: { autoplay: true, loop: true, muted: true },
     });
@@ -43,7 +43,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     );
 
     const musicEl = createEl("audio", "", {
-        attributes: { src: `${window.cfg.dir.assets}/audio/main.mp3` },
+        attributes: { src: `${window.cfg.dir.audio}/main.mp3` },
         props: { loop: true, volume: 0.4 },
     });
 
