@@ -7,7 +7,7 @@ import {
     Vector3,
 } from "@babylonjs/core";
 
-export const createCamera = (engine: Engine, scene: Scene): Camera => {
+export const createCamera = (engine: Engine, scene: Scene): ArcRotateCamera => {
     //TODO: check if Class TargetCamera makes more sense.
     const camera = new ArcRotateCamera(
         "pongCamera",

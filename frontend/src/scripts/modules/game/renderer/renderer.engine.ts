@@ -1,14 +1,12 @@
-import { Engine, Scene } from "@babylonjs/core";
+import { Engine, GlowLayer, Scene } from "@babylonjs/core";
 import { createEl } from "../../../utils/dom-helper";
 import { createAudioEngine } from "./renderer.audio";
+import { createCamera } from "./renderer.camera";
 import { createControls } from "./renderer.controls";
+import { createDirectionalLight, createHemisphericLight } from "./renderer.light";
 import { createObjects } from "./renderer.objects";
-import {
-    createDirectionalLight,
-    createScene,
-    createShadowGenerator,
-    setupCamera,
-} from "./renderer.scene";
+import { createScene } from "./renderer.scene";
+import { createShadowGenerator } from "./renderer.shadow";
 
 /**
  * Engine will be initilized only once. Canvas element is persisted. So it's less expensive.
@@ -19,19 +17,18 @@ export const createRendererEngine = async (canvasEl: HTMLCanvasElement) => {
     // });
 
     const engine = new Engine(canvasEl, true);
+    const audioEngine = await createAudioEngine();
 
-    const scene = new Scene(engine);
-    scene.audioEnabled = true; // This doesn't seem to be official, separate for audio engine?
+    // Initialize options
+    engine.shadowsEnabled = false;
+    engine.soundsEnabled = true;
 
-    const light = createDirectionalLight(scene);
-    const shadowGenerator = createShadowGenerator(light);
-    const camera = setupCamera(engine, scene); // Change to create
-    const audio = await createAudioEngine();
+    const scene = createScene(engine);
+    const directionalLight = createDirectionalLight(scene);
+    engine.shadowGenerator = createShadowGenerator(directionalLight);
+    engine.camera = createCamera(engine, scene); // TODO: check if attaching camera is needed
 
-    // An array of mesh/game objcts
-    const objs = createObjects();
-
-    // Shadow enabled for last objs
-    const controls = createControls(shadowGenerator, audio, objs);
-    // createControls
+    createHemisphericLight(scene);
+    createControls(engine, audioEngine);
+    createObjects(scene);
 };

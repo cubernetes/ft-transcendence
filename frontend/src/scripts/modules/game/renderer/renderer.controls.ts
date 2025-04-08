@@ -1,4 +1,10 @@
-import { type AbstractMesh, AudioEngineV2, ShadowGenerator, SoundState } from "@babylonjs/core";
+import {
+    type AbstractMesh,
+    AudioEngineV2,
+    Engine,
+    ShadowGenerator,
+    SoundState,
+} from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
     Button,
@@ -25,12 +31,7 @@ const scaleGrid = (grid: Grid) => {
 };
 
 /** Create the shadow toggle button */
-const createShadowButton = (
-    grid: Grid,
-    generator: ShadowGenerator,
-    objs: AbstractMesh[],
-    state: ControlState
-) => {
+const createShadowButton = (grid: Grid, engine: Engine) => {
     // Style the button
     const styleShadowButton = (button: Button) => {
         button.width = "100px";
@@ -41,23 +42,17 @@ const createShadowButton = (
     };
 
     // Callback for the button
-    const buttonHandler = (
-        button: Button,
-        generator: ShadowGenerator,
-        objs: AbstractMesh[],
-        { shadowsEnabled }: ControlState
-    ) => {
-        if (shadowsEnabled) {
-            shadowsEnabled = false;
-            generator.getShadowMap()?.renderList?.splice(0);
+    const buttonHandler = (button: Button, engine: Engine) => {
+        if (engine.shadowsEnabled) {
+            engine.shadowsEnabled = false;
+            engine.shadowGenerator.getShadowMap()?.renderList?.splice(0);
             //button.textBlock!.text = "Shadows";
             button.background = "gray";
         } else {
-            shadowsEnabled = true;
-            objs.forEach((obj) => generator.addShadowCaster(obj));
-            // shadowGenerator.addShadowCaster(babylon.paddle1);
-            // shadowGenerator.addShadowCaster(babylon.paddle2);
-            // shadowGenerator.addShadowCaster(babylon.ball);
+            engine.shadowsEnabled = true;
+            engine.shadowGenerator.addShadowCaster(engine.objs.leftPaddle);
+            engine.shadowGenerator.addShadowCaster(engine.objs.rightPaddle);
+            engine.shadowGenerator.addShadowCaster(engine.objs.ball);
             //shadowButton.textBlock!.text = "Shadows";
             button.background = "blue";
         }
@@ -66,7 +61,7 @@ const createShadowButton = (
     // Create shadow button and add it to grid
     const button = Button.CreateSimpleButton("shadowToggle", "Shadows");
     styleShadowButton(button);
-    button.onPointerUpObservable.add(() => buttonHandler(button, generator, objs, state));
+    button.onPointerUpObservable.add(() => buttonHandler(button, engine));
     grid.addControl(button, 0, 2);
 };
 
@@ -85,15 +80,15 @@ const styleSoundButton = (button: Button) => {
 };
 
 /** Create the SFX toggle button */
-const createSFXButton = (grid: Grid, { soundsEnabled }: ControlState) => {
+const createSFXButton = (grid: Grid, engine: Engine) => {
     const buttonSFX = Button.CreateSimpleButton("sfx", "SFX");
     styleSoundButton(buttonSFX);
     buttonSFX.onPointerUpObservable.add(() => {
-        if (soundsEnabled) {
-            soundsEnabled = false;
+        if (engine.soundsEnabled) {
+            engine.soundsEnabled = false;
             buttonSFX.background = "red";
         } else {
-            soundsEnabled = true;
+            engine.soundsEnabled = true;
             buttonSFX.background = "green";
         }
     });
@@ -158,30 +153,15 @@ const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
 
 // #endregion
 
-type ControlState = {
-    shadowsEnabled: boolean;
-    soundsEnabled: boolean;
-};
-
-export const createControls = (
-    shadowGenerator: ShadowGenerator,
-    audio: AudioEngineV2,
-    objs: AbstractMesh[]
-) => {
-    // Default state
-    const state = {
-        shadowsEnabled: false,
-        soundsEnabled: false,
-    };
-
+export const createControls = (engine: Engine, audio: AudioEngineV2) => {
     const controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     const grid = new Grid();
     controls.addControl(grid);
     scaleGrid(grid);
 
     // Create control elements
-    createShadowButton(grid, shadowGenerator, objs, state);
-    createSFXButton(grid, state);
+    createShadowButton(grid, engine);
+    createSFXButton(grid, engine);
     createMusicButton(grid, audio);
     createVolumePanel(grid, audio);
 

@@ -1,50 +1,26 @@
-import {
-    Color3,
-    CreateGroundFromHeightMap,
-    type Scene,
-    StandardMaterial,
-    Vector3,
-} from "@babylonjs/core";
-import { type Size3D, defaultGameConfig } from "@darrenkuro/pong-core";
+import { Engine, Scene, Vector3 } from "@babylonjs/core";
+import { defaultGameConfig } from "@darrenkuro/pong-core";
+import { createBall } from "../objects/objects.ball";
+import { createPaddle } from "../objects/objects.paddle";
+import { createScore } from "../objects/objects.score";
 
-// #region: Object Configs
-const boardConfig = (scene: Scene, size: Size3D) => {
-    const material = new StandardMaterial("board", scene);
-    material.backFaceCulling = true; // Turn off back face culling to render both sides of the mesh
-    material.diffuseColor = new Color3(0, 1, 0);
-    material.specularColor = new Color3(1, 0, 0);
+export const createObjects = (engine: Engine, scene: Scene) => {
+    //createBoard(scene, new Vector3(0, -0.5, 0), defaultGameConfig.board.size);
 
-    return {
-        name: "board",
-        src: `${window.cfg.dir.asset}/height_map1.jpeg`,
-        options: {
-            width: size.width,
-            height: size.depth,
-            subdivisions: 50,
-            maxHeight: 0.3,
-            minHeight: -0.2,
-        },
-        material,
-        pos: new Vector3(0, -0.5, 0),
-    };
-};
+    // Create ball
+    const ballPos = new Vector3(0, 0, 0);
+    const ballRadius = defaultGameConfig.ball.r;
+    engine.objs.ball = createBall(scene, ballPos, ballRadius);
 
-const createBoard = (scene: Scene, pos: Vector3, size: Size3D) => {
-    const config = boardConfig(scene, size);
+    // Create paddles
+    const leftPaddlePos = new Vector3(-defaultGameConfig.paddles[0].pos.x / 2 + 0.5, 0.5, 0); // TODO: Check correct value
+    const leftPaddleSize = defaultGameConfig.paddles[0].size;
+    const rightPaddlePos = new Vector3(defaultGameConfig.paddles[1].pos.x / 2 - 0.5, 0.5, 0); // TODO: Check correct value
+    const rightPaddleSize = defaultGameConfig.paddles[1].size;
+    engine.objs.leftPaddle = createPaddle("leftPaddle", scene, leftPaddlePos, leftPaddleSize);
+    engine.objs.rightPaddle = createPaddle("rightPaddle", scene, rightPaddlePos, rightPaddleSize);
 
-    const { name, src, options } = config;
-    const board = CreateGroundFromHeightMap(name, src, options, scene);
-
-    board.material = config.material;
-    board.position = pos;
-    // board.material.wireframe = true;
-    board.receiveShadows = true;
-
-    return board;
-};
-
-const createPaddle = () => {};
-
-export const createObjects = (scene: Scene) => {
-    createBoard(scene, new Vector3(0, -0.5, 0), defaultGameConfig.board.size);
+    // Create score
+    const scorePos = new Vector3(0, 1, defaultGameConfig.board.size.depth / 2 + 0.5);
+    createScore(engine, scene, [0, 0], scorePos);
 };

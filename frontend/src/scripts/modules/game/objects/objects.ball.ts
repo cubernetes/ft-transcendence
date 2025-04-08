@@ -1,5 +1,6 @@
 import {
     Color3,
+    Mesh,
     MeshBuilder,
     PBRMaterial,
     Quaternion,
@@ -31,8 +32,7 @@ const ballConfig = (scene: Scene, radius: number) => {
     );
     material.bumpTexture.level = 20;
 
-    // ------------------- BALL TRAIL
-
+    // Create trail material
     const trailMaterial = new StandardMaterial("trailMat", scene);
     trailMaterial.diffuseColor = new Color3(1, 0, 0);
     trailMaterial.alpha = 0.5;
@@ -47,7 +47,7 @@ const ballConfig = (scene: Scene, radius: number) => {
     };
 };
 
-export const createBall = (scene: Scene, pos: Vector3, radius: number) => {
+export const createBall = (scene: Scene, pos: Vector3, radius: number): Mesh => {
     const config = ballConfig(scene, radius);
     const { name, options, material, trailMaterial } = config;
     const ball = MeshBuilder.CreateSphere(name, options, scene);
@@ -64,4 +64,5 @@ export const createBall = (scene: Scene, pos: Vector3, radius: number) => {
 
     const trail = new TrailMesh("ballTrail", ball, scene, radius, 30);
     trail.material = trailMaterial;
+    return ball;
 };
