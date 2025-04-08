@@ -9,6 +9,7 @@ import {
     CreateStreamingSoundAsync,
     CubeTexture,
     DirectionalLight,
+    GlowLayer,
     HemisphericLight,
     Mesh,
     MeshBuilder,
@@ -43,6 +44,8 @@ export class SceneSetup {
         const scene = new Scene(babylon.engine);
         scene.audioEnabled = true;
         // scene.environmentIntensity = 0.5;
+        const glow = new GlowLayer("glow", scene);
+        glow.intensity = 5;
         babylon.scene = scene;
 
         // --------- LIGHT
