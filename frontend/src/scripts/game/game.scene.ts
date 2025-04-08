@@ -644,7 +644,7 @@ export class SceneSetup {
         advancedTexture.addControl(winnerText);
     }
 
-    static applyCameraShake(babylon: BabylonObjects): void {
+    static shakeCamera(babylon: BabylonObjects): void {
         const shakeAnim = new Animation(
             "shake",
             "position",
@@ -672,5 +672,24 @@ export class SceneSetup {
         shakeAnim.setKeys(keys);
         babylon.camera.animations.push(shakeAnim);
         babylon.scene.beginAnimation(babylon.camera, 0, 12, false, 3);
+    }
+
+    static pulseLight(babylon: BabylonObjects, intensity: number = 5, duration: number = 10) {
+        const flashAnim = new Animation(
+            "lightPulse",
+            "intensity",
+            60,
+            Animation.ANIMATIONTYPE_FLOAT,
+            Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+
+        flashAnim.setKeys([
+            { frame: 0, value: babylon.light.intensity },
+            { frame: duration / 2, value: intensity },
+            { frame: duration, value: babylon.light.intensity },
+        ]);
+
+        babylon.light.animations.push(flashAnim);
+        babylon.scene.beginAnimation(babylon.light, 0, duration, false);
     }
 }

@@ -111,6 +111,8 @@ export class GameInstance {
         if (this.babylon.soundsEnabled) {
             this.babylon.ballSound.play();
         }
+        SceneSetup.pulseLight(this.babylon, 15);
+        // SceneSetup.blinkScore(this.babylon, score);  // TODO: OR blink the score?
         console.log(`Score updated: ${score[0]} - ${score[1]}`);
     }
 

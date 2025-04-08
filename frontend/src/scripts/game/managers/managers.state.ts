@@ -87,7 +87,7 @@ export class GameStateManager {
             document.getElementById("renderCanvas") as HTMLCanvasElement
         );
         instance.handlePaddleCollision();
-        SceneSetup.applyCameraShake(instance.babylon);
+        SceneSetup.shakeCamera(instance.babylon);
     }
 
     async resetBall() {
