@@ -1,12 +1,11 @@
 import earcut from "earcut";
 import config from "./global/config";
-import { createRouter } from "./global/router";
 import { logger } from "./utils/logger";
 
 /** Register globally accessible modules and utils */
 window.cfg = config;
 window.log = logger;
-window.earcut = earcut; // Needed for babylonJS
+window.earcut = earcut; // Needed for babylonJS?
 
 /** Register WebSocket for live reload */
 if (process.env.WATCH === "1") {
@@ -19,13 +18,15 @@ if (process.env.WATCH === "1") {
     };
 }
 
-const launchSite = (): void => {
-    const appElement = document.getElementById("app");
-    if (appElement) {
-        createRouter(appElement);
-    } else {
-        window.log.error("Fail to create router, couldn't find id #app");
-    }
-};
-
-document.addEventListener("DOMContentLoaded", launchSite);
+// Dynamic import to ensure globally registered objects are available
+import("./global/router").then(({ createRouter }) => {
+    const launchSite = (): void => {
+        const appElement = document.getElementById("app");
+        if (appElement) {
+            createRouter(appElement);
+        } else {
+            window.log.error("Fail to create router, couldn't find id #app");
+        }
+    };
+    document.addEventListener("DOMContentLoaded", launchSite);
+});
