@@ -8,11 +8,6 @@ RUN npm clean-install
 
 COPY . .
 
-ENV WATCH 0
+ENV WATCH=0
 
-CMD if [ "$WATCH" = "0" ]; then \
-		npm run build && \
-		npm start; \
-	else \
-		npm run start:dev; \
-	fi
+CMD ["sh", "-c", "if [ \"$WATCH\" = \"0\" ]; then npm run build && npm start; else npm run start:dev; fi"]
