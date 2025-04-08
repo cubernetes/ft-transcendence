@@ -8,7 +8,7 @@
 
 ## Directory structure of scripts
 
-```mermaid
+```
 scripts/
 ├── global/
 │   ├── config.ts           // Global vars, i.e. paths, etc.
