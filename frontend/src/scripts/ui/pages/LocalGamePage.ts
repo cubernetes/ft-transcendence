@@ -1,8 +1,9 @@
 import { PongState, createPongEngine } from "@darrenkuro/pong-core";
+import { createGameController } from "../../modules/game/game.controller";
+import { createRendererEngine } from "../../modules/game/renderer/renderer.engine";
 import { createEl } from "../../utils/dom-helper";
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
-import { GameInstance } from "./game/renderer/game.instance";
 
 export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     const header = await createHeader();
@@ -11,11 +12,8 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     const canvas = createEl("canvas", "w-full h-full", { attributes: { id: "renderCanvas" } });
     const container = createEl("div", "w-full h-[600px] relative", { children: [canvas] });
 
-    const gameInstance = await GameInstance.getInstance(canvas);
-    if (!gameInstance) {
-        window.log.error("Couldn't find game instance");
-    }
-
+    const renderer = await createRendererEngine(canvas);
+    const controller = createGameController(renderer);
     const engine = createPongEngine();
 
     const handleKeydown = (event: KeyboardEvent) => {
@@ -45,35 +43,13 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     document.addEventListener("keyup", handleKeyup);
 
     const setupEventListeners = () => {
-        engine.onEvent("wall-collision", async () => {
-            const instance = await GameInstance.getInstance(
-                document.getElementById("renderCanvas") as HTMLCanvasElement
-            );
-            instance.handleWallCollision();
-        });
-        engine.onEvent("paddle-collision", async () => {
-            const instance = await GameInstance.getInstance(
-                document.getElementById("renderCanvas") as HTMLCanvasElement
-            );
-            instance.handlePaddleCollision();
-        });
-        engine.onEvent("score", async () => {
-            const instance = await GameInstance.getInstance(
-                document.getElementById("renderCanvas") as HTMLCanvasElement
-            );
-            instance.handleScore();
-        });
-        engine.onEvent("state-update", async (evt: { state: PongState }) => {
-            window.log.info("state update!");
-            const instance = await GameInstance.getInstance(
-                document.getElementById("renderCanvas") as HTMLCanvasElement
-            );
-            const b = evt.state.ball.pos;
-            instance.updateBallPosition(b.x, b.y, b.z);
-            const p1 = evt.state.paddles[0].pos;
-            instance.updateLeftPaddlePosition(p1.x, p1.y, p1.z);
-            const p2 = evt.state.paddles[1].pos;
-            instance.updateRightPaddlePosition(p2.x, p2.y, p2.z);
+        engine.onEvent("wall-collision", () => controller.handleWallCollision());
+        engine.onEvent("paddle-collision", () => controller.handlePaddleCollision());
+        engine.onEvent("score", (evt) => controller.updateScores(evt.scores));
+        engine.onEvent("state-update", (evt) => {
+            controller.updateBall(evt.state.ball);
+            controller.updateLeftPaddle(evt.state.paddles[0].pos);
+            controller.updateRightPaddle(evt.state.paddles[1].pos);
         });
     };
 
@@ -89,9 +65,18 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
         document.removeEventListener("keydown", handleKeydown);
         window.log.info("keyup and keydown event listeners removed");
 
-        GameInstance.destroyInstance(); // This doesn't clean, music still playing?
+        //GameInstance.destroyInstance(); // This doesn't clean, music still playing?
     });
 
     // For game, maybe don't include header/footer?
+    renderer.runRenderLoop(() => {
+        renderer.scene.render();
+    });
+
+    // Destory this properly
+    window.addEventListener("resize", () => renderer.resize());
+    // Initial scale
+    requestAnimationFrame(() => renderer.resize());
+
     return [header, container, footer];
 };
