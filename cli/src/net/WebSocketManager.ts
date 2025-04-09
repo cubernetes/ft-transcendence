@@ -1,6 +1,5 @@
 import WebSocket from "ws";
 import { renderGameState } from "./GameRendering";
-import { ICLIGameState, IServerGameState } from "./game.types";
 import { getGameActive, mainMenu } from "./index";
 import { vec3ToVec2D } from "./utils";
 
@@ -11,7 +10,6 @@ export class WebSocketManager {
     constructor(private serverUrl: string) {
         this.ws = new WebSocket(this.serverUrl);
 
-        // WebSocket connection open
         this.ws.on("open", () => {
             // console.log("Connected to the server");
         });
@@ -19,6 +17,50 @@ export class WebSocketManager {
         // Handle incoming messages from the server
         this.ws.on("message", this.onMessage.bind(this));
     }
+
+    // -------------- copied from frontend
+    sendGameStart() {
+        console.log("in function sendGameStart");
+        if (this.socket.readyState === WebSocket.OPEN) {
+            logger.info("Sending game-start");
+
+            const jwtToken: string | null = localStorage.getItem("token");
+            if (!jwtToken) {
+                logger.error("JWT token not found in local storage.");
+                return;
+            }
+
+            logger.info("JWT token:", jwtToken);
+
+            const message = JSON.stringify({
+                type: "game-start",
+                payload: {
+                    token: jwtToken,
+                },
+            });
+            this.socket.send(message);
+            console.log("Game start message sent:", message);
+        } else {
+            logger.error("WebSocket is not open.");
+        }
+    }
+
+    sendDirection(direction: Direction) {
+        logger.info(`Sending direction: ${direction}`);
+        if (direction !== this.lastDirection && this.socket.readyState === WebSocket.OPEN) {
+            const message = JSON.stringify({
+                type: "game-action",
+                payload: {
+                    gameId: this.gameStateManager.getGameId(),
+                    index: this.gameStateManager.getPlayerIndex(),
+                    action: direction,
+                },
+            });
+            this.socket.send(message);
+            this.lastDirection = direction;
+        }
+    }
+    // --------------
 
     // Method to send a direction change to the server
     sendMessage(response: string) {
@@ -31,8 +73,8 @@ export class WebSocketManager {
         if (!getGameActive()) {
             return;
         }
-        const rawGameState: IServerGameState = JSON.parse(data.toString());
-        const cliGameState: ICLIGameState = {
+        const rawGameState = JSON.parse(data.toString());
+        const OLDstate = {
             ball: vec3ToVec2D(rawGameState.ballPosition),
             paddle1: vec3ToVec2D(rawGameState.paddlePosition["player-1"]),
             paddle2: vec3ToVec2D(rawGameState.paddlePosition["player-2"]),
@@ -54,15 +96,6 @@ export class WebSocketManager {
     resumeGame() {
         this.paused = false;
         console.log("Game resumed.");
-    }
-
-    // Toggle the pause state and render the menu
-    togglePause() {
-        if (this.paused) {
-            this.resumeGame();
-        } else {
-            this.pauseGame();
-        }
     }
 
     closeConnection() {
