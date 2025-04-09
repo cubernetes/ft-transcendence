@@ -3,6 +3,7 @@ import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createLocalGamePage } from "../ui/pages/LocalGamePage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
+import { createRemoteGamePage } from "../ui/pages/RemoteGamePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTotpSetupPage } from "../ui/pages/profile/totpSetup";
 
@@ -11,13 +12,19 @@ export const createRouter = (container: HTMLElement): void => {
         setup: createSetupPage,
         landing: createLandingPage,
         localgame: createLocalGamePage,
+        remotegame: createRemoteGamePage,
         profile: createProfilePage,
         leaderboard: createLeaderboardPage,
         totp: createTotpSetupPage,
     } satisfies Record<string, PageRenderer>;
 
     // A type-safe list of protected routes, only available after logging in
-    const protectedRoutes: (keyof typeof routes)[] = ["setup", "localgame", "profile"];
+    const protectedRoutes: (keyof typeof routes)[] = [
+        "setup",
+        "localgame",
+        "remotegame",
+        "profile",
+    ];
 
     const handleRouteChange = async () => {
         const hash = window.location.hash.slice(1);
