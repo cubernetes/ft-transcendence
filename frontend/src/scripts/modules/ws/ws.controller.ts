@@ -4,7 +4,7 @@ import {
     OutgoingMessagePayloads,
     OutgoingMessageType,
 } from "@darrenkuro/pong-core";
-import { safeParseJSON } from "../../utils/api";
+import { safeJsonParse } from "@darrenkuro/pong-core";
 import { gameStore } from "../game/game.store";
 
 type MessageHandler<T extends OutgoingMessageType> = (payload: OutgoingMessagePayloads[T]) => void;
@@ -102,7 +102,7 @@ const registerIngameControllers = () => {
 };
 
 export const handleMessage = (evt: MessageEvent<any>) => {
-    const result = safeParseJSON<OutgoingMessage<OutgoingMessageType>>(evt.data);
+    const result = safeJsonParse<OutgoingMessage<OutgoingMessageType>>(evt.data);
     if (result.isErr()) {
         window.log.error(`Fail to parse socket message: ${evt.data}`);
         return;
