@@ -2,7 +2,7 @@ import { Result, err, ok } from "neverthrow";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from "@darrenkuro/pong-core";
 import { postWithBody } from "../../utils/api";
-import { authStore, defaultAuthState } from "./auth.store";
+import { authStore, emptyAuthState } from "./auth.store";
 import { AuthFormData } from "./auth.types";
 
 /**
@@ -110,8 +110,8 @@ export const logout = () => {
         return window.log.warn("Try to log out user when not authenticated");
     }
 
-    authStore.set(defaultAuthState);
+    authStore.set(emptyAuthState);
 
     // TODO: access/refresh token maybe; local storage is not safe!
-    localStorage.removeItem("token");
+    localStorage.removeItem(window.cfg.label.token);
 };

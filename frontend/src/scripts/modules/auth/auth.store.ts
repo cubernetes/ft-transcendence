@@ -1,4 +1,5 @@
 import { createStore } from "../../global/store";
+import { getWrapper } from "../../utils/api";
 
 export type AuthState = {
     isAuthenticated: boolean;
@@ -8,7 +9,7 @@ export type AuthState = {
     username: string | null;
 };
 
-export const defaultAuthState: AuthState = {
+export const emptyAuthState = {
     isAuthenticated: false,
     totpRequired: false,
     token: null,
@@ -16,4 +17,28 @@ export const defaultAuthState: AuthState = {
     username: null,
 };
 
-export const authStore = createStore<AuthState>(defaultAuthState);
+export const initAuthState = async (): Promise<AuthState> => {
+    const token = localStorage.getItem(window.cfg.label.token);
+    if (!token) {
+        return emptyAuthState;
+    }
+
+    const result = await getWrapper<{ success: boolean; data: Record<string, string> }>(
+        `${window.cfg.url.user}/me`
+    );
+
+    if (result.isErr() || !result.value.success) {
+        return emptyAuthState;
+    }
+
+    const { id, username } = result.value.data;
+    return {
+        isAuthenticated: true,
+        totpRequired: false,
+        token,
+        id,
+        username,
+    };
+};
+
+export const authStore = createStore<AuthState>(await initAuthState());

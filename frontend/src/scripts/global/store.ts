@@ -1,6 +1,4 @@
-/**
- * A general reactive store for global states.
- */
+/** A general reactive store for global states. */
 export const createStore = <T extends object>(initialState: T) => {
     let state = initialState;
     const subscribers: Set<(newState: T) => void> = new Set();
