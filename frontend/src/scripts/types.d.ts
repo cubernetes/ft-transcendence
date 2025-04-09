@@ -29,12 +29,8 @@ declare global {
     }
 
     // Globally defined types so no need to import
+    // Probably not good practice esp as things grow...
     type PageRenderer = () => Promise<HTMLElement[]>;
-    type SoundConfig = {
-        name: string;
-        src: string;
-        options: Record<string, unknown>;
-    };
 }
 
 declare module "@babylonjs/core" {

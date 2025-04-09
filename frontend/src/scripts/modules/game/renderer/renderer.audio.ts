@@ -7,6 +7,12 @@ import {
 } from "@babylonjs/core";
 
 // #region: Sound configs
+type SoundConfig = {
+    name: string;
+    src: string;
+    options: Record<string, unknown>;
+};
+
 const bgMusicConfig: SoundConfig = {
     name: "bgMusic",
     src: `${window.cfg.dir.audio}/neon-gaming.mp3`,
