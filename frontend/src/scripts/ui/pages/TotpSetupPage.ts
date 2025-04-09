@@ -1,6 +1,9 @@
-import { createFooter } from "../../layout/Footer";
-import { createHeader } from "../../layout/Header";
+import { createFooter } from "../layout/Footer";
+import { createHeader } from "../layout/Header";
 
+/**
+ * TODO: refactor this into a modal
+ */
 export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
     const fragment = document.createDocumentFragment();
 

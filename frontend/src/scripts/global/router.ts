@@ -5,7 +5,7 @@ import { createLocalGamePage } from "../ui/pages/LocalGamePage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createRemoteGamePage } from "../ui/pages/RemoteGamePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
-import { createTotpSetupPage } from "../ui/pages/profile/totpSetup";
+import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 
 export const createRouter = (container: HTMLElement): void => {
     const routes = {
