@@ -1,6 +1,7 @@
-import { PongEngineEventMap, UserInput } from "./pong.types";
+import { PongEngineEventMap, UserInput } from "../pong/pong.types";
 
 export type IncomingMessageType = "game-start" | "game-action";
+
 export type OutgoingMessageType = keyof PongEngineEventMap | "waiting-for-opponent";
 
 export type MessageType = IncomingMessageType | OutgoingMessageType;
@@ -24,11 +25,3 @@ export interface OutgoingMessage<T extends OutgoingMessageType> {
     type: T;
     payload: OutgoingMessagePayloads[T];
 }
-
-export type JwtPayload = {
-    id: string;
-    username: string;
-    displayName: string;
-    iat: number; // Signed automatically by the JWT library
-    exp: number; // Signed automatically by the JWT library
-};
