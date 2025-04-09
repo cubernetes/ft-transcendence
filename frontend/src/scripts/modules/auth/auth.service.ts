@@ -1,0 +1,85 @@
+import { Result, err, ok } from "neverthrow";
+import { jwtDecode } from "jwt-decode";
+import { JwtPayload } from "@darrenkuro/pong-core";
+import { postWithBody } from "../../utils/api";
+import { authStore, defaultAuthState } from "./auth.store";
+import { AuthFormData } from "./auth.types";
+
+/**
+ * Would be business logic, such as api calls etc.
+ */
+// TODO: move to pong-core
+type AuthFormResponse = {
+    success: boolean;
+    data: {
+        token: string;
+        totpEnabled: boolean;
+    };
+};
+
+/** Process JWT token, local storage, authStore update */
+const processToken = (token: string) => {
+    localStorage.setItem(window.cfg.label.token, token);
+    const jwtPayload: JwtPayload = jwtDecode(token); // Failable?
+    const { id, username } = jwtPayload;
+    authStore.set({ isAuthenticated: true, id, username, token, totpRequired: false });
+};
+
+/**
+ * @returns boolean true - success; false - totp required
+ */
+export const tryLogin = async (payload: AuthFormData): Promise<Result<boolean, Error>> => {
+    const result = await postWithBody<AuthFormData, AuthFormResponse>(
+        `${window.cfg.url.user}/login`,
+        payload
+    );
+
+    if (result.isErr()) {
+        return err(result.error);
+    }
+
+    // if (!result.value.success)?
+
+    const { data } = result.value;
+
+    if (data.totpEnabled) {
+        const { username } = payload;
+        authStore.update({ totpRequired: true, username });
+        window.log.debug("TOTP required, authStore should notify");
+        return ok(false);
+    } else {
+        processToken(data.token);
+        return ok(true);
+    }
+};
+
+export const tryRegister = async (payload: AuthFormData): Promise<Result<void, Error>> => {
+    const result = await postWithBody<AuthFormData, AuthFormResponse>(
+        `${window.cfg.url.user}/register`,
+        payload
+    );
+
+    if (result.isErr()) {
+        return err(result.error);
+    }
+
+    // if (!result.value.success)?
+
+    processToken(result.value.data.token);
+
+    return ok();
+};
+
+// TODO: totp verify
+
+export const logout = () => {
+    const authState = authStore.get();
+    if (!authState.isAuthenticated) {
+        return window.log.warn("Try to log out user when not authenticated");
+    }
+
+    authStore.set(defaultAuthState);
+
+    // TODO: access/refresh token maybe; local storage is not safe!
+    localStorage.removeItem("token");
+};
