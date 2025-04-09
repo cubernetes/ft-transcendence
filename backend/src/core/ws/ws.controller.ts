@@ -1,15 +1,7 @@
+import type { IncomingMessage, IncomingMessageType } from "@darrenkuro/pong-core";
 import type { FastifyRequest } from "fastify";
 import type { WebSocket } from "fastify";
-import { Result, err, ok } from "neverthrow";
-import { IncomingMessage, IncomingMessageType } from "@darrenkuro/pong-core";
-
-const safeJsonParse = <T>(data: string): Result<T, Error> => {
-    try {
-        return ok(JSON.parse(data));
-    } catch (error) {
-        return err(new Error("Invalid JSON"));
-    }
-};
+import { safeJsonParse } from "@darrenkuro/pong-core";
 
 export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
     const { server } = req;
