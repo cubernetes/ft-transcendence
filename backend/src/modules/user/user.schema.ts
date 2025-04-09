@@ -1,5 +1,5 @@
 import zodToJsonSchema from "zod-to-json-schema";
-import { apiError, schemas } from "@darrenkuro/pong-core";
+import { apiError, apiSuccess, schemas } from "@darrenkuro/pong-core";
 
 /** Schemas for swagger UI */
 const registerRouteSchema = {
@@ -7,7 +7,7 @@ const registerRouteSchema = {
     description: "Register a new user",
     body: zodToJsonSchema(schemas.registerBody),
     response: {
-        201: zodToJsonSchema(schemas.loginResponse),
+        201: zodToJsonSchema(apiSuccess(schemas.loginPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         409: zodToJsonSchema(apiError("USERNAME_TAKEN")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
@@ -19,7 +19,7 @@ const loginRouteSchema = {
     description: "Login an user",
     body: zodToJsonSchema(schemas.loginBody),
     response: {
-        201: zodToJsonSchema(schemas.loginResponse),
+        201: zodToJsonSchema(apiSuccess(schemas.loginPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         404: zodToJsonSchema(apiError("NOT_FOUND")),
@@ -32,7 +32,7 @@ const getMeRouteSchema = {
     description: "Get current user info",
     security: [{ bearerAuth: [] }],
     response: {
-        200: zodToJsonSchema(schemas.getMeResponse),
+        200: zodToJsonSchema(apiSuccess(schemas.getMePayload)),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },
@@ -43,7 +43,7 @@ const getTotpSetupRouteSchema = {
     description: "Get the data URI for a QR code image to provision the TOTP 2FA",
     security: [{ bearerAuth: [] }],
     response: {
-        200: zodToJsonSchema(schemas.totpSetupResponse),
+        200: zodToJsonSchema(apiSuccess(schemas.totpSetupPayload)),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },
@@ -54,7 +54,7 @@ const getTotpVerifyRouteSchema = {
     description: "Verify a 6-digit TOTP token",
     body: zodToJsonSchema(schemas.totpBody),
     response: {
-        200: zodToJsonSchema(schemas.totpVerifyResponse),
+        200: zodToJsonSchema(apiSuccess(schemas.totpVerifyPayload)),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },
@@ -65,7 +65,7 @@ const getLeaderboardRouteSchema = {
     description: "Get top n users by wins",
     params: zodToJsonSchema(schemas.leaderboardParams),
     response: {
-        200: zodToJsonSchema(schemas.leaderboardResponse),
+        200: zodToJsonSchema(apiSuccess(schemas.leaderboardPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },

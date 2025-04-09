@@ -1,21 +1,15 @@
+import type {
+    JwtPayload,
+    LoginBody,
+    LoginResponse,
+    RegisterBody,
+    TotpBody,
+    TotpVerifyResponse,
+} from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
 import { jwtDecode } from "jwt-decode";
-import { JwtPayload } from "@darrenkuro/pong-core";
 import { postWithBody } from "../../utils/api";
 import { authStore, emptyAuthState } from "./auth.store";
-import { AuthFormData } from "./auth.types";
-
-/**
- * Would be business logic, such as api calls etc.
- */
-// TODO: move to pong-core
-type AuthFormResponse = {
-    success: boolean;
-    data: {
-        token: string;
-        totpEnabled: boolean;
-    };
-};
 
 /** Process JWT token, local storage, authStore update */
 const processToken = (token: string) => {
@@ -28,8 +22,8 @@ const processToken = (token: string) => {
 /**
  * @returns boolean true - success; false - totp required
  */
-export const tryLogin = async (payload: AuthFormData): Promise<Result<boolean, Error>> => {
-    const result = await postWithBody<AuthFormData, AuthFormResponse>(
+export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Error>> => {
+    const result = await postWithBody<LoginBody, LoginResponse>(
         `${window.cfg.url.user}/login`,
         payload
     );
@@ -38,7 +32,9 @@ export const tryLogin = async (payload: AuthFormData): Promise<Result<boolean, E
         return err(result.error);
     }
 
-    // if (!result.value.success)?
+    if (!result.value.success) {
+        return err(new Error(result.value.error.message));
+    }
 
     const { data } = result.value;
 
@@ -53,8 +49,8 @@ export const tryLogin = async (payload: AuthFormData): Promise<Result<boolean, E
     }
 };
 
-export const tryRegister = async (payload: AuthFormData): Promise<Result<void, Error>> => {
-    const result = await postWithBody<AuthFormData, AuthFormResponse>(
+export const tryRegister = async (payload: RegisterBody): Promise<Result<void, Error>> => {
+    const result = await postWithBody<RegisterBody, LoginResponse>(
         `${window.cfg.url.user}/register`,
         payload
     );
@@ -63,10 +59,11 @@ export const tryRegister = async (payload: AuthFormData): Promise<Result<void, E
         return err(result.error);
     }
 
-    // if (!result.value.success)?
+    if (!result.value.success) {
+        return err(new Error(result.value.error.message));
+    }
 
     processToken(result.value.data.token);
-
     return ok();
 };
 
@@ -78,27 +75,18 @@ export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
         return err(new Error("Fail to get username or input element for totp token"));
     }
 
-    const result = await postWithBody<{ username: string; token: string }, AuthFormResponse>(
+    const result = await postWithBody<TotpBody, TotpVerifyResponse>(
         `${window.cfg.url.user}/totpVerify`,
-        {
-            username,
-            token,
-        }
+        { username, token }
     );
 
     if (result.isErr()) {
-        const msg = `Fail to POST to totpVerify: ${result.error.message}}`;
-        window.log.error(msg);
-        return err(new Error(msg));
+        return err(result.error);
     }
 
-    // if (!result.value.success)?
-    // if (resp.status == 400) {
-    //     alert("Invalid request"); // TODO: Remove alerts
-    // } else if (resp.status == 401) {
-    //     alert("Invalid TOTP code");
-    // } else if (resp.status == 404) {
-    //     alert(`User '${username}' not found`);
+    if (!result.value.success) {
+        return err(new Error(result.value.error.message));
+    }
 
     processToken(result.value.data.token);
     return ok();
