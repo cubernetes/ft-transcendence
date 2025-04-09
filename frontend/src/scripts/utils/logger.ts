@@ -1,14 +1,14 @@
 type logLevel = "debug" | "info" | "warn" | "error";
 const logLevels: logLevel[] = ["debug", "info", "warn", "error"];
 
-/** Define the log level for different environments */
+// Define the log level for different environments
 const PROD_LOG_LEVEL: logLevel = "error";
 const DEV_LOG_LEVEL: logLevel = "debug";
 
-/** Change the log level fro dev mode here manually */
+// Change the log level fro dev mode here manually
 const logLevel: logLevel = process.env.NODE_ENV === "production" ? PROD_LOG_LEVEL : DEV_LOG_LEVEL;
 
-/** Find the index of the current log level */
+// Find the index of the current log level
 const logLevelIndex = logLevels.indexOf(logLevel);
 
 export const logger = {

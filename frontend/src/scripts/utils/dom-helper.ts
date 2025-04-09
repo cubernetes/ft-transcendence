@@ -1,5 +1,3 @@
-import { Result } from "neverthrow";
-
 type ElementParams = {
     text?: string;
     attributes?: Record<string, string>;
