@@ -1,7 +1,7 @@
-import { PongState, createPongEngine } from "@darrenkuro/pong-core";
+import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
 import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer, disposeRenderer } from "../../modules/game/game.renderer";
-// import { createRenderer } from "../../modules/game/game.renderer";
+import { defaultGameState, gameStore } from "../../modules/game/game.store";
 import { createEl } from "../../utils/dom-helper";
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
@@ -48,9 +48,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
         engine.onEvent("paddle-collision", () => controller.handlePaddleCollision());
         engine.onEvent("score", (evt) => controller.updateScores(evt.scores));
         engine.onEvent("state-update", (evt) => {
-            controller.updateBall(evt.state.ball);
-            controller.updateLeftPaddle(evt.state.paddles[0].pos);
-            controller.updateRightPaddle(evt.state.paddles[1].pos);
+            controller.updateState(evt.state);
         });
     };
 
@@ -67,10 +65,8 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
         window.log.info("keyup and keydown event listeners removed");
 
         disposeRenderer(renderer);
-        //GameInstance.destroyInstance(); // This doesn't clean, music still playing?
     });
 
-    // For game, maybe don't include header/footer?
     renderer.runRenderLoop(() => {
         renderer.scene.render();
     });

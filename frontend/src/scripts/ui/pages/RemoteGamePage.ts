@@ -1,53 +1,62 @@
-// import { createPongEngine } from "@darrenkuro/pong-core";
-// import { createEl } from "../../utils/dom-helper";
-// import { createFooter } from "../layout/Footer";
-// import { createHeader } from "../layout/Header";
-// import { GameInstance } from "./game/renderer/game.instance";
+import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
+import { createGameController } from "../../modules/game/game.controller";
+import { createRenderer, disposeRenderer } from "../../modules/game/game.renderer";
+import { defaultGameState, gameStore } from "../../modules/game/game.store";
+import { sendDirection, sendGameStart } from "../../modules/ws/ws.service";
+import { createEl } from "../../utils/dom-helper";
+import { createFooter } from "../layout/Footer";
+import { createHeader } from "../layout/Header";
 
-// /**
-//  * Remote vs local vs "ai".
-//  */
-// export const createRemoteGamePage = async (
-//     mode: "remote" | "local" | "ai"
-// ): Promise<HTMLElement[]> => {
-//     const header = await createHeader();
-//     const footer = createFooter();
+export const createRemoteGamePage = async (): Promise<HTMLElement[]> => {
+    const header = await createHeader();
+    const footer = createFooter();
 
-//     const canvas = createEl("canvas", "w-full h-full", { attributes: { id: "renderCanvas" } });
-//     const container = createEl("div", "w-full h-[600px] relative", { children: [canvas] });
+    const canvas = createEl("canvas", "w-full h-full", { attributes: { id: "renderCanvas" } });
+    const container = createEl("div", "w-full h-[600px] relative", { children: [canvas] });
 
-//     const gameInstance = await GameInstance.getInstance(canvas);
-//     if (!gameInstance) {
-//         window.log.error("Couldn't find game instance");
-//     }
+    const renderer = await createRenderer(canvas);
+    const controller = createGameController(renderer);
+    gameStore.update({ renderer, controller });
 
-//     if (mode === "remote") {
-//         // socket, send game start
-//         document.addEventListener("keydown", (event) => {
-//             window.log.info(`Key pressed: ${event.key}`);
-//             if (event.key === "ArrowUp" || event.key === "w") {
-//                 gameInstance.getWebSocketManager().sendDirection("up");
-//             } else if (event.key === "ArrowDown" || event.key === "s") {
-//                 gameInstance.getWebSocketManager().sendDirection("down");
-//             }
-//         });
+    const handleKeydown = (evt: KeyboardEvent) => {
+        window.log.debug(`Key pressed: ${evt.key}`);
+        if (evt.key === "w" || evt.key === "ArrowUp") {
+            sendDirection("up");
+        } else if (evt.key === "s" || evt.key === "ArrowDown") {
+            sendDirection("down");
+        }
+    };
 
-//         document.addEventListener("keyup", (event) => {
-//             window.log.info(`Key released: ${event.key}`);
-//             if (["ArrowUp", "ArrowDown", "w", "s"].includes(event.key)) {
-//                 gameInstance.getWebSocketManager().sendDirection("stop");
-//             }
-//         });
-//     }
+    document.addEventListener("keydown", handleKeydown);
 
-//     if (mode === "local" || "ai") {
-//         const engine = createPongEngine();
-//         engine.start();
-//         engine.onEvent("wall-collision", () => {});
-//     }
+    const handleKeyup = (evt: KeyboardEvent) => {
+        window.log.debug(`Key released: ${evt.key}`);
+        if (["w", "s", "ArrowUp", "ArrowDown"].includes(evt.key)) {
+            sendDirection("stop");
+        }
+    };
 
-//     // Destroy and clean up
+    document.addEventListener("keyup", handleKeyup);
 
-//     // For game, maybe don't include header/footer?
-//     return [header, container, footer];
-// };
+    sendGameStart();
+
+    // Destroy and clean up
+    container.addEventListener("destroy", () => {
+        document.removeEventListener("keyup", handleKeyup);
+        document.removeEventListener("keydown", handleKeydown);
+        window.log.info("keyup and keydown event listeners removed");
+
+        disposeRenderer(renderer);
+    });
+
+    renderer.runRenderLoop(() => {
+        renderer.scene.render();
+    });
+
+    // Destory this properly
+    window.addEventListener("resize", () => renderer.resize());
+    // Initial scale
+    requestAnimationFrame(() => renderer.resize());
+
+    return [header, container, footer];
+};
