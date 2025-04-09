@@ -5,28 +5,27 @@ export const createStore = <T extends object>(initialState: T) => {
     let state = initialState;
     const subscribers: Set<(newState: T) => void> = new Set();
 
-    // A helper function to notify all subscribers when the state changes
     const notifySubscribers = () => {
         for (const subscriber of subscribers) {
             subscriber(state);
         }
     };
 
-    // The reactive store, wrapped in a Proxy to observe state changes
-    // Directly field only, doesn't handle delete, set explicitly gives you more control, maybe
-    // const reactiveState = new Proxy(state, {
-    //     set: (target, p: string | symbol, value: any, receiver: any) => {
-    //         target[p as keyof T] = value;
-    //         notifySubscribers();
-    //         return true;
-    //     },
-    // });
-
-    // Function to subscribe to state changes
+    /**
+     * Function to subscrite to state changes.
+     * @param subscriber the callback function when state change is triggered
+     * @returns the function to unsubscribe,
+     * @example const unsubscribe = authStore.subscribte((state) => whatever());
+     *          later, call unsubscribe();
+     */
     const subscribe = (subscriber: (newState: T) => void) => {
         subscribers.add(subscriber);
+        return () => {
+            subscribers.delete(subscriber);
+        };
     };
-    // Update with partial object
+
+    /** Function to update partial state. */
     const update = (newStates: Partial<T>) => {
         // Create a new object with merged values
         state = { ...state, ...newStates };
