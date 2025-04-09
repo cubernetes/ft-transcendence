@@ -1,4 +1,5 @@
 import { Result, err, ok } from "neverthrow";
+import { logout } from "../modules/auth/auth.service";
 
 /**
  * A generic fetch wrapper to send JSON over request body.
@@ -39,6 +40,10 @@ export const getWrapper = async <T>(url: string): Promise<Result<T, Error>> => {
                     "Bearer " + localStorage.getItem(window.cfg.label.token) || "Unauthorized",
             },
         });
+
+        if (response.status == 401) {
+            logout();
+        }
 
         if (!response.ok) {
             const msg = `GET error to ${url}, status: ${response.status}`;

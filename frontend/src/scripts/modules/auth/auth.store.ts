@@ -1,7 +1,8 @@
 import { createStore } from "../../global/store";
+import { createTotpModal } from "../../ui/layout/TotpModal";
 import { getWrapper } from "../../utils/api";
 
-export type AuthState = {
+type AuthState = {
     isAuthenticated: boolean;
     totpRequired: boolean;
     token: string | null;
@@ -17,8 +18,9 @@ export const emptyAuthState = {
     username: null,
 };
 
-export const initAuthState = async (): Promise<AuthState> => {
+const initAuthState = async (): Promise<AuthState> => {
     const token = localStorage.getItem(window.cfg.label.token);
+
     if (!token) {
         return emptyAuthState;
     }
@@ -41,4 +43,35 @@ export const initAuthState = async (): Promise<AuthState> => {
     };
 };
 
-export const authStore = createStore<AuthState>(await initAuthState());
+export const authStore = createStore<AuthState>(emptyAuthState);
+
+initAuthState().then((initialState) => {
+    authStore.set(initialState);
+});
+
+authStore.subscribe(async (state) => {
+    window.log.debug("AuthStore subscriber trigged");
+
+    // Redirect to home once successfully authenticated
+    if (state.isAuthenticated) {
+        window.location.href = window.cfg.url.home;
+    }
+
+    // Redirect to default page once logged out
+    if (!state.isAuthenticated) {
+        window.location.href = window.cfg.url.default;
+    }
+
+    // Replace login form with totp modal if totp is being required
+    if (state.totpRequired) {
+        const el = document.getElementById(window.cfg.id.loginForm);
+        if (!el) {
+            window.log.error("Unable to find login form when totp is required");
+            return;
+        }
+
+        const modalEl = await createTotpModal();
+        el.innerHTML = "";
+        el.appendChild(modalEl);
+    }
+});

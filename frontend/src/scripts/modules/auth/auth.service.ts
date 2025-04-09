@@ -105,9 +105,10 @@ export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
 };
 
 export const logout = () => {
+    window.log.debug("Logging out...");
     const authState = authStore.get();
     if (!authState.isAuthenticated) {
-        return window.log.warn("Try to log out user when not authenticated");
+        window.log.warn("Try to log out user when not authenticated");
     }
 
     authStore.set(emptyAuthState);
