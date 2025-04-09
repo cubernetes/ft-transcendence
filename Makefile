@@ -51,6 +51,7 @@ dev: check-env
 .PHONY: prod
 prod: clean-frontend-volume ensure-secret-files
 	@$(call prod-env,    \
+		--profile elk	 \
 		up               \
 		--remove-orphans \
 		--build          \

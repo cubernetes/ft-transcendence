@@ -77,8 +77,8 @@ services:
             <<: *env-caddy-backend
             NODE_ENV: "${NODE_ENV:-development}"
             DB_PATH: "${DB_PATH:-}"
-            LOGSTASH_HOST: "logstash"
-            LOGSTASH_PORT: "5000"
+            LOGSTASH_HOST: "${LOGSTASH_HOST:-logstash}"
+            LOGSTASH_PORT: "${LOGSTASH_HOST:-5000}"
         volumes:
             - "drizzle:/backend/drizzle/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
@@ -89,6 +89,7 @@ services:
             logstash:
                 restart: true
                 condition: service_healthy
+                required: false
         develop:
             watch:
                 - path: "./backend/"
@@ -103,6 +104,7 @@ services:
         env_file: *env-files
 
     elasticsearch:
+        profiles: [elk]
         image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
         container_name: elasticsearch
         environment:
@@ -124,6 +126,7 @@ services:
             retries: 5
 
     logstash:
+        profiles: [elk]
         image: docker.elastic.co/logstash/logstash:8.17.3
         container_name: logstash
         volumes:
@@ -150,6 +153,7 @@ services:
             start_period: 30s
 
     kibana:
+        profiles: [elk]
         image: docker.elastic.co/kibana/kibana:8.17.3
         container_name: kibana
         ports:
