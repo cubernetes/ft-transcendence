@@ -1,8 +1,8 @@
 import { Result, err, ok } from "neverthrow";
 
 /**
- * A fetch wrapper to send JSON over request body.
- * Generic, T for request data, E for response.
+ * A generic fetch wrapper to send JSON over request body.
+ * @template T,E T: RequestBody, E: ResponseJSON
  */
 export const postWithBody = async <T, E>(url: string, body: T): Promise<Result<E, Error>> => {
     try {
@@ -19,7 +19,8 @@ export const postWithBody = async <T, E>(url: string, body: T): Promise<Result<E
         }
 
         const data: E = await response.json();
-        return ok(data); // Return a success result
+
+        return ok(data);
     } catch (error) {
         return err(error instanceof Error ? error : new Error("Unknown error"));
     }
