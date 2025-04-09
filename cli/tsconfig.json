@@ -1,15 +1,13 @@
 {
+    "include": ["src/**/*"],
+    "types": ["node", "inquirer"],
     "compilerOptions": {
-        // "target": "ES2020",
-        "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "node",
+        "target": "es2020",
+        "rootDir": "./src",
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "strict": true,
-        "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "types": ["node", "inquirer"]
-    },
-    "include": ["src/**/*"]
+        "skipLibCheck": true,
+        "moduleResolution": "bundler",
+        "module": "esnext"
+    }
 }
