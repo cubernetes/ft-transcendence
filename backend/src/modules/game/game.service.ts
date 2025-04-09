@@ -84,9 +84,9 @@ export const createGameService = (app: FastifyInstance) => {
             });
         });
 
-        engine.onEvent("score", (evt) => {
+        engine.onEvent("score-update", (evt) => {
             app.wsService.broadcast(players, {
-                type: "score",
+                type: "score-update",
                 payload: { scores: evt.scores },
             });
         });

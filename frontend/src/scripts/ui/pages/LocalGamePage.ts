@@ -46,7 +46,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     const setupEventListeners = () => {
         engine.onEvent("wall-collision", () => controller.handleWallCollision());
         engine.onEvent("paddle-collision", () => controller.handlePaddleCollision());
-        engine.onEvent("score", (evt) => controller.updateScores(evt.scores));
+        engine.onEvent("score-update", (evt) => controller.updateScores(evt.scores));
         engine.onEvent("state-update", (evt) => {
             controller.updateState(evt.state);
         });
