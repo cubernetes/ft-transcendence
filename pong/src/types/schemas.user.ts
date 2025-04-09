@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { apiSuccess } from "./schemas.api";
+import { ApiResponse } from "./schemas.api";
 
 const jwtPayload = z.object({
     id: z.string(),
@@ -64,12 +64,12 @@ const totpSetupPayload = z.object({
 const totpVerifyPayload = z.object({ token: z.string() });
 
 const getMePayload = publicUser;
-const getMeResponse = apiSuccess(publicUser);
-const loginResponse = apiSuccess(loginPayload);
+// const getMeResponse = apiResponse(publicUser);
+// const loginResponse = apiResponse(loginPayload);
 const leaderboardPayload = publicUser.array();
-const leaderboardResponse = apiSuccess(leaderboardPayload);
-const totpSetupResponse = apiSuccess(totpSetupPayload);
-const totpVerifyResponse = apiSuccess(totpVerifyPayload);
+// const leaderboardResponse = apiResponse(leaderboardPayload);
+// const totpSetupResponse = apiResponse(totpSetupPayload);
+// const totpVerifyResponse = apiResponse(totpVerifyPayload);
 
 export const schemas = {
     jwtPayload,
@@ -80,15 +80,15 @@ export const schemas = {
     leaderboardParams,
     publicUser,
     getMePayload,
-    getMeResponse,
     loginPayload,
-    loginResponse,
     leaderboardPayload,
-    leaderboardResponse,
     totpSetupPayload,
-    totpSetupResponse,
     totpVerifyPayload,
-    totpVerifyResponse,
+    // getMeResponse,
+    // loginResponse,
+    // leaderboardResponse,
+    // totpSetupResponse,
+    // totpVerifyResponse,
 };
 
 export type JwtPayload = z.infer<typeof schemas.jwtPayload>;
@@ -99,12 +99,12 @@ export type TotpInitialBody = z.infer<typeof schemas.totpInitialBody>;
 export type LeaderboardParams = z.infer<typeof schemas.leaderboardParams>;
 export type PublicUser = z.infer<typeof schemas.publicUser>;
 export type GetMePayload = z.infer<typeof schemas.getMePayload>;
-export type GetMeResponse = z.infer<typeof schemas.getMeResponse>;
+export type GetMeResponse = ApiResponse<typeof schemas.getMePayload>;
 export type LoginPayload = z.infer<typeof schemas.loginPayload>;
-export type LoginResponse = z.infer<typeof schemas.loginResponse>;
+export type LoginResponse = ApiResponse<typeof schemas.loginPayload>;
 export type LeaderboardPayload = z.infer<typeof schemas.leaderboardPayload>;
-export type leaderboardResponse = z.infer<typeof schemas.leaderboardResponse>;
+export type leaderboardResponse = ApiResponse<typeof schemas.leaderboardPayload>;
 export type TotpSetupPayload = z.infer<typeof schemas.totpSetupPayload>;
-export type TotpSetupResponse = z.infer<typeof schemas.totpSetupResponse>;
+export type TotpSetupResponse = ApiResponse<typeof schemas.totpSetupPayload>;
 export type TotpVerifyPayload = z.infer<typeof schemas.totpVerifyPayload>;
-export type TotpVerifyResponse = z.infer<typeof schemas.totpVerifyPayload>;
+export type TotpVerifyResponse = ApiResponse<typeof schemas.totpVerifyPayload>;
