@@ -10,9 +10,18 @@ die () {
 
 optional_squash_regex='((squash|fixup)! )?'
 regex_titlecase_verb='[A-Z][a-z]+ '
+regex_titlecase_verb_sve='[a-z][a-z]+ '
 regex_imperative_verb='[A-Z][a-z]+ed '
+regex_imperative_verb_sve='[a-a][a-z]+ed '
 
-grep -qE -e "^$optional_squash_regex$regex_titlecase_verb" -- "$1" || \
-	die "Commit message format is incorrect (must start with titlecase verb). Example: 'Add feature' or 'Update file'"
-! grep -qE -e "^$optional_squash_regex$regex_imperative_verb" "$1" || \
-	die "Commit message format is incorrect (use imperative verb form). Example: 'Add feature' or 'Update file'"
+if [ "$(git config user.email)" = "sveselov@student.42berlin.de" ]; then # :PPPP
+	grep -qE -e "^$optional_squash_regex$regex_titlecase_verb_sve" -- "$1" || \
+		die "Commit message format is incorrect (must start with lowercase verb). Example: 'add feature' or 'update file'"
+	! grep -qE -e "^$optional_squash_regex$regex_imperative_verb_sve" "$1" || \
+		die "Commit message format is incorrect (use imperative verb form). Example: 'add feature' or 'update file'"
+else
+	grep -qE -e "^$optional_squash_regex$regex_titlecase_verb" -- "$1" || \
+		die "Commit message format is incorrect (must start with uppercase verb). Example: 'Add feature' or 'Update file'"
+	! grep -qE -e "^$optional_squash_regex$regex_imperative_verb" "$1" || \
+		die "Commit message format is incorrect (use imperative verb form). Example: 'Add feature' or 'Update file'"
+fi
