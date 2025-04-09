@@ -2,7 +2,7 @@ import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong
 import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer, disposeRenderer } from "../../modules/game/game.renderer";
 import { defaultGameState, gameStore } from "../../modules/game/game.store";
-import { sendDirection, sendGameStart } from "../../modules/ws/ws.service";
+import { sendGameAction, sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
@@ -21,9 +21,9 @@ export const createRemoteGamePage = async (): Promise<HTMLElement[]> => {
     const handleKeydown = (evt: KeyboardEvent) => {
         window.log.debug(`Key pressed: ${evt.key}`);
         if (evt.key === "w" || evt.key === "ArrowUp") {
-            sendDirection("up");
+            sendGameAction("up");
         } else if (evt.key === "s" || evt.key === "ArrowDown") {
-            sendDirection("down");
+            sendGameAction("down");
         }
     };
 
@@ -32,7 +32,7 @@ export const createRemoteGamePage = async (): Promise<HTMLElement[]> => {
     const handleKeyup = (evt: KeyboardEvent) => {
         window.log.debug(`Key released: ${evt.key}`);
         if (["w", "s", "ArrowUp", "ArrowDown"].includes(evt.key)) {
-            sendDirection("stop");
+            sendGameAction("stop");
         }
     };
 

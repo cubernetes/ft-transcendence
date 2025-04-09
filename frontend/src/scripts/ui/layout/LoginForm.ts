@@ -1,7 +1,5 @@
+import type { LoginBody, RegisterBody } from "@darrenkuro/pong-core";
 import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
-import { authStore } from "../../modules/auth/auth.store";
-import { AuthFormData } from "../../modules/auth/auth.types";
-import { createTotpModal } from "./TotpModal";
 
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
@@ -125,7 +123,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
 
     authForm.addEventListener("submit", async (evt) => {
         evt.preventDefault();
-        const formData: AuthFormData = {
+        const formData: Partial<RegisterBody> = {
             username: usernameInput.value,
             password: passwordInput.value,
         };
@@ -140,7 +138,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
 
         if (mode === "login") {
-            const result = await tryLogin(formData);
+            const result = await tryLogin(formData as LoginBody);
 
             if (result.isErr()) {
                 window.log.debug(`Fail to register: ${result.error.message}`);
@@ -148,14 +146,12 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
                 return;
             }
         } else {
-            const result = await tryRegister(formData);
+            const result = await tryRegister(formData as RegisterBody);
             if (result.isErr()) {
                 window.log.debug(`Fail to register: ${result.error.message}`);
                 showError("Register failed");
                 return;
             }
-            // Handled by auth store subscriber
-            // window.location.href = window.cfg.url.home;
         }
     });
 

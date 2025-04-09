@@ -26,7 +26,6 @@ export const createStore = <T extends object>(initialState: T) => {
 
     /** Function to update partial state. */
     const update = (newStates: Partial<T>) => {
-        // Create a new object with merged values
         state = { ...state, ...newStates };
         notifySubscribers();
     };

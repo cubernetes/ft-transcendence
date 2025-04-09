@@ -1,3 +1,4 @@
+import { logout } from "../../modules/auth/auth.service";
 import { authStore } from "../../modules/auth/auth.store";
 import { createEl } from "../../utils/dom-helper";
 
@@ -25,13 +26,7 @@ const showUserStatus = async (container: HTMLElement): Promise<Boolean> => {
     logoutBtn.className =
         "ml-4 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded focus:outline-none";
 
-    logoutBtn.onclick = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username");
-        container.innerHTML = ""; // clear the status
-        window.location.href = "#landing";
-        window.location.reload();
-    };
+    logoutBtn.onclick = logout;
 
     statusWrapper.appendChild(userNameEl);
     statusWrapper.appendChild(logoutBtn);

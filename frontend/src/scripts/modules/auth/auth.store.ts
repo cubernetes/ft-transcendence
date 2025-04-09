@@ -1,3 +1,4 @@
+import { GetMeResponse } from "@darrenkuro/pong-core";
 import { createStore } from "../../global/store";
 import { createTotpModal } from "../../ui/layout/TotpModal";
 import { getWrapper } from "../../utils/api";
@@ -26,9 +27,7 @@ const initAuthState = async (): Promise<AuthState> => {
         return emptyAuthState;
     }
 
-    const result = await getWrapper<{ success: boolean; data: Record<string, string> }>(
-        `${window.cfg.url.user}/me`
-    );
+    const result = await getWrapper<GetMeResponse>(`${window.cfg.url.user}/me`);
 
     if (result.isErr() || !result.value.success) {
         return emptyAuthState;
@@ -39,7 +38,7 @@ const initAuthState = async (): Promise<AuthState> => {
         isAuthenticated: true,
         totpRequired: false,
         token,
-        id,
+        id: String(id),
         username,
     };
 };
