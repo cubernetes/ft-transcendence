@@ -121,11 +121,11 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         const { board } = config;
         if (pos.x < -board.size.width / 2) {
             scores[1]++;
-            emit("score", { scores });
+            emit("score-update", { scores });
             resetBall();
         } else if (pos.x > board.size.width / 2) {
             scores[0]++;
-            emit("score", { scores });
+            emit("score-update", { scores });
             resetBall();
         }
         return ok();

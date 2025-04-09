@@ -47,10 +47,10 @@ export type PongEngineEventMap = {
     "wall-collision": null;
     "paddle-collision": null;
     "state-update": { state: PongState };
-    "game-end": { winner: number };
-    score: { scores: [number, number] };
-    "game-start": null;
+    "score-update": { scores: [number, number] };
     "ball-reset": null;
+    "game-start": null;
+    "game-end": { winner: 0 | 1 };
 };
 
 export type EventCallback<T extends keyof PongEngineEventMap> = (
