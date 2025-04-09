@@ -1,4 +1,4 @@
-import { checkAccess } from "../../modules/auth/auth.utils";
+import { authStore } from "../../modules/auth/auth.store";
 import { createEl } from "../../utils/dom-helper";
 import { createLoginForm } from "../layout/LoginForm";
 
@@ -28,10 +28,18 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     );
 
     ctaButton.onclick = async () => {
-        musicEl.play(); // FIX, always playing new stuff
-        if (checkAccess()) {
-            window.location.href = "#setup";
+        musicEl.play(); // FIX, always playing new stuff?
+
+        const authState = authStore.get();
+        if (authState.isAuthenticated) {
+            window.location.href = window.cfg.url.home;
         }
+
+        // If no token in store, check for a JWT in localStorage
+        const jwtToken = localStorage.getItem(window.cfg.label.token);
+        // TODO: ping the backend to verify token found in localStorge
+        // but maybe rewrite this logic for satefy so ignored for now
+
         const loginForm = await createLoginForm(ctaButton);
         ctaButton.replaceWith(loginForm);
     };

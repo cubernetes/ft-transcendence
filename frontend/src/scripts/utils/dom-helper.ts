@@ -1,3 +1,5 @@
+import { Result } from "neverthrow";
+
 type ElementParams = {
     text?: string;
     attributes?: Record<string, string>;
@@ -49,4 +51,8 @@ export const createEl = <T extends keyof HTMLElementTagNameMap>(
     }
 
     return el;
+};
+
+export const appendChildren = (ctn: HTMLElement, children: HTMLElement[]) => {
+    children.forEach((el) => ctn.appendChild(el));
 };

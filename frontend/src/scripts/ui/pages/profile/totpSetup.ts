@@ -1,7 +1,7 @@
 import { createFooter } from "../../layout/Footer";
 import { createHeader } from "../../layout/Header";
 
-export const createTotpSetupPage = async (): Promise<HTMLElement> => {
+export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
     const fragment = document.createDocumentFragment();
 
     const header = await createHeader();
@@ -106,7 +106,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement> => {
         }
     });
 
-    return container;
+    return [container];
 };
 
 const fetchQrCode = async () => {

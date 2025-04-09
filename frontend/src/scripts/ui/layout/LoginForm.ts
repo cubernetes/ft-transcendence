@@ -1,9 +1,12 @@
-import { authState } from "../../modules/auth/auth.state";
+import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
+import { authStore } from "../../modules/auth/auth.store";
 import { AuthFormData } from "../../modules/auth/auth.types";
+import { createTotpModal } from "./TotpModal";
 
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
     wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3 font-medieval";
+    wrapper.id = window.cfg.id.loginForm;
 
     const toggleContainer = document.createElement("div");
     toggleContainer.className = "flex justify-center mb-4";
@@ -137,21 +140,44 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
 
         if (mode === "login") {
-            const loginState = await authState.login(formData);
+            const result = await tryLogin(formData);
 
-            if (loginState == 1) {
-                window.location.href = "#setup";
-            } else if (loginState == 2) {
-                window.location.href = "#totpVerify";
-            } else {
+            if (result.isErr()) {
+                window.log.debug(`Fail to register: ${result.error.message}`);
                 showError("Login failed");
+                return;
             }
         } else {
-            if (await authState.register(formData)) {
-                window.location.href = "#setup";
-            } else {
+            const result = await tryRegister(formData);
+            if (result.isErr()) {
+                window.log.debug(`Fail to register: ${result.error.message}`);
                 showError("Register failed");
+                return;
             }
+            // Handled by auth store subscriber
+            // window.location.href = window.cfg.url.home;
+        }
+    });
+
+    // Subscribe to auth state
+    authStore.subscribe(async (state) => {
+        window.log.debug("authStore subscriber trigged in login form!");
+        // Redirect to home once successfully authenticated
+        if (state.isAuthenticated) {
+            window.location.href = window.cfg.url.home;
+        }
+
+        if (state.totpRequired) {
+            const el = document.getElementById(window.cfg.id.loginForm);
+            if (!el) {
+                window.log.error("Unable to find login form");
+                return;
+            }
+            //guard against null or multiple
+            //el.replaceWith(await createTotpModal());
+            const modalEl = await createTotpModal();
+            el.innerHTML = "";
+            el.appendChild(modalEl);
         }
     });
 

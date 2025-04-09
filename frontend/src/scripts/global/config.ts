@@ -17,6 +17,15 @@ const config = {
         home: `#setup`, // Temporarily, should probably be profile?
         default: `#landing`, // For invalid route, de facto 404
     },
+    label: {
+        activeBtn: "activeBtn",
+        token: "token", // JWT token name
+    },
+    id: {
+        loginForm: "loginForm",
+        totpForm: "totpForm",
+        totpToken: "totpToken",
+    },
 };
 
 export default config;

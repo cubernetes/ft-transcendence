@@ -70,7 +70,39 @@ export const tryRegister = async (payload: AuthFormData): Promise<Result<void, E
     return ok();
 };
 
-// TODO: totp verify
+export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
+    const { username } = authStore.get();
+    const totpTokenEl = document.getElementById(window.cfg.id.totpToken);
+    const token = (totpTokenEl as HTMLInputElement)?.value;
+    if (!username || !totpTokenEl || !token) {
+        return err(new Error("Fail to get username or input element for totp token"));
+    }
+
+    const result = await postWithBody<{ username: string; token: string }, AuthFormResponse>(
+        `${window.cfg.url.user}/totpVerify`,
+        {
+            username,
+            token,
+        }
+    );
+
+    if (result.isErr()) {
+        const msg = `Fail to POST to totpVerify: ${result.error.message}}`;
+        window.log.error(msg);
+        return err(new Error(msg));
+    }
+
+    // if (!result.value.success)?
+    // if (resp.status == 400) {
+    //     alert("Invalid request"); // TODO: Remove alerts
+    // } else if (resp.status == 401) {
+    //     alert("Invalid TOTP code");
+    // } else if (resp.status == 404) {
+    //     alert(`User '${username}' not found`);
+
+    processToken(result.value.data.token);
+    return ok();
+};
 
 export const logout = () => {
     const authState = authStore.get();

@@ -1,26 +1,41 @@
-import { checkAccess } from "../modules/auth/auth.utils";
+import { authStore } from "../modules/auth/auth.store";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createLocalGamePage } from "../ui/pages/LocalGamePage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
+import { createTotpSetupPage } from "../ui/pages/profile/totpSetup";
 
 export const createRouter = (container: HTMLElement): void => {
-    const routes: { [key: string]: PageRenderer } = {
+    const routes = {
         setup: createSetupPage,
         landing: createLandingPage,
         localgame: createLocalGamePage,
         profile: createProfilePage,
         leaderboard: createLeaderboardPage,
-    };
+        totp: createTotpSetupPage,
+    } satisfies Record<string, PageRenderer>;
+
+    // A type-safe list of protected routes, only available after logging in
+    const protectedRoutes: (keyof typeof routes)[] = ["setup", "localgame", "profile"];
 
     const handleRouteChange = async () => {
-        const route = window.location.hash.slice(1);
+        const hash = window.location.hash.slice(1);
 
         // Redirect to default page upon invalid route
-        if (!(route in routes)) {
+        if (!(hash in routes)) {
             window.location.href = window.cfg.url.default;
             return;
+        }
+
+        const route = hash as keyof typeof routes;
+
+        if (protectedRoutes.includes(route)) {
+            const authState = authStore.get();
+            if (!authState.isAuthenticated) {
+                window.location.href = window.cfg.url.default;
+                return;
+            }
         }
 
         // Functionally dispatch the event bubbling down to all children elements
@@ -35,12 +50,6 @@ export const createRouter = (container: HTMLElement): void => {
         };
 
         dispatchEventDown(container, new Event("destroy"));
-
-        // Check access for protected routes
-        if (route != "totpVerify") {
-            // TODO: code smell
-            checkAccess();
-        }
 
         // Render the appropriate page
         const createPage = routes[route];

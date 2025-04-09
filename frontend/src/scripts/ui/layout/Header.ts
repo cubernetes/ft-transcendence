@@ -1,8 +1,8 @@
-import { authState } from "../../modules/auth/auth.state";
+import { authStore } from "../../modules/auth/auth.store";
 import { createEl } from "../../utils/dom-helper";
 
 const showUserStatus = async (container: HTMLElement): Promise<Boolean> => {
-    const loggedUser = authState.getUser();
+    const loggedUser = authStore.get().username;
 
     if (!loggedUser) {
         window.log.error("No user logged in.");
@@ -16,7 +16,7 @@ const showUserStatus = async (container: HTMLElement): Promise<Boolean> => {
 
     // User display name
     const userNameEl = document.createElement("span");
-    userNameEl.textContent = `Logged in as ${loggedUser.username}`;
+    userNameEl.textContent = `Logged in as ${loggedUser}`;
     userNameEl.className = "text-gray-700 text-sm";
 
     // Logout button
@@ -51,6 +51,7 @@ export const createHeader = async (): Promise<HTMLElement> => {
         Game: "#setup",
         Leaderboard: "#leaderboard",
         Profile: "#profile",
+        TOTP: "#totp",
     };
 
     const navList = createEl("ul", "flex text-1xl space-x-4");
