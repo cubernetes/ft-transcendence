@@ -24,9 +24,10 @@ const loginBodySchema = z.object({
 });
 
 const totpBodySchema = z.object({
-    // TODO: make it exact instead of min(6)
-    token: z.string().min(6, { message: "Token must be 6 characters" }),
-    username: z.string(),
+    token: z
+        .string({ required_error: "Token is required" })
+        .length(6, { message: "Token must be 6 characters" }),
+    username: z.string({ required_error: "Username is required" }),
 });
 
 const totpBodyInitialSchema = z.object({
@@ -113,6 +114,7 @@ const getTotpSetupRouteSchema = {
 const getTotpVerifyRouteSchema = {
     tags: ["User"],
     description: "Verify a 6-digit TOTP token",
+    body: zodToJsonSchema(totpBodySchema),
     response: {
         200: zodToJsonSchema(apiSuccess(TotpVerifyResponseSchema)),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
