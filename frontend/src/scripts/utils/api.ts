@@ -1,6 +1,15 @@
 import { Result, err, ok } from "neverthrow";
 import { logout } from "../modules/auth/auth.service";
 
+export const safeParseJSON = <T>(text: string): Result<T, Error> => {
+    try {
+        const parsedData: T = JSON.parse(text);
+        return ok(parsedData);
+    } catch (error) {
+        return err(new Error("Fail to parse JSON"));
+    }
+};
+
 /**
  * A generic fetch wrapper to send JSON over request body.
  * @template T,E T: RequestBody, E: ResponseJSON
