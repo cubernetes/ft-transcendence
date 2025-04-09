@@ -8,7 +8,7 @@ import type {
 } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
 import { jwtDecode } from "jwt-decode";
-import { postWithBody } from "../../utils/api";
+import { sendApiRequest } from "../../utils/api";
 import { authStore, emptyAuthState } from "./auth.store";
 
 /** Process JWT token, local storage, authStore update */
@@ -23,7 +23,7 @@ const processToken = (token: string) => {
  * @returns boolean true - success; false - totp required
  */
 export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Error>> => {
-    const result = await postWithBody<LoginBody, LoginResponse>(
+    const result = await sendApiRequest.post<LoginBody, LoginResponse>(
         `${window.cfg.url.user}/login`,
         payload
     );
@@ -32,8 +32,11 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
         return err(result.error);
     }
 
+    // Will never reach this becuase result will return Error when success is off
+    // However it is difficult to come up with good type guard or ways to please ts
+    // TODO: FIX
     if (!result.value.success) {
-        return err(new Error(result.value.error.message));
+        return err(new Error("never"));
     }
 
     const { data } = result.value;
@@ -50,7 +53,7 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
 };
 
 export const tryRegister = async (payload: RegisterBody): Promise<Result<void, Error>> => {
-    const result = await postWithBody<RegisterBody, LoginResponse>(
+    const result = await sendApiRequest.post<RegisterBody, LoginResponse>(
         `${window.cfg.url.user}/register`,
         payload
     );
@@ -59,8 +62,11 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
         return err(result.error);
     }
 
+    // Will never reach this becuase result will return Error when success is off
+    // However it is difficult to come up with good type guard or ways to please ts
+    // TODO: FIX
     if (!result.value.success) {
-        return err(new Error(result.value.error.message));
+        return err(new Error("never"));
     }
 
     processToken(result.value.data.token);
@@ -75,7 +81,7 @@ export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
         return err(new Error("Fail to get username or input element for totp token"));
     }
 
-    const result = await postWithBody<TotpBody, TotpVerifyResponse>(
+    const result = await sendApiRequest.post<TotpBody, TotpVerifyResponse>(
         `${window.cfg.url.user}/totpVerify`,
         { username, token }
     );
@@ -84,8 +90,11 @@ export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
         return err(result.error);
     }
 
+    // Will never reach this becuase result will return Error when success is off
+    // However it is difficult to come up with good type guard or ways to please ts
+    // TODO: FIX
     if (!result.value.success) {
-        return err(new Error(result.value.error.message));
+        return err(new Error("never"));
     }
 
     processToken(result.value.data.token);

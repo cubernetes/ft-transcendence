@@ -1,4 +1,4 @@
-import { IncomingMessage, IncomingMessageType, UserInput } from "@darrenkuro/pong-core";
+import type { IncomingMessage, IncomingMessageType, UserInput } from "@darrenkuro/pong-core";
 import { authStore } from "../auth/auth.store";
 import { gameStore } from "../game/game.store";
 import { registerControllers } from "./ws.controller";

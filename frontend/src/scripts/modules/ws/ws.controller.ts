@@ -1,9 +1,9 @@
-import { Result, err, ok } from "neverthrow";
-import {
+import type {
     OutgoingMessage,
     OutgoingMessagePayloads,
     OutgoingMessageType,
 } from "@darrenkuro/pong-core";
+import { Result, err, ok } from "neverthrow";
 import { safeJsonParse } from "@darrenkuro/pong-core";
 import { gameStore } from "../game/game.store";
 

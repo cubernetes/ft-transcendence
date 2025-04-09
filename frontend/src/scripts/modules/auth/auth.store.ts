@@ -1,7 +1,7 @@
-import { GetMeResponse } from "@darrenkuro/pong-core";
+import type { GetMeResponse } from "@darrenkuro/pong-core";
 import { createStore } from "../../global/store";
 import { createTotpModal } from "../../ui/layout/TotpModal";
-import { getWrapper } from "../../utils/api";
+import { sendApiRequest } from "../../utils/api";
 import { closeSocketConn, establishSocketConn } from "../ws/ws.service";
 
 type AuthState = {
@@ -27,7 +27,7 @@ const initAuthState = async (): Promise<AuthState> => {
         return emptyAuthState;
     }
 
-    const result = await getWrapper<GetMeResponse>(`${window.cfg.url.user}/me`);
+    const result = await sendApiRequest.get<GetMeResponse>(`${window.cfg.url.user}/me`);
 
     if (result.isErr() || !result.value.success) {
         return emptyAuthState;
