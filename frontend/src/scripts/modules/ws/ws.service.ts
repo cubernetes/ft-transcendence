@@ -7,6 +7,7 @@ import { createWsController } from "./ws.controller";
 let conn: WebSocket | null = null;
 
 export const establishSocketConn = (token: string) => {
+    // Maybe use token to do auth over socket here
     conn = new WebSocket("ws");
     createWsController(conn);
 };
@@ -18,52 +19,32 @@ export const closeSocketConn = () => {
     }
 };
 
-/**
- *
- */
 export const sendGameStart = () => {
-    if (!conn) {
-        window.log.error("No socket connection");
+    if (!conn || conn.readyState !== WebSocket.OPEN) {
+        window.log.error("Socket is null or not open when trying to send game start");
         return;
     }
 
-    if (conn.readyState === WebSocket.OPEN) {
-        window.log.debug("Sending game-start");
-        const token = authStore.get().token;
-        const message = JSON.stringify({
-            type: "game-start",
-            payload: { token },
-        });
-        conn.send(message);
-        window.log.debug("Game start message sent:", message);
-    } else {
-        window.log.error("WebSocket is not open.");
-    }
+    const { token } = authStore.get();
+    const message = JSON.stringify({
+        type: "game-start",
+        payload: { token },
+    });
+    window.log.debug(`Sending game-start message: ${message}`);
+    conn.send(message);
 };
 
-export const sendDirection = (direction: UserInput) => {
-    if (!conn) {
-        window.log.error("No socket connection");
+export const sendGameAction = (action: UserInput) => {
+    if (!conn || conn.readyState !== WebSocket.OPEN) {
+        window.log.error("Socket is null or not open when trying to send game action");
         return;
     }
-    if (conn.readyState === WebSocket.OPEN) {
-        const gameState = gameStore.get();
-        const { gameId, index } = gameState;
 
-        window.log.debug(`Sending direction: ${direction}, gameId: ${gameId}, index: ${index}`);
-
-        if (conn.readyState === WebSocket.OPEN) {
-            const message = JSON.stringify({
-                type: "game-action",
-                payload: {
-                    gameId,
-                    index,
-                    action: direction,
-                },
-            });
-            conn.send(message);
-        }
-    } else {
-        window.log.error("WebSocket is not open.");
-    }
+    const { gameId, index } = gameStore.get();
+    const message = JSON.stringify({
+        type: "game-action",
+        payload: { gameId, index, action },
+    });
+    window.log.debug(`Sending game-action message: ${message}`);
+    conn.send(message);
 };
