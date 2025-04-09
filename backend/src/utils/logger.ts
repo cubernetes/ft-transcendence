@@ -44,6 +44,16 @@ export const devLoggerConfig: PinoLoggerOptions = {
                     ignore: "pid,hostname", // Hides unnecessary fields
                 },
             },
+            {
+                target: "pino-socket",
+                level: "info",
+                options: {
+                    mode: "tcp",
+                    address: process.env.LOGSTASH_HOST || "logstash",
+                    port: parseInt(process.env.LOGSTASH_PORT || "5050"),
+                    reconnectTimeout: 5000, // Increased reconnect timeout
+                },
+            },
         ],
     },
     serializers: { error: formatError },
@@ -67,7 +77,7 @@ export const prodLoggerConfig: PinoLoggerOptions = {
                 options: {
                     mode: "tcp",
                     address: process.env.LOGSTASH_HOST || "logstash",
-                    port: parseInt(process.env.LOGSTASH_PORT || "5000"),
+                    port: parseInt(process.env.LOGSTASH_PORT || "5050"),
                     reconnectTimeout: 5000,
                 },
             },
