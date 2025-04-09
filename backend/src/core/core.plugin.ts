@@ -21,6 +21,7 @@ const corePlugin = async (app: FastifyInstance) => {
     await app.register(authPlugin);
     await app.register(wsPlugin);
     await app.register(apiPlugin);
+	// await app.register(aiPlugin);
 };
 
 export default fp(corePlugin, { name: "core-plugin" });
