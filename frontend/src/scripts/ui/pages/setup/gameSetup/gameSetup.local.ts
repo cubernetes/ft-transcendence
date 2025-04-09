@@ -180,8 +180,8 @@ export const createLocalMode = (): HTMLElement => {
     };
 
     setupSection.appendChild(returnButton);
-    setupSection.appendChild(setupTitle);
-    setupSection.appendChild(setupLine);
+    // setupSection.appendChild(setupTitle);
+    // setupSection.appendChild(setupLine);
     setupSection.appendChild(playerNames);
     setupSection.appendChild(modeSection);
     setupSection.appendChild(difficultySection);

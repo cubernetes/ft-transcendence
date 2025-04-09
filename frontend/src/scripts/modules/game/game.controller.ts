@@ -1,8 +1,10 @@
 import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
-import { Ball, Position3D, defaultGameConfig } from "@darrenkuro/pong-core";
+import { Ball, PongState, Position3D, defaultGameConfig } from "@darrenkuro/pong-core";
 import { createScore } from "./objects/objects.score";
 import { pulseBall, pulseLight } from "./renderer/renderer.animations";
+import { showGameOver } from "./renderer/renderer.event";
 
+/** Renderer will be hidden behind controller and controller is the user interface */
 export const createGameController = (engine: Engine) => {
     const updateBall = (newBall: Ball) => {
         const oldBallPos = engine.ball.position;
@@ -58,13 +60,25 @@ export const createGameController = (engine: Engine) => {
         }
     };
 
+    const handleEndGame = (winner: string) => {
+        // Attach that in payload later
+        showGameOver(engine.scene, engine.camera, winner);
+
+        // Dispose stuff right away? Probably not..
+    };
+
+    const updateState = (state: PongState) => {
+        updateBall(state.ball);
+        updateLeftPaddle(state.paddles[0].pos);
+        updateRightPaddle(state.paddles[1].pos);
+    };
+
     return {
-        updateBall,
-        updateLeftPaddle,
-        updateRightPaddle,
+        updateState,
         updateScores,
         handleWallCollision,
         handlePaddleCollision,
         handleBallReset,
+        handleEndGame,
     };
 };

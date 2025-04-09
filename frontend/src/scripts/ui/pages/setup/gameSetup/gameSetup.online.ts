@@ -37,6 +37,7 @@ export const createOnlineMode = (): HTMLElement => {
 
     createLobbyButton.onclick = () => {
         window.log.info("Creating a new lobby...");
+        window.location.href = "#remotegame";
     };
 
     joinLobbyButton.onclick = () => {

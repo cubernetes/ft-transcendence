@@ -33,6 +33,7 @@ export const createRenderer = async (canvasEl: HTMLCanvasElement): Promise<Engin
     return engine;
 };
 
+/** Dispose everything in a renderer engine */
 export const disposeRenderer = (engine: Engine) => {
     engine.audio.bgMusic.dispose();
     engine.audio.ballSound.dispose();

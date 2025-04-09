@@ -12,10 +12,10 @@ export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
         { children: [leftPaddle, rightPaddle] }
     );
 
-    const handleMouseMove = (event: MouseEvent) => {
+    const handleMouseMove = (evt: MouseEvent) => {
         const containerRect = mainContainer.getBoundingClientRect();
-        const cursorY = event.clientY;
-        const cursorX = event.clientX;
+        const cursorY = evt.clientY;
+        const cursorX = evt.clientX;
 
         const minY = containerRect.top + 220;
         const maxY = containerRect.bottom - 220;
