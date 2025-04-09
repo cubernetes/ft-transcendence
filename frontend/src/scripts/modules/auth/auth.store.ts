@@ -1,6 +1,7 @@
 import { createStore } from "../../global/store";
 import { createTotpModal } from "../../ui/layout/TotpModal";
 import { getWrapper } from "../../utils/api";
+import { closeSocketConn, establishSocketConn } from "../ws/ws.service";
 
 type AuthState = {
     isAuthenticated: boolean;
@@ -52,16 +53,6 @@ initAuthState().then((initialState) => {
 authStore.subscribe(async (state) => {
     window.log.debug("AuthStore subscriber trigged");
 
-    // Redirect to home once successfully authenticated
-    if (state.isAuthenticated) {
-        window.location.href = window.cfg.url.home;
-    }
-
-    // Redirect to default page once logged out
-    if (!state.isAuthenticated) {
-        window.location.href = window.cfg.url.default;
-    }
-
     // Replace login form with totp modal if totp is being required
     if (state.totpRequired) {
         const el = document.getElementById(window.cfg.id.loginForm);
@@ -73,5 +64,17 @@ authStore.subscribe(async (state) => {
         const modalEl = await createTotpModal();
         el.innerHTML = "";
         el.appendChild(modalEl);
+        return;
     }
+
+    // Redirect to default page and close socket connection once logged out
+    if (!state.isAuthenticated || !state.token) {
+        window.location.href = window.cfg.url.default;
+        closeSocketConn();
+        return;
+    }
+
+    // Redirect to home and open socket connection once successfully authenticated
+    window.location.href = window.cfg.url.home;
+    establishSocketConn(state.token);
 });

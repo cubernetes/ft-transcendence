@@ -11,8 +11,9 @@ export const createStore = <T extends object>(initialState: T) => {
 
     /**
      * Function to subscrite to state changes.
+     * Doesn't care whether subscriber is sync or async.
      * @param subscriber the callback function when state change is triggered
-     * @returns the function to unsubscribe,
+     * @returns the function to unsubscribe
      * @example const unsubscribe = authStore.subscribte((state) => whatever());
      *          later, call unsubscribe();
      */

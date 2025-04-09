@@ -159,28 +159,6 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
     });
 
-    // Subscribe to auth state
-    authStore.subscribe(async (state) => {
-        window.log.debug("authStore subscriber trigged in login form!");
-        // Redirect to home once successfully authenticated
-        if (state.isAuthenticated) {
-            window.location.href = window.cfg.url.home;
-        }
-
-        if (state.totpRequired) {
-            const el = document.getElementById(window.cfg.id.loginForm);
-            if (!el) {
-                window.log.error("Unable to find login form");
-                return;
-            }
-            //guard against null or multiple
-            //el.replaceWith(await createTotpModal());
-            const modalEl = await createTotpModal();
-            el.innerHTML = "";
-            el.appendChild(modalEl);
-        }
-    });
-
     wrapper.append(exitButton, toggleContainer, authForm);
 
     return wrapper;

@@ -3,19 +3,24 @@ import { authStore } from "../auth/auth.store";
 import { gameStore } from "../game/game.store";
 import { createWsController } from "./ws.controller";
 
-// All socket will go through this service, so this will be the only reference
+// All socket-related will go through this service, so this will be the only reference
 let conn: WebSocket | null = null;
 
-// Whenever user is authenticated, open a socket
-authStore.subscribe((state) => {
-    if (state.isAuthenticated) {
-        conn = new WebSocket("ws");
-        createWsController(conn);
-    } else if (conn) {
-        conn.close();
-    }
-});
+export const establishSocketConn = (token: string) => {
+    conn = new WebSocket("ws");
+    createWsController(conn);
+};
 
+export const closeSocketConn = () => {
+    if (conn) {
+        conn.close();
+        conn = null;
+    }
+};
+
+/**
+ *
+ */
 export const sendGameStart = () => {
     if (!conn) {
         window.log.error("No socket connection");
