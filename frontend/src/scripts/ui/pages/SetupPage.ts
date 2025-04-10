@@ -1,28 +1,24 @@
 import { showPageElements } from "../../modules/layout/layout.service";
+import { layoutStore } from "../../modules/layout/layout.store";
 import { createPaddles } from "../layout/Paddles";
 import { createAIMode } from "./setup/gameSetup/gameSetup.ai";
 import { createLocalMode } from "./setup/gameSetup/gameSetup.local";
 import { createOnlineMode } from "./setup/gameSetup/gameSetup.online";
 
 export const createSetupPage = async (): Promise<HTMLElement[]> => {
-    const container = document.createElement("div");
-    container.className = "flex flex-col min-h-screen font-medieval";
-
     showPageElements();
 
     const main = document.createElement("main");
-    main.className =
-        "flex-grow flex items-center justify-center bg-gray-100 w-full cursor-[url(assets/pongball.cur)]";
+    main.className = "cursor-[url(assets/pongball.cur)]";
 
+    const { router } = layoutStore.get();
     const setupSection = createGameModes();
-    const paddles = createPaddles(main);
+    const paddles = createPaddles(router!);
 
     main.appendChild(paddles);
     main.appendChild(setupSection);
 
-    container.appendChild(main);
-
-    return [container];
+    return [main];
 };
 
 export const createGameModes = (): HTMLElement => {

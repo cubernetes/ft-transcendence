@@ -23,7 +23,7 @@ export const initLayoutState = async (rootEl: HTMLElement): Promise<LayoutState>
     const canvas = createEl("canvas", "w-full h-full hidden", {
         attributes: { id: window.cfg.id.canvas },
     });
-    const router = createEl("div", "", {
+    const router = createEl("div", "flex-grow flex items-center justify-center w-full", {
         attributes: { id: window.cfg.id.router },
     });
     const footer = createFooter();
