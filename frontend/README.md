@@ -29,7 +29,7 @@ scripts/
 │  │  │  ├─ camera.ts      //
 │  │  │  ├─ controls.ts    //
 │  │  │  ├─ scene.ts       //
-│  │  │  ├─ ...            //
+│  │  │  └─ ...            //
 │  │  ├─ controller.ts     // User interface with the renderer
 │  │  ├─ renderer.ts       // Basically the 'class', as closure
 │  │  └─ store.ts          // Game store for state
@@ -47,17 +47,19 @@ scripts/
 │  │  ├─ Table.ts          // createTable(...)
 │  │  ├─ Button.ts         // createButton(...)
 │  │  ├─ [Component].ts    // create[Component](...)
-│  │  ├─ ...
-│  ├─ layouts/             // Reusable, non-customizable components
+│  │  └─ ...
+│  ├─ layout/              // Reusable, non-customizable components
 │  │  ├─ Paddles.ts        // createPaddles(...)
 │  │  ├─ Header.ts         // createHeader(...)
 │  │  ├─ Footer.ts         // createFooter(...)
-│  │  ├─ ...
+│  │  └─ ...
 │  └─ pages/               // page renderer, should be built with components and layouts mostly
-│     ├─ GamePage.ts       //
 │     ├─ LandingPage.ts    //
-│     ├─ SetupPage.tsx     //
-│     ├─ ...
+│     ├─ GamePage.ts       // Unify remote / game /ai
+│     ├─ SetupPage.tsx     // ✅
+│     ├─ ProfilePage.tsx   // Should include totp setup option which is a modal
+│     ├─ SetupPage.tsx     // ✅
+│     └─ ...
 ├─ utils/                  // ✅ General global utils
 │     ├─ api.ts            // ✅ fetch wrapper, get, post, etc.
 │     ├─ dom-helper.ts     // createEl, etc.
