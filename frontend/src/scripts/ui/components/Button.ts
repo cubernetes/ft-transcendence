@@ -1,15 +1,18 @@
 import { createEl } from "../../utils/dom-helper";
 
+/**
+ * @default tw "rounded text-xl text-black p-2 bg-gray-100 hover:bg-gray-400"
+ */
 export const createButton = (
     text: string,
     tw: string = "",
     click?: () => void
 ): HTMLButtonElement => {
     // Base tailwindCSS to apply on all button elements, can be replaced by appending
-    const baseTailwind = "rounded text-xl";
+    const baseTw = "rounded text-xl text-black p-2 bg-gray-100 hover:bg-gray-400";
 
-    const tailwind = `${baseTailwind} ${tw}`;
-    const button = createEl("button", tailwind, { text });
+    const fullTw = `${baseTw} ${tw}`;
+    const button = createEl("button", fullTw, { text });
 
     if (click) {
         button.onclick = click;

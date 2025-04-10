@@ -1,7 +1,6 @@
 import { createPongEngine } from "@darrenkuro/pong-core";
 import { createRouter } from "../../global/router";
 import { createStore } from "../../global/store";
-import { createFooter } from "../../ui/layout/Footer";
 import { createHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { authStore, initAuthState } from "../auth/auth.store";

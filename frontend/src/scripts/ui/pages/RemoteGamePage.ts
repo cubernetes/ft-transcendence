@@ -1,14 +1,11 @@
 import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer, disposeRenderer } from "../../modules/game/game.renderer";
-import { defaultGameState, gameStore } from "../../modules/game/game.store";
+import { showPageElements } from "../../modules/layout/layout.service";
 import { sendGameAction, sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
-import { createFooter } from "../layout/Footer";
-import { createHeader } from "../layout/Header";
 
 export const createRemoteGamePage = async (): Promise<HTMLElement[]> => {
-    const header = await createHeader();
-    const footer = createFooter();
+    showPageElements();
 
     const canvas = createEl("canvas", "w-full h-full", { attributes: { id: "renderCanvas" } });
     const container = createEl("div", "w-full h-[600px] relative", { children: [canvas] });
@@ -57,5 +54,5 @@ export const createRemoteGamePage = async (): Promise<HTMLElement[]> => {
     // Initial scale
     requestAnimationFrame(() => renderer.resize());
 
-    return [header, container, footer];
+    return [container];
 };

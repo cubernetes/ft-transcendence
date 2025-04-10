@@ -1,10 +1,10 @@
+import { showPageElements } from "../../modules/layout/layout.service";
 import { createFooter } from "../layout/Footer";
 import { createHeader } from "../layout/Header";
 
 // TODO: 2FA, upload profile picture; profile pic, basic info
 export const createProfilePage: PageRenderer = async (): Promise<HTMLElement[]> => {
-    const header = await createHeader();
-    const footer = createFooter();
+    showPageElements();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4";
@@ -32,5 +32,5 @@ export const createProfilePage: PageRenderer = async (): Promise<HTMLElement[]> 
 
     main.appendChild(profileSection);
 
-    return [header, main, footer];
+    return [main];
 };

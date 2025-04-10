@@ -4,6 +4,7 @@ import { createEl } from "../../utils/dom-helper";
 import { createLoginForm } from "../layout/LoginForm";
 
 export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
+    // Hide header and footer
     hidePageElements();
 
     // Background video
@@ -19,7 +20,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     const ctaButton = createEl(
         "a",
         [
-            "absolute cursor-pointer font-medieval top-1/2 left-1/2",
+            "absolute cursor-pointer top-1/2 left-1/2",
             "transform -translate-x-1/2 -translate-y-1/2 text-white text-center",
             "rounded-full border-2 border-red-600 hover:border-red-400",
             "transition-all duration-300 ease-in-out transform",

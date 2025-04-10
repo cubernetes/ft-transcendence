@@ -7,7 +7,7 @@ import { createHeader } from "../layout/Header";
 export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
     const fragment = document.createDocumentFragment();
 
-    const header = await createHeader();
+    // const header = await createHeader();
 
     const main = document.createElement("main");
     main.className = "container mx-auto p-4 flex flex-col items-center";
@@ -50,7 +50,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
 
     const footer = createFooter();
 
-    fragment.appendChild(header);
+    // fragment.appendChild(header);
     fragment.appendChild(main);
     fragment.appendChild(footer);
 

@@ -4,9 +4,11 @@ import { createButton } from "./Button";
 /**
  * General a container with an array of buttons with uniform css style
  * Active button will be labeled as label.activeBtn
+ * @default twCtn "flex space-x-4 mt-2"
  */
 export const createButtonGroup = (
     texts: string[],
+    cbs: (() => void)[],
     twBtn: string = "",
     twCtn: string = "",
     twSelected: string = "bg-gray-400"
@@ -25,10 +27,15 @@ export const createButtonGroup = (
         btn.classList.add(window.cfg.label.activeBtn);
     };
 
-    texts.forEach((text) => {
+    texts.forEach((text, i) => {
         const btn = createButton(text, twBtn);
-        btn.onclick = () => setActive(btn);
         container.appendChild(btn);
+        // Default onclick
+        btn.onclick = () => setActive(btn);
+        // Attach callbacks, based on the index mapping
+        if (cbs && cbs[i]) {
+            btn.onclick = cbs[i];
+        }
     });
 
     return container;
