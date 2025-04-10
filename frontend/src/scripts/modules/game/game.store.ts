@@ -84,6 +84,7 @@ gameStore.subscribe((state) => {
             attachLocalEngineEvents();
 
             // Start renderer
+            pongEngine.start();
             controller.start();
             break;
         case "online":

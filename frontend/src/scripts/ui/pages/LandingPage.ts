@@ -37,12 +37,10 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         }
     );
 
-    ctaButton.onclick = async () => {
+    ctaButton.onclick = () => {
         musicEl.play();
 
         const { canvas } = layoutStore.get();
-
-        initAuthState();
 
         // Initilize game components here so babylon audio engine doesn't show unmute button
         createRenderer(canvas).then((renderer) => {
@@ -53,13 +51,16 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
             gameStore.update({ renderer, controller, pongEngine, eventController });
         });
 
-        const authState = authStore.get();
-        if (authState.isAuthenticated) {
-            window.location.href = window.cfg.url.home;
-        }
+        initAuthState().then(async (state) => {
+            authStore.set(state);
+            if (state.isAuthenticated) {
+                window.log.debug("User is authenticated, redirect to home");
+                window.location.href = window.cfg.url.home;
+            }
 
-        const loginForm = await createLoginForm(ctaButton);
-        ctaButton.replaceWith(loginForm);
+            const loginForm = await createLoginForm(ctaButton);
+            ctaButton.replaceWith(loginForm);
+        });
     };
 
     const heroEl = createEl(

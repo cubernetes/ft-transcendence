@@ -2,7 +2,6 @@ import { layoutStore } from "./layout.store";
 
 /** Hide header and footer */
 export const hidePageElements = () => {
-    window.log.debug("HidePageElements triggered");
     const { header, footer } = layoutStore.get();
 
     if (!header || !footer) {
@@ -16,7 +15,6 @@ export const hidePageElements = () => {
 
 /** Show header and footer */
 export const showPageElements = () => {
-    window.log.debug("ShowPageElements triggered");
     const { header, footer } = layoutStore.get();
 
     if (!header || !footer) {

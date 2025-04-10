@@ -1,4 +1,5 @@
 import { authStore } from "../modules/auth/auth.store";
+import { gameStore } from "../modules/game/game.store";
 import { layoutStore } from "../modules/layout/layout.store";
 import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
@@ -36,9 +37,6 @@ export const createRouter = (ctn: HTMLElement): void => {
     ];
 
     const handleRouteChange = async () => {
-        // Clean up game session when route changes, this probably belongs somewhere else
-        // gameStore.update({ isPlaying: false, mode: null });
-
         const hash = window.location.hash.slice(1);
 
         // Redirect to default page upon invalid route
@@ -54,6 +52,7 @@ export const createRouter = (ctn: HTMLElement): void => {
             const authState = authStore.get();
             // Redirect to default page if not logged in
             if (!authState.isAuthenticated) {
+                window.log.debug("User not authenticated, redirect to default page");
                 window.location.href = window.cfg.url.default;
                 return;
             }
@@ -77,6 +76,9 @@ export const createRouter = (ctn: HTMLElement): void => {
         };
 
         dispatchEventDown(router, new Event("destroy"));
+
+        // Clean up game session when route changes, this probably belongs somewhere else
+        gameStore.update({ isPlaying: false, mode: null });
 
         // Render the appropriate page
         const createPage = routes[route];

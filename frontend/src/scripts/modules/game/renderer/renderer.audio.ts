@@ -56,7 +56,7 @@ const createSound = async (
 
 export const createAudioEngine = async () => {
     const engine = await CreateAudioEngineAsync();
-    // await engine.unlockAsync();
+    await engine.unlockAsync();
     // Audio ungine should be unlocked when there is a user gesture, should be in game page
 
     // Attach background music to audio engine
