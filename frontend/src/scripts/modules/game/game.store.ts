@@ -1,7 +1,7 @@
 import { Engine } from "@babylonjs/core";
 import { GameMode, PongEngine } from "@darrenkuro/pong-core";
 import { createStore } from "../../global/store";
-import { hideCanvas, showCanvas } from "../layout/layout.service";
+import { hideCanvas, hideRouter, showCanvas } from "../layout/layout.service";
 import { wsStore } from "../ws/ws.store";
 import { createGameController } from "./game.controller";
 import { createGameEventController } from "./game.event";
@@ -65,6 +65,7 @@ gameStore.subscribe((state) => {
 
     // A game is now ongoing with a valid mode
     showCanvas();
+    hideRouter();
 
     const attachLocalEngineEvents = () => {
         pongEngine.onEvent("wall-collision", () => controller.handleWallCollision());

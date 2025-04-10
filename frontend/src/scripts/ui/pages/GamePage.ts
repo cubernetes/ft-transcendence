@@ -1,9 +1,12 @@
 import { GameMode } from "@darrenkuro/pong-core";
 import { gameStore } from "../../modules/game/game.store";
-import { showPageElements } from "../../modules/layout/layout.service";
+import { hidePageElements, showPageElements } from "../../modules/layout/layout.service";
 
+// This actually doesn't have any UI so probably shouldn't be a page
+// Can add into controller directly and trigger UI change automatically
+// signature is locked in with router and it's annoying, maybe after finishing setup page to call it directly
 export const createGamePage = (mode: GameMode) => async (): Promise<HTMLElement[]> => {
-    showPageElements();
+    hidePageElements();
 
     const { controller, pongEngine } = gameStore.get();
     if (!controller || !pongEngine) {

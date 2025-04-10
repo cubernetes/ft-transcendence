@@ -1,13 +1,7 @@
-import { createPongEngine } from "@darrenkuro/pong-core";
-import { createRouter } from "../../global/router";
+import { handleRouteChange } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
-import { authStore, initAuthState } from "../auth/auth.store";
-import { createGameController } from "../game/game.controller";
-import { createGameEventController } from "../game/game.event";
-import { createRenderer } from "../game/game.renderer";
-import { gameStore } from "../game/game.store";
 
 type LayoutState = {
     root: HTMLElement;
@@ -24,7 +18,7 @@ export const initLayoutState = {
     header: createEl("header", "bg-black/50 p-4 text-white justify-between items-center hidden", {
         attributes: { id: window.cfg.id.header },
     }),
-    canvas: createEl("canvas", "w-full h-full hidden", {
+    canvas: createEl("canvas", "w-screen h-screen hidden", {
         attributes: { id: window.cfg.id.canvas },
     }),
     router: createEl("div", "flex-grow flex items-center justify-center w-full", {
@@ -53,16 +47,10 @@ layoutStore.subscribe((state) => {
         // Create needed states for persisted elements
         createHeader(header);
 
+        // Listen for hash changes
+        window.addEventListener("hashchange", () => handleRouteChange());
+
         // Create router
-        createRouter(router);
-
-        // Initilize game renderer, controller, pong engine, and event controller
-        createRenderer(canvas).then((renderer) => {
-            const controller = createGameController(renderer);
-            const pongEngine = createPongEngine();
-            const eventController = createGameEventController(pongEngine);
-
-            gameStore.update({ renderer, controller, pongEngine, eventController });
-        });
+        handleRouteChange(window.cfg.url.default);
     }
 });
