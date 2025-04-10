@@ -27,9 +27,6 @@ export const createRouter = (ctn: HTMLElement): void => {
         "profile",
     ];
 
-    // A type-safe list of full screen routes, i.e. hide header and footer
-    //const fullSreenRoutes: (keyof typeof routes)[] = ["landing"]; // Do that in createPage!
-
     const handleRouteChange = async () => {
         const hash = window.location.hash.slice(1);
 
@@ -41,8 +38,10 @@ export const createRouter = (ctn: HTMLElement): void => {
 
         const route = hash as keyof typeof routes;
 
+        // Check auth state for protected routes
         if (protectedRoutes.includes(route)) {
             const authState = authStore.get();
+            // Redirect to default page if not logged in
             if (!authState.isAuthenticated) {
                 window.location.href = window.cfg.url.default;
                 return;

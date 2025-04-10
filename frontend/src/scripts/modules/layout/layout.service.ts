@@ -1,3 +1,5 @@
+import { layoutStore } from "./layout.store";
+
 /** Hide header and footer */
 export const hidePageElements = () => {
     window.log.debug("HidePageElements triggered");

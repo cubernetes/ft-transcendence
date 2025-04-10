@@ -8,7 +8,7 @@
 
 ## Directory structure of scripts
 
-✅ means a page is refactored
+✅ means a page is refactored, only means a page is architecturally confirmed to a style
 
 ```
 scripts/
@@ -16,32 +16,32 @@ scripts/
 │  ├─ config.ts            // ✅ Global vars, i.e. paths, urls, etc. to avoid hardcoding
 │  ├─ router.ts            // ✅
 │  └─ state.ts             // ✅ General generic reactive global state store, i.e. auth, lang, game
-├─ modules/                // Business logic of complex stuff, i.e. game, auth, websocket
-│  ├─ game/
-│  │  ├─ objects
-│  │  │  ├─ ball.ts
-│  │  │  ├─ board.ts
-│  │  │  ├─ paddle.ts
-│  │  │  ├─ score.ts
-│  │  │  └─ wall.ts
+├─ modules/                // ✅ Business logic of complex stuff, i.e. game, auth, websocket
+│  ├─ game/                //
+│  │  ├─ objects           //
+│  │  │  ├─ ball.ts        //
+│  │  │  ├─ board.ts       //
+│  │  │  ├─ paddle.ts      //
+│  │  │  ├─ score.ts       //
+│  │  │  └─ wall.ts        //
 │  │  ├── renderer         // For graphic babylon3d renderer, divided to smaller components
-│  │  │  ├─ audio.ts
-│  │  │  ├─ camera.ts
-│  │  │  ├─ controls.ts
-│  │  │  ├─ scene.ts
-│  │  │  ├─ ...
+│  │  │  ├─ audio.ts       //
+│  │  │  ├─ camera.ts      //
+│  │  │  ├─ controls.ts    //
+│  │  │  ├─ scene.ts       //
+│  │  │  ├─ ...            //
 │  │  ├─ controller.ts     // User interface with the renderer
 │  │  ├─ renderer.ts       // Basically the 'class', as closure
 │  │  └─ store.ts          // Game store for state
-│  ├─ auth/
-│  │  ├─ auth.service.ts   //
+│  ├─ auth/                // ✅ Handles the logged in status
+│  │  ├─ auth.service.ts   // ✅
 │  │  └─ auth.store.ts     // ✅
-│  ├─ layout/
-│  │  ├─ layout.service.ts //
+│  ├─ layout/              // ✅
+│  │  ├─ layout.service.ts // ✅
 │  │  └─ layout.store.ts   // ✅
-│  └─ ws/
-│     ├─ ws.service.ts     //
-│     └─ ws.store.ts       //
+│  └─ ws/                  // ✅
+│     ├─ ws.service.ts     // ✅
+│     └─ ws.store.ts       // ✅
 ├─ ui/                     // HTMLElement, with conventional name
 │  ├─ components/          // Reusable, customizable components
 │  │  ├─ Table.ts          // createTable(...)
