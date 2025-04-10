@@ -1,5 +1,6 @@
 import earcut from "earcut";
 import config from "./global/config";
+import { createHeader } from "./ui/layout/Header";
 import { logger } from "./utils/logger";
 
 // Register globally accessible modules and utils
@@ -19,14 +20,20 @@ if (process.env.WATCH === "1") {
 }
 
 // Dynamic import to ensure globally registered objects are available
-import("./global/router").then(({ createRouter }) => {
-    const launchSite = (): void => {
-        const appElement = document.getElementById("app");
-        if (appElement) {
-            createRouter(appElement);
-        } else {
-            window.log.error("Fail to create router, couldn't find HTMLElement #app");
-        }
-    };
-    document.addEventListener("DOMContentLoaded", launchSite);
+import("./modules/layout/layout.store").then(({ initLayoutState, layoutStore }) => {
+    const rootEl = document.getElementById(window.cfg.id.app);
+    if (!rootEl) {
+        window.log.error(`Fail to find HTMLElement #${window.cfg.id.app}`);
+        return;
+    }
+
+    initLayoutState(rootEl).then((initialState) => {
+        layoutStore.set(initialState);
+    });
+
+    // document.addEventListener("DOMContentLoaded", launchSite);
+    // Maybe register cleanup logic, should close sockets?
+    // document.addEventListener("beforeunload", );
+    // re-open socket?
+    // document.addEventListener("pageshow", );
 });

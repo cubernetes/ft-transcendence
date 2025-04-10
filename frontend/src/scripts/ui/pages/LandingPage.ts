@@ -1,8 +1,11 @@
 import { authStore } from "../../modules/auth/auth.store";
+import { hidePageElements } from "../../modules/layout/layout.utils";
 import { createEl } from "../../utils/dom-helper";
 import { createLoginForm } from "../layout/LoginForm";
 
 export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
+    hidePageElements();
+
     // Background video
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: {

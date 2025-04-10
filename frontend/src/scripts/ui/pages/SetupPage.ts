@@ -1,5 +1,4 @@
-import { createFooter } from "../layout/Footer";
-import { createHeader } from "../layout/Header";
+import { showPageElements } from "../../modules/layout/layout.utils";
 import { createPaddles } from "../layout/Paddles";
 import { createAIMode } from "./setup/gameSetup/gameSetup.ai";
 import { createLocalMode } from "./setup/gameSetup/gameSetup.local";
@@ -9,8 +8,7 @@ export const createSetupPage = async (): Promise<HTMLElement[]> => {
     const container = document.createElement("div");
     container.className = "flex flex-col min-h-screen font-medieval";
 
-    const header = await createHeader();
-    const footer = createFooter();
+    showPageElements();
 
     const main = document.createElement("main");
     main.className =
@@ -22,9 +20,7 @@ export const createSetupPage = async (): Promise<HTMLElement[]> => {
     main.appendChild(paddles);
     main.appendChild(setupSection);
 
-    container.appendChild(header);
     container.appendChild(main);
-    container.appendChild(footer);
 
     return [container];
 };

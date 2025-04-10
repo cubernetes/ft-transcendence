@@ -1,8 +1,7 @@
 import { Result, err, ok } from "neverthrow";
+import { hidePageElements } from "../../modules/layout/layout.utils";
 import { createEl } from "../../utils/dom-helper";
 import { createTable } from "../components/Table";
-import { createFooter } from "../layout/Footer";
-import { createHeader } from "../layout/Header";
 
 /**
  * Fetch Leaderboard userdata.
@@ -44,8 +43,7 @@ export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
     // Define how many players to be fetched
     const n = 10;
 
-    const header = await createHeader();
-    const footer = createFooter();
+    showPageElements();
 
     const main = createEl("main", "container mx-auto p-4 font-medieval");
     const section = createEl("section", "bg-white p-6 rounded-lg shadow-md");
@@ -58,7 +56,7 @@ export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
 
     if (players.isErr()) {
         // TODO: Handle error better, element for failed stuff?
-        return [header, footer];
+        return [];
     }
 
     const table = createTable(headers, columns, players.value);
@@ -71,5 +69,5 @@ export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
 
     main.appendChild(section);
 
-    return [header, main, footer];
+    return [main];
 };

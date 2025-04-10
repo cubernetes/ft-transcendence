@@ -1,5 +1,5 @@
 import { authStore } from "../modules/auth/auth.store";
-import { domStore } from "../modules/dom/dom.store";
+import { layoutStore } from "../modules/layout/layout.store";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createLocalGamePage } from "../ui/pages/LocalGamePage";
@@ -49,15 +49,11 @@ export const createRouter = (ctn: HTMLElement): void => {
             }
         }
 
-        const { header, canvas, router, footer } = domStore.get();
-
-        // if (fullSreenRoutes.includes(route)) {
-        //     header?.classList.add("hidden");
-        //     footer?.classList.add("hidden");
-        // } else {
-        //     header?.classList.remove("hidden");
-        //     header?.classList.remove("hidden");
-        // }
+        const { router } = layoutStore.get();
+        if (!router) {
+            window.log.error("Router cannot find router container");
+            return;
+        }
 
         // Functionally dispatch the event bubbling down to all children elements
         const dispatchEventDown = (parent: HTMLElement, evt: Event) => {
@@ -79,10 +75,8 @@ export const createRouter = (ctn: HTMLElement): void => {
         const fragment = document.createDocumentFragment();
         pageElements.forEach((el) => fragment.appendChild(el));
 
-        // TODO: persist canvas maybe so renderer doesn't have to be recreated every single time?
-        // const canvasEl = document.getElementById(window.cfg.id.canvas);
-        router!.innerHTML = "";
-        router!.appendChild(fragment);
+        router.innerHTML = "";
+        router.appendChild(fragment);
     };
 
     // Listen for hash changes
