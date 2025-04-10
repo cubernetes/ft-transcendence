@@ -27,3 +27,27 @@ export const showPageElements = () => {
     header.classList.remove("hidden");
     footer.classList.remove("hidden");
 };
+
+/** Hide canvas */
+export const hideCanvas = () => {
+    const { canvas } = layoutStore.get();
+
+    if (!canvas) {
+        window.log.error("HideCanvas cannot find canvas");
+        return;
+    }
+
+    canvas.classList.add("hidden");
+};
+
+/** Show canvas*/
+export const showCanvas = () => {
+    const { canvas } = layoutStore.get();
+
+    if (!canvas) {
+        window.log.error("ShowCanvas cannot find canvas");
+        return;
+    }
+
+    canvas.classList.remove("hidden");
+};

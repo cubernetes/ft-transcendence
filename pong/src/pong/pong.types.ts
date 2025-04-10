@@ -1,3 +1,5 @@
+import { createPongEngine } from "./pong.engine";
+
 export type Size3D = {
     width: number;
     height: number;
@@ -63,3 +65,5 @@ export type PongState = {
     ball: Ball;
     paddles: [Paddle, Paddle];
 };
+
+export type PongEngine = ReturnType<typeof createPongEngine>;

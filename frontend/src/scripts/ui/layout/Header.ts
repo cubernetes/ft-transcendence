@@ -39,12 +39,6 @@ export const createHeader = async (): Promise<HTMLElement> => {
         }
     });
 
-    // Header is not being destoryed so should not trigger, but good practice to cleanup
-    document.addEventListener("destory", () => {
-        window.log.debug("Header unsubscribe to Login status");
-        unsubscribe();
-    });
-
     const nav = createEl("nav", "flex items-center space-x-6", { children: [navList] });
 
     const header = createEl(
@@ -52,6 +46,12 @@ export const createHeader = async (): Promise<HTMLElement> => {
         "bg-black/50 p-4 text-white justify-between items-center font-medieval hidden",
         { children: [title, nav] }
     );
+
+    // Header is not being destoryed so should not trigger, but good practice to cleanup
+    header.addEventListener("destory", () => {
+        window.log.debug("Header unsubscribe to Login status");
+        unsubscribe();
+    });
 
     return header;
 };

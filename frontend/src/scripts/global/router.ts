@@ -65,7 +65,7 @@ export const createRouter = (ctn: HTMLElement): void => {
             });
         };
 
-        dispatchEventDown(router!, new Event("destroy"));
+        dispatchEventDown(router, new Event("destroy"));
 
         // Render the appropriate page
         const createPage = routes[route];

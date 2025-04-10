@@ -1,9 +1,11 @@
+import { createPongEngine } from "@darrenkuro/pong-core";
 import { createRouter } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createFooter } from "../../ui/layout/Footer";
 import { createHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createGameController } from "../game/game.controller";
+import { createGameEventController } from "../game/game.event";
 import { createRenderer } from "../game/game.renderer";
 import { gameStore } from "../game/game.store";
 
@@ -47,8 +49,13 @@ layoutStore.subscribe(async (state) => {
         return;
     }
 
+    // Initilize router
     createRouter(router);
+
+    // Initilize game renderer, controller, pong engine, and event controller
     const renderer = await createRenderer(canvas);
     const controller = createGameController(renderer);
-    gameStore.update({ controller });
+    const pongEngine = createPongEngine();
+    const eventController = createGameEventController(pongEngine);
+    gameStore.update({ renderer, controller, pongEngine, eventController });
 });

@@ -1,80 +1,53 @@
-import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
-import { createGameController } from "../../modules/game/game.controller";
-import { createRenderer, disposeRenderer } from "../../modules/game/game.renderer";
-import { defaultGameState, gameStore } from "../../modules/game/game.store";
-import { createEl } from "../../utils/dom-helper";
-import { createFooter } from "../layout/Footer";
-import { createHeader } from "../layout/Header";
+import { gameStore } from "../../modules/game/game.store";
+import { showPageElements } from "../../modules/layout/layout.service";
 
 export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
-    const header = await createHeader();
-    const footer = createFooter();
+    showPageElements();
 
-    const canvas = createEl("canvas", "w-full h-full", { attributes: { id: "renderCanvas" } });
-    const container = createEl("div", "w-full h-[600px] relative", { children: [canvas] });
+    const { controller, pongEngine, renderer } = gameStore.get();
+    if (!controller || !pongEngine || !renderer) {
+        window.log.error("Local game page cannot find essential game components");
+        return [];
+    }
 
-    const renderer = await createRenderer(canvas);
-    const controller = createGameController(renderer);
-    const engine = createPongEngine();
+    // Attach pong engine events to renderer controller
+    pongEngine.onEvent("wall-collision", () => controller.handleWallCollision());
+    pongEngine.onEvent("paddle-collision", () => controller.handlePaddleCollision());
+    pongEngine.onEvent("score-update", (evt) => controller.updateScores(evt.scores));
+    pongEngine.onEvent("state-update", (evt) => {
+        controller.updateState(evt.state);
+    });
 
-    const handleKeydown = (evt: KeyboardEvent) => {
-        window.log.debug(`Key pressed: ${evt.key}`);
-        if (evt.key === "w") {
-            engine.setInput(0, "up");
-        } else if (evt.key === "s") {
-            engine.setInput(0, "down");
-        } else if (evt.key === "ArrowUp") {
-            engine.setInput(1, "up");
-        } else if (evt.key === "ArrowDown") {
-            engine.setInput(1, "down");
-        }
-    };
+    gameStore.update({ isPlaying: true, mode: "local" });
 
-    document.addEventListener("keydown", handleKeydown);
-
-    const handleKeyup = (evt: KeyboardEvent) => {
-        window.log.debug(`Key released: ${evt.key}`);
-        if (["w", "s"].includes(evt.key)) {
-            engine.setInput(0, "stop");
-        } else if (["ArrowUp", "ArrowDown"].includes(evt.key)) {
-            engine.setInput(1, "stop");
-        }
-    };
-
-    document.addEventListener("keyup", handleKeyup);
-
-    const setupEventListeners = () => {
-        engine.onEvent("wall-collision", () => controller.handleWallCollision());
-        engine.onEvent("paddle-collision", () => controller.handlePaddleCollision());
-        engine.onEvent("score-update", (evt) => controller.updateScores(evt.scores));
-        engine.onEvent("state-update", (evt) => {
-            controller.updateState(evt.state);
-        });
-    };
-
-    setupEventListeners();
-    const result = engine.start();
+    const result = pongEngine.start();
     if (result.isOk()) {
         window.log.info("Pong engine ok!");
     }
-
-    // Destroy and clean up
-    container.addEventListener("destroy", () => {
-        document.removeEventListener("keyup", handleKeyup);
-        document.removeEventListener("keydown", handleKeydown);
-        window.log.info("keyup and keydown event listeners removed");
-
-        disposeRenderer(renderer);
-    });
 
     renderer.runRenderLoop(() => {
         renderer.scene.render();
     });
 
-    // Destory this properly
-    window.addEventListener("resize", () => renderer.resize());
+    // Handle resize event
+    const resizeListener = () => renderer.resize();
+    window.addEventListener("resize", resizeListener);
+
     // Initial scale
     requestAnimationFrame(() => renderer.resize());
 
-    return [header, container, footer];
+    // Cleanup function
+    const cleanup = () => {
+        // Clean up event listeners
+        window.removeEventListener("resize", resizeListener);
+
+        pongEngine.stop();
+        gameStore.update({ isPlaying: false, mode: null });
+        window.log.info("Game resources cleaned up.");
+    };
+
+    // Add an event listener to clean up when the page is unloaded
+    window.addEventListener("beforeunload", cleanup);
+
+    return [];
 };
