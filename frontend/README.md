@@ -8,12 +8,14 @@
 
 ## Directory structure of scripts
 
+✅ means a page is refactored
+
 ```
 scripts/
-├── global/
-│   ├── config.ts           // Global vars, i.e. paths, urls, etc. to avoid hardcoding
-│   ├── router.ts
-│   └── state.ts            // General generic reactive global state store, i.e. auth, lang, game
+├── global/                 // ✅
+│   ├── config.ts           // ✅ Global vars, i.e. paths, urls, etc. to avoid hardcoding
+│   ├── router.ts           // ✅
+│   └── state.ts            // ✅ General generic reactive global state store, i.e. auth, lang, game
 ├── modules/                // Business logic of complex stuff, i.e. game, auth, websocket
 │   ├── game/
 │   │   ├── objects
@@ -47,11 +49,19 @@ scripts/
 │   ├── pages/              // page renderer, should be built with components and layouts mostly
 │   │   ├── GamePage.ts     //
 │   │   ├── LandingPage.ts  //
-│   │   ├── SetupPage.tsx
+│   │   ├── SetupPage.tsx   //
 │   │   ├── ...
 ├── utils/                  // General global utils
 │   │   ├── dom-helper.ts   // createEl, etc.
-│   │   └── logger.ts
+│   │   └── logger.ts       // ✅
 ├── types.d.ts              // Global type definitions
-└── index.ts                // Entry point
+└── index.ts                // ✅ Entry point
+```
+
+## App initialization flow
+
+```
+layout -> router (page load)
+       -> renderer
+auth   -> socket
 ```
