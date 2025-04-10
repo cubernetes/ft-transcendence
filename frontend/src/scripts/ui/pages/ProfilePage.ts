@@ -1,6 +1,4 @@
 import { showPageElements } from "../../modules/layout/layout.service";
-import { createFooter } from "../layout/Footer";
-import { createHeader } from "../layout/Header";
 
 // TODO: 2FA, upload profile picture; profile pic, basic info
 export const createProfilePage: PageRenderer = async (): Promise<HTMLElement[]> => {

@@ -32,7 +32,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     );
 
     ctaButton.onclick = async () => {
-        musicEl.play(); // FIX, always playing new stuff?
+        musicEl.play();
 
         const authState = authStore.get();
         if (authState.isAuthenticated) {
@@ -58,14 +58,6 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         attributes: { src: `${window.cfg.dir.audio}/main.mp3` },
         props: { loop: true, volume: 0.4 },
     });
-
-    // Dispose audio once leaving the page?
-    // musicEl.addEventListener("destory", () => {
-    //     musicEl.pause();
-    //     musicEl.src = "";
-    //     musicEl.removeAttribute("src");
-    //     musicEl.load();
-    // });
 
     const mainEl = createEl("main", "w-full h-screen relative", {
         children: [videoEl, overlayEl, heroEl],

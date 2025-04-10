@@ -16,7 +16,7 @@ type SoundConfig = {
 const bgMusicConfig: SoundConfig = {
     name: "bgMusic",
     src: `${window.cfg.dir.audio}/neon-gaming.mp3`,
-    options: { loop: true, autoplay: true, volume: 0.5 },
+    options: { loop: true, autoplay: false, volume: 0.5 },
 };
 
 const hitSoundConfig: SoundConfig = {

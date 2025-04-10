@@ -64,9 +64,9 @@ layoutStore.subscribe((state) => {
 
             gameStore.update({ renderer, controller, pongEngine, eventController });
 
-            initAuthState().then((initialState) => {
-                authStore.set(initialState);
-            });
+            // initAuthState().then((initialState) => {
+            //     authStore.set(initialState);
+            // });
         });
     }
 });
