@@ -68,7 +68,7 @@ export const createHeader = async (): Promise<HTMLElement> => {
 
     const header = createEl(
         "header",
-        "bg-black/50 p-4 text-white justify-between items-center font-medieval",
+        "bg-black/50 p-4 text-white justify-between items-center font-medieval hidden",
         { children: [title, nav] }
     );
 
