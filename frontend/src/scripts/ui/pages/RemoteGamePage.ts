@@ -1,4 +1,3 @@
-import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
 import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer, disposeRenderer } from "../../modules/game/game.renderer";
 import { defaultGameState, gameStore } from "../../modules/game/game.store";
