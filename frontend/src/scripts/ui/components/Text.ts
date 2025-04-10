@@ -1,10 +1,18 @@
 import { createEl } from "../../utils/dom-helper";
 
 /**
- * @default h2
- * @default tw "text-6xl font-bold mb-4 text-center text-black"
+ * Create a heading text element.
+ * @param text text string
+ * @param tw optional additional tailwind classes,
+ *           default "text-6xl font-bold mb-4 text-center text-black",
+ *           extendable and replacable by this param adding to it
+ * @param tag HTMLElementTagName, default is h2
  */
-export const createTitleText = (text: string, tw = "", tag = "h2"): HTMLElement => {
+export const createTitleText = (
+    text: string,
+    tw: string = "",
+    tag: keyof HTMLElementTagNameMap = "h2"
+): HTMLElement => {
     // h2 all or ?
     const baseTw = "text-6xl font-bold mb-4 text-center text-black";
     const fullTw = `${baseTw} ${tw}`;
@@ -14,8 +22,11 @@ export const createTitleText = (text: string, tw = "", tag = "h2"): HTMLElement 
 };
 
 /**
- *
- * @default tw "text-xl text-black"
+ * Create a text element.
+ * @param text text string
+ * @param tw optional additional tailwind classes,
+ *           default "text-6xl font-bold mb-4 text-center text-black",
+ *           extendable and replacable by this param adding to it
  */
 export const createBodyText = (text: string, tw: string = ""): HTMLElement => {
     const baseTw = "text-xl text-black";
