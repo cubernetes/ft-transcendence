@@ -15,7 +15,7 @@ export const createRemoteGamePage = async (): Promise<HTMLElement[]> => {
 
     const renderer = await createRenderer(canvas);
     const controller = createGameController(renderer);
-    gameStore.update({ renderer, controller });
+    // gameStore.update({ renderer, controller });
 
     const handleKeydown = (evt: KeyboardEvent) => {
         window.log.debug(`Key pressed: ${evt.key}`);
