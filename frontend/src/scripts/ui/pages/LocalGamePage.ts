@@ -4,11 +4,16 @@ import { showPageElements } from "../../modules/layout/layout.service";
 export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
     showPageElements();
 
-    const { controller, pongEngine, renderer } = gameStore.get();
-    if (!controller || !pongEngine || !renderer) {
+    const { controller, pongEngine } = gameStore.get();
+    if (!controller || !pongEngine) {
         window.log.error("Local game page cannot find essential game components");
         return [];
     }
+
+    // Get a clean state on pong engine
+    window.log.debug(pongEngine.getInternalState());
+    pongEngine.reset();
+    window.log.debug(pongEngine.getInternalState());
 
     // Attach pong engine events to renderer controller
     pongEngine.onEvent("wall-collision", () => controller.handleWallCollision());
@@ -25,29 +30,7 @@ export const createLocalGamePage = async (): Promise<HTMLElement[]> => {
         window.log.info("Pong engine ok!");
     }
 
-    renderer.runRenderLoop(() => {
-        renderer.scene.render();
-    });
-
-    // Handle resize event
-    const resizeListener = () => renderer.resize();
-    window.addEventListener("resize", resizeListener);
-
-    // Initial scale
-    requestAnimationFrame(() => renderer.resize());
-
-    // Cleanup function
-    const cleanup = () => {
-        // Clean up event listeners
-        window.removeEventListener("resize", resizeListener);
-
-        pongEngine.stop();
-        gameStore.update({ isPlaying: false, mode: null });
-        window.log.info("Game resources cleaned up.");
-    };
-
-    // Add an event listener to clean up when the page is unloaded
-    window.addEventListener("beforeunload", cleanup);
+    controller.start();
 
     return [];
 };

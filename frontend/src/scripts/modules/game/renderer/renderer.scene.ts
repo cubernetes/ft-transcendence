@@ -10,6 +10,10 @@ import {
     Space,
     Texture,
 } from "@babylonjs/core";
+import { createCamera } from "./renderer.camera";
+import { createDirectionalLight, createHemisphericLight } from "./renderer.light";
+import { createObjects } from "./renderer.objects";
+import { createShadowGenerator } from "./renderer.shadow";
 
 const setupScene = (scene: Scene) => {
     // ---------------- SKYBOX
@@ -40,13 +44,20 @@ const setupScene = (scene: Scene) => {
 };
 
 export const createScene = (engine: Engine): Scene => {
-    const scene = new Scene(engine);
-    scene.audioEnabled = true; // This doesn't seem to be official, separate for audio engine?
+    engine.scene = new Scene(engine);
+    engine.scene.audioEnabled = true; // This doesn't seem to be official, separate for audio engine?
     // scene.environmentIntensity = 0.5;
-    const glow = new GlowLayer("glow", scene);
+    const glow = new GlowLayer("glow", engine.scene);
     glow.intensity = 5;
 
-    setupScene(scene);
+    setupScene(engine.scene);
 
-    return scene;
+    engine.directionalLight = createDirectionalLight(engine.scene);
+    engine.shadowGenerator = createShadowGenerator(engine.directionalLight);
+    engine.camera = createCamera(engine); // TODO: check if attaching camera is needed
+
+    createHemisphericLight(engine.scene);
+    createObjects(engine);
+
+    return engine.scene;
 };

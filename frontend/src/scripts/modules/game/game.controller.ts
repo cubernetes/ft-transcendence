@@ -1,8 +1,10 @@
 import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
 import { Ball, PongState, Position3D, defaultGameConfig } from "@darrenkuro/pong-core";
+import { disposeScene } from "./game.renderer";
 import { createScore } from "./objects/objects.score";
 import { pulseBall, pulseLight } from "./renderer/renderer.animations";
 import { showGameOver } from "./renderer/renderer.event";
+import { createScene } from "./renderer/renderer.scene";
 
 /** Renderer will be hidden behind controller and controller is the user interface */
 export const createGameController = (engine: Engine) => {
@@ -73,6 +75,25 @@ export const createGameController = (engine: Engine) => {
         updateRightPaddle(state.paddles[1].pos);
     };
 
+    const resizeListener = () => engine.resize();
+
+    const destory = () => {
+        disposeScene(engine);
+        engine.stopRenderLoop();
+        window.removeEventListener("resize", resizeListener);
+    };
+
+    const start = () => {
+        engine.scene = createScene(engine);
+        engine.runRenderLoop(() => {
+            engine.scene.render();
+        });
+        window.addEventListener("resize", resizeListener);
+
+        // Initial scale
+        requestAnimationFrame(() => engine.resize());
+    };
+
     return {
         updateState,
         updateScores,
@@ -80,5 +101,7 @@ export const createGameController = (engine: Engine) => {
         handlePaddleCollision,
         handleBallReset,
         handleEndGame,
+        destory,
+        start,
     };
 };

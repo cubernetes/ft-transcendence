@@ -3,7 +3,6 @@ import { sendGameAction } from "../ws/ws.service";
 
 export const createGameEventController = (engine: PongEngine) => {
     const handleKeydownEventLocal = (evt: KeyboardEvent, engine: PongEngine) => {
-        window.log.debug(`Key pressed: ${evt.key}`);
         if (evt.key === "w") {
             engine.setInput(0, "up");
         } else if (evt.key === "s") {

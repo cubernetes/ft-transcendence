@@ -7,7 +7,7 @@ import {
     Vector3,
 } from "@babylonjs/core";
 
-export const createCamera = (engine: Engine, scene: Scene): ArcRotateCamera => {
+export const createCamera = (engine: Engine): ArcRotateCamera => {
     //TODO: check if Class TargetCamera makes more sense.
     const camera = new ArcRotateCamera(
         "pongCamera",
@@ -15,7 +15,7 @@ export const createCamera = (engine: Engine, scene: Scene): ArcRotateCamera => {
         Math.PI / 4,
         200, // radius - distance from center
         Vector3.Zero(), // target - looking at center
-        scene
+        engine.scene
     );
 
     // Disable keyboard controls
@@ -72,7 +72,7 @@ export const createCamera = (engine: Engine, scene: Scene): ArcRotateCamera => {
         camera.lowerAlphaLimit = -Math.PI;
     };
 
-    scene.beginAnimation(camera, 0, 100, false, 1.0, setCameraLimits);
+    engine.scene.beginAnimation(camera, 0, 100, false, 1.0, setCameraLimits);
 
     return camera;
 };

@@ -11,26 +11,22 @@ import { createShadowGenerator } from "./renderer/renderer.shadow";
  * Maybe engine should be initilized only once. Canvas element is persisted. So it's less expensive?
  */
 export const createRenderer = async (canvasEl: HTMLCanvasElement): Promise<Engine> => {
-    const engine = new Engine(canvasEl, true);
-    const audioEngine = await createAudioEngine();
-    engine.audio = audioEngine;
+    const engine = new Engine(canvasEl, true); // persist
+    engine.audio = await createAudioEngine(); // persist
 
     // Initialize options
     engine.shadowsEnabled = false;
     engine.soundsEnabled = true;
 
-    const scene = createScene(engine);
-    engine.scene = scene;
-    const directionalLight = createDirectionalLight(scene);
-    engine.directionalLight = directionalLight;
-    engine.shadowGenerator = createShadowGenerator(directionalLight);
-    engine.camera = createCamera(engine, scene); // TODO: check if attaching camera is needed
-    engine.controls = createControls(engine, audioEngine);
-
-    createHemisphericLight(scene);
-    createObjects(engine, scene);
+    //engine.controls = createControls(engine); // persist?
 
     return engine;
+};
+
+export const disposeScene = (engine: Engine) => {
+    if (engine.scene) {
+        engine.scene.dispose();
+    }
 };
 
 /** Dispose everything in a renderer engine */

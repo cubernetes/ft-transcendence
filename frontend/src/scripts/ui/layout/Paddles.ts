@@ -28,11 +28,11 @@ export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
         }
     };
 
-    window.log.debug("Registering paddle listener");
+    // window.log.debug("Registering paddle listener");
     document.addEventListener("mousemove", handleMouseMove);
 
     paddleContainer.addEventListener("destroy", () => {
-        window.log.debug("Destroying paddle listener");
+        // window.log.debug("Destroying paddle listener");
         document.removeEventListener("mousemove", handleMouseMove);
     });
 

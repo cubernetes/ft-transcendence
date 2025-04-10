@@ -39,20 +39,20 @@ gameStore.subscribe((state) => {
     window.log.debug("GameStore subscriber triggered");
 
     const { renderer, controller, pongEngine, eventController } = state;
+
     // Safeguard, should never be triggered
     if (!renderer || !controller || !pongEngine || !eventController) {
         window.log.error("GameStore cannot find essential components");
         return;
     }
 
-    // Ensure there is a socket connection, maybe move this somewhere else
-    establishSocketConn();
-
     const { isPlaying, mode } = state;
 
     if (!isPlaying) {
         // Detach all controllers when game is not ongoing
         eventController.detachAllControls();
+        controller.destory();
+        pongEngine.stop();
         hideCanvas();
         return;
     }
@@ -68,8 +68,11 @@ gameStore.subscribe((state) => {
     switch (mode) {
         case "local":
             eventController.attachLocalControl();
+            controller.start();
             break;
         case "remote":
+            // Ensure there is a socket connection, maybe move this somewhere else
+            establishSocketConn();
             eventController.attachRemoteControl();
             break;
         case "ai":

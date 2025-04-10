@@ -153,7 +153,7 @@ const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
 
 // #endregion
 
-export const createControls = (engine: Engine, audio: AudioEngineV2): AdvancedDynamicTexture => {
+export const createControls = (engine: Engine): AdvancedDynamicTexture => {
     const controls = AdvancedDynamicTexture.CreateFullscreenUI("UI");
     const grid = new Grid();
     controls.addControl(grid);
@@ -162,8 +162,8 @@ export const createControls = (engine: Engine, audio: AudioEngineV2): AdvancedDy
     // Create control elements
     createShadowButton(grid, engine);
     createSFXButton(grid, engine);
-    createMusicButton(grid, audio);
-    createVolumePanel(grid, audio);
+    createMusicButton(grid, engine.audio);
+    createVolumePanel(grid, engine.audio);
 
     return controls;
 };

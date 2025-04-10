@@ -6,7 +6,8 @@ import { createPaddle } from "../objects/objects.paddle";
 import { createScore } from "../objects/objects.score";
 import { createWalls } from "../objects/objects.wall";
 
-export const createObjects = (engine: Engine, scene: Scene) => {
+export const createObjects = (engine: Engine) => {
+    const { scene } = engine;
     // Create board
     createBoard(scene, new Vector3(0, -0.5, 0), defaultGameConfig.board.size);
     createWalls(scene, defaultGameConfig.board.size);

@@ -226,5 +226,29 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    return { start, stop, onEvent, setInput };
+    /** Reset all game states */
+    const reset = () => {
+        (Object.keys(listeners) as Array<keyof PongEngineEventMap>).forEach((key) => {
+            listeners[key] = [];
+        });
+        userInputs[0] = "stop";
+        userInputs[1] = "stop";
+        scores[0] = 0;
+        scores[1] = 1;
+        paddles[0] = { ...config.paddles[0] };
+        paddles[1] = { ...config.paddles[1] };
+        ball.pos = config.ball.pos;
+        if (interval) {
+            clearInterval(interval);
+            interval = null;
+        }
+        status = "waiting";
+    };
+
+    /** For debug, delete later */
+    const getInternalState = () => {
+        return { listeners, userInputs, scores, paddles, ball, tickRate, interval, status };
+    };
+
+    return { start, stop, onEvent, setInput, reset, getInternalState };
 };

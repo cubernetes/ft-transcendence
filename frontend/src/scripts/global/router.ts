@@ -1,4 +1,5 @@
 import { authStore } from "../modules/auth/auth.store";
+import { gameStore } from "../modules/game/game.store";
 import { layoutStore } from "../modules/layout/layout.store";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
@@ -28,6 +29,9 @@ export const createRouter = (ctn: HTMLElement): void => {
     ];
 
     const handleRouteChange = async () => {
+        // Clean up game session when route changes, this probably belongs somewhere else
+        gameStore.update({ isPlaying: false, mode: null });
+
         const hash = window.location.hash.slice(1);
 
         // Redirect to default page upon invalid route
