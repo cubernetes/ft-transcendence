@@ -1,7 +1,7 @@
 import { logout } from "../../modules/auth/auth.service";
 import { authStore } from "../../modules/auth/auth.store";
 import { createEl } from "../../utils/dom-helper";
-import { createUserStatus } from "./UserStatus";
+import { appendUserStatus } from "./UserStatus";
 
 export const createHeader = async (): Promise<HTMLElement> => {
     const anchor = createEl("a", "text-3xl font-bold", {
@@ -35,7 +35,7 @@ export const createHeader = async (): Promise<HTMLElement> => {
     const unsubscribe = authStore.subscribe((state) => {
         window.log.debug("AuthStore triggered in header");
         if (state.isAuthenticated && state.username) {
-            createUserStatus(loginStatus, state.username);
+            appendUserStatus(loginStatus, state.username);
         }
     });
 
