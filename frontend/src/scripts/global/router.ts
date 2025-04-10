@@ -36,16 +36,21 @@ export const createRouter = (ctn: HTMLElement): void => {
         "aigame",
     ];
 
-    const handleRouteChange = async () => {
+    const handleRouteChange = async (dest?: string) => {
         const hash = window.location.hash.slice(1);
+        const route = (dest ?? hash) as keyof typeof routes;
+
+        // Clean up game session when route changes, this probably belongs somewhere else
+        // Currently landing page initialize game components, will give warning
+        // But not a big deal, still should change later
+        gameStore.update({ isPlaying: false, mode: null });
 
         // Redirect to default page upon invalid route
         if (!(hash in routes)) {
+            window.log.debug("Unknown route, redirect...");
             window.location.href = window.cfg.url.default;
             return;
         }
-
-        const route = hash as keyof typeof routes;
 
         // Check auth state for protected routes
         if (protectedRoutes.includes(route)) {
@@ -59,10 +64,6 @@ export const createRouter = (ctn: HTMLElement): void => {
         }
 
         const { router } = layoutStore.get();
-        if (!router) {
-            window.log.error("Router cannot find router container");
-            return;
-        }
 
         // Functionally dispatch the event bubbling down to all children elements
         const dispatchEventDown = (parent: HTMLElement, evt: Event) => {
@@ -77,9 +78,6 @@ export const createRouter = (ctn: HTMLElement): void => {
 
         dispatchEventDown(router, new Event("destroy"));
 
-        // Clean up game session when route changes, this probably belongs somewhere else
-        gameStore.update({ isPlaying: false, mode: null });
-
         // Render the appropriate page
         const createPage = routes[route];
         const pageElements = await createPage();
@@ -92,8 +90,8 @@ export const createRouter = (ctn: HTMLElement): void => {
     };
 
     // Listen for hash changes
-    window.addEventListener("hashchange", handleRouteChange);
+    window.addEventListener("hashchange", () => handleRouteChange());
 
     // Initial route
-    handleRouteChange();
+    handleRouteChange(window.cfg.url.default);
 };

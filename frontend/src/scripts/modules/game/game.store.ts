@@ -43,7 +43,7 @@ gameStore.subscribe((state) => {
 
     // Safeguard, should never be triggered
     if (!renderer || !controller || !pongEngine || !eventController) {
-        window.log.error("GameStore cannot find essential components");
+        window.log.warn("GameStore cannot find essential components");
         return;
     }
 
@@ -83,7 +83,7 @@ gameStore.subscribe((state) => {
             // Attach game event to renderer
             attachLocalEngineEvents();
 
-            // Start renderer
+            // Start pong engine and renderer
             pongEngine.start();
             controller.start();
             break;
@@ -108,9 +108,10 @@ gameStore.subscribe((state) => {
             // Attach game event to renderer
             attachLocalEngineEvents();
 
-            // Start renderer
+            // Start pong engine and renderer
+            // Will config AI to pongEngine here
+            pongEngine.start();
             controller.start();
-
             break;
         default:
     }
