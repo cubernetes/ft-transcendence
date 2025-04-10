@@ -80,14 +80,14 @@ export const createGameService = (app: FastifyInstance) => {
         engine.onEvent("game-end", (evt) => {
             app.wsService.broadcast(players, {
                 type: "game-end",
-                payload: { winner: evt.winner },
+                payload: evt,
             });
         });
 
         engine.onEvent("score-update", (evt) => {
             app.wsService.broadcast(players, {
                 type: "score-update",
-                payload: { scores: evt.scores },
+                payload: evt,
             });
         });
 
@@ -108,7 +108,7 @@ export const createGameService = (app: FastifyInstance) => {
         engine.onEvent("state-update", (evt) => {
             app.wsService.broadcast(players, {
                 type: "state-update",
-                payload: evt.state,
+                payload: evt,
             });
         });
 

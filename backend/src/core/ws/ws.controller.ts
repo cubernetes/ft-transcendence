@@ -13,6 +13,7 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
             return server.log.error("Websocket on message failed to parse JSON");
         }
 
+        server.log.debug(msg.value.type);
         const handler = server.wsService.getHandler(msg.value.type);
 
         if (handler.isErr()) {

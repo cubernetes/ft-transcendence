@@ -9,7 +9,7 @@ import {
     registerOutgoingMessageHandler as registerHandler,
 } from "@darrenkuro/pong-core";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
-import { sendGameAction } from "../ws/ws.service";
+import { sendGameAction, sendGameStart } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
 import { createScore } from "./objects/objects.score";
@@ -130,7 +130,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         registerHandler("score-update", ({ scores }) => updateScores(scores), handlers);
         registerHandler("ball-reset", handleBallReset, handlers);
         // TODO: Get name
-        registerHandler("game-end", ({ winner }) => handleEndGame("winnerName"), handlers);
+        registerHandler("game-end", (evt) => handleEndGame("winnerName"), handlers);
     };
 
     const updateBall = (newBall: Ball) => {
@@ -195,6 +195,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const updateState = (state: PongState) => {
+        window.log.debug(state);
         updateBall(state.ball);
         updateLeftPaddle(state.paddles[0].pos);
         updateRightPaddle(state.paddles[1].pos);
@@ -242,6 +243,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const startOnlineGame = () => {
         attachOnlineControl();
         attachOnlineSocketEvents();
+        sendGameStart();
         startRenderer();
     };
 

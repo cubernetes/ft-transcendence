@@ -33,12 +33,6 @@ gameStore.subscribe((state) => {
 
     const { isPlaying, gameId, controller } = state;
 
-    if (isPlaying && gameId) {
-        controller
-            ? controller.startGame("online")
-            : window.log.error("Staring oneline game but no game controller available");
-    }
-
     if (!isPlaying && controller) {
         controller.destory();
     }

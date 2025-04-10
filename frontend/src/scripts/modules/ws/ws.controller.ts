@@ -1,5 +1,4 @@
 import type { OutgoingMessage, OutgoingMessageType } from "@darrenkuro/pong-core";
-import { Result, err, ok } from "neverthrow";
 import {
     registerOutgoingMessageHandler as registerHandler,
     safeJsonParse,
