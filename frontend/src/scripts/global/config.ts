@@ -22,9 +22,14 @@ const config = {
         token: "token", // JWT token name
     },
     id: {
-        loginForm: "loginForm",
-        totpForm: "totpForm",
-        totpToken: "totpToken",
+        loginForm: "login-form",
+        totpForm: "totp-form",
+        totpToken: "totp-token", // TotpToken
+        app: "app",
+        header: "header-ctn",
+        canvas: "rendering-canvas", // persist this so that you don't need to recreate engine
+        router: "router-ctn",
+        footer: "fotter-ctn",
     },
 };
 
