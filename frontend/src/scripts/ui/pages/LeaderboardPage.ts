@@ -45,7 +45,7 @@ export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
 
     showPageElements();
 
-    const main = createEl("main", "container mx-auto p-4 font-medieval");
+    const main = createEl("main", "container mx-auto p-4");
     const section = createEl("section", "bg-white p-6 rounded-lg shadow-md");
     const title = createEl("h2", "text-2xl font-bold mb-4", { text: "Leaderboard" });
 

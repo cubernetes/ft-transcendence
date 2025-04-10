@@ -1,14 +1,7 @@
-import { createFooter } from "../layout/Footer";
-import { createHeader } from "../layout/Header";
-
 /**
  * TODO: refactor this into a modal
  */
 export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
-    const fragment = document.createDocumentFragment();
-
-    // const header = await createHeader();
-
     const main = document.createElement("main");
     main.className = "container mx-auto p-4 flex flex-col items-center";
 
@@ -47,15 +40,6 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
     totpSetupContainer.appendChild(submitButton);
 
     main.appendChild(totpSetupContainer);
-
-    const footer = createFooter();
-
-    // fragment.appendChild(header);
-    fragment.appendChild(main);
-    fragment.appendChild(footer);
-
-    const container = document.createElement("div");
-    container.appendChild(fragment);
 
     tokenInput.addEventListener("keypress", (evt) => {
         if (evt.key == "Enter") {
@@ -100,7 +84,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
                 alert("Invalid response from server (JWT missing). Logging out");
                 localStorage.removeItem("token");
                 localStorage.removeItem("username");
-                container.innerHTML = "";
+                //container.innerHTML = "";
                 window.location.reload();
             } else {
                 localStorage.setItem("token", jwt);
@@ -109,7 +93,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
         }
     });
 
-    return [container];
+    return [main];
 };
 
 const fetchQrCode = async () => {

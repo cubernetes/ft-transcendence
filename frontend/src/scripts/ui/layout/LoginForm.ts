@@ -3,7 +3,7 @@ import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
 
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
-    wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3 font-medieval";
+    wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3";
     wrapper.id = window.cfg.id.loginForm;
 
     const toggleContainer = document.createElement("div");

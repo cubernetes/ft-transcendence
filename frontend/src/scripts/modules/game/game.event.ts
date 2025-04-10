@@ -53,7 +53,7 @@ export const createGameEventController = (engine: PongEngine) => {
         handleKeyupEventAi(evt, engine);
     };
 
-    const handleKeydownRemote = (evt: KeyboardEvent) => {
+    const handleKeydownOnline = (evt: KeyboardEvent) => {
         if (evt.key === "w" || evt.key === "ArrowUp") {
             sendGameAction("up");
         } else if (evt.key === "s" || evt.key === "ArrowDown") {
@@ -61,7 +61,7 @@ export const createGameEventController = (engine: PongEngine) => {
         }
     };
 
-    const handleKeyupRemote = (evt: KeyboardEvent) => {
+    const handleKeyupOnline = (evt: KeyboardEvent) => {
         if (["w", "s", "ArrowUp", "ArrowDown"].includes(evt.key)) {
             sendGameAction("stop");
         }
@@ -77,14 +77,14 @@ export const createGameEventController = (engine: PongEngine) => {
         document.removeEventListener("keyup", handleKeyupLocal);
     };
 
-    const attachRemoteControl = () => {
-        document.addEventListener("keydown", handleKeydownRemote);
-        document.addEventListener("keyup", handleKeyupRemote);
+    const attachOnlineControl = () => {
+        document.addEventListener("keydown", handleKeydownOnline);
+        document.addEventListener("keyup", handleKeyupOnline);
     };
 
-    const detachRemoteControl = () => {
-        document.removeEventListener("keydown", handleKeydownRemote);
-        document.removeEventListener("keyup", handleKeyupRemote);
+    const detachOnlineControl = () => {
+        document.removeEventListener("keydown", handleKeydownOnline);
+        document.removeEventListener("keyup", handleKeyupOnline);
     };
 
     const attachAiControl = () => {
@@ -100,13 +100,13 @@ export const createGameEventController = (engine: PongEngine) => {
     /** Detach all event controllers because it is safe to remove ones that don't exist */
     const detachAllControls = () => {
         detachLocalControl();
-        detachRemoteControl();
+        detachOnlineControl();
         detachAiControl();
     };
 
     return {
         attachLocalControl,
-        attachRemoteControl,
+        attachOnlineControl,
         attachAiControl,
         detachAllControls,
     };

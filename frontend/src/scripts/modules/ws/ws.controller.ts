@@ -64,7 +64,7 @@ export const registerGameControllers = (conn: WebSocket) => {
         gameStore.update({
             isPlaying: true,
             isWaiting: false,
-            mode: "remote",
+            mode: "online",
             gameId,
             opponentId,
             index,

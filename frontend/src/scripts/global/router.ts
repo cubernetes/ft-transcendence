@@ -1,36 +1,28 @@
 import { authStore } from "../modules/auth/auth.store";
-import { gameStore } from "../modules/game/game.store";
 import { layoutStore } from "../modules/layout/layout.store";
+import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
-import { createLocalGamePage } from "../ui/pages/LocalGamePage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
-import { createRemoteGamePage } from "../ui/pages/RemoteGamePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 
 export const createRouter = (ctn: HTMLElement): void => {
     const routes = {
-        setup: createSetupPage,
         landing: createLandingPage,
-        localgame: createLocalGamePage,
-        remotegame: createRemoteGamePage,
+        setup: createSetupPage,
+        game: createGamePage,
         profile: createProfilePage,
         leaderboard: createLeaderboardPage,
-        totp: createTotpSetupPage,
+        totp: createTotpSetupPage, // Refactor into modal
     } satisfies Record<string, PageRenderer>;
 
     // A type-safe list of protected routes, i.e. only available after logging in
-    const protectedRoutes: (keyof typeof routes)[] = [
-        "setup",
-        "localgame",
-        "remotegame",
-        "profile",
-    ];
+    const protectedRoutes: (keyof typeof routes)[] = ["setup", "game", "profile"];
 
     const handleRouteChange = async () => {
         // Clean up game session when route changes, this probably belongs somewhere else
-        //gameStore.update({ isPlaying: false, mode: null });
+        // gameStore.update({ isPlaying: false, mode: null });
 
         const hash = window.location.hash.slice(1);
 

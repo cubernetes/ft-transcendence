@@ -30,6 +30,9 @@ const createInput = (placeholder: string) =>
         attributes: { placeholder },
     });
 
+const onlineMode = (ctn: HTMLElement) => {};
+
+const aiMode = (ctn: HTMLElement) => {};
 const localMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText("Play Local");
@@ -70,16 +73,9 @@ export const createSetupModal = (): HTMLElement => {
     const title = createTitleText("Choose Game Mode");
     const line = createSetupLine();
 
-    const localBtnCb = () => {
-        window.log.info("hi");
-        localMode(wrapper);
-    };
-    const onlineBtnCb = () => {
-        window.log.info("remote");
-    };
-    const aiBtnCb = () => {
-        window.log.info("ai");
-    };
+    const localBtnCb = () => localMode(wrapper);
+    const onlineBtnCb = () => onlineMode(wrapper);
+    const aiBtnCb = () => aiMode(wrapper);
     const gameBtnGrp = createButtonGroup(
         ["Local", "Online", "AI"],
         [localBtnCb, onlineBtnCb, aiBtnCb],
@@ -88,7 +84,7 @@ export const createSetupModal = (): HTMLElement => {
     );
 
     const tournamentBtnCb = () => {};
-    const tournamentBtn = createButton("Tournament Mode", "w-full mt-4");
+    const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentBtnCb);
 
     // TODO: check what shaded is? couldn't find it
     // justify-center and items-center has no effects here.. so deleted but noted here because a little confused

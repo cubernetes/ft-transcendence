@@ -14,7 +14,7 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
         Game: "#setup",
         Leaderboard: "#leaderboard",
         Profile: "#profile",
-        TOTP: "#totp",
+        TOTP: "#totp", // TODO: Refactor
     };
 
     const navList = createEl("ul", "flex text-1xl space-x-4");

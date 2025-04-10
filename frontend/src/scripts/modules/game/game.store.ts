@@ -1,8 +1,7 @@
 import { Engine } from "@babylonjs/core";
-import { PongEngine } from "@darrenkuro/pong-core";
+import { GameMode, PongEngine } from "@darrenkuro/pong-core";
 import { createStore } from "../../global/store";
 import { hideCanvas, showCanvas } from "../layout/layout.service";
-import { establishSocketConn } from "../ws/ws.service";
 import { createGameController } from "./game.controller";
 import { createGameEventController } from "./game.event";
 
@@ -10,7 +9,7 @@ import { createGameEventController } from "./game.event";
 type GameState = {
     isPlaying: boolean;
     isWaiting: boolean;
-    mode: "local" | "remote" | "ai" | null;
+    mode: GameMode | null;
     gameId: string | null;
     opponentId: number | null;
     index: 0 | 1 | null;
@@ -71,10 +70,10 @@ gameStore.subscribe((state) => {
             eventController.attachLocalControl();
             controller.start();
             break;
-        case "remote":
+        case "online":
             // Ensure there is a socket connection, maybe move this somewhere else
             // establishSocketConn();
-            eventController.attachRemoteControl();
+            eventController.attachOnlineControl();
             break;
         case "ai":
             eventController.attachAiControl();
