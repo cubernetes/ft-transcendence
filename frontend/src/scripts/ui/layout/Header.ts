@@ -39,6 +39,7 @@ export const createHeader = async (): Promise<HTMLElement> => {
         }
     });
 
+    // Header is not being destoryed so should not trigger, but good practice to cleanup
     document.addEventListener("destory", () => {
         window.log.debug("Header unsubscribe to Login status");
         unsubscribe();
