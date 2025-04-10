@@ -11,14 +11,16 @@ export const createRouter = (ctn: HTMLElement): void => {
     const routes = {
         landing: createLandingPage,
         setup: createSetupPage,
-        game: createGamePage,
+        onlinegame: createGamePage("online"),
+        localgame: createGamePage("local"),
+        aigame: createGamePage("ai"),
         profile: createProfilePage,
         leaderboard: createLeaderboardPage,
         totp: createTotpSetupPage, // Refactor into modal
     } satisfies Record<string, PageRenderer>;
 
     // A type-safe list of protected routes, i.e. only available after logging in
-    const protectedRoutes: (keyof typeof routes)[] = ["setup", "game", "profile"];
+    const protectedRoutes: (keyof typeof routes)[] = ["setup", "onlinegame", "profile"];
 
     const handleRouteChange = async () => {
         // Clean up game session when route changes, this probably belongs somewhere else

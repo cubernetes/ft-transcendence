@@ -2,6 +2,7 @@ import { Engine } from "@babylonjs/core";
 import { GameMode, PongEngine } from "@darrenkuro/pong-core";
 import { createStore } from "../../global/store";
 import { hideCanvas, showCanvas } from "../layout/layout.service";
+import { wsStore } from "../ws/ws.store";
 import { createGameController } from "./game.controller";
 import { createGameEventController } from "./game.event";
 
@@ -62,21 +63,53 @@ gameStore.subscribe((state) => {
         return;
     }
 
-    // A game is ongoing with a valid mode
+    // A game is now ongoing with a valid mode
     showCanvas();
+
+    const attachLocalEngineEvents = () => {
+        pongEngine.onEvent("wall-collision", () => controller.handleWallCollision());
+        pongEngine.onEvent("paddle-collision", () => controller.handlePaddleCollision());
+        pongEngine.onEvent("score-update", (evt) => controller.updateScores(evt.scores));
+        pongEngine.onEvent("state-update", (evt) => {
+            controller.updateState(evt.state);
+        });
+    };
 
     switch (mode) {
         case "local":
+            // Attach key event controllers
             eventController.attachLocalControl();
+
+            // Attach game event to renderer
+            attachLocalEngineEvents();
+
+            // Start renderer
             controller.start();
             break;
         case "online":
-            // Ensure there is a socket connection, maybe move this somewhere else
-            // establishSocketConn();
+            const { isConnected } = wsStore.get();
+            if (!isConnected) {
+                window.log.error("Online game ongoing but socket is not connected");
+                return;
+            }
+
+            // Attach key event controllers
             eventController.attachOnlineControl();
+
+            // Start renderer
+            controller.start();
+
             break;
         case "ai":
+            // Attach key event controllers
             eventController.attachAiControl();
+
+            // Attach game event to renderer
+            attachLocalEngineEvents();
+
+            // Start renderer
+            controller.start();
+
             break;
         default:
     }
