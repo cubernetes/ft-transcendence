@@ -42,6 +42,8 @@ export type PongConfig = {
 
 export type UserInput = "up" | "down" | "stop";
 
+export type GameMode = "local" | "online" | "ai";
+
 // Maybe add waiting, paused
 export type PongStatus = "waiting" | "ongoing" | "ended";
 
