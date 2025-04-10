@@ -11,6 +11,7 @@ import {
     Texture,
 } from "@babylonjs/core";
 import { createCamera } from "./renderer.camera";
+import { createControls } from "./renderer.controls";
 import { createDirectionalLight, createHemisphericLight } from "./renderer.light";
 import { createObjects } from "./renderer.objects";
 import { createShadowGenerator } from "./renderer.shadow";
@@ -58,6 +59,8 @@ export const createScene = (engine: Engine): Scene => {
 
     createHemisphericLight(engine.scene);
     createObjects(engine);
+
+    engine.controls = createControls(engine);
 
     return engine.scene;
 };

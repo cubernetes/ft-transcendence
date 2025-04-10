@@ -18,8 +18,6 @@ export const createRenderer = async (canvasEl: HTMLCanvasElement): Promise<Engin
     engine.shadowsEnabled = false;
     engine.soundsEnabled = true;
 
-    //engine.controls = createControls(engine); // persist?
-
     return engine;
 };
 
