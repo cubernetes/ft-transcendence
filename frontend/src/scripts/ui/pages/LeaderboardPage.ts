@@ -1,5 +1,5 @@
 import { Result, err, ok } from "neverthrow";
-import { hidePageElements } from "../../modules/layout/layout.utils";
+import { hidePageElements, showPageElements } from "../../modules/layout/layout.service";
 import { createEl } from "../../utils/dom-helper";
 import { createTable } from "../components/Table";
 

@@ -34,6 +34,8 @@ scripts/
 │   │   ├── renderer.ts     // Basically the 'class', as closure
 │   │   └── store.ts        // Game store for state
 │   ├── auth/
+│   │   ├── auth.service.ts //
+│   │   └── auth.store.ts   // ✅
 │   └── ws/
 ├── ui/                     // HTMLElement, with conventional name
 │   ├── components/         // Reusable, customizable components

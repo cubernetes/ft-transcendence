@@ -1,4 +1,4 @@
-import { showPageElements } from "../../modules/layout/layout.utils";
+import { showPageElements } from "../../modules/layout/layout.service";
 import { createPaddles } from "../layout/Paddles";
 import { createAIMode } from "./setup/gameSetup/gameSetup.ai";
 import { createLocalMode } from "./setup/gameSetup/gameSetup.local";

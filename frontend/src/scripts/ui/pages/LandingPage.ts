@@ -1,5 +1,5 @@
 import { authStore } from "../../modules/auth/auth.store";
-import { hidePageElements } from "../../modules/layout/layout.utils";
+import { hidePageElements } from "../../modules/layout/layout.service";
 import { createEl } from "../../utils/dom-helper";
 import { createLoginForm } from "../layout/LoginForm";
 
