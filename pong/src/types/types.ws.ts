@@ -25,3 +25,11 @@ export interface OutgoingMessage<T extends OutgoingMessageType> {
     type: T;
     payload: OutgoingMessagePayloads[T];
 }
+
+export type IncomingMessageHandler<T extends IncomingMessageType> = (
+    payload: IncomingMessagePayloads[T]
+) => void;
+
+export type OutgoingMessageHandler<T extends OutgoingMessageType> = (
+    payload: OutgoingMessagePayloads[T]
+) => void;

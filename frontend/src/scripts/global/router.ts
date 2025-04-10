@@ -1,5 +1,6 @@
 import { authStore } from "../modules/auth/auth.store";
 import { gameStore } from "../modules/game/game.store";
+import { showRouer } from "../modules/layout/layout.service";
 import { layoutStore } from "../modules/layout/layout.store";
 import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
@@ -42,7 +43,7 @@ export const handleRouteChange = async (dest?: string) => {
     // Clean up game session when route changes, this probably belongs somewhere else
     // Currently landing page initialize game components, will give warning
     // But not a big deal, still should change later
-    gameStore.update({ isPlaying: false, mode: null });
+    gameStore.update({ isPlaying: false });
 
     // Redirect to default page upon invalid route
     if (!(hash in routes)) {
@@ -86,4 +87,5 @@ export const handleRouteChange = async (dest?: string) => {
 
     router.innerHTML = "";
     router.appendChild(fragment);
+    showRouer();
 };

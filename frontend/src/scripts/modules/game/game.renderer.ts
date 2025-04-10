@@ -1,11 +1,5 @@
 import { Engine } from "@babylonjs/core";
 import { createAudioEngine } from "./renderer/renderer.audio";
-import { createCamera } from "./renderer/renderer.camera";
-import { createControls } from "./renderer/renderer.controls";
-import { createDirectionalLight, createHemisphericLight } from "./renderer/renderer.light";
-import { createObjects } from "./renderer/renderer.objects";
-import { createScene } from "./renderer/renderer.scene";
-import { createShadowGenerator } from "./renderer/renderer.shadow";
 
 /**
  * Maybe engine should be initilized only once. Canvas element is persisted. So it's less expensive?

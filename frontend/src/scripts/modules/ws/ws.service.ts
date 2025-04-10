@@ -18,7 +18,7 @@ export const establishSocketConn = (token?: string) => {
 
     const conn = new WebSocket("ws");
     registerControllers(conn);
-    wsStore.set({ isConnected: true, conn });
+    wsStore.update({ isConnected: true, conn });
 };
 
 export const closeSocketConn = () => {
@@ -29,7 +29,7 @@ export const closeSocketConn = () => {
     }
 
     conn.close();
-    wsStore.set({ isConnected: false, conn: null });
+    wsStore.update({ isConnected: false, conn: null });
 };
 
 export const sendGameStart = () => {

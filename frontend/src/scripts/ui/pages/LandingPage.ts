@@ -1,7 +1,6 @@
 import { createPongEngine } from "@darrenkuro/pong-core";
 import { authStore, initAuthState } from "../../modules/auth/auth.store";
 import { createGameController } from "../../modules/game/game.controller";
-import { createGameEventController } from "../../modules/game/game.event";
 import { createRenderer } from "../../modules/game/game.renderer";
 import { gameStore } from "../../modules/game/game.store";
 import { hidePageElements } from "../../modules/layout/layout.service";
@@ -44,11 +43,11 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
         // Initilize game components here so babylon audio engine doesn't show unmute button
         createRenderer(canvas).then((renderer) => {
-            const controller = createGameController(renderer);
-            const pongEngine = createPongEngine();
-            const eventController = createGameEventController(pongEngine);
+            const engine = createPongEngine();
+            const controller = createGameController(renderer, engine);
+            //const eventController = createGameEventController(pongEngine);
 
-            gameStore.update({ renderer, controller, pongEngine, eventController });
+            gameStore.update({ renderer, controller, engine });
         });
 
         initAuthState().then(async (state) => {

@@ -1,11 +1,11 @@
-import type {
-    OutgoingMessage,
-    OutgoingMessagePayloads,
-    OutgoingMessageType,
-} from "@darrenkuro/pong-core";
+import type { OutgoingMessage, OutgoingMessageType } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
-import { safeJsonParse } from "@darrenkuro/pong-core";
+import {
+    registerOutgoingMessageHandler as registerHandler,
+    safeJsonParse,
+} from "@darrenkuro/pong-core";
 import { gameStore } from "../game/game.store";
+import { wsStore } from "./ws.store";
 
 export const registerGeneralHandlers = (conn: WebSocket) => {
     if (!conn) {
@@ -31,74 +31,32 @@ export const registerGeneralHandlers = (conn: WebSocket) => {
 };
 
 export const registerGameControllers = (conn: WebSocket) => {
-    type MessageHandler<T extends OutgoingMessageType> = (
-        payload: OutgoingMessagePayloads[T]
-    ) => void;
-    const handlers = new Map<OutgoingMessageType, MessageHandler<OutgoingMessageType>>();
+    const { handlers } = wsStore.get();
 
-    /** Properly typed register handler. */
-    const registerHandler = <T extends OutgoingMessageType>(
-        type: T,
-        handler: MessageHandler<T>
-    ): void => {
-        handlers.set(type, handler as MessageHandler<OutgoingMessageType>);
-    };
+    registerHandler(
+        "game-start",
+        ({ gameId, opponentId, index }) => {
+            gameStore.update({
+                isPlaying: true,
+                isWaiting: false,
+                gameId,
+                opponentId,
+                index,
+            });
+        },
+        handlers
+    );
 
-    const getHandler = <T extends OutgoingMessageType>(
-        type: T
-    ): Result<MessageHandler<T>, Error> => {
-        if (!handlers.has(type)) {
-            return err(new Error(`Handler for type ${type} not found`));
-        }
-        return ok(handlers.get(type) as MessageHandler<T>);
-    };
-    const { controller } = gameStore.get();
-    if (!controller) {
-        window.log.warn(
-            "Game controller is null when trying to register socket ingame controllers"
-        );
-        return;
-    }
+    registerHandler(
+        "waiting-for-opponent",
+        () => {
+            window.log.info(`Waiting for opponent...`);
+            // Animation or something? Lobby?
+        },
+        handlers
+    );
 
-    registerHandler("game-start", ({ gameId, opponentId, index }) => {
-        gameStore.update({
-            isPlaying: true,
-            isWaiting: false,
-            mode: "online",
-            gameId,
-            opponentId,
-            index,
-        });
-    });
-
-    registerHandler("waiting-for-opponent", () => {
-        window.log.info(`Waiting for opponent...`);
-        // Animation or something? Lobby?
-    });
-
-    registerHandler("wall-collision", () => {
-        controller.handleWallCollision();
-    });
-
-    registerHandler("paddle-collision", () => {
-        controller.handlePaddleCollision();
-    });
-
-    registerHandler("state-update", ({ state }) => {
-        controller.updateState(state);
-    });
-
-    registerHandler("score-update", ({ scores }) => {
-        controller.updateScores(scores);
-    });
-
-    registerHandler("ball-reset", () => {
-        controller.handleBallReset();
-    });
-
-    registerHandler("game-end", ({ winner }) => {
-        controller.handleEndGame("winnerName");
-    });
+    // In game handlers will be registered by game controller at online game start time
 
     const handleMessage = (evt: MessageEvent<any>) => {
         const result = safeJsonParse<OutgoingMessage<OutgoingMessageType>>(evt.data);
@@ -113,14 +71,14 @@ export const registerGameControllers = (conn: WebSocket) => {
             return;
         }
 
-        const handler = getHandler(type);
+        const handler = wsStore.get().handlers.get(type);
 
-        if (handler.isErr()) {
+        if (!handler) {
             window.log.error(`Unhandled message type: ${type}`);
             return;
         }
 
-        handler.value(result.value.payload);
+        handler(result.value.payload);
     };
 
     conn.onmessage = handleMessage;
