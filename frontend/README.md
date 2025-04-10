@@ -71,5 +71,5 @@ scripts/
 ```
 layout -> router (page load)
        -> renderer -> socket
-auth
+       -> auth
 ```

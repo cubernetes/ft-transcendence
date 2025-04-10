@@ -37,6 +37,7 @@ export const gameStore = createStore<GameState>(defaultGameState);
 
 gameStore.subscribe((state) => {
     window.log.debug("GameStore subscriber triggered");
+    window.log.debug(state);
 
     const { renderer, controller, pongEngine, eventController } = state;
 
@@ -72,7 +73,7 @@ gameStore.subscribe((state) => {
             break;
         case "remote":
             // Ensure there is a socket connection, maybe move this somewhere else
-            establishSocketConn();
+            // establishSocketConn();
             eventController.attachRemoteControl();
             break;
         case "ai":

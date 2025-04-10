@@ -1,9 +1,8 @@
-import { logout } from "../../modules/auth/auth.service";
 import { authStore } from "../../modules/auth/auth.store";
-import { createEl } from "../../utils/dom-helper";
+import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";
 
-export const createHeader = async (): Promise<HTMLElement> => {
+export const createHeader = (header: HTMLElement): HTMLElement => {
     const anchor = createEl("a", "text-3xl font-bold", {
         text: "ft-transcendence",
         attributes: { href: window.cfg.url.home },
@@ -41,11 +40,7 @@ export const createHeader = async (): Promise<HTMLElement> => {
 
     const nav = createEl("nav", "flex items-center space-x-6", { children: [navList] });
 
-    const header = createEl(
-        "header",
-        "bg-black/50 p-4 text-white justify-between items-center font-medieval hidden",
-        { children: [title, nav] }
-    );
+    appendChildren(header, [title, nav]);
 
     // Header is not being destoryed so should not trigger, but good practice to cleanup
     header.addEventListener("destory", () => {

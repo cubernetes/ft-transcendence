@@ -25,6 +25,7 @@ const config = {
         loginForm: "login-form",
         totpForm: "totp-form",
         totpToken: "totp-token", // TotpToken
+        userStatus: "user-status",
         app: "app",
         header: "header-ctn",
         canvas: "rendering-canvas", // persist this so that you don't need to recreate engine

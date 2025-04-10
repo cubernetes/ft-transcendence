@@ -1,6 +1,5 @@
 import earcut from "earcut";
 import config from "./global/config";
-import { createHeader } from "./ui/layout/Header";
 import { logger } from "./utils/logger";
 
 // Register globally accessible modules and utils
@@ -20,16 +19,15 @@ if (process.env.WATCH === "1") {
 }
 
 // Dynamic import to ensure globally registered objects are available
-import("./modules/layout/layout.store").then(({ initLayoutState, layoutStore }) => {
-    const rootEl = document.getElementById(window.cfg.id.app);
-    if (!rootEl) {
+
+import("./modules/layout/layout.store").then(({ layoutStore }) => {
+    const root = document.getElementById(window.cfg.id.app);
+    if (!root) {
         window.log.error(`Fail to find HTMLElement #${window.cfg.id.app}`);
         return;
     }
 
-    initLayoutState(rootEl).then((initialState) => {
-        layoutStore.set(initialState);
-    });
+    layoutStore.update({ root });
 
     // document.addEventListener("DOMContentLoaded", launchSite);
     // Maybe register cleanup logic, should close sockets?

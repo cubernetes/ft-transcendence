@@ -20,7 +20,7 @@ export const emptyAuthState = {
     username: null,
 };
 
-const initAuthState = async (): Promise<AuthState> => {
+export const initAuthState = async (): Promise<AuthState> => {
     const token = localStorage.getItem(window.cfg.label.token);
 
     if (!token) {
@@ -44,10 +44,6 @@ const initAuthState = async (): Promise<AuthState> => {
 };
 
 export const authStore = createStore<AuthState>(emptyAuthState);
-
-initAuthState().then((initialState) => {
-    authStore.set(initialState);
-});
 
 authStore.subscribe(async (state) => {
     window.log.debug("AuthStore subscriber trigged");

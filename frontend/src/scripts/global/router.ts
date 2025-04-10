@@ -30,7 +30,7 @@ export const createRouter = (ctn: HTMLElement): void => {
 
     const handleRouteChange = async () => {
         // Clean up game session when route changes, this probably belongs somewhere else
-        gameStore.update({ isPlaying: false, mode: null });
+        //gameStore.update({ isPlaying: false, mode: null });
 
         const hash = window.location.hash.slice(1);
 
