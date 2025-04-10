@@ -20,7 +20,20 @@ export const createRouter = (ctn: HTMLElement): void => {
     } satisfies Record<string, PageRenderer>;
 
     // A type-safe list of protected routes, i.e. only available after logging in
-    const protectedRoutes: (keyof typeof routes)[] = ["setup", "onlinegame", "profile"];
+    // Temporarily protect all routes so always start in landing page
+    // Because that's where engine is initialized and without user interaction
+    // An unmute button will pop up
+    // And skipping landing page will skip background music
+    // Might change logic later
+    const protectedRoutes: (keyof typeof routes)[] = [
+        "setup",
+        "onlinegame",
+        "profile",
+        "leaderboard",
+        "totp",
+        "localgame",
+        "aigame",
+    ];
 
     const handleRouteChange = async () => {
         // Clean up game session when route changes, this probably belongs somewhere else

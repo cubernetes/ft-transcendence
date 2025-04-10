@@ -63,10 +63,6 @@ layoutStore.subscribe((state) => {
             const eventController = createGameEventController(pongEngine);
 
             gameStore.update({ renderer, controller, pongEngine, eventController });
-
-            // initAuthState().then((initialState) => {
-            //     authStore.set(initialState);
-            // });
         });
     }
 });

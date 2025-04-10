@@ -1,5 +1,11 @@
-import { authStore } from "../../modules/auth/auth.store";
+import { createPongEngine } from "@darrenkuro/pong-core";
+import { authStore, initAuthState } from "../../modules/auth/auth.store";
+import { createGameController } from "../../modules/game/game.controller";
+import { createGameEventController } from "../../modules/game/game.event";
+import { createRenderer } from "../../modules/game/game.renderer";
+import { gameStore } from "../../modules/game/game.store";
 import { hidePageElements } from "../../modules/layout/layout.service";
+import { layoutStore } from "../../modules/layout/layout.store";
 import { createEl } from "../../utils/dom-helper";
 import { createLoginForm } from "../layout/LoginForm";
 
@@ -34,15 +40,23 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     ctaButton.onclick = async () => {
         musicEl.play();
 
+        const { canvas } = layoutStore.get();
+
+        initAuthState();
+
+        // Initilize game components here so babylon audio engine doesn't show unmute button
+        createRenderer(canvas).then((renderer) => {
+            const controller = createGameController(renderer);
+            const pongEngine = createPongEngine();
+            const eventController = createGameEventController(pongEngine);
+
+            gameStore.update({ renderer, controller, pongEngine, eventController });
+        });
+
         const authState = authStore.get();
         if (authState.isAuthenticated) {
             window.location.href = window.cfg.url.home;
         }
-
-        // If no token in store, check for a JWT in localStorage
-        const jwtToken = localStorage.getItem(window.cfg.label.token);
-        // TODO: ping the backend to verify token found in localStorge
-        // but maybe rewrite this logic for satefy so ignored for now
 
         const loginForm = await createLoginForm(ctaButton);
         ctaButton.replaceWith(loginForm);
