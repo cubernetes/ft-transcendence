@@ -2,30 +2,40 @@ import type { IncomingMessage, IncomingMessageType, UserInput } from "@darrenkur
 import { authStore } from "../auth/auth.store";
 import { gameStore } from "../game/game.store";
 import { registerControllers } from "./ws.controller";
-
-// All socket-related will go through this service, so this will be the only reference
-let conn: WebSocket | null = null;
+import { wsStore } from "./ws.store";
 
 const send = (conn: WebSocket, message: IncomingMessage<IncomingMessageType>) => {
     conn.send(JSON.stringify(message));
 };
 
-export const establishSocketConn = (token: string) => {
+export const establishSocketConn = (token?: string) => {
     // Maybe use token to do auth over socket here
-    conn = new WebSocket("ws");
+    const { isConnected } = wsStore.get();
+    if (isConnected) {
+        window.log.debug("Socket is already connected");
+        return;
+    }
+
+    const conn = new WebSocket("ws");
     registerControllers(conn);
+    wsStore.set({ isConnected: true, conn });
 };
 
 export const closeSocketConn = () => {
-    if (conn) {
-        conn.close();
-        conn = null;
+    const { isConnected, conn } = wsStore.get();
+    if (!isConnected || !conn) {
+        window.log.debug("Socket is already not connected");
+        return;
     }
+
+    conn.close();
+    wsStore.set({ isConnected: false, conn: null });
 };
 
 export const sendGameStart = () => {
-    if (!conn || conn.readyState !== WebSocket.OPEN) {
-        window.log.error("Socket is null or not open when trying to send game start");
+    const { isConnected, conn } = wsStore.get();
+    if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN) {
+        window.log.error("SendGameStart but socket is not connected");
         return;
     }
 
@@ -40,8 +50,9 @@ export const sendGameStart = () => {
 };
 
 export const sendGameAction = (action: UserInput) => {
-    if (!conn || conn.readyState !== WebSocket.OPEN) {
-        window.log.error("Socket is null or not open when trying to send game action");
+    const { isConnected, conn } = wsStore.get();
+    if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN) {
+        window.log.error("SendGameStart but socket is not connected");
         return;
     }
 

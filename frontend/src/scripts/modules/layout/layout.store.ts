@@ -3,6 +3,9 @@ import { createStore } from "../../global/store";
 import { createFooter } from "../../ui/layout/Footer";
 import { createHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createGameController } from "../game/game.controller";
+import { createRenderer } from "../game/game.renderer";
+import { gameStore } from "../game/game.store";
 
 type LayoutState = {
     header: HTMLElement | null;
@@ -37,11 +40,15 @@ export const layoutStore = createStore<LayoutState>(emptyLayoutState);
 layoutStore.subscribe(async (state) => {
     window.log.debug("LayoutStore subscriber triggered");
 
+    const { router, canvas } = state;
     // Safeguard, should never be triggered
-    if (!state.router) {
-        window.log.error("LayoutStore cannot find router container");
+    if (!router || !canvas) {
+        window.log.error("LayoutStore cannot find router or canvas container");
         return;
     }
 
-    createRouter(state.router);
+    createRouter(router);
+    const renderer = await createRenderer(canvas);
+    const controller = createGameController(renderer);
+    gameStore.update({ controller });
 });

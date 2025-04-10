@@ -70,6 +70,6 @@ scripts/
 
 ```
 layout -> router (page load)
-       -> renderer
-auth   -> socket
+       -> renderer -> socket
+auth
 ```

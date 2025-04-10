@@ -1,25 +1,17 @@
 import { logout } from "../../modules/auth/auth.service";
-import { authStore } from "../../modules/auth/auth.store";
 
-export const createUserStatus = async (
-    container: HTMLElement,
-    username: string
-): Promise<Boolean> => {
-    const loggedUser = authStore.get().username;
-
-    if (!loggedUser) {
-        window.log.error("No user logged in.");
-        return false;
-    }
-
+export const appendUserStatus = (container: HTMLElement, username: string) => {
     // Create status wrapper
     const statusWrapper = document.createElement("div");
     statusWrapper.className =
         "absolute items-center justify-between bg-gray-100 rounded p-2 shadow-sm right-4 top-4";
 
+    // TODO: Fetch profile pic and display
+    // TODO: make name clickable to profile page
+
     // User display name
     const userNameEl = document.createElement("span");
-    userNameEl.textContent = `Logged in as ${loggedUser}`;
+    userNameEl.textContent = username;
     userNameEl.className = "text-gray-700 text-sm";
 
     // Logout button
@@ -32,6 +24,5 @@ export const createUserStatus = async (
 
     statusWrapper.appendChild(userNameEl);
     statusWrapper.appendChild(logoutBtn);
-    container.appendChild(statusWrapper);
-    return true;
+    container.append(statusWrapper);
 };
