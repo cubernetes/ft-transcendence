@@ -1,4 +1,3 @@
-// src/menu/auth.ts
 let jwtToken: string | null = null;
 
 export function setToken(token: string) {
