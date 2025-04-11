@@ -13,6 +13,7 @@ let defaultMode = 1;
 
 export async function mainMenu(): Promise<void> {
     try {
+        audioManager.startMusic(MENU_MUSIC);
         printTitle();
         const mode = await promptMainMenu();
         await handleMenuSelection(mode);
@@ -61,8 +62,11 @@ async function handleMenuSelection(mode: number): Promise<void> {
                     name: "localMode",
                     message: chalk.cyan("Play Locally: Choose mode"),
                     choices: [
+                        new inquirer.Separator(),
                         { name: "🎮  Single Player (1P)", value: "1P" },
+                        new inquirer.Separator(),
                         { name: "👥  Two Players (2P)", value: "2P" },
+                        new inquirer.Separator(),
                         { name: "🔙  Back", value: "back" },
                     ],
                 },
@@ -81,7 +85,7 @@ async function handleMenuSelection(mode: number): Promise<void> {
             }
             break;
         case 2:
-            handleServerLogin();
+            await promptRemotePlayMenu();
             break;
         case 3:
             optionsMenu();
@@ -91,6 +95,43 @@ async function handleMenuSelection(mode: number): Promise<void> {
             break;
         default:
             cleanup("Invalid mode option.");
+    }
+}
+
+async function promptRemotePlayMenu(): Promise<void> {
+    const token = getToken();
+
+    if (token) {
+        // Optional: add a ping or token validation call to check if token is still valid
+        return gameManager.start1PRemote();
+    }
+
+    const { action } = await inquirer.prompt([
+        {
+            type: "list",
+            name: "action",
+            message: chalk.cyan("🌐 Remote Play: You are not logged in"),
+            choices: [
+                new inquirer.Separator(),
+                { name: "🔐 Login", value: "login" },
+                new inquirer.Separator(),
+                { name: "📝 Register", value: "register" },
+                new inquirer.Separator(),
+                { name: "🔙 Back", value: "back" },
+            ],
+        },
+    ]);
+
+    switch (action) {
+        case "login":
+            await handleServerLogin();
+            break;
+        case "register":
+            await registerUser();
+            return await handleServerLogin(); // or return to promptRemotePlayMenu
+        case "back":
+        default:
+            return await mainMenu();
     }
 }
 
@@ -146,7 +187,8 @@ async function handleServerLogin() {
         setToken(token);
         gameManager.start1PRemote();
     } catch (err) {
-        cleanup("Error during login.");
+        console.error(chalk.red("Error during login process."), err);
+        cleanup("Login process failed.");
     }
 }
 
@@ -157,12 +199,22 @@ async function loginToServer(username: string, password: string): Promise<string
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
         });
-        if (!res.ok) return null;
+
+        if (!res.ok) {
+            // Handle non-200 HTTP responses (e.g., 4xx or 5xx errors)
+            console.error(chalk.red(`Login failed with status: ${res.status}`));
+            return null;
+        }
 
         const data = await res.json();
         return data.token;
     } catch (err) {
-        console.error("Login error:", err);
+        // Handle network-related errors (e.g., ECONNREFUSED)
+        if (err.code === "ECONNREFUSED") {
+            console.error(chalk.red("Connection refused. Please ensure the server is running."));
+        } else {
+            console.error(chalk.red("Login error:", err));
+        }
         return null;
     }
 }
@@ -182,12 +234,11 @@ async function registerUser(): Promise<void> {
 
         if (!res.ok) {
             const errText = await res.text();
-            console.error(`Registration failed: ${res.status} ${errText}`);
-            return;
+            console.log(chalk.red(`❌ Registration failed: ${res.status} ${errText}`));
+        } else {
+            console.log(chalk.green("✅ Registration successful! You can now log in."));
         }
-
-        console.log(chalk.green("Registration successful! You can now log in."));
     } catch (err) {
-        console.error("Registration error:", err);
+        console.error(chalk.red("⚠️ Registration error:"), err);
     }
 }
