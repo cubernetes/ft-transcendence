@@ -3,7 +3,7 @@
     "version": "1.0.5",
     "type": "module",
     "scripts": {
-        "start": "node --no-warnings --import tsx src/index.ts"
+        "start": "node --no-warnings --import tsx src/main.ts"
     },
     "devDependencies": {
         "@types/figlet": "^1.7.0",

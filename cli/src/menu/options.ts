@@ -1,36 +1,10 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import inquirer from "inquirer";
-import { audioManager } from "./audio";
-import { cleanup, mainMenu } from "./index";
-
-export type PlayStyle = "normal" | "stylish" | "crazy";
-export type Resolution = "80x20" | "160x40" | "240x60" | "320x80";
-
-export interface Options {
-    music: boolean;
-    sfx: boolean;
-    playStyle: PlayStyle;
-    resolution: Resolution;
-    controls: Controls;
-}
-
-export interface Controls {
-    p1Up: string;
-    p1Down: string;
-    p1Stop: string;
-    p2Up: string;
-    p2Down: string;
-    p2Stop: string;
-}
-
-export const userOptions: Options = {
-    music: true,
-    sfx: true,
-    playStyle: "normal",
-    resolution: "160x40",
-    controls: { p1Up: "q", p1Down: "a", p1Stop: "x", p2Up: "p", p2Down: "l", p2Stop: "m" },
-};
+import audioManager from "../audio/audioManager";
+import { cleanup } from "../utils/cleanup";
+import { userOptions } from "../utils/config";
+import { mainMenu } from "./mainMenu";
 
 export async function optionsMenu(): Promise<void> {
     let exit = false;
@@ -50,8 +24,8 @@ export async function optionsMenu(): Promise<void> {
                 `${chalk.cyan("\tSounds:    ")} ${userOptions.sfx ? chalk.greenBright("Enabled ✓") : chalk.redBright("Disabled ✘")}\n` +
                 `${chalk.cyan("\tPlay Style:")} ${chalk.yellowBright(userOptions.playStyle)}\n` +
                 `${chalk.cyan("\tResolution:")} ${chalk.blueBright(userOptions.resolution)}\n` +
-                `${chalk.cyan("\tControls:  ")} ${chalk.magenta(`P1  ↑:${userOptions.controls.p1Up}  ↓:${userOptions.controls.p1Down}  ■: ${userOptions.controls.p1Stop}`)} | ` +
-                `${chalk.yellow(`P2  ↑:${userOptions.controls.p2Up}  ↓:${userOptions.controls.p2Down}  ■:${userOptions.controls.p2Stop}`)}\n\n`;
+                `${chalk.cyan("\tControls:  ")} ${chalk.magenta(`P1  ↑:${userOptions.p1Keys.up}  ↓:${userOptions.p1Keys.down}  ■: ${userOptions.p1Keys.stop}`)} | ` +
+                `${chalk.yellow(`P2  ↑:${userOptions.p2Keys.up}  ↓:${userOptions.p2Keys.down}  ■:${userOptions.p2Keys.stop}`)}\n\n`;
 
             const { option } = await inquirer.prompt([
                 {
@@ -183,32 +157,31 @@ export async function optionsMenu(): Promise<void> {
                         usedKeys.add(key);
                         return key;
                     };
-                    const p1Up = await askKey(
+                    userOptions.p1Keys.up = await askKey(
                         chalk.cyan("Set Player 1   UP: ↑"),
-                        userOptions.controls.p1Up
+                        userOptions.p1Keys.up
                     );
-                    const p1Down = await askKey(
+                    userOptions.p1Keys.down = await askKey(
                         chalk.cyan("Set Player 1 DOWN: ↓"),
-                        userOptions.controls.p1Down
+                        userOptions.p1Keys.down
                     );
-                    const p1Stop = await askKey(
+                    userOptions.p1Keys.stop = await askKey(
                         chalk.cyan("Set Player 1 STOP: ■"),
-                        userOptions.controls.p1Stop
+                        userOptions.p1Keys.stop
                     );
-                    const p2Up = await askKey(
+                    userOptions.p2Keys.up = await askKey(
                         chalk.cyan("Set Player 2   UP: ↑"),
-                        userOptions.controls.p2Up
+                        userOptions.p2Keys.up
                     );
-                    const p2Down = await askKey(
+                    userOptions.p2Keys.down = await askKey(
                         chalk.cyan("Set Player 2 DOWN: ↓"),
-                        userOptions.controls.p2Down
+                        userOptions.p2Keys.down
                     );
-                    const p2Stop = await askKey(
+                    userOptions.p2Keys.stop = await askKey(
                         chalk.cyan("Set Player 2 STOP: ■"),
-                        userOptions.controls.p2Stop
+                        userOptions.p2Keys.stop
                     );
 
-                    userOptions.controls = { p1Up, p1Down, p1Stop, p2Up, p2Down, p2Stop };
                     break;
                 }
 
