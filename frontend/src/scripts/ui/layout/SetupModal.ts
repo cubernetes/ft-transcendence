@@ -178,6 +178,94 @@ const localMode = (ctn: HTMLElement) => {
     ctn.appendChild(section);
 };
 
+const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
+    const returnBtn = createReturnButton(ctn, createSetupModal());
+    const title = createTitleText("Start tournament");
+    const line = createSetupLine();
+
+    const { errorDiv, showErr, hideErr } = createError();
+
+    const playerInputs: HTMLInputElement[] = [];
+    for (let i = 0; i < playerAmount; i++) {
+        const playerInput = createInput(`Name Player${i + 1}`);
+        playerInputs.push(playerInput);
+    }
+
+    const tournamentStartBtnCb = () => {
+        window.log.info(`Setting up a game with ${playerAmount} players...`);
+        
+        // Validate player inputs
+        for (let i = 0; i < playerAmount; i++) {
+            const playerInput = playerInputs[i];
+            if (!playerInput.value.trim()) {
+                return showErr(`Please enter a name for Player ${i + 1}.`);
+            }
+        }
+
+        // If no errors, start the tournament logic
+        hideErr();
+        window.log.info("Tournament setup completed successfully!");
+    };
+
+    const tournamentCreateBtn = createCtaBtn("Start Tournament", tournamentStartBtnCb);
+
+    window.log.info(`Adding inputs with ${playerAmount} players...`);
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+        returnBtn,
+        title,
+        line,
+        ...playerInputs,
+        tournamentCreateBtn,
+        errorDiv,
+    ]);
+
+    ctn.innerHTML = "";
+    ctn.appendChild(section);
+};
+
+const tournamentMode = (ctn: HTMLElement) => {
+    const returnBtn = createReturnButton(ctn, createSetupModal());
+    const title = createTitleText("Create a tournament");
+    const line = createSetupLine();
+
+    const playerAmountInput = createInput("Number of players");
+
+    const { errorDiv, showErr, hideErr } = createError();
+
+    const tournamentStartBtnCb = () => {
+        const playerAmount = playerAmountInput.value.trim();
+        if (!playerAmount) {
+            return showErr("Please enter a player amount.");
+        }
+
+        if (isNaN(parseInt(playerAmount))) {
+            return showErr("Player amount must be a number.");
+        }
+
+        if (parseInt(playerAmount) < 2 || parseInt(playerAmount) > 10 || parseInt(playerAmount) % 2 !== 0) {
+            return showErr("Player amount must be an even number within 2 and 10.");
+        }
+
+        hideErr();
+        window.log.debug(`Game Data: ${playerAmount}`);
+        tournamentStart(ctn, parseInt(playerAmount)); 
+    };
+
+    const tournamentCreateBtn = createCtaBtn("Create Tournament", tournamentStartBtnCb);
+
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+        returnBtn,
+        title,
+        line,
+        playerAmountInput,
+        tournamentCreateBtn,
+        errorDiv,
+    ]);
+
+    ctn.innerHTML = "";
+    ctn.appendChild(section);
+};
+
 export const createSetupModal = (): HTMLElement => {
     const title = createTitleText("Choose Game Mode");
     const line = createSetupLine();
@@ -185,6 +273,7 @@ export const createSetupModal = (): HTMLElement => {
     const localBtnCb = () => localMode(wrapper);
     const onlineBtnCb = () => onlineMode(wrapper);
     const aiBtnCb = () => aiMode(wrapper);
+
     const gameBtnGrp = createButtonGroup(
         ["Local", "Online", "AI"],
         [localBtnCb, onlineBtnCb, aiBtnCb],
@@ -192,8 +281,8 @@ export const createSetupModal = (): HTMLElement => {
         "mt-4"
     );
 
-    const tournamentBtnCb = () => {};
-    const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentBtnCb);
+    const tournamentCreateBtnCb = () => tournamentMode(wrapper);
+    const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentCreateBtnCb);
 
     // TODO: check what shaded is? couldn't find it
     // justify-center and items-center has no effects here.. so deleted but noted here because a little confused
