@@ -1,6 +1,6 @@
 import WebSocket from "ws";
 import { getToken } from "../menu/auth";
-import { getGameActive, mainMenu } from "../menu/mainMenu";
+import { mainMenu } from "../menu/mainMenu";
 
 export class WebSocketManager {
     private socket: WebSocket;
@@ -53,9 +53,6 @@ export class WebSocketManager {
 
     // Handle the server's game state updates
     onMessage(data: WebSocket.Data) {
-        if (!getGameActive()) {
-            return;
-        }
         // const rawGameState = JSON.parse(data.toString());
         // const OLDstate = {
         //     ball: vec3ToVec2D(rawGameState.ballPosition),

@@ -1,10 +1,20 @@
 import { createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
+import audioManager from "../audio/audioManager";
 import { GameController } from "../input/GameController";
 import { getToken } from "../menu/auth";
 import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
 import { cleanup } from "../utils/cleanup";
-import { PLAYER_ONE, PLAYER_TWO, PongEngine, SERVER_URL } from "../utils/config";
+import {
+    MENU_MUSIC,
+    PADDLE_SOUND,
+    PLAYER_ONE,
+    PLAYER_TWO,
+    PongEngine,
+    SCORE_SOUND,
+    SERVER_URL,
+    WALL_SOUND,
+} from "../utils/config";
 import { userOptions } from "../utils/config";
 
 export class GameManager {
@@ -30,10 +40,13 @@ export class GameManager {
                 onMove: (player, dir) => this.engine.setInput(player, dir),
             },
         ]);
+        audioManager.startMusic();
         this.controller.start();
+        this.engine.start();
     }
 
     start2PLocal() {
+        this.createEngine();
         this.cleanupController();
         this.controller = new GameController([
             {
@@ -85,13 +98,21 @@ export class GameManager {
 
         this.engine.onEvent("game-end", (evt) => {});
 
-        this.engine.onEvent("score", (evt) => {});
+        this.engine.onEvent("score", (evt) => {
+            audioManager.playSoundEffect(SCORE_SOUND);
+        });
 
-        this.engine.onEvent("wall-collision", (_) => {});
+        this.engine.onEvent("wall-collision", (_) => {
+            audioManager.playSoundEffect(WALL_SOUND);
+        });
 
-        this.engine.onEvent("paddle-collision", (_) => {});
+        this.engine.onEvent("paddle-collision", (_) => {
+            audioManager.playSoundEffect(PADDLE_SOUND);
+        });
 
-        this.engine.onEvent("state-update", (evt) => {});
+        this.engine.onEvent("state-update", (evt) => {
+            this.renderer.render(evt.state);
+        });
     }
 
     cleanupController() {
@@ -102,9 +123,12 @@ export class GameManager {
     }
 
     stopGame(): void {
-        this.gameActive = false;
-        this.wsManager?.closeConnection();
-        this.wsManager = null;
+        // this.gameActive = false;
+        // this.wsManager?.closeConnection();
+        // this.wsManager = null;
+        this.engine?.stop();
+        audioManager.startMusic(MENU_MUSIC);
+        this.cleanupController();
     }
 
     isGameRunning(): boolean {

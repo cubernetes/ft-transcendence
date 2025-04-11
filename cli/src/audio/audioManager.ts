@@ -1,9 +1,7 @@
 import fs from "fs";
 // import path from "path";
 import player from "play-sound";
-import { userOptions } from "../utils/config";
-
-// import { userOptions } from "./options";
+import { MENU_MUSIC, PADDLE_SOUND, SCORE_SOUND, WALL_SOUND, userOptions } from "../utils/config";
 
 // Initialize audio player
 const audioPlayer = player({});
@@ -16,17 +14,18 @@ export class AudioManager {
     private soundEffects: Map<string, string> = new Map();
     private musicTracks: Map<string, string> = new Map();
     private loopMusic: boolean = false;
-    private currentStyle: string = "normal";
+
+    private currentlyPlaying: string | null = null;
 
     constructor() {
         // Register sound effects
-        this.soundEffects.set("paddle_hit", "src/content/hit.mp3");
-        this.soundEffects.set("wall_hit", "src/content/bounce.mp3");
-        this.soundEffects.set("score", "src/content/score.mp3");
+        this.soundEffects.set(PADDLE_SOUND, "src/content/hit.mp3");
+        this.soundEffects.set(WALL_SOUND, "src/content/bounce.mp3");
+        this.soundEffects.set(SCORE_SOUND, "src/content/score.mp3");
         this.soundEffects.set("blop", "src/content/blop.mp3");
 
         // Register background music tracks
-        this.musicTracks.set("menu", "src/content/menu.mp3");
+        this.musicTracks.set(MENU_MUSIC, "src/content/menu.mp3");
         this.musicTracks.set("normal", "src/content/neon-gaming.mp3");
         this.musicTracks.set("stylish", "src/content/stylish_game.mp3");
         this.musicTracks.set("crazy", "src/content/crazy_game.mp3");
@@ -50,8 +49,12 @@ export class AudioManager {
 
     /**
      * Play a sound effect once
+     * @param effectName - Name of the sound effect to play
      */
     playSoundEffect(effectName: string): void {
+        if (!userOptions.sfx) {
+            return;
+        }
         const soundPath = this.soundEffects.get(effectName);
         if (!soundPath || !fs.existsSync(soundPath)) {
             console.error(`Sound effect "${effectName}" not found`);
@@ -74,9 +77,18 @@ export class AudioManager {
     /**
      * Start playing background music based on the current play style
      */
-    startMusic(style: string = ""): void {
+    startMusic(style?: string): void {
+        if (!userOptions.music) {
+            this.stopMusic();
+            return;
+        }
+        const track = style ?? userOptions.playStyle;
+        if (this.currentlyPlaying === track) {
+            return;
+        }
         this.stopMusic();
-        const track = style || this.currentStyle;
+
+        console.log("Starting music for style:", style);
 
         const musicPath = this.musicTracks.get(track);
         if (!musicPath || !fs.existsSync(musicPath)) {
@@ -84,7 +96,7 @@ export class AudioManager {
             return;
         }
 
-        this.currentStyle = track;
+        this.currentlyPlaying = track;
         this.playAudio(musicPath, true, "music");
     }
 
@@ -97,17 +109,7 @@ export class AudioManager {
             this.musicProcess.kill();
         }
         this.musicProcess = null;
-    }
-
-    /**
-     * Update audio settings externally
-     */
-    updateAudioSettings(): void {
-        if (userOptions.music) {
-            this.startMusic(MENU_MUSIC);
-        } else {
-            this.stopMusic();
-        }
+        this.currentlyPlaying = null;
     }
 
     /**
@@ -141,5 +143,4 @@ export class AudioManager {
 
 // Singleton export
 const audioManager = new AudioManager();
-// Object.freeze(audioManager);
 export default audioManager;
