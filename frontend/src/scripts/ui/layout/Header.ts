@@ -11,7 +11,9 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
 
     const navItems = {
         Home: window.cfg.url.home,
-        Game: "#setup",
+        Setup: window.cfg.url.home,
+        Game: "#localgame", // Temporary, gives an entry point to local game, for dev
+        Online: "#onlinegame", // Temporary, gives an entry point to online game, for dev
         Leaderboard: "#leaderboard",
         Profile: "#profile",
         TOTP: "#totp", // TODO: Refactor

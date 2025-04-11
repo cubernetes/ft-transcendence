@@ -89,7 +89,9 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         const { pos } = ball;
         const p = paddles;
 
-        // TODO: Clean up this logic
+        // TODO: after paddle collsion, the ball should probably be pushed out a little
+        //       so that it wouldn't get caught in the paddle, known error, fix later
+        // TODO: Check and clean up this logic
         if (
             pos.x <= p[0].pos.x + p[0].size.width / 2 + ball.r &&
             pos.x >= p[0].pos.x - p[0].size.width / 2 - ball.r &&
@@ -142,6 +144,8 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         // Probably should be handled by a config var
         setTimeout(() => {
             // Randomize ball direction
+            // TODO: This direction shouldn't be too vertical
+            // Also, when the angle become generally too vertical, maybe turn back so it doesn't get stuck for too long?
             const randomAngle = Math.random() * Math.PI * 2;
             ball.vec.x = ball.speed * Math.cos(randomAngle);
             ball.vec.z = ball.speed * Math.sin(randomAngle);
@@ -227,6 +231,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
     };
 
     /** Reset all game states */
+    // TODO: more through check about how to properly reset all states cleanly
     const reset = () => {
         (Object.keys(listeners) as Array<keyof PongEngineEventMap>).forEach((key) => {
             listeners[key] = [];

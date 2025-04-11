@@ -39,6 +39,7 @@ export const createRouter = () => {
         const hash = window.location.hash.slice(1);
         const route = (dest ?? hash) as keyof typeof routes;
 
+        window.log.debug(route);
         // Clean up game session when route changes, this probably belongs somewhere else
         gameStore.update({ isPlaying: false });
 
@@ -99,5 +100,5 @@ export const createRouter = () => {
     window.addEventListener("hashchange", () => handleRouteChange());
 
     // Create router
-    handleRouteChange(window.cfg.url.default);
+    handleRouteChange("landing"); // Need without hash.. check how to improve to have it from cfg
 };
