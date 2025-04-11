@@ -8,61 +8,75 @@
 
 ## Directory structure of scripts
 
-✅ means a page is refactored, only means a page is architecturally confirmed to a style
+Legends (by Darren)
+✅: refactored and functionally sound-ish
+⚒️: refactored but needs more attention for internal structure and improvement
+🚫: to be deleted later, remnant of outdated structure or as dev shortcuts
+⚠️: needs to refactor still
 
 ```
 scripts/
 ├─ global/                 // ✅
-│  ├─ config.ts            // ✅ Global vars, i.e. paths, urls, etc. to avoid hardcoding
-│  ├─ router.ts            // ✅
-│  └─ state.ts             // ✅ General generic reactive global state store, i.e. auth, lang, game
+│  ├─ config               // ✅ Global vars, i.e. paths, urls, etc. to avoid hardcoding
+│  ├─ router               // ✅
+│  └─ state                // ✅ General generic reactive global state store, i.e. auth, lang, game
 ├─ modules/                // ✅ Business logic of complex stuff, i.e. game, auth, websocket
-│  ├─ game/                //
-│  │  ├─ objects           //
-│  │  │  ├─ ball.ts        //
-│  │  │  ├─ board.ts       //
-│  │  │  ├─ paddle.ts      //
-│  │  │  ├─ score.ts       //
-│  │  │  └─ wall.ts        //
-│  │  ├── renderer         // For graphic babylon3d renderer, divided to smaller components
-│  │  │  ├─ audio.ts       //
-│  │  │  ├─ camera.ts      //
-│  │  │  ├─ controls.ts    //
-│  │  │  ├─ scene.ts       //
-│  │  │  └─ ...            //
-│  │  ├─ controller.ts     // User interface with the renderer
-│  │  ├─ renderer.ts       // Basically the 'class', as closure
-│  │  └─ store.ts          // Game store for state
+│  ├─ game/                // ⚒️
+│  │  ├─ objects           // ⚒️ Feel too state-dependent still
+│  │  │  ├─ ball           // ⚒️
+│  │  │  ├─ board          // ⚒️
+│  │  │  ├─ paddle         // ⚒️
+│  │  │  ├─ score          // ⚒️
+│  │  │  └─ wall           // ⚒️
+│  │  ├── renderer         // ⚒️ For graphic babylon3d renderer scene, divided to smaller components
+│  │  │  ├─ audio          // ✅ Sort of standalone module of babylonjs
+│  │  │  ├─ camera         // ⚒️
+│  │  │  ├─ controls       // ⚒️
+│  │  │  ├─ scene          // ⚒️
+│  │  │  ├─ event          // ⚒️
+│  │  │  ├─ light          // ⚒️
+│  │  │  └─ animations     // ⚒️
+│  │  ├─ controller.ts     // ✅ Centralized game control
+│  │  ├─ renderer.ts       // ⚒️ Basically the 'class' of entire babylonjs engine
+│  │  └─ store.ts          // ✅ Game store for state
 │  ├─ auth/                // ✅ Handles the logged in status
-│  │  ├─ auth.service.ts   // ✅
-│  │  └─ auth.store.ts     // ✅
+│  │  ├─ service           // ⚒️ Small typescript difficulty
+│  │  └─ store             // ✅
 │  ├─ layout/              // ✅
-│  │  ├─ layout.service.ts // ✅
-│  │  └─ layout.store.ts   // ✅
+│  │  ├─ service           // ✅
+│  │  └─ store             // ✅
 │  └─ ws/                  // ✅
-│     ├─ ws.service.ts     // ✅
-│     └─ ws.store.ts       // ✅
-├─ ui/                     // HTMLElement, with conventional name
-│  ├─ components/          // Reusable, customizable components
-│  │  ├─ Table.ts          // createTable(...)
-│  │  ├─ Button.ts         // createButton(...)
-│  │  ├─ [Component].ts    // create[Component](...)
+│     ├─ controller        // ✅
+│     ├─ service           // ✅
+│     └─ store             // ✅
+├─ ui/                     // ⚒️ UI with tsx name convention; generally still need to check more
+│  ├─ components/          // ✅ Reusable, customizable components
+│  │  ├─ Table             // ⚒️ Maybe add sorting
+│  │  ├─ Button            // ⚒️ Need to check css
+│  │  ├─ ButtonGroup       // ⚒️ Need to check css
+│  │  ├─ ReturnButton      // 🚫 Merge into Button maybe, don't need a 1-1 relation in components?
+│  │  ├─ Error             // ⚒️ Need to check css
+│  │  ├─ SectionContainer  // ⚠️ Should probably be general container, all section tag?
 │  │  └─ ...
-│  ├─ layout/              // Reusable, non-customizable components
-│  │  ├─ Paddles.ts        // createPaddles(...)
-│  │  ├─ Header.ts         // createHeader(...)
-│  │  ├─ Footer.ts         // createFooter(...)
+│  ├─ layout/              // ✅ Reusable, non-customizable components
+│  │  ├─ Paddles           // ⚒️
+│  │  ├─ LoginForm         // ⚠️
+│  │  ├─ Header            // ⚒️
+│  │  ├─ SetupModal        // ⚒️ Need to clean up
+│  │  ├─ TotpModal         // ⚠️
+│  │  ├─ UserStatus        // ⚠️
 │  │  └─ ...
-│  └─ pages/               // page renderer, should be built with components and layouts mostly
-│     ├─ LandingPage.ts    //
-│     ├─ GamePage.ts       // Unify remote / game /ai
-│     ├─ SetupPage.tsx     // ✅
-│     ├─ ProfilePage.tsx   // Should include totp setup option which is a modal
-│     ├─ SetupPage.tsx     // ✅
+│  └─ pages/               // ✅ Page renderer, should be built with components and layouts mostly
+│     ├─ LandingPage       // ✅ Default page for entry
+│     ├─ GamePage          // 🚫 Game should be started from setup and no page change from there
+│     ├─ SetupPage         // ✅
+│     ├─ LeaderboardPage   // ⚒️ Business logic need to be cleaned up
+│     ├─ ProfilePage       // ⚠️ Should include totp setup option which is a modal
+│     ├─ SetupPage         // ✅
 │     └─ ...
 ├─ utils/                  // ✅ General global utils
-│     ├─ api.ts            // ✅ fetch wrapper, get, post, etc.
-│     ├─ dom-helper.ts     // createEl, etc.
+│     ├─ api.ts            // ✅ General fetch wrapper, get, post, etc.
+│     ├─ dom-helper.ts     // ⚒️ Need to clean up
 │     └─ logger.ts         // ✅
 ├─ types.d.ts              // ✅ Global type definitions
 └─ index.ts                // ✅ Entry point
