@@ -1,7 +1,6 @@
 const API_URL = "/api";
 const ASSETS_DIR = "./assets";
 
-// Game key controls, maybe customizable later?
 const L_UP = ["w"];
 const L_DOWN = ["s"];
 const R_UP = ["ArrowUp"];
@@ -34,20 +33,20 @@ const config = {
         userStatus: "user-status",
         app: "app",
         header: "header-ctn",
-        canvas: "rendering-canvas", // persist this so that you don't need to recreate engine
+        canvas: "rendering-canvas",
         router: "router-ctn",
         footer: "fotter-ctn",
     },
     key: {
-        lup: [...L_UP], // For local, left paddle up
+        lup: [...L_UP], // For local, i.e. left paddle up
         ldown: [...L_DOWN],
         rup: [...R_UP],
         rdown: [...R_DOWN],
-        up: [...L_UP, ...R_UP], // For Remote or AI, all would work
-        down: [...L_DOWN, ...R_DOWN], // For Remote or AI
+        up: [...L_UP, ...R_UP], // For online or ai, all would work
+        down: [...L_DOWN, ...R_DOWN],
         left: [...L_UP, ...L_DOWN], // Left player keys
         right: [...R_UP, ...R_DOWN], // Right player keys
-        paddle: [...L_UP, ...L_DOWN, ...R_UP, ...R_DOWN], // all paddle control keys
+        paddle: [...L_UP, ...L_DOWN, ...R_UP, ...R_DOWN], // All paddle control keys
     },
 };
 

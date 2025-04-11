@@ -3,7 +3,6 @@ import { authStore, initAuthState } from "../../modules/auth/auth.store";
 import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer } from "../../modules/game/game.renderer";
 import { gameStore } from "../../modules/game/game.store";
-import { hidePageElements, hideRouter } from "../../modules/layout/layout.service";
 import { layoutStore } from "../../modules/layout/layout.store";
 import { createEl } from "../../utils/dom-helper";
 import { createLoginForm } from "../layout/LoginForm";
@@ -39,10 +38,10 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         const { canvas } = layoutStore.get();
 
         // Initilize game components here so babylon audio engine doesn't show unmute button
+        // Should move later
         createRenderer(canvas).then((renderer) => {
             const engine = createPongEngine();
             const controller = createGameController(renderer, engine);
-            //const eventController = createGameEventController(pongEngine);
 
             gameStore.update({ renderer, controller, engine });
         });
@@ -52,6 +51,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
             if (state.isAuthenticated) {
                 window.log.debug("User is authenticated, redirect to home");
                 window.location.href = window.cfg.url.home;
+                return;
             }
 
             const loginForm = await createLoginForm(ctaButton);

@@ -1,10 +1,4 @@
-import {
-    type AbstractMesh,
-    AudioEngineV2,
-    Engine,
-    ShadowGenerator,
-    SoundState,
-} from "@babylonjs/core";
+import { AudioEngineV2, Engine, SoundState } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
     Button,

@@ -1,12 +1,8 @@
 import {
-    Animation,
     ArcRotateCamera,
     Color3,
-    DirectionalLight,
-    Engine,
     Mesh,
     MeshBuilder,
-    PBRMaterial,
     Scene,
     StandardMaterial,
 } from "@babylonjs/core";

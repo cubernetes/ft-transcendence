@@ -13,12 +13,14 @@ export const createRouter = () => {
     const routes = {
         landing: createLandingPage,
         setup: createSetupPage,
+        // Game routes are for dev, will be deleted later
+        // Games will be directly strated through setup interaction
         onlinegame: createGamePage("online"),
         localgame: createGamePage("local"),
         aigame: createGamePage("ai"),
         profile: createProfilePage,
         leaderboard: createLeaderboardPage,
-        totp: createTotpSetupPage, // Refactor into modal
+        totp: createTotpSetupPage, // Refactor into modal later
     } satisfies Record<string, PageRenderer>;
 
     // A type-safe list of protected routes, i.e. only available after logging in
@@ -84,7 +86,6 @@ export const createRouter = () => {
         router.innerHTML = "";
         router.appendChild(fragment);
 
-        // Game won't be pages later
         if (route === "landing" || route === "onlinegame" || route === "localgame") {
             hidePageElements();
         } else {

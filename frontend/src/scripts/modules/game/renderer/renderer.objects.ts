@@ -1,5 +1,5 @@
-import { Engine, Scene, Vector3 } from "@babylonjs/core";
-import { Size3D, defaultGameConfig } from "@darrenkuro/pong-core";
+import { Engine, Vector3 } from "@babylonjs/core";
+import { defaultGameConfig } from "@darrenkuro/pong-core";
 import { createBall } from "../objects/objects.ball";
 import { createBoard } from "../objects/objects.board";
 import { createPaddle } from "../objects/objects.paddle";
