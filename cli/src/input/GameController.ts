@@ -1,3 +1,4 @@
+import { dir } from "console";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
 import { mainMenu } from "../menu/mainMenu";
@@ -7,7 +8,21 @@ import { ControllerConfig } from "../utils/config";
 export class GameController {
     private listeners: Array<() => void> = [];
 
-    constructor(private configs: ControllerConfig[]) {}
+    constructor(private configs: ControllerConfig[]) {
+        const primary = this.configs.find((cfg) => cfg.player === 0);
+        if (primary) {
+            // Add default arrow/space keys mapped to player 0
+            this.configs.push({
+                player: primary.player,
+                onMove: primary.onMove,
+                keyMap: {
+                    up: "\u001b[A",
+                    down: "\u001b[B",
+                    stop: " ",
+                },
+            });
+        }
+    }
 
     start(): void {
         process.stdin.setRawMode(true);
@@ -17,8 +32,8 @@ export class GameController {
             const keyStr = key.toString();
 
             for (const { keyMap, player, onMove } of this.configs) {
-                if (keyStr === keyMap.up) return onMove(player, "up");
-                if (keyStr === keyMap.down) return onMove(player, "down");
+                if (keyStr === keyMap.up) return onMove(player, "down");
+                if (keyStr === keyMap.down) return onMove(player, "up");
                 if (keyStr === keyMap.stop) return onMove(player, "stop");
             }
 
