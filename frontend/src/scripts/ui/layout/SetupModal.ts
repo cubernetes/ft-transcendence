@@ -10,8 +10,13 @@ import { createBodyText, createTitleText } from "../components/Text";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
-const createPlayBtn = (cb: () => void) =>
-    createButton("Play", "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full", cb);
+const createCtaBtn = (text: string, cb: () => void): HTMLButtonElement => {
+    return createButton(
+        text,
+        "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
+        cb
+    );
+};
 
 const createDifficultyGroup = () => {
     const label = createBodyText("Difficulty");
