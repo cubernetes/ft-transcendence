@@ -1,4 +1,4 @@
-import { createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
+import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { getToken } from "../menu/auth";
@@ -71,11 +71,12 @@ export class GameManager {
         this.engine.start();
     }
 
-    start1PRemote() {
+    async start1PRemote() {
         if (!this.wsManager) {
             this.wsManager = new WebSocketManager(SERVER_URL);
         }
         this.cleanupController();
+
         this.controller = new GameController([
             {
                 player: PLAYER_ONE,
@@ -94,6 +95,8 @@ export class GameManager {
             },
         ]);
         this.controller.start();
+
+        await this.wsManager.sendGameStart();
     }
 
     createEngine() {
@@ -126,6 +129,17 @@ export class GameManager {
 
         this.engine.onEvent("state-update", (evt) => {
             this.renderer.render(evt.state);
+        });
+    }
+
+    renderRemoteState(state: PongState) {
+        this.renderer.render(state);
+    }
+
+    showRemoteWinner(winner: number) {
+        this.cleanupController();
+        this.renderer.showWinner(winner).then(() => {
+            mainMenu();
         });
     }
 

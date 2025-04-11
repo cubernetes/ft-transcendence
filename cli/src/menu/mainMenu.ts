@@ -194,20 +194,20 @@ async function handleServerLogin() {
 
 async function loginToServer(username: string, password: string): Promise<string | null> {
     try {
-        const res = await fetch(`${API_URL}/auth/login`, {
+        const response = await fetch(`${API_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
         });
 
-        if (!res.ok) {
+        if (!response.ok) {
             // Handle non-200 HTTP responses (e.g., 4xx or 5xx errors)
-            console.error(chalk.red(`Login failed with status: ${res.status}`));
+            console.error(chalk.red(`Login failed with status: ${response.status}`));
             return null;
         }
 
-        const data = await res.json();
-        return data.token;
+        const result = await response.json();
+        return result.data.token;
     } catch (err) {
         // Handle network-related errors (e.g., ECONNREFUSED)
         if (err.code === "ECONNREFUSED") {
@@ -220,20 +220,29 @@ async function loginToServer(username: string, password: string): Promise<string
 }
 
 async function registerUser(): Promise<void> {
-    const { username, password } = await inquirer.prompt([
-        { type: "input", name: "username", message: "New username:" },
-        { type: "password", name: "password", message: "New password:" },
+    const { username, password, displayName, confirmPassword } = await inquirer.prompt([
+        { type: "input", name: "username", message: "New username: " },
+        { type: "password", name: "password", message: "New password: " },
+        { type: "input", name: "displayName", message: "Displayed Name: " },
+        { type: "password", name: "confirmPassword", message: "Confirm Password: " },
     ]);
 
+    const data = {
+        username: username,
+        password: password,
+        displayName: displayName,
+        confirmPassword: confirmPassword,
+    };
+
     try {
-        const res = await fetch(`${API_URL}/register`, {
+        const res = await fetch(`${API_URL}/user/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify(data),
         });
 
         if (!res.ok) {
-            const errText = await res.text();
+            const errText = "Unknown error";
             console.log(chalk.red(`❌ Registration failed: ${res.status} ${errText}`));
         } else {
             console.log(chalk.green("✅ Registration successful! You can now log in."));
