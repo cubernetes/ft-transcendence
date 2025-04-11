@@ -2,6 +2,7 @@ import { createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { getToken } from "../menu/auth";
+import { mainMenu } from "../menu/mainMenu";
 import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
 import { cleanup } from "../utils/cleanup";
@@ -22,7 +23,9 @@ export class GameManager {
     private engine: PongEngine | null = null;
     private renderer: CLIRenderer;
     private wsManager: WebSocketManager | null = null;
-    private gameActive = false;
+
+    // private gameActive = false;
+
     private remoteGameId: string | null = null;
     private remotePlayerIndex: number | null = null;
 
@@ -42,7 +45,10 @@ export class GameManager {
         ]);
         audioManager.startMusic();
         this.controller.start();
-        this.engine.start();
+        // this.engine.start();
+        this.renderer.showWinner(0).then(() => {
+            mainMenu();
+        });
     }
 
     start2PLocal() {
@@ -60,7 +66,9 @@ export class GameManager {
                 onMove: (player, dir) => this.engine.setInput(player, dir),
             },
         ]);
+        audioManager.startMusic();
         this.controller.start();
+        this.engine.start();
     }
 
     start1PRemote() {
@@ -96,7 +104,13 @@ export class GameManager {
 
         this.engine.onEvent("game-start", (_) => {});
 
-        this.engine.onEvent("game-end", (evt) => {});
+        this.engine.onEvent("game-end", (evt) => {
+            this.cleanupController();
+            this.engine.stop();
+            this.renderer.showWinner(0).then(() => {
+                mainMenu();
+            });
+        });
 
         this.engine.onEvent("score", (evt) => {
             audioManager.playSoundEffect(SCORE_SOUND);
@@ -123,16 +137,9 @@ export class GameManager {
     }
 
     stopGame(): void {
-        // this.gameActive = false;
-        // this.wsManager?.closeConnection();
-        // this.wsManager = null;
         this.engine?.stop();
         audioManager.startMusic(MENU_MUSIC);
         this.cleanupController();
-    }
-
-    isGameRunning(): boolean {
-        return this.gameActive;
     }
 }
 
