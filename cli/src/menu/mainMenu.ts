@@ -9,42 +9,16 @@ import { API_URL, GAME_FETCH_ERROR_MSG, MENU_MUSIC, SERVER_URL } from "../utils/
 import { clearToken, getToken, setToken } from "./auth";
 import { optionsMenu } from "./options";
 
-let isGameActive = false;
-let startedMenuMusic = false;
 let defaultMode = 1;
-
-export function setGameActive(state: boolean) {
-    isGameActive = state;
-    if (state) startedMenuMusic = false;
-}
-
-export function setStartedMenuMusic(state: boolean) {
-    startedMenuMusic = state;
-}
-
-export function getStartedMenuMusic(): boolean {
-    return startedMenuMusic;
-}
-
-export function getGameActive(): boolean {
-    return isGameActive;
-}
 
 export async function mainMenu(): Promise<void> {
     try {
-        startMenuMusic();
+        audioManager.startMusic(MENU_MUSIC);
         printTitle();
         const mode = await promptMainMenu();
         await handleMenuSelection(mode);
     } catch (err) {
         cleanup();
-    }
-}
-
-function startMenuMusic(): void {
-    if (!startedMenuMusic) {
-        audioManager.startMusic(MENU_MUSIC);
-        startedMenuMusic = true;
     }
 }
 
@@ -82,7 +56,30 @@ async function promptMainMenu(): Promise<number> {
 async function handleMenuSelection(mode: number): Promise<void> {
     switch (mode) {
         case 1:
-            await gameManager.start1PLocal();
+            const { localMode } = await inquirer.prompt([
+                {
+                    type: "list",
+                    name: "localMode",
+                    message: chalk.cyan("Play Locally: Choose mode"),
+                    choices: [
+                        { name: "🎮  Single Player (1P)", value: "1P" },
+                        { name: "👥  Two Players (2P)", value: "2P" },
+                        { name: "🔙  Back", value: "back" },
+                    ],
+                },
+            ]);
+
+            switch (localMode) {
+                case "1P":
+                    gameManager.start1PLocal();
+                    break;
+                case "2P":
+                    gameManager.start2PLocal();
+                    break;
+                case "back":
+                default:
+                    return await mainMenu();
+            }
             break;
         case 2:
             handleServerLogin();
