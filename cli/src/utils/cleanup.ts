@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import audioManager from "../audio/audioManager";
+import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
 
 // --- Cleanup ---
