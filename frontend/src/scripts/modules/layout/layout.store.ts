@@ -1,4 +1,4 @@
-import { handleRouteChange } from "../../global/router";
+import { createRouter } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -47,10 +47,6 @@ layoutStore.subscribe((state) => {
         // Create needed states for persisted elements
         createHeader(header);
 
-        // Listen for hash changes
-        window.addEventListener("hashchange", () => handleRouteChange());
-
-        // Create router
-        handleRouteChange(window.cfg.url.default);
+        createRouter();
     }
 });

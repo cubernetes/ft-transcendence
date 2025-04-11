@@ -31,7 +31,7 @@ export const gameStore = createStore<GameState>(defaultGameState);
 gameStore.subscribe((state) => {
     window.log.debug("GameStore subscriber triggered");
 
-    const { isPlaying, gameId, controller } = state;
+    const { isPlaying, controller } = state;
 
     if (!isPlaying && controller) {
         controller.destory();
