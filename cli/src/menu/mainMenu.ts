@@ -1,21 +1,14 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import inquirer from "inquirer";
+import { PongConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/audioManager";
-import { startKeyListener } from "../input/keyListener";
-import { WebSocketManager } from "../net/WebSocketManager";
-import { setGameConfig } from "../renderer/CLIRenderer";
+import gameManager from "../game/GameManager";
 import { cleanup } from "../utils/cleanup";
+import { API_URL, GAME_FETCH_ERROR_MSG, MENU_MUSIC, SERVER_URL } from "../utils/config";
 import { clearToken, getToken, setToken } from "./auth";
-import { optionsMenu, userOptions } from "./options";
+import { optionsMenu } from "./options";
 
-// Constants
-const SERVER_URL = "ws://localhost:8080/ws";
-const API_URL = "http://localhost:8080/api";
-const MENU_MUSIC = "menu";
-const GAME_ERROR_MSG = "Failed to fetch game config!";
-
-let wsManager: WebSocketManager | null = null;
 let isGameActive = false;
 let startedMenuMusic = false;
 let defaultMode = 1;
@@ -89,7 +82,7 @@ async function promptMainMenu(): Promise<number> {
 async function handleMenuSelection(mode: number): Promise<void> {
     switch (mode) {
         case 1:
-            startLocalGame();
+            await gameManager.start1PLocal();
             break;
         case 2:
             handleServerLogin();
@@ -106,14 +99,14 @@ async function handleMenuSelection(mode: number): Promise<void> {
 }
 
 // --- Server Flow ---
-async function fetchGameConfig(): Promise<GameConfig> {
+async function fetchGameConfig(): Promise<PongConfig> {
     try {
         const res = await fetch(`${API_URL}/game/config`);
-        if (!res.ok) throw new Error(GAME_ERROR_MSG);
+        if (!res.ok) throw new Error(GAME_FETCH_ERROR_MSG);
         const json = await res.json();
         return json.data;
     } catch (err) {
-        console.error(chalk.red(GAME_ERROR_MSG), err);
+        console.error(chalk.red(GAME_FETCH_ERROR_MSG), err);
         cleanup("Error fetching game config.");
         return Promise.reject(err);
     }
@@ -121,11 +114,6 @@ async function fetchGameConfig(): Promise<GameConfig> {
 
 async function handleServerLogin() {
     try {
-        if (wsManager) {
-            console.log(chalk.yellow("Already logged in."));
-            return await startRemoteGame();
-        }
-
         const { username, password } = await inquirer.prompt([
             { type: "input", name: "username", message: "Username:" },
             { type: "password", name: "password", message: "Password:" },
@@ -160,7 +148,7 @@ async function handleServerLogin() {
         }
 
         setToken(token);
-        await startRemoteGame();
+        gameManager.start1PRemote();
     } catch (err) {
         cleanup("Error during login.");
     }
@@ -207,32 +195,3 @@ async function registerUser(): Promise<void> {
         console.error("Registration error:", err);
     }
 }
-
-async function startRemoteGame() {
-    try {
-        const config = await fetchGameConfig();
-        // console.log("Fetched game config:", config); // TODO: Remove later
-        setGameConfig(config);
-
-        if (!wsManager) {
-            wsManager = new WebSocketManager(SERVER_URL);
-        }
-
-        setGameActive(true);
-        startKeyListener((dir) => {
-            wsManager?.sendMessage(`move ${dir}`);
-        });
-    } catch (err) {
-        console.error("Failed to start remote game: ", err);
-        cleanup("Error starting remote game.");
-    }
-}
-
-// --- Local Flow ---
-async function startLocalGame() {
-    console.log(chalk.yellow("Local play not implemented yet."));
-    mainMenu();
-}
-
-// --- Start CLI ---
-mainMenu();

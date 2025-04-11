@@ -1,6 +1,7 @@
 import fs from "fs";
-import path from "path";
+// import path from "path";
 import player from "play-sound";
+import { userOptions } from "../utils/config";
 
 // import { userOptions } from "./options";
 
@@ -101,9 +102,9 @@ export class AudioManager {
     /**
      * Update audio settings externally
      */
-    updateAudioSettings(options: { music: boolean; playStyle?: string }): void {
-        if (options.music) {
-            this.startMusic(options.playStyle);
+    updateAudioSettings(): void {
+        if (userOptions.music) {
+            this.startMusic(MENU_MUSIC);
         } else {
             this.stopMusic();
         }
@@ -140,5 +141,5 @@ export class AudioManager {
 
 // Singleton export
 const audioManager = new AudioManager();
-Object.freeze(audioManager);
+// Object.freeze(audioManager);
 export default audioManager;
