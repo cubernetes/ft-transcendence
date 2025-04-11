@@ -1,7 +1,7 @@
 // import { FieldConfig, GameConfig, PongState } from "./game.types";
-import { defaultGameConfig } from "@darrenkuro/pong-core";
-import { Ball, Paddle, PongState, Size3D } from "@darrenkuro/pong-core";
-import { Options } from "../menu/options";
+import { Position3D, defaultGameConfig } from "@darrenkuro/pong-core";
+import { Ball, Paddle, PongConfig, PongState } from "@darrenkuro/pong-core";
+import { FieldConfig, defaultFieldConfig, userOptions } from "../utils/config";
 
 const BALL_TRAIL_LENGTH = 5;
 
@@ -43,42 +43,17 @@ function makeChar(index: number): string {
     return color(char[Math.min(index, char.length - 1)], brightness[index]);
 }
 
-export interface FieldConfig {
-    termWid: number;
-    termHei: number;
-    scaleX: number;
-    scaleY: number;
-    paddleHeight: number;
-    fieldBuffer: string[][] | null;
-}
-
-type Vec2D = {
-    x: number;
-    y: number;
-};
-
 export class CLIRenderer {
-    #gameConf: GameConfig | null = null;
+    #gameConf: PongConfig;
     #fieldConf: FieldConfig;
-    #ballTrail: Vec2D[] = [];
+    #ballTrail: Position3D[] = [];
     #renderTick = 0;
     #tickStyle = 0;
 
-    constructor(private options: Options) {
-        this.#fieldConf = {
-            termWid: 160,
-            termHei: 40,
-            scaleX: 0,
-            scaleY: 0,
-            paddleHeight: 0,
-            fieldBuffer: [],
-        };
-    }
-
-    setGameConfig(config: GameConfig) {
-        this.#gameConf = config;
-        this.#applySettings();
-        this.#setFieldConfig();
+    constructor(gameConf?: PongConfig, fieldConf?: FieldConfig) {
+        this.#gameConf = gameConf || defaultGameConfig;
+        this.#fieldConf = fieldConf || defaultFieldConfig;
+        this.#applyConfig();
     }
 
     render(state: PongState) {
@@ -89,17 +64,18 @@ export class CLIRenderer {
         this.#updateRenderTick();
         this.#clearField();
         this.#drawPaddles(state);
-        this.#updateBallTrail(state.ball);
+        this.#updateBallTrail(state.ball.pos);
         this.#drawBall();
         this.#printFrame(state);
     }
 
-    #applySettings(): void {
-        const res = this.options.resolution;
+    #applyConfig(): void {
+        const res = userOptions.resolution;
         if (res === "80x20") this.#setTerminalSize(80, 20);
         else if (res === "160x40") this.#setTerminalSize(160, 40);
         else if (res === "240x60") this.#setTerminalSize(240, 60);
-        else this.#setTerminalSize(320, 80);
+        else if (res === "320x80") this.#setTerminalSize(320, 80);
+        this.#setFieldConfig();
     }
 
     #setTerminalSize(w: number, h: number): void {
@@ -108,11 +84,11 @@ export class CLIRenderer {
     }
 
     #setFieldConfig(): void {
-        if (!this.#gameConf) return;
-        this.#fieldConf.scaleX = this.#fieldConf.termWid / this.#gameConf.BOARD_WIDTH;
-        this.#fieldConf.scaleY = this.#fieldConf.termHei / this.#gameConf.BOARD_DEPTH;
+        this.#fieldConf.scaleX = this.#fieldConf.termWid / this.#gameConf.board.size.width;
+        this.#fieldConf.scaleY = this.#fieldConf.termHei / this.#gameConf.board.size.depth;
         this.#fieldConf.paddleHeight =
-            (this.#gameConf.PADDLE_DEPTH * this.#fieldConf.termHei) / this.#gameConf.BOARD_DEPTH;
+            (this.#gameConf.paddles[0].size.depth * this.#fieldConf.termHei) /
+            this.#gameConf.board.size.depth;
         this.#fieldConf.fieldBuffer = Array.from({ length: this.#fieldConf.termHei }, () =>
             Array(this.#fieldConf.termWid).fill(" ")
         );
@@ -131,7 +107,7 @@ export class CLIRenderer {
 
     #drawPaddles(state: PongState): void {
         const { scaleX, scaleY, termHei, termWid } = this.#fieldConf;
-        const padLen = this.#gameConf!.PADDLE_DEPTH * scaleY;
+        const padLen = this.#gameConf.paddles[0].size.depth * scaleY;
 
         const draw = (yMin: number, padX: number) => {
             const yFracTop = yMin - Math.floor(yMin);
@@ -152,17 +128,17 @@ export class CLIRenderer {
             }
         };
 
-        const pad1X = Math.round(state.paddle1.x * scaleX + termWid / 2 - 1);
-        const pad2X = Math.round(state.paddle2.x * scaleX + termWid / 2 - 1);
-        const pad1Y = state.paddle1.y * scaleY + termHei / 2 - padLen / 2;
-        const pad2Y = state.paddle2.y * scaleY + termHei / 2 - padLen / 2;
+        const pad1X = Math.round(state.paddles[0].pos.x * scaleX + termWid / 2 - 1);
+        const pad2X = Math.round(state.paddles[1].pos.x * scaleX + termWid / 2 - 1);
+        const pad1Y = state.paddles[0].pos.y * scaleY + termHei / 2 - padLen / 2;
+        const pad2Y = state.paddles[1].pos.y * scaleY + termHei / 2 - padLen / 2;
 
         draw(pad1Y, pad1X);
         draw(pad2Y, pad2X);
     }
 
-    #updateBallTrail(ball: Vec2D): void {
-        this.#ballTrail.push({ ...ball });
+    #updateBallTrail(position: Position3D): void {
+        this.#ballTrail.push({ ...position });
         if (this.#ballTrail.length > BALL_TRAIL_LENGTH) this.#ballTrail.shift();
     }
 
@@ -178,7 +154,6 @@ export class CLIRenderer {
 
     #printFrame(state: PongState): void {
         const { termWid, termHei, fieldBuffer } = this.#fieldConf;
-        const { player1, player2 } = state.score;
 
         const corners = CORNER_STYLES[this.#tickStyle];
         const edges = EDGE_STYLES[this.#tickStyle];
@@ -188,8 +163,8 @@ export class CLIRenderer {
 
         let frame = "\x1b[H"; // top-left
         frame += color(`Score:`, FG_CYAN) + " ";
-        frame += color(` Player 1 - ${player1} `, FG_GREEN);
-        frame += ":" + color(` ${player2} - Player 2 `, FG_YELLOW) + "\n";
+        frame += color(` Player 1 - ${state.scores[0]} `, FG_GREEN);
+        frame += ":" + color(` ${state.scores[1]} - Player 2 `, FG_YELLOW) + "\n";
         frame += border + "\n";
 
         for (const row of fieldBuffer) {
