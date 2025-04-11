@@ -51,7 +51,7 @@ const onlineMode = (ctn: HTMLElement) => {
     };
     const joinLobbyBtn = createButton(
         "Join Lobby",
-        "w-64 p-4 bg-green-500 text-white hover:bg-green-700"
+        "w-64 p-4 bg-blue-500 text-white hover:bg-blue-700"
     );
 
     const BtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
@@ -100,7 +100,7 @@ const aiMode = (ctn: HTMLElement) => {
         // }, 100);
     };
 
-    const playBtn = createPlayBtn(playBtnCb);
+    const playBtn = createCtaBtn("Play", playBtnCb);
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
         returnBtn,
@@ -161,7 +161,7 @@ const localMode = (ctn: HTMLElement) => {
         hideErr();
         window.log.debug(`Game Data: ${gameData}`);
     };
-    const playBtn = createPlayBtn(playBtnCb);
+    const playBtn = createCtaBtn("Play", playBtnCb);
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
         returnBtn,
