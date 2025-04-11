@@ -1,6 +1,6 @@
 import type { LoginBody, RegisterBody } from "@darrenkuro/pong-core";
 import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
-
+import { createButton } from "../components/Button";
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = document.createElement("div");
     wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3";
@@ -64,6 +64,12 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
     submitBtn.type = "submit";
     submitBtn.className = "w-full p-2 bg-red-500 text-white rounded";
     submitBtn.textContent = "Login";
+
+    const quickplayButton = createButton(
+        "Quickplay",
+        "!px-4 py-2 bg-blue-500 text-white rounded-l-md mt-4 w-full",
+        () => window.log.info(window.location.href = "#localgame")
+    );
 
     const showError = (message: string) => {
         errorMessage.textContent = message;
@@ -155,7 +161,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
     });
 
-    wrapper.append(exitButton, toggleContainer, authForm);
+    wrapper.append(exitButton, toggleContainer, authForm, quickplayButton);
 
     return wrapper;
 };
