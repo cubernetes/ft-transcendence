@@ -1,4 +1,4 @@
-import type { ErrorCode } from "../core/api/api.schema.ts";
+import type { ErrorCode } from "@darrenkuro/pong-core";
 import type { FastifyReply } from "fastify";
 
 export class ApiError extends Error {

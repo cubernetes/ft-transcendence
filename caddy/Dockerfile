@@ -32,9 +32,6 @@ VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/"]
 
 USER caddy
 
-ENV WATCH 0
+ENV WATCH=0
 
-CMD /usr/bin/caddy run  \
-	--watch=$WATCH      \
-	--adapter caddyfile \
-	--config /etc/caddy/Caddyfile
+CMD ["sh", "-c", "/usr/bin/caddy run --watch=$WATCH --adapter caddyfile --config /etc/caddy/Caddyfile"]

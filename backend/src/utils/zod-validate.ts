@@ -35,7 +35,19 @@ export const withZod =
 
         for (const key of Object.keys(schemas) as (keyof Schemas)[]) {
             const schema = schemas[key] as ZodTypeAny;
-            const result = schema.safeParse(req[key as ZodTarget]);
+            const data = req[key as ZodTarget];
+
+            // Handle when field doesn't exist at all
+            if (!data) {
+                const err = new ApiError(
+                    "VALIDATION_ERROR",
+                    400,
+                    `Missing required ${String(key)}`
+                );
+                err.send(reply);
+            }
+
+            const result = schema.safeParse(data);
 
             if (!result.success) {
                 const err = new ApiError("VALIDATION_ERROR", 400, summarizeZodError(result.error));

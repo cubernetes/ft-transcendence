@@ -12,6 +12,6 @@ COPY ./ ./
 
 RUN npm run build
 
-ENV WATCH 0
+ENV WATCH=0
 
-CMD if [ "$WATCH" = "1" ]; then npm run build:dev; fi
+CMD ["sh", "-c", "if [ \"$WATCH\" = \"1\" ]; then npm run build:dev; fi"]

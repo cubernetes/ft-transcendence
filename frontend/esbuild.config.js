@@ -8,6 +8,7 @@ const watch = process.argv.includes("--watch");
 
 const context = await esbuild.context({
     entryPoints: ["src/scripts/index.ts"],
+    format: "esm",
     bundle: true,
     outfile: "dist/bundle.js",
     minify: isProd, // Minify in production

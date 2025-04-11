@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { PublicUser, User } from "./user.types.ts";
+import { PublicUser } from "@darrenkuro/pong-core";
+import { User } from "./user.types.ts";
 
 /** Remove sensitive fields from user before sending response to themselves. */
 export const toPersonalUser = (user: User): Omit<User, "passwordHash"> => {

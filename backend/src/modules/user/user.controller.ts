@@ -3,8 +3,8 @@ import type {
     LoginBody,
     RegisterBody,
     TotpBody,
-    TotpBodyInitial,
-} from "./user.types.ts";
+    TotpInitialBody,
+} from "@darrenkuro/pong-core";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
@@ -96,7 +96,7 @@ const totpVerifyHandler = async (
 };
 
 const totpVerifyInitialHandler = async (
-    { body }: { body: TotpBodyInitial },
+    { body }: { body: TotpInitialBody },
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
