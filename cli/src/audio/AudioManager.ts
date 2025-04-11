@@ -30,14 +30,18 @@ export class AudioManager {
         this.musicTracks.set("stylish", "src/content/stylish_game.mp3");
         this.musicTracks.set("crazy", "src/content/crazy_game.mp3");
 
-        this.checkAudioBackend();
+        // this.checkAudioBackend();
+        process.on("exit", () => this.stopMusic());
+        process.on("SIGINT", () => process.exit());
     }
 
     /**
      * Try playing to ensure a backend is available
      */
     private checkAudioBackend(): void {
-        audioPlayer.play("", (err) => {
+        const dummyFile = this.soundEffects.values().next().value;
+        if (!dummyFile || !fs.existsSync(dummyFile)) return;
+        audioPlayer.play(dummyFile, (err) => {
             if (err) {
                 console.warn(
                     "⚠️  Audio backend unavailable (afplay/mplayer/mpg123 required).",
@@ -52,9 +56,8 @@ export class AudioManager {
      * @param effectName - Name of the sound effect to play
      */
     playSoundEffect(effectName: string): void {
-        if (!userOptions.sfx) {
-            return;
-        }
+        if (!userOptions.sfx) return;
+
         const soundPath = this.soundEffects.get(effectName);
         if (!soundPath || !fs.existsSync(soundPath)) {
             console.error(`Sound effect "${effectName}" not found`);
@@ -63,32 +66,36 @@ export class AudioManager {
 
         const existing = this.effectProcesses.get(effectName);
         if (existing && typeof existing.kill === "function") {
-            existing.kill(); // Stop any existing sound effect
+            existing.kill();
+            existing.on?.("exit", () => {
+                this.launchEffect(effectName, soundPath);
+            });
+        } else {
+            this.launchEffect(effectName, soundPath);
         }
+    }
 
+    private launchEffect(effectName: string, soundPath: string): void {
         const process = audioPlayer.play(soundPath, (err) => {
             if (err) console.error(`Effect error (${effectName}):`, err);
             this.effectProcesses.delete(effectName);
         });
-
         this.effectProcesses.set(effectName, process);
     }
 
     /**
      * Start playing background music based on the current play style
      */
-    startMusic(style?: string): void {
+    async startMusic(style?: string): Promise<void> {
         if (!userOptions.music) {
             this.stopMusic();
             return;
         }
-        const track = style ?? userOptions.playStyle;
-        if (this.currentlyPlaying === track) {
-            return;
-        }
-        this.stopMusic();
 
-        console.log("Starting music for style:", style);
+        const track = style ?? userOptions.playStyle;
+        if (this.currentlyPlaying === track) return;
+
+        await this.stopMusic();
 
         const musicPath = this.musicTracks.get(track);
         if (!musicPath || !fs.existsSync(musicPath)) {
@@ -97,19 +104,30 @@ export class AudioManager {
         }
 
         this.currentlyPlaying = track;
-        this.playAudio(musicPath, true, "music");
+        this.playAudio(musicPath, "music");
     }
 
     /**
      * Stop background music
      */
-    stopMusic(): void {
+    async stopMusic(): Promise<void> {
         this.loopMusic = false;
+
         if (this.musicProcess && typeof this.musicProcess.kill === "function") {
-            this.musicProcess.kill();
+            const proc = this.musicProcess;
+            return new Promise<void>((resolve) => {
+                proc.once("exit", () => {
+                    this.musicProcess = null;
+                    this.currentlyPlaying = null;
+                    resolve();
+                });
+                proc.kill();
+            });
+        } else {
+            this.musicProcess = null;
+            this.currentlyPlaying = null;
+            return Promise.resolve();
         }
-        this.musicProcess = null;
-        this.currentlyPlaying = null;
     }
 
     /**
@@ -117,26 +135,27 @@ export class AudioManager {
      * @param audioPath - Path to the audio file
      * @param loop - Whether the audio should loop or not
      */
-    private playAudio(audioPath: string, loop: boolean, destination: AudioDestination): void {
+    private playAudio(audioPath: string, destination: AudioDestination): void {
         const child = audioPlayer.play(audioPath, (err) => {
-            if (err) console.error(`Error playing audio (${audioPath}):`, err);
-            this.loopMusic = false;
+            if (err) {
+                console.error(`Error playing audio (${audioPath}):`, err);
+                this.loopMusic = false;
+            }
         });
 
         if (destination === "music") {
-            if (this.musicProcess && typeof this.musicProcess.kill === "function") {
-                this.musicProcess.kill();
-            }
             this.musicProcess = child;
+            this.loopMusic = true;
 
-            if (loop) {
-                this.loopMusic = true;
-                child.on("exit", () => {
-                    if (this.loopMusic) {
-                        this.playAudio(audioPath, loop, "music"); // restart loop
-                    }
-                });
-            }
+            child.on("exit", (code) => {
+                if (this.loopMusic && code === 0) {
+                    setTimeout(() => {
+                        if (this.loopMusic) {
+                            this.playAudio(audioPath, "music");
+                        }
+                    }, 100);
+                }
+            });
         }
     }
 }

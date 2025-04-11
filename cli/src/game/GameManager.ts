@@ -1,5 +1,5 @@
 import { createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
-import audioManager from "../audio/audioManager";
+import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { getToken } from "../menu/auth";
 import { WebSocketManager } from "../net/WebSocketManager";

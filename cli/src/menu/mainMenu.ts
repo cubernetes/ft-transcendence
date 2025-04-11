@@ -2,7 +2,7 @@ import chalk from "chalk";
 import figlet from "figlet";
 import inquirer from "inquirer";
 import { PongConfig } from "@darrenkuro/pong-core";
-import audioManager from "../audio/audioManager";
+import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
 import { cleanup } from "../utils/cleanup";
 import { API_URL, GAME_FETCH_ERROR_MSG, MENU_MUSIC, SERVER_URL } from "../utils/config";
@@ -13,7 +13,6 @@ let defaultMode = 1;
 
 export async function mainMenu(): Promise<void> {
     try {
-        audioManager.startMusic(MENU_MUSIC);
         printTitle();
         const mode = await promptMainMenu();
         await handleMenuSelection(mode);
