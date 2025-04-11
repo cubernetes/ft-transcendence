@@ -12,7 +12,7 @@ export const createSetupPage = async (): Promise<HTMLElement[]> => {
     const paddles = createPaddles(router);
 
     // TODO: Check cursor url, doesn't seem to be working?
-    const main = createEl("main", "cursor-[url(assets/pongball.cur)]", {
+    const main = createEl("main", "w-full cursor-[url(assets/pongball.cur)]", {
         children: [paddles, setupSection],
     });
 

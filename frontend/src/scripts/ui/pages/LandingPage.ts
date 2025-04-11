@@ -3,15 +3,12 @@ import { authStore, initAuthState } from "../../modules/auth/auth.store";
 import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer } from "../../modules/game/game.renderer";
 import { gameStore } from "../../modules/game/game.store";
-import { hidePageElements } from "../../modules/layout/layout.service";
+import { hidePageElements, hideRouter } from "../../modules/layout/layout.service";
 import { layoutStore } from "../../modules/layout/layout.store";
 import { createEl } from "../../utils/dom-helper";
 import { createLoginForm } from "../layout/LoginForm";
 
 export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
-    // Hide header and footer
-    hidePageElements();
-
     // Background video
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: {

@@ -1,6 +1,6 @@
 import { authStore } from "../modules/auth/auth.store";
 import { gameStore } from "../modules/game/game.store";
-import { showRouer } from "../modules/layout/layout.service";
+import { hidePageElements, showPageElements, showRouter } from "../modules/layout/layout.service";
 import { layoutStore } from "../modules/layout/layout.store";
 import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
@@ -23,10 +23,6 @@ export const createRouter = () => {
 
     // A type-safe list of protected routes, i.e. only available after logging in
     // Temporarily protect all routes so always start in landing page
-    // Because that's where engine is initialized and without user interaction
-    // An unmute button will pop up
-    // And skipping landing page will skip background music
-    // Might change logic later
     const protectedRoutes: (keyof typeof routes)[] = [
         "setup",
         "onlinegame",
@@ -42,8 +38,6 @@ export const createRouter = () => {
         const route = (dest ?? hash) as keyof typeof routes;
 
         // Clean up game session when route changes, this probably belongs somewhere else
-        // Currently landing page initialize game components, will give warning
-        // But not a big deal, still should change later
         gameStore.update({ isPlaying: false });
 
         // Redirect to default page upon invalid route
@@ -81,6 +75,7 @@ export const createRouter = () => {
 
         // Render the appropriate page
         const createPage = routes[route];
+
         const pageElements = await createPage();
 
         const fragment = document.createDocumentFragment();
@@ -88,7 +83,15 @@ export const createRouter = () => {
 
         router.innerHTML = "";
         router.appendChild(fragment);
-        showRouer();
+
+        // Game won't be pages later
+        if (route === "landing" || route === "onlinegame" || route === "localgame") {
+            hidePageElements();
+        } else {
+            showPageElements();
+        }
+
+        showRouter();
     };
 
     // Listen for hash changes

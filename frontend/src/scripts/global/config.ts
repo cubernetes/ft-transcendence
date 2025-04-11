@@ -39,10 +39,10 @@ const config = {
         footer: "fotter-ctn",
     },
     key: {
-        lup: L_UP, // For local, left paddle up
-        ldown: L_DOWN,
-        rup: R_UP,
-        rdown: R_DOWN,
+        lup: [...L_UP], // For local, left paddle up
+        ldown: [...L_DOWN],
+        rup: [...R_UP],
+        rdown: [...R_DOWN],
         up: [...L_UP, ...R_UP], // For Remote or AI, all would work
         down: [...L_DOWN, ...R_DOWN], // For Remote or AI
         left: [...L_UP, ...L_DOWN], // Left player keys
