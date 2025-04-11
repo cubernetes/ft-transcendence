@@ -35,21 +35,21 @@ export class AudioManager {
         process.on("SIGINT", () => process.exit());
     }
 
-    /**
-     * Try playing to ensure a backend is available
-     */
-    private checkAudioBackend(): void {
-        const dummyFile = this.soundEffects.values().next().value;
-        if (!dummyFile || !fs.existsSync(dummyFile)) return;
-        audioPlayer.play(dummyFile, (err) => {
-            if (err) {
-                console.warn(
-                    "⚠️  Audio backend unavailable (afplay/mplayer/mpg123 required).",
-                    err.message
-                );
-            }
-        });
-    }
+    // /**
+    //  * Try playing to ensure a backend is available
+    //  */
+    // private checkAudioBackend(): void {
+    //     const dummyFile = this.soundEffects.values().next().value;
+    //     if (!dummyFile || !fs.existsSync(dummyFile)) return;
+    //     audioPlayer.play(dummyFile, (err) => {
+    //         if (err) {
+    //             console.warn(
+    //                 "⚠️  Audio backend unavailable (afplay/mplayer/mpg123 required).",
+    //                 err.message
+    //             );
+    //         }
+    //     });
+    // }
 
     /**
      * Play a sound effect once

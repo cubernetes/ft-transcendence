@@ -30,7 +30,7 @@ export interface FieldConfig {
     termWid: number;
     termHei: number;
     scaleX: number;
-    scaleY: number;
+    scaleZ: number;
     paddleHeight: number;
     fieldBuffer: string[][] | null;
 }
@@ -54,7 +54,7 @@ export const defaultFieldConfig: FieldConfig = {
     termWid: 160,
     termHei: 40,
     scaleX: 8,
-    scaleY: 8 / 3,
+    scaleZ: 8 / 3,
     paddleHeight: 40 / 3,
     fieldBuffer: Array.from({ length: 40 }, () => Array(160).fill(" ")),
 };
