@@ -1,5 +1,6 @@
 import audioManager from "../audio/audioManager";
-import { mainMenu, setGameActive } from "../menu/mainMenu";
+import gameManager from "../game/GameManager";
+import { mainMenu } from "../menu/mainMenu";
 import { cleanup } from "../utils/cleanup";
 import { ControllerConfig } from "../utils/config";
 
@@ -21,23 +22,23 @@ export class GameController {
                 if (keyStr === keyMap.stop) return onMove(player, "stop");
             }
 
+            // Ctrl+C --> hard exit
             if (keyStr === "\u0003") {
                 this.cleanup();
                 cleanup();
                 process.exit();
             }
 
+            // ESC
             if (keyStr === "\u001b") {
                 this.cleanup();
-                setGameActive(false);
+                gameManager.stopGame();
                 mainMenu();
             }
         };
 
         process.stdin.on("data", keyListener);
         this.listeners.push(() => process.stdin.removeListener("data", keyListener));
-
-        audioManager.startMusic();
     }
 
     cleanup(): void {

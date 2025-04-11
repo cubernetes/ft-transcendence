@@ -3,7 +3,7 @@ import figlet from "figlet";
 import inquirer from "inquirer";
 import audioManager from "../audio/audioManager";
 import { cleanup } from "../utils/cleanup";
-import { userOptions } from "../utils/config";
+import { MENU_MUSIC, userOptions } from "../utils/config";
 import { mainMenu } from "./mainMenu";
 
 export async function optionsMenu(): Promise<void> {
@@ -69,7 +69,7 @@ export async function optionsMenu(): Promise<void> {
                         },
                     ]);
                     userOptions.music = music;
-                    audioManager.updateAudioSettings();
+                    audioManager.startMusic(MENU_MUSIC);
                     break;
                 }
 
