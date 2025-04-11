@@ -1,7 +1,8 @@
 #!/usr/bin/env ts-node
-import audioManager from "./audio/audioManager";
+import audioManager from "./audio/AudioManager";
 import { mainMenu } from "./menu/mainMenu";
 import { cleanup } from "./utils/cleanup";
+import { MENU_MUSIC } from "./utils/config";
 
 process.on("SIGINT", () => cleanup());
 process.on("uncaughtException", (err) => {
@@ -9,6 +10,6 @@ process.on("uncaughtException", (err) => {
     cleanup("Unexpected error.");
 });
 
-audioManager.startMusic("menu");
+audioManager.startMusic(MENU_MUSIC);
 
 mainMenu();

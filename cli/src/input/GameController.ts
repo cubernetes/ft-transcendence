@@ -1,4 +1,4 @@
-import audioManager from "../audio/audioManager";
+import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
 import { mainMenu } from "../menu/mainMenu";
 import { cleanup } from "../utils/cleanup";
