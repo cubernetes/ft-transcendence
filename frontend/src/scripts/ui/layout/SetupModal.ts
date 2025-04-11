@@ -179,6 +179,7 @@ const localMode = (ctn: HTMLElement) => {
 };
 
 const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
+    //TODO: Return should go to the previous step rather than the SetupModal.
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText("Start tournament");
     const line = createSetupLine();
@@ -191,10 +192,7 @@ const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
         playerInputs.push(playerInput);
     }
 
-    const tournamentStartBtnCb = () => {
-        window.log.info(`Setting up a game with ${playerAmount} players...`);
-        
-        // Validate player inputs
+    const tournamentStartBtnCb = () => {        
         for (let i = 0; i < playerAmount; i++) {
             const playerInput = playerInputs[i];
             if (!playerInput.value.trim()) {
@@ -202,19 +200,21 @@ const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
             }
         }
 
-        // If no errors, start the tournament logic
         hideErr();
-        window.log.info("Tournament setup completed successfully!");
+        window.log.debug(`Tournament Start Data: ${playerInputs}`);
     };
 
     const tournamentCreateBtn = createCtaBtn("Start Tournament", tournamentStartBtnCb);
+    
+    const inputsWrapper = createEl("div", "grid grid-cols-1 md:grid-cols-2 gap-4 w-full", {
+        children: playerInputs,
+    });
 
-    window.log.info(`Adding inputs with ${playerAmount} players...`);
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
         returnBtn,
         title,
         line,
-        ...playerInputs,
+        inputsWrapper,
         tournamentCreateBtn,
         errorDiv,
     ]);
@@ -247,7 +247,7 @@ const tournamentMode = (ctn: HTMLElement) => {
         }
 
         hideErr();
-        window.log.debug(`Game Data: ${playerAmount}`);
+        window.log.debug(`Tournament Setup Data: ${playerAmount}`);
         tournamentStart(ctn, parseInt(playerAmount)); 
     };
 
