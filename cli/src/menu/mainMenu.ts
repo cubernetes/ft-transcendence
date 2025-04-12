@@ -99,6 +99,7 @@ async function handleMenuSelection(mode: number): Promise<void> {
 }
 
 async function promptRemotePlayMenu(): Promise<void> {
+    printTitle();
     const token = getToken();
 
     if (token) {
@@ -159,6 +160,7 @@ async function handleServerLogin() {
         const token = await loginToServer(username, password);
 
         if (!token) {
+            printTitle();
             const { action } = await inquirer.prompt([
                 {
                     type: "list",
@@ -176,8 +178,8 @@ async function handleServerLogin() {
                 case "retry":
                     return await handleServerLogin();
                 case "register":
-                    await registerUser();
-                    return await handleServerLogin();
+                    if (await registerUser()) return await handleServerLogin();
+                    else return await promptRemotePlayMenu();
                 case "back":
                 default:
                     return await mainMenu();
@@ -219,7 +221,7 @@ async function loginToServer(username: string, password: string): Promise<string
     }
 }
 
-async function registerUser(): Promise<void> {
+async function registerUser(): Promise<boolean> {
     const { username, password, displayName, confirmPassword } = await inquirer.prompt([
         { type: "input", name: "username", message: "New username: " },
         { type: "password", name: "password", message: "New password: " },
@@ -244,10 +246,13 @@ async function registerUser(): Promise<void> {
         if (!res.ok) {
             const errText = "Unknown error";
             console.log(chalk.red(`❌ Registration failed: ${res.status} ${errText}`));
-        } else {
-            console.log(chalk.green("✅ Registration successful! You can now log in."));
+            return false;
         }
+
+        console.log(chalk.green("✅ Registration successful! You can now log in."));
+        return true;
     } catch (err) {
         console.error(chalk.red("⚠️ Registration error:"), err);
+        return false;
     }
 }
