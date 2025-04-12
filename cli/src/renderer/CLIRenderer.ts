@@ -1,19 +1,9 @@
-// import { FieldConfig, GameConfig, PongState } from "./game.types";
+import chalk from "chalk";
 import { Position3D, defaultGameConfig } from "@darrenkuro/pong-core";
 import { Ball, Paddle, PongConfig, PongState } from "@darrenkuro/pong-core";
 import { FieldConfig, defaultFieldConfig, userOptions } from "../utils/config";
 
 const BALL_TRAIL_LENGTH = 5;
-
-const FG_RED = "\x1b[31m";
-const FG_GREEN = "\x1b[32m";
-const FG_BLUE = "\x1b[34m";
-const FG_CYAN = "\x1b[36m";
-const FG_YELLOW = "\x1b[33m";
-const FG_WHITE = "\x1b[37m";
-const RESET = "\x1b[0m";
-
-// TODO: Optimise coloring (maybe with chalk)
 
 const CORNER_STYLES = [
     { tl: "╭", tr: "╮", bl: "╰", br: "╯" },
@@ -29,18 +19,11 @@ const EDGE_STYLES = [
     { hor: "▃▄▅▆", ver: "⠁" },
 ];
 
-function color(text: string, fg = "", bg = ""): string {
-    return `${fg}${bg}${text}${RESET}`;
-}
-
-function clamp(val: number, min: number, max: number): number {
-    return Math.max(min, Math.min(max, val));
-}
-
 function makeChar(index: number): string {
-    const brightness = [FG_WHITE, FG_CYAN, FG_BLUE, FG_GREEN, FG_RED];
-    const char = [".", "•", "●", "◉", "⬤"];
-    return color(char[Math.min(index, char.length - 1)], brightness[index]);
+    const styles = [chalk.white, chalk.cyan, chalk.blue, chalk.green, chalk.red];
+    const chars = [".", "•", "●", "◉", "⬤"];
+    const safeIndex = Math.min(index, chars.length - 1);
+    return styles[safeIndex](chars[safeIndex]);
 }
 
 export class CLIRenderer {
@@ -63,6 +46,7 @@ export class CLIRenderer {
 
         this.#updateRenderTick();
         this.#clearField();
+        // this.#drawFieldEdges();
         this.#drawPaddles(state);
         this.#updateBallTrail(state.ball.pos);
         this.#drawBall();
@@ -103,6 +87,19 @@ export class CLIRenderer {
 
     #clearField(): void {
         this.#fieldConf.fieldBuffer?.forEach((row) => row.fill(" "));
+    }
+
+    #drawFieldEdges(): void {
+        const { termWid, termHei, fieldBuffer } = this.#fieldConf;
+        const borderChar = ".";
+        for (let x = 0; x < termWid; x++) {
+            fieldBuffer[0][x] = borderChar;
+            fieldBuffer[termHei - 1][x] = borderChar;
+        }
+        for (let y = 0; y < termHei; y++) {
+            fieldBuffer[y][0] = borderChar;
+            fieldBuffer[y][termWid - 1] = borderChar;
+        }
     }
 
     #drawPaddles(state: PongState): void {
@@ -146,8 +143,14 @@ export class CLIRenderer {
         const { scaleX, scaleZ, termWid, termHei, fieldBuffer } = this.#fieldConf;
         for (let i = 0; i < this.#ballTrail.length; i++) {
             const pos = this.#ballTrail[i];
-            const x = clamp(Math.round(pos.x * scaleX + termWid / 2 - 1), 0, termWid - 1);
-            const z = clamp(Math.round(pos.z * scaleZ + termHei / 2 - 1), 0, termHei - 1);
+            const x = Math.max(
+                0,
+                Math.min(termWid - 1, Math.round(pos.x * scaleX + termWid / 2 - 1))
+            );
+            const z = Math.max(
+                0,
+                Math.min(termHei - 1, Math.round(pos.z * scaleZ + termHei / 2 - 1))
+            );
             fieldBuffer[z][x] = makeChar(i);
         }
     }
@@ -162,9 +165,9 @@ export class CLIRenderer {
         const bottomBorder = `${corners.bl}${edges.hor.repeat(termWid / 4)}${corners.br}`;
 
         let frame = "\x1b[H"; // top-left
-        frame += color(`Score:`, FG_CYAN) + " ";
-        frame += color(` Player 1 - ${state.scores[0]} `, FG_GREEN);
-        frame += ":" + color(` ${state.scores[1]} - Player 2 `, FG_YELLOW) + "\n";
+        frame += chalk.cyan("Score:") + " ";
+        frame += chalk.green(` Player 1 - ${state.scores[0]} `);
+        frame += ":" + chalk.yellow(` ${state.scores[1]} - Player 2 `) + "\n";
         frame += border + "\n";
 
         for (const row of fieldBuffer) {
@@ -188,8 +191,8 @@ export class CLIRenderer {
 
         const winnerText =
             winnerIndex === 0
-                ? color("🏆 PLAYER 1 WINS THE GAME 🏆", FG_GREEN)
-                : color("🏆 PLAYER 2 WINS THE GAME 🏆", FG_YELLOW);
+                ? chalk.green("🏆 PLAYER 1 WINS THE GAME 🏆")
+                : chalk.yellow("🏆 PLAYER 2 WINS THE GAME 🏆");
 
         const emptyLine = `${edges.ver}${" ".repeat(termWid)}${edges.ver}`;
         const centeredMessageLine = `${edges.ver}${" ".repeat(
@@ -197,7 +200,7 @@ export class CLIRenderer {
         )}${winnerText}${" ".repeat(Math.ceil((termWid - winnerText.length) / 2))}${edges.ver}`;
 
         let frame = "\x1b[H"; // top-left
-        frame += color("Final Score:", FG_CYAN) + "\n";
+        frame += chalk.cyan("Final Score:") + "\n";
         frame += border + "\n";
 
         const verticalPadding = Math.floor((termHei - 3) / 2); // room for centered message
@@ -212,7 +215,6 @@ export class CLIRenderer {
         await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 }
-
 // // ▁▂▃▄▅▆▇█
 // // ⡇⡆⡄⡀⡄⡆⡇⠇⠃⠁
 
