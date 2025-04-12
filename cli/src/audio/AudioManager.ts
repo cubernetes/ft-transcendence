@@ -1,11 +1,9 @@
 import fs from "fs";
-// import path from "path";
 import player from "play-sound";
 import { MENU_MUSIC, PADDLE_SOUND, SCORE_SOUND, WALL_SOUND, userOptions } from "../utils/config";
 
 // Initialize audio player
 const audioPlayer = player({});
-
 type AudioDestination = "music" | "effect";
 
 export class AudioManager {
@@ -14,7 +12,6 @@ export class AudioManager {
     private soundEffects: Map<string, string> = new Map();
     private musicTracks: Map<string, string> = new Map();
     private loopMusic: boolean = false;
-
     private currentlyPlaying: string | null = null;
 
     constructor() {
@@ -32,7 +29,16 @@ export class AudioManager {
 
         // this.checkAudioBackend();
         process.on("exit", () => this.stopMusic());
-        process.on("SIGINT", () => process.exit());
+
+        process.on("SIGINT", async () => {
+            await this.cleanupAll();
+            process.exit();
+        });
+
+        process.on("SIGTERM", async () => {
+            await this.cleanupAll();
+            process.exit();
+        });
     }
 
     // /**
@@ -67,12 +73,9 @@ export class AudioManager {
         const existing = this.effectProcesses.get(effectName);
         if (existing && typeof existing.kill === "function") {
             existing.kill();
-            existing.on?.("exit", () => {
-                this.launchEffect(effectName, soundPath);
-            });
-        } else {
-            this.launchEffect(effectName, soundPath);
         }
+
+        this.launchEffect(effectName, soundPath);
     }
 
     private launchEffect(effectName: string, soundPath: string): void {
@@ -80,6 +83,16 @@ export class AudioManager {
             if (err) console.error(`Effect error (${effectName}):`, err);
             this.effectProcesses.delete(effectName);
         });
+
+        const timeout = setTimeout(() => {
+            process.kill?.("SIGKILL");
+        }, 3000); // hard-kill after 3s max
+
+        process.on("exit", () => {
+            clearTimeout(timeout);
+            this.effectProcesses.delete(effectName);
+        });
+
         this.effectProcesses.set(effectName, process);
     }
 
@@ -121,13 +134,27 @@ export class AudioManager {
                     this.currentlyPlaying = null;
                     resolve();
                 });
-                proc.kill();
+                proc.kill("SIGKILL");
             });
         } else {
             this.musicProcess = null;
             this.currentlyPlaying = null;
             return Promise.resolve();
         }
+    }
+
+    /**
+     * Stop all audio processes (music and sound effects)
+     */
+    async cleanupAll(): Promise<void> {
+        await this.stopMusic();
+
+        for (const proc of this.effectProcesses.values()) {
+            if (proc && typeof proc.kill === "function") {
+                proc.kill("SIGKILL");
+            }
+        }
+        this.effectProcesses.clear();
     }
 
     /**
