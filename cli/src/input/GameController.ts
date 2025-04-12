@@ -48,7 +48,6 @@ export class GameController {
             if (keyStr === "\u001b") {
                 this.cleanup();
                 gameManager.stopGame();
-                mainMenu();
             }
         };
 
