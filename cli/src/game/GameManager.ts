@@ -33,9 +33,10 @@ export class GameManager {
     constructor() {
         this.renderer = new CLIRenderer();
         this.engine = createPongEngine(defaultGameConfig);
-
         this.configEngine();
     }
+
+    createEngine() {}
 
     start1PLocal() {
         this.cleanupController();
@@ -47,8 +48,8 @@ export class GameManager {
             },
         ]);
         audioManager.startMusic();
-        this.controller.start();
         this.engine.start();
+        this.controller.start();
     }
 
     start2PLocal() {
@@ -66,8 +67,8 @@ export class GameManager {
             },
         ]);
         audioManager.startMusic();
-        this.controller.start();
         this.engine.start();
+        this.controller.start();
     }
 
     async start1PRemote() {
@@ -106,6 +107,7 @@ export class GameManager {
             audioManager.startMusic(VICTORY_MUSIC);
             this.cleanupController();
             this.renderer.showWinner(0).then(() => {
+                this.engine = null;
                 mainMenu();
             });
         });
@@ -148,7 +150,7 @@ export class GameManager {
 
     stopGame(): void {
         this.cleanupController();
-        this.engine.stop();
+        this.engine?.stop();
     }
 }
 
