@@ -1,6 +1,13 @@
 import fs from "fs";
 import player from "play-sound";
-import { MENU_MUSIC, PADDLE_SOUND, SCORE_SOUND, WALL_SOUND, userOptions } from "../utils/config";
+import {
+    MENU_MUSIC,
+    PADDLE_SOUND,
+    SCORE_SOUND,
+    VICTORY_MUSIC,
+    WALL_SOUND,
+    userOptions,
+} from "../utils/config";
 
 // Initialize audio player
 const audioPlayer = player({});
@@ -23,6 +30,7 @@ export class AudioManager {
 
         // Register background music tracks
         this.musicTracks.set(MENU_MUSIC, "src/content/menu.mp3");
+        this.musicTracks.set(VICTORY_MUSIC, "src/content/victory.mp3");
         this.musicTracks.set("normal", "src/content/neon-gaming.mp3");
         this.musicTracks.set("stylish", "src/content/stylish_game.mp3");
         this.musicTracks.set("crazy", "src/content/crazy_game.mp3");
