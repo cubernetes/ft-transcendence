@@ -33,12 +33,12 @@ async function promptMainMenu(): Promise<number> {
         {
             type: "list",
             name: "mode",
-            message: figlet.textSync("MAIN MENU", { font: "Soft" }),
+            message: figlet.textSync("MAIN MENU\n", { font: "Soft" }),
             choices: [
                 new inquirer.Separator(),
-                { name: chalk.magenta("🏠  Play Locally"), value: 1 },
+                { name: chalk.magenta("🏠  Local Game"), value: 1 },
                 new inquirer.Separator(),
-                { name: chalk.magenta("🌐  Remote Play"), value: 2 },
+                { name: chalk.magenta("🌐  Remote Game"), value: 2 },
                 new inquirer.Separator(),
                 { name: chalk.magenta("⚙️  Options"), value: 3 },
                 new inquirer.Separator(),
@@ -54,20 +54,21 @@ async function promptMainMenu(): Promise<number> {
 }
 
 async function handleMenuSelection(mode: number): Promise<void> {
+    printTitle();
     switch (mode) {
         case 1:
             const { localMode } = await inquirer.prompt([
                 {
                     type: "list",
                     name: "localMode",
-                    message: chalk.cyan("Play Locally: Choose mode"),
+                    message: figlet.textSync("LOCAL GAME\n", { font: "Soft" }),
                     choices: [
                         new inquirer.Separator(),
-                        { name: "🎮  Single Player (1P)", value: "1P" },
+                        { name: chalk.magenta("🎮  1P Game"), value: "1P" },
                         new inquirer.Separator(),
-                        { name: "👥  Two Players (2P)", value: "2P" },
+                        { name: chalk.magenta("👥  2P Game"), value: "2P" },
                         new inquirer.Separator(),
-                        { name: "🔙  Back", value: "back" },
+                        { name: chalk.red("🔙  Back"), value: "back" },
                     ],
                 },
             ]);
@@ -111,14 +112,14 @@ async function promptRemotePlayMenu(): Promise<void> {
         {
             type: "list",
             name: "action",
-            message: chalk.cyan("🌐 Remote Play: You are not logged in"),
+            message: figlet.textSync("REMOTE GAME", { font: "Soft" }),
             choices: [
                 new inquirer.Separator(),
-                { name: "🔐 Login", value: "login" },
+                { name: chalk.magenta("🔐 Login"), value: "login" },
                 new inquirer.Separator(),
-                { name: "📝 Register", value: "register" },
+                { name: chalk.magenta("📝 Register"), value: "register" },
                 new inquirer.Separator(),
-                { name: "🔙 Back", value: "back" },
+                { name: chalk.red("🔙 Back"), value: "back" },
             ],
         },
     ]);
@@ -167,9 +168,12 @@ async function handleServerLogin() {
                     name: "action",
                     message: "Login failed. What do you want to do?",
                     choices: [
-                        { name: "Try again", value: "retry" },
-                        { name: "Register new account", value: "register" },
-                        { name: "Back to Menu", value: "back" },
+                        new inquirer.Separator(),
+                        { name: chalk.magenta("Try again"), value: "retry" },
+                        new inquirer.Separator(),
+                        { name: chalk.magenta("Register new account"), value: "register" },
+                        new inquirer.Separator(),
+                        { name: chalk.red("Back to Menu"), value: "back" },
                     ],
                 },
             ]);

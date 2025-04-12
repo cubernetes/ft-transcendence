@@ -16,7 +16,7 @@ export async function optionsMenu(): Promise<void> {
 
             const title = figlet.textSync(" PONG   CLI", { font: "Small Poison" });
             console.log(chalk.green(title));
-            const subtitle = figlet.textSync("  OPTIONS", { font: "Soft" });
+            const subtitle = figlet.textSync("OPTIONS", { font: "Soft" });
             console.log(chalk.whiteBright(subtitle));
 
             const setString =
@@ -34,17 +34,17 @@ export async function optionsMenu(): Promise<void> {
                     message: setString,
                     choices: [
                         new inquirer.Separator(),
-                        { name: "🎵 Music", value: "music" },
+                        { name: "🎵  Music", value: "music" },
                         new inquirer.Separator(),
-                        { name: "💥 Sounds", value: "sfx" },
+                        { name: "💥  Sounds", value: "sfx" },
                         new inquirer.Separator(),
-                        { name: "🕹️ Play Style", value: "playStyle" },
+                        { name: "🕹️  Play Style", value: "playStyle" },
                         new inquirer.Separator(),
-                        { name: "🖥️ Resolution", value: "resolution" },
+                        { name: "🖥️  Resolution", value: "resolution" },
                         new inquirer.Separator(),
-                        { name: "🎮 Controls", value: "controls" },
+                        { name: "🎮  Controls", value: "controls" },
                         new inquirer.Separator(),
-                        { name: chalk.red("⬅  Main menu"), value: "exit" },
+                        { name: chalk.red("🔙  Back"), value: "exit" },
                     ],
                     default: lastChoice,
                 },

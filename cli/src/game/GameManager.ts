@@ -14,13 +14,14 @@ import {
     PongEngine,
     SCORE_SOUND,
     SERVER_URL,
+    VICTORY_MUSIC,
     WALL_SOUND,
 } from "../utils/config";
 import { userOptions } from "../utils/config";
 
 export class GameManager {
     private controller: GameController | null = null;
-    private engine: PongEngine | null = null;
+    private engine: PongEngine;
     private renderer: CLIRenderer;
     private wsManager: WebSocketManager | null = null;
 
@@ -31,10 +32,12 @@ export class GameManager {
 
     constructor() {
         this.renderer = new CLIRenderer();
+        this.engine = createPongEngine(defaultGameConfig);
+
+        this.configEngine();
     }
 
     start1PLocal() {
-        this.createEngine();
         this.cleanupController();
         this.controller = new GameController([
             {
@@ -45,14 +48,10 @@ export class GameManager {
         ]);
         audioManager.startMusic();
         this.controller.start();
-        // this.engine.start();
-        this.renderer.showWinner(0).then(() => {
-            mainMenu();
-        });
+        this.engine.start();
     }
 
     start2PLocal() {
-        this.createEngine();
         this.cleanupController();
         this.controller = new GameController([
             {
@@ -99,17 +98,13 @@ export class GameManager {
         await this.wsManager.sendGameStart();
     }
 
-    createEngine() {
-        if (this.engine) {
-            return;
-        }
-        this.engine = createPongEngine(defaultGameConfig);
-
+    configEngine() {
         this.engine.onEvent("game-start", (_) => {});
 
         this.engine.onEvent("game-end", (evt) => {
+            audioManager.playSoundEffect(SCORE_SOUND);
+            audioManager.startMusic(VICTORY_MUSIC);
             this.cleanupController();
-            this.engine.stop();
             this.renderer.showWinner(0).then(() => {
                 mainMenu();
             });
@@ -137,6 +132,7 @@ export class GameManager {
     }
 
     showRemoteWinner(winner: number) {
+        audioManager.startMusic(VICTORY_MUSIC);
         this.cleanupController();
         this.renderer.showWinner(winner).then(() => {
             mainMenu();
@@ -151,9 +147,8 @@ export class GameManager {
     }
 
     stopGame(): void {
-        this.engine?.stop();
-        audioManager.startMusic(MENU_MUSIC);
         this.cleanupController();
+        this.engine.stop();
     }
 }
 

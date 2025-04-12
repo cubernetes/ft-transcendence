@@ -209,7 +209,7 @@ export class CLIRenderer {
 
         process.stdout.write("\x1b[?25l\x1b[H" + frame + "\x1b[?25h");
 
-        await new Promise((resolve) => setTimeout(resolve, 4000));
+        await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 }
 
