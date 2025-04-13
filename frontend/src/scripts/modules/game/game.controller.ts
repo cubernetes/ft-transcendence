@@ -134,7 +134,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const updateBall = (newBall: Ball) => {
-        const oldBallPos = renderer.ball.position;
+        const { x, z } = renderer.ball.position;
+        const oldBallPos = { x, z };
         // Set new position
         renderer.ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);
 
