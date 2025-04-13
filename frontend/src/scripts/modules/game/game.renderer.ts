@@ -5,8 +5,8 @@ import { createAudioEngine } from "./renderer/renderer.audio";
  * Maybe engine should be initilized only once. Canvas element is persisted. So it's less expensive?
  */
 export const createRenderer = async (canvasEl: HTMLCanvasElement): Promise<Engine> => {
-    const engine = new Engine(canvasEl, true); // persist
-    engine.audio = await createAudioEngine(); // persist
+    const engine = new Engine(canvasEl, true);
+    engine.audio = await createAudioEngine();
 
     // Initialize options
     engine.shadowsEnabled = false;

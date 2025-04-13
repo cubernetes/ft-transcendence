@@ -39,7 +39,6 @@ export const createRouter = () => {
         const hash = window.location.hash.slice(1);
         const route = (dest ?? hash) as keyof typeof routes;
 
-        window.log.debug(route);
         // Clean up game session when route changes, this probably belongs somewhere else
         gameStore.update({ isPlaying: false });
 
