@@ -67,6 +67,9 @@ services:
                   action: rebuild
                   target: "/frontend/reload-server.js"
         env_file: *env-files
+        depends_on:
+            backend:
+                condition: service_healthy
 
     backend:
         build: "./backend/"

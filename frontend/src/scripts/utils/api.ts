@@ -38,7 +38,7 @@ const post = async <T, E extends ApiResponse<any>>(
 
         const data: E = await response.json();
         if (!data.success) {
-            window.log.debug(`GET to ${url}: ${data.error.code}`);
+            window.log.debug(`POST to ${url}: ${data.error.code}`);
             return err(new Error(data.error.message));
         }
 
