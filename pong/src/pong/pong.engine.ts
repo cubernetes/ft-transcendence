@@ -232,17 +232,23 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
     /** Reset all game states */
     // TODO: more through check about how to properly reset all states cleanly
-    const reset = () => {
+    const reset = (config: PongConfig) => {
         (Object.keys(listeners) as Array<keyof PongEngineEventMap>).forEach((key) => {
             listeners[key] = [];
         });
+
         userInputs[0] = "stop";
         userInputs[1] = "stop";
         scores[0] = 0;
-        scores[1] = 1;
+        scores[1] = 0;
         paddles[0] = { ...config.paddles[0] };
         paddles[1] = { ...config.paddles[1] };
+
         ball.pos = config.ball.pos;
+        ball.r = config.ball.r;
+        ball.speed = config.ball.speed;
+        ball.vec = config.ball.vec;
+
         if (interval) {
             clearInterval(interval);
             interval = null;
