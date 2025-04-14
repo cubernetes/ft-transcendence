@@ -1,10 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest, WebSocket } from "fastify";
-import {
-    AIDifficulty,
-    IncomingMessagePayloads,
-    createAIService,
-    createPongEngine,
-} from "@darrenkuro/pong-core";
+import { IncomingMessagePayloads, createAIService, createPongEngine } from "@darrenkuro/pong-core";
 import { CreateGameDTO, GameIdDTO } from "./game.types.ts";
 
 // Create a single instance of the AI service to be used across the application

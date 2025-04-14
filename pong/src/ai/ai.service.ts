@@ -1,6 +1,5 @@
-import { createPongEngine } from "../pong.engine";
-import { UserInput } from "../pong.types";
-import { AIConfig, AIDifficulty, AIPlayer, AIService } from "./ai.types";
+import { UserInput } from "../pong/pong.types";
+import { AIConfig, AIDifficulty, AIPlayer, AIPongEngine, AIService } from "./ai.types";
 
 // Constants for AI configuration
 const AI_UPDATE_INTERVAL = 1000; // Update AI every 1 second
@@ -30,7 +29,7 @@ export const createAIService = (): AIService => {
     const aiPlayers = new Map<number, AIPlayer>();
 
     const createAIPlayer = (
-        engine: ReturnType<typeof createPongEngine>,
+        engine: AIPongEngine,
         playerIndex: number,
         difficulty: AIDifficulty = "MEDIUM"
     ): void => {

@@ -1,5 +1,5 @@
+import { AIDifficulty } from "../ai/ai.types";
 import { PongEngineEventMap, UserInput } from "../pong/pong.types";
-import { AIDifficulty } from "./ai/ai.types";
 
 export type IncomingMessageType = "game-start" | "game-action";
 
