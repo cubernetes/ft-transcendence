@@ -13,8 +13,6 @@ import {
 } from "@babylonjs/core";
 
 const ballConfig = (scene: Scene, radius: number) => {
-    //Note the textures for this method are not included in the code
-
     const material = new PBRMaterial("ballMat", scene);
     // pbr.environmentIntensity = 0.25;
 
@@ -40,9 +38,7 @@ const ballConfig = (scene: Scene, radius: number) => {
 
     return {
         name: "ball",
-        options: {
-            diameter: radius * 2,
-        },
+        options: { diameter: radius * 2 },
         material,
         trailMaterial,
     };
@@ -56,8 +52,8 @@ export const createBall = (engine: Engine, scene: Scene, pos: Vector3, radius: n
     ball.position = pos;
     ball.rotationQuaternion = Quaternion.Identity();
     ball.material = material;
-    engine.ballMat = material;
 
+    engine.ballMat = material;
     engine.audio.hitSound.spatial.attach(ball);
     engine.audio.bounceSound.spatial.attach(ball);
     engine.audio.blopSound.spatial.attach(ball);

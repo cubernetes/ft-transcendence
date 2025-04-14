@@ -2,6 +2,7 @@ import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
 import {
     Ball,
     GameMode,
+    PongConfig,
     PongEngine,
     PongState,
     Position3D,
@@ -110,8 +111,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const attachLocalEngineEvents = () => {
         engine.onEvent("wall-collision", handleWallCollision);
         engine.onEvent("paddle-collision", handlePaddleCollision);
-        engine.onEvent("score-update", (evt) => updateScores(evt.scores));
-        engine.onEvent("state-update", (evt) => updateState(evt.state));
+        engine.onEvent("score-update", (evt) => handleScoreUpdate(evt.scores));
+        engine.onEvent("state-update", (evt) => handleStateUpdate(evt.state));
         engine.onEvent("ball-reset", handleBallReset);
         // TODO: GET NAME
         engine.onEvent("game-end", (_) => handleEndGame("winnerName"));
@@ -126,8 +127,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
         registerHandler("wall-collision", handleWallCollision, handlers);
         registerHandler("paddle-collision", handlePaddleCollision, handlers);
-        registerHandler("state-update", ({ state }) => updateState(state), handlers);
-        registerHandler("score-update", ({ scores }) => updateScores(scores), handlers);
+        registerHandler("state-update", ({ state }) => handleStateUpdate(state), handlers);
+        registerHandler("score-update", ({ scores }) => handleScoreUpdate(scores), handlers);
         registerHandler("ball-reset", handleBallReset, handlers);
         // TODO: Get name
         registerHandler("game-end", (evt) => handleEndGame("winnerName"), handlers);
@@ -159,7 +160,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         renderer.rightPaddle.position.set(pos.x, pos.y, pos.z);
     };
 
-    const updateScores = (scores: [number, number]) => {
+    const handleScoreUpdate = (scores: [number, number]) => {
         // TODO: duplicate code
         const scorePos = new Vector3(0, 1, defaultGameConfig.board.size.depth / 2 + 0.5);
         createScore(renderer, scores, scorePos);
@@ -195,8 +196,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         // Dispose stuff right away? Probably not..
     };
 
-    const updateState = (state: PongState) => {
-        window.log.debug(state);
+    const handleStateUpdate = (state: PongState) => {
+        // window.log.debug(state);
         updateBall(state.ball);
         updateLeftPaddle(state.paddles[0].pos);
         updateRightPaddle(state.paddles[1].pos);
@@ -206,26 +207,25 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     /** Destroy the current game session */
     const destory = () => {
+        hideCanvas();
+
         // Destory renderer related stuff
         disposeScene(renderer);
         renderer.stopRenderLoop();
 
         // Reset engine
         engine.stop();
-        engine.reset();
 
         // Remove event listeners
         window.removeEventListener("resize", resizeListener);
         detachAllControls();
-
-        hideCanvas();
     };
 
-    const startRenderer = () => {
-        renderer.scene = createScene(renderer);
+    const startRenderer = (config: PongConfig) => {
+        renderer.scene = createScene(renderer, config);
 
         renderer.runRenderLoop(() => {
-            renderer.scene.render();
+            renderer.scene!.render();
         });
 
         window.addEventListener("resize", resizeListener);
@@ -234,46 +234,48 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         requestAnimationFrame(() => renderer.resize());
     };
 
-    const startLocalGame = () => {
+    const startLocalGame = (config: PongConfig) => {
         attachLocalControl();
         attachLocalEngineEvents();
-        engine.start();
-        startRenderer();
+        engine.reset(config);
+        engine.start(); // get config
+        startRenderer(config); // send config to renderer instead of using default
     };
 
-    const startOnlineGame = () => {
+    const startOnlineGame = (config: PongConfig) => {
         attachOnlineControl();
         attachOnlineSocketEvents();
-        sendGameStart();
-        startRenderer();
+        sendGameStart(); // you'll need to send config over to backend first... but!! how would it stay consistent? create a lobby
+        startRenderer(config); // move this to msg handler
     };
 
-    const startAiGame = () => {
+    const startAiGame = (config: PongConfig) => {
         attachAiControl();
         attachLocalEngineEvents();
-        // TODO: config AI to pongEngine here
+        engine.reset(config); // TODO: config AI to pongEngine here
         engine.start();
-        startRenderer();
+        startRenderer(config);
     };
 
-    const startGame = (mode: GameMode) => {
+    const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
         hidePageElements();
         hideRouter();
         showCanvas();
 
         switch (mode) {
             case "local":
-                startLocalGame();
+                startLocalGame(config);
                 break;
             case "online":
-                startOnlineGame();
+                startOnlineGame(config);
                 break;
             case "ai":
-                startAiGame();
+                startAiGame(config);
                 break;
             default:
         }
     };
+
     return {
         destory,
         startGame,
