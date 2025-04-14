@@ -1,3 +1,5 @@
+import { gameStore } from "../../modules/game/game.store";
+import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
@@ -75,9 +77,20 @@ const aiMode = (ctn: HTMLElement) => {
             return showErr("Please select a difficulty.");
         }
 
-        const gameData = { difficulty: selected.textContent?.toLowerCase() };
+        const difficulty = selected.textContent?.toUpperCase() || "MEDIUM";
         hideErr();
-        window.log.debug(`Game Data: ${gameData}`);
+
+        // Get the game controller and start AI game
+        const { controller } = gameStore.get();
+        if (!controller) {
+            return showErr("Game controller not initialized.");
+        }
+
+        // Send game start message with AI difficulty
+        sendGameStart({ playAgainstAI: true, aiDifficulty: difficulty });
+
+        // Navigate to AI game page using hash routing
+        window.location.hash = "aigame";
     };
 
     const playBtn = createPlayBtn(playBtnCb);

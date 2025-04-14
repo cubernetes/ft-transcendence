@@ -42,6 +42,41 @@ export const createAIService = (): AIService => {
         };
 
         aiPlayers.set(playerIndex, aiPlayer);
+
+        // Register the event handler immediately
+        const config = DIFFICULTY_LEVELS[difficulty];
+        engine.onEvent("state-update", (event) => {
+            if (!aiPlayer.isActive) return;
+
+            const { ball, paddles } = event.state;
+            const paddle = paddles[playerIndex];
+
+            // Calculate the ideal position for the paddle
+            const idealZ = ball.pos.z;
+            const currentZ = paddle.pos.z;
+            const diff = idealZ - currentZ;
+
+            // Add some randomness based on difficulty
+            const randomFactor = Math.random() * config.randomnessFactor;
+            const adjustedDiff = diff * (1 + randomFactor);
+
+            // Determine the move direction
+            let move: UserInput = "stop";
+            if (Math.abs(adjustedDiff) > 0.1) {
+                move = adjustedDiff > 0 ? "up" : "down";
+            }
+
+            // Apply the move with reaction delay
+            const reactionDelay =
+                Math.random() * (REACTION_DELAY_MAX - REACTION_DELAY_MIN) + REACTION_DELAY_MIN;
+            setTimeout(() => {
+                if (aiPlayer.isActive) {
+                    engine.setInput(playerIndex, move);
+                }
+            }, reactionDelay * config.reactionSpeedMultiplier);
+        });
+
+        // Start the AI processing loop
         processAI(aiPlayer);
     };
 
@@ -63,40 +98,6 @@ export const createAIService = (): AIService => {
             setTimeout(() => processAI(player), AI_UPDATE_INTERVAL - timeSinceLastUpdate);
             return;
         }
-
-        const config = DIFFICULTY_LEVELS[player.difficulty];
-
-        // Subscribe to state updates
-        player.engine.onEvent("state-update", (event) => {
-            if (!player.isActive) return;
-
-            const { ball, paddles } = event.state;
-            const paddle = paddles[player.playerIndex];
-
-            // Calculate the ideal position for the paddle
-            const idealZ = ball.pos.z;
-            const currentZ = paddle.pos.z;
-            const diff = idealZ - currentZ;
-
-            // Add some randomness based on difficulty
-            const randomFactor = Math.random() * config.randomnessFactor;
-            const adjustedDiff = diff * (1 + randomFactor);
-
-            // Determine the move direction
-            let move: UserInput = "stop";
-            if (Math.abs(adjustedDiff) > 0.1) {
-                move = adjustedDiff > 0 ? "up" : "down";
-            }
-
-            // Apply the move with reaction delay
-            const reactionDelay =
-                Math.random() * (REACTION_DELAY_MAX - REACTION_DELAY_MIN) + REACTION_DELAY_MIN;
-            setTimeout(() => {
-                if (player.isActive) {
-                    player.engine.setInput(player.playerIndex, move);
-                }
-            }, reactionDelay * config.reactionSpeedMultiplier);
-        });
 
         player.lastUpdateTime = now;
         setTimeout(() => processAI(player), AI_UPDATE_INTERVAL);
