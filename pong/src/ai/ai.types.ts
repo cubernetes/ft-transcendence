@@ -1,5 +1,4 @@
 import { createPongEngine } from "../pong.engine";
-import { UserInput } from "../pong.types";
 
 export type PongEngine = ReturnType<typeof createPongEngine>;
 
@@ -20,11 +19,7 @@ export type AIPlayer = {
 };
 
 export type AIService = {
-    createAIPlayer: (
-        engine: PongEngine,
-        playerIndex: number,
-        difficulty?: AIDifficulty
-    ) => void;
+    createAIPlayer: (engine: PongEngine, playerIndex: number, difficulty?: AIDifficulty) => void;
     removeAIPlayer: (playerIndex: number) => void;
     processAI: (player: AIPlayer) => void;
-}; 
+};

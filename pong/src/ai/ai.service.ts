@@ -1,6 +1,6 @@
-import { AIDifficulty, AIConfig, AIPlayer, AIService } from "./ai.types";
-import { UserInput, PongState } from "../pong.types";
 import { createPongEngine } from "../pong.engine";
+import { UserInput } from "../pong.types";
+import { AIConfig, AIDifficulty, AIPlayer, AIService } from "./ai.types";
 
 // Constants for AI configuration
 const AI_UPDATE_INTERVAL = 1000; // Update AI every 1 second
@@ -11,18 +11,18 @@ const DIFFICULTY_LEVELS: Record<AIDifficulty, AIConfig> = {
     EASY: {
         maxDepth: 2,
         reactionSpeedMultiplier: 0.6,
-        randomnessFactor: 0.3
+        randomnessFactor: 0.3,
     },
     MEDIUM: {
         maxDepth: 3,
         reactionSpeedMultiplier: 0.8,
-        randomnessFactor: 0.15
+        randomnessFactor: 0.15,
     },
     HARD: {
         maxDepth: 4,
         reactionSpeedMultiplier: 1.0,
-        randomnessFactor: 0.05
-    }
+        randomnessFactor: 0.05,
+    },
 };
 
 export const createAIService = (): AIService => {
@@ -39,7 +39,7 @@ export const createAIService = (): AIService => {
             lastUpdateTime: Date.now(),
             engine,
             difficulty,
-            isActive: true
+            isActive: true,
         };
 
         aiPlayers.set(playerIndex, aiPlayer);
@@ -66,7 +66,7 @@ export const createAIService = (): AIService => {
         }
 
         const config = DIFFICULTY_LEVELS[player.difficulty];
-        
+
         // Subscribe to state updates
         player.engine.onEvent("state-update", (event) => {
             if (!player.isActive) return;
@@ -90,7 +90,8 @@ export const createAIService = (): AIService => {
             }
 
             // Apply the move with reaction delay
-            const reactionDelay = Math.random() * (REACTION_DELAY_MAX - REACTION_DELAY_MIN) + REACTION_DELAY_MIN;
+            const reactionDelay =
+                Math.random() * (REACTION_DELAY_MAX - REACTION_DELAY_MIN) + REACTION_DELAY_MIN;
             setTimeout(() => {
                 if (player.isActive) {
                     player.engine.setInput(player.playerIndex, move);
@@ -105,6 +106,6 @@ export const createAIService = (): AIService => {
     return {
         createAIPlayer,
         removeAIPlayer,
-        processAI
+        processAI,
     };
-}; 
+};
