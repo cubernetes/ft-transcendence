@@ -1,0 +1,10 @@
+frontend/src/archive/components.simulation.ts:116://     groundMaterial.diffuseTexture = new Texture(`${window.cfg.dir.asset}/ground.jpg`, scene);
+frontend/src/archive/components.simulation.ts:133://     sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.asset}/skybox/`, scene, [
+cli/src/index.ts:162:            // const serverUrl = `ws://localhost:8080/ws?token=${token}`;
+cli/src/utils.ts:4://     if (!matches) throw new Error(`Invalid vec3 format: ${vecString}`);
+cli/src/WebSocketManager.ts:25:        // console.log(`[SEND] ${response}`);
+backend/src/core/config/config.plugin.ts:28:            ? domains.flatMap((d) => [`https://${d}`, `http://${d}`])
+backend/src/utils/logger.ts:28://         ballPosition: `x: ${state.ballPosition.x}, y: ${state.ballPosition.y}, z: ${state.ballPosition.z}`,
+backend/src/utils/logger.ts:29://         paddle1Position: `x: ${state.paddlePosition["player-1"].x}, y: ${state.paddlePosition["player-1"].y}, z: ${state.paddlePosition["player-1"].z}`,
+backend/src/utils/logger.ts:30://         paddle2Position: `x: ${state.paddlePosition["player-2"].x}, y: ${state.paddlePosition["player-2"].y}, z: ${state.paddlePosition["player-2"].z}`,
+backend/src/utils/logger.ts:31://         score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,

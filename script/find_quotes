@@ -1,0 +1,49 @@
+#!/bin/sh
+
+set -eu
+
+toplevel=$(git rev-parse --show-toplevel)
+
+cd -- "$toplevel"
+
+grep_for_quotes () {
+	case "$1" in
+		(dquote)
+			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]".*"' ;;
+		(squote)
+			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]'\''.*'\''' ;;
+		(backtick)
+			# shellcheck disable=SC2016
+			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*`' ;;
+		(*)
+			echo 'Got invalid argument to function grep_for_quotes: "'"$1"'"'
+			exit 3
+			;;
+	esac
+}
+
+[ ! "$#" = "1" ] && { echo "Expecting exactly 1 argument"; exit 1; }
+
+case "$1" in
+	(dquote|squote|backtick)
+		;;
+	(*)
+		echo 'First argument must be "dquote", "squote", or "backtick", not "'"$1"'"'
+		exit 2
+		;;
+esac
+
+grep \
+	--exclude-from=script/quote_search_exclusions \
+	--exclude-dir=node_modules \
+	--exclude-dir=.git \
+	-FRIn \
+	-e '#' \
+	-e '//' \
+	-e '/*' \
+	-e '*/' |
+	grep \
+		-vxF \
+		-f script/squote_backtick_exceptions \
+		-f script/dquote_exceptions |
+		grep_for_quotes "$1"
