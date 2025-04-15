@@ -10,15 +10,16 @@ die () {
 
 # subshell to not clobber IFS
 format_staged () (
+	PRETTIER_BIN="backend/node_modules/.bin/prettier"
+
 	[ "$#" -lt 1 ] && die "format_staged function expects at least 1 extension as an argument"
-	command -v npx 1>/dev/null 2>&1 || die "Please install npx to run pre-commit hooks"
-	npx prettier --version 1>/dev/null 2>&1 || die "Please install prettier through npx to run pre-commit hooks"
+	command -v $PRETTIER_BIN 1>/dev/null 2>&1 || die "Please install prettier to run pre-commit hooks"
 
 	IFS='|'
 	if git diff --name-only --cached --diff-filter=d | \
 		grep -E "\.($*)\$"                        | \
 		tr '\n' '\0'                              | \
-		xargs -r0 npx prettier --list-different 1>/dev/null; then
+		xargs -r0 $PRETTIER_BIN --list-different 1>/dev/null; then
 		all_good=1
 	else
 		all_good=0
@@ -27,7 +28,7 @@ format_staged () (
 	git diff --name-only --cached --diff-filter=d | \
 		grep -E "\.($*)\$"                        | \
 		tr '\n' '\0'                              | \
-		xargs -r0 npx prettier --write
+		xargs -r0 $PRETTIER_BIN --write
 
 	if [ ! "$all_good" = "1" ]; then
 		printf '\033[33m%s\033[m\n' "Warning: Not commiting since some files were formatted with prettier"
