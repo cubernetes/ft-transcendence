@@ -18,7 +18,10 @@
 	}
 }
 
-:8080 {$DOMAINS:localhost} {
+# Setting HTTP_DOMAINS? to null (empty string) will NOT trigger default replacement!
+# Unset the the variable instead if you want the default value.
+# https://caddyserver.com/docs/caddyfile/concepts#environment-variables
+{$HTTP_DOMAINS:http://localhost} {$HTTPS_DOMAINS:https://localhost} {
 	{$CADDY_EXTRA_SITE_DIRECTIVES}
 	log
 	handle {
