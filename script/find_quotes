@@ -94,9 +94,13 @@ main () (
 	[ -n "$args" ] || die "Expected at least one quote type"
 
 	IFS=,
+	found_something=1 # 1==false
 	for quote_type in $args; do
-		find_quotes "$minus_n" "$quote_type"
+		if find_quotes "$minus_n" "$quote_type"; then
+			found_something=0
+		fi
 	done
+	exit "$found_something"
 )
 
 main "$@"

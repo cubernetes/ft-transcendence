@@ -58,7 +58,7 @@
 ### Coraza Web Application Firewall (WAF)
 
 - Checking it it's enabled
-    - `curl -vk https://localhost:8443/?exec=/bin/bash` should return '403 Forbidden'
+    - `curl -vk https://localhost:8443/?exec=/bin/bash` should return `403 Forbidden`
 - Disabling it
     ```diff
         handle {

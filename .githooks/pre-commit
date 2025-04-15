@@ -37,19 +37,24 @@ format_staged () (
 	fi
 )
 
-# Check 1 - Format everything
-format_staged ts js json css html md yaml yml
-
 wrong_quotes () {
 	printf '\033[33m%s\033[m\n' \
-		'Wrong quoting style detected (only double quote or backticks allowed)!' \
-		'If there is a false-positive, fix the wrong ones first, then copy the false-positive lines' \
-		'above verbatim (watch out for whitespace) and paste them in script/dquote_exceptions or' \
-		'script/squote_backtick_exceptions. Alternatively, if you have fixed the wrong ones already,' \
-		"run \`script/find_quotes -n groff_squote groff_dquote squote >> script/quote_exceptions\` to exclude all" \
-		'lines that are currently being matched'
-	false
+		'Wrong quoting style detected (only double quotes or backticks allowed)!' \
+		'Fix it, and if there are false-positives left, run the following command to make an exception for them:' \
+		"	\`script/find_quotes -n roff_squote roff_dquote squote >> script/quote_exceptions\`"
+
+	if [ "${1:-}" = "enforce" ]; then
+		false
+	else
+		printf '\033[33m%s\033[m\n' \
+			"Not enforcing. This warning will turn into an error in the future."
+	fi
 }
 
-# Check 2 - Ensure quoting style in comments (forbid single quote or roff/TeX style quotes (https://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html))
-! script/find_quotes roff_squote roff_dquote squote || wrong_quotes # https://www.shellcheck.net/wiki/SC2251
+# Check 1 - Ensure quoting style in comments (forbid single quote or roff/TeX style quotes (https://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html))
+! script/find_quotes roff_squote roff_dquote squote || wrong_quotes 'dont_enforce' # https://www.shellcheck.net/wiki/SC2251
+
+# Check 2 - Format everything
+format_staged ts js json css html md yaml yml
+
+printf '\033[32m%s\033[m\n' "pre-commit hook finished without error"
