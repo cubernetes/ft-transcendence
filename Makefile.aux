@@ -33,18 +33,15 @@ define dev-env
 	$(DC) $(1)
 endef
 
-# Empty HTTP_DOMAINS for prod, since we want auto redirection to https
 define prod-env
-	[ -n "$(PROD_HTTP_PORT)" ]  &&                        \
-	[ -n "$(PROD_HTTPS_PORT)" ] &&                        \
-	[ -n "$(PROD_DOMAINS)" ]    &&                        \
-	HTTP_PORT="$(PROD_HTTP_PORT)"                         \
-	HTTPS_PORT="$(PROD_HTTPS_PORT)"                       \
-	DOMAINS="$(PROD_DOMAINS)"                             \
-	HTTP_DOMAINS=""                                       \
-	HTTPS_DOMAINS="$(addprefix https://,$(PROD_DOMAINS))" \
-	NODE_ENV="production"                                 \
-	WATCH="0"                                             \
+	[ -n "$(PROD_HTTP_PORT)" ]  &&  \
+	[ -n "$(PROD_HTTPS_PORT)" ] &&  \
+	[ -n "$(PROD_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(PROD_HTTP_PORT)"   \
+	HTTPS_PORT="$(PROD_HTTPS_PORT)" \
+	DOMAINS="$(PROD_DOMAINS)"       \
+	NODE_ENV="production"           \
+	WATCH="0"                       \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
 	$(DC) $(1)
