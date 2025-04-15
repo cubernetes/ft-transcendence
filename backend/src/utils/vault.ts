@@ -12,7 +12,7 @@ export const readVaultOnce = async (
         fs.writeFileSync(tokenFile, "");
     }
 
-    const req = await fetch(`http://vault:8200/v1/${path}`, {
+    const req = await fetch(`http://vault:${process.env.VAULT_API_PORT ?? 8200}/v1/${path}`, {
         headers: { "X-Vault-Token": vaultToken },
     });
     let res;
