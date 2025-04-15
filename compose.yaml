@@ -29,6 +29,8 @@ services:
             - "frontend:/frontend/dist/:ro"
         environment:
             <<: *env-caddy-backend
+            HTTP_DOMAINS: "${HTTP_DOMAINS:-http://localhost}"
+            HTTPS_DOMAINS: "${HTTPS_DOMAINS:-https://localhost}"
             CADDY_EXTRA_GLOBAL_DIRECTIVES: "${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
             CADDY_EXTRA_SITE_DIRECTIVES: "${CADDY_EXTRA_SITE_DIRECTIVES:-}"
         depends_on:
