@@ -53,7 +53,7 @@ services:
         develop:
             watch:
                 - path: "./frontend/"
-                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
+                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild` as fallback
                   target: "/frontend/"
                 - path: "./frontend/package.json"
                   action: rebuild
@@ -93,7 +93,7 @@ services:
         develop:
             watch:
                 - path: "./backend/"
-                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild' as fallback
+                  action: sync # Might fail on MacOS when node_modules is touched, use `rebuild` as fallback
                   target: "/backend/"
                 - path: "./backend/package.json"
                   action: rebuild

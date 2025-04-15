@@ -90,7 +90,7 @@ _start_vault_server () {
 }
 
 is_initialized () {
-	# Check if the storage path directory is empty. If it is (`read' returns 1), then we also
+	# Check if the storage path directory is empty. If it is (`read` returns 1), then we also
 	# return with 1, meaning false (aka "is not initialized")
 	{ find "$vault_storage_path" -mindepth 1 -maxdepth 1 || true; } | tee /tmp/storage_files | head -n 1 | read -r
 	exit_status=$?
@@ -263,9 +263,9 @@ ensure_unsealed () {
 	fi
 }
 
-# Assumes that 'vault is sealed' is the last diagnostic. In case it is not,
+# Assumes that "vault is sealed" is the last diagnostic. In case it is not,
 # a fallback context of 10 lines is supported. If the server produces more than
-# 10 lines of output after saying 'vault is sealed', it will be force shutdown using SIGKILL.
+# 10 lines of output after saying "vault is sealed", it will be force shutdown using SIGKILL.
 wait_until_sealed () {
 	timeout=$((${1:-5} * 10)) # in seconds, default 5 seconds
 
@@ -314,7 +314,7 @@ populate_kv_secrets () {
 		json=$(printf %s "$kv_entries" | cut -d';' -f2-)
 
 		debug "Raw JSON: \033\133;93m%s\033\133m" "$(printf %s "$json")"
-		# `vault kv put' can also read json from stdin
+		# `vault kv put` can also read json from stdin
 		debug "KV put command output: %s" "$(printf %s "$json" | vault kv put -format=json -mount="$vault_kv_store_path" "$service" - | jq --compact-output --color-output)"
 	done <<-EOF
 	$(/replace_json_templates.py "$vault_env_json" | jq --raw-output 'to_entries[]|.key+";"+(.value|tostring)')
