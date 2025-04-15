@@ -37,4 +37,24 @@ format_staged () (
 	fi
 )
 
+wrong_quotes () {
+	printf '\033[33m%s\033[m\n' \
+		'Wrong quoting style detected (only double quotes or backticks allowed)!' \
+		'Fix it, and if there are false-positives left, run the following command to make an exception for them:' \
+		"	\`script/find_quotes -n roff_squote roff_dquote squote >> script/quote_exceptions\`"
+
+	if [ "${1:-}" = "enforce" ]; then
+		false
+	else
+		printf '\033[33m%s\033[m\n' \
+			"Not enforcing. This warning will turn into an error in the future."
+	fi
+}
+
+# Check 1 - Ensure quoting style in comments (forbid single quote or roff/TeX style quotes (https://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html))
+! script/find_quotes roff_squote roff_dquote squote || wrong_quotes 'dont_enforce' # https://www.shellcheck.net/wiki/SC2251
+
+# Check 2 - Format everything
 format_staged ts js json css html md yaml yml
+
+printf '\033[32m%s\033[m\n' "pre-commit hook finished without error"

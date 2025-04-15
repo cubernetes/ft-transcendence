@@ -37,7 +37,7 @@ scripts/
 │  │  │  ├─ light          // ⚒️
 │  │  │  └─ animations     // ⚒️
 │  │  ├─ controller.ts     // ✅ Centralized game control
-│  │  ├─ renderer.ts       // ⚒️ Basically the 'class' of entire babylonjs engine
+│  │  ├─ renderer.ts       // ⚒️ Basically the "class" of entire babylonjs engine
 │  │  └─ store.ts          // ✅ Game store for state
 │  ├─ auth/                // ✅ Handles the logged in status
 │  │  ├─ service           // ⚒️ Small typescript difficulty

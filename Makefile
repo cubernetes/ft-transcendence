@@ -21,8 +21,8 @@ include config.env
 include Makefile.clean
 include Makefile.aux
 
-# This target is needed for legacy docker compose versions where there is no `--watch' flag for `docker compose up'.
-# The `dev' target is preferred.
+# This target is needed for legacy docker compose versions where there is no `--watch` flag for `docker compose up`.
+# The "dev" target is preferred.
 .PHONY: dev-old-compose
 dev-old-compose: check-env
 	$(MAKE) clean-frontend-volume ensure-secret-files
@@ -62,7 +62,7 @@ prod: clean-frontend-volume ensure-secret-files
 down:
 	$(DC) down --remove-orphans
 
-# `clean' will remove all volumes and some files (e.g. node_modules), see Makefile.clean
+# "clean" will remove all volumes and some files (e.g. node_modules), see Makefile.clean
 .PHONY: re
 re: clean
 	$(MAKE)

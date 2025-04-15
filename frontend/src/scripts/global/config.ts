@@ -6,7 +6,7 @@ const L_DOWN = ["s"];
 const R_UP = ["ArrowUp"];
 const R_DOWN = ["ArrowDown"];
 
-/** This variable will be attached globally, can be accessed via `window.cfg' */
+/** This variable will be attached globally, can be accessed via `window.cfg` */
 const config = {
     dir: {
         asset: ASSETS_DIR,

@@ -251,11 +251,11 @@ Let's say your service is called `foo`, then the steps would be the following:
     : > "/run/secrets/\${service}_vault_token"
 
     ### Customization Point 3 ###
-    # Don't forget the "\$@" at the end to pass arguments!
-    exec <same value as 'Entrypoint' key from previous step (watch out for quoting)> "\$@"
+    # Don't forget the `"\$@"` at the end to pass arguments!
+    exec <same value as "Entrypoint" key from previous step (watch out for quoting)> "\$@"
     # common example: exec tini -- "\$@"
     # https://github.com/krallin/tini
-    # Note that \`exec' is REQUIRED to correctly forward signals
+    # Note that `exec` is REQUIRED to correctly forward signals
     EOF
 
     # No need to set WORKDIR, will be inherited from base image

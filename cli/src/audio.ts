@@ -89,9 +89,9 @@ export class AudioManager {
         if (destination === "music") {
             child.on("exit", (code, signal) => {
                 // if (code !== null && code !== 0) {
-                //     console.warn(`'aplay' exited with code ${code}`);
+                //     console.warn(`"aplay" exited with code ${code}`);
                 // } else if (signal !== null) {
-                //     console.warn(`'aplay' was terminated by signal ${signal}`);
+                //     console.warn(`"aplay" was terminated by signal ${signal}`);
                 // }
                 // Only restart the music if it was not manually stopped (exit code 0)
                 if (loop && this.loopMusic && code === 0) {
