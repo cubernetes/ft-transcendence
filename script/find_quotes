@@ -15,6 +15,10 @@ grep_for_quotes () {
 		(backtick)
 			# shellcheck disable=SC2016
 			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*`' ;;
+		(groff_squote)
+			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*'\''' ;;
+		(groff_dquote)
+			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]``.*'\'''\''' ;;
 		(*)
 			echo 'Got invalid argument to function grep_for_quotes: "'"$1"'"'
 			exit 3
@@ -25,10 +29,10 @@ grep_for_quotes () {
 [ ! "$#" = "1" ] && { echo "Expecting exactly 1 argument"; exit 1; }
 
 case "$1" in
-	(dquote|squote|backtick)
+	(dquote|squote|backtick|groff_squote|groff_dquote)
 		;;
 	(*)
-		echo 'First argument must be "dquote", "squote", or "backtick", not "'"$1"'"'
+		echo 'First argument must be one of "dquote", "squote", "backtick", "groff_squote", or "groff_dquote" not "'"$1"'"'
 		exit 2
 		;;
 esac
