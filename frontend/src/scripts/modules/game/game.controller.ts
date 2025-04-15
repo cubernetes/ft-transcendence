@@ -207,6 +207,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     /** Destroy the current game session */
     const destory = () => {
+        window.log.debug("Game controller destory triggered");
         hideCanvas();
 
         // Destory renderer related stuff
@@ -237,7 +238,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const startLocalGame = (config: PongConfig) => {
         attachLocalControl();
         attachLocalEngineEvents();
-        engine.reset(config);
+        engine.reset();
         engine.start(); // get config
         startRenderer(config); // send config to renderer instead of using default
     };
@@ -252,7 +253,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const startAiGame = (config: PongConfig) => {
         attachAiControl();
         attachLocalEngineEvents();
-        engine.reset(config); // TODO: config AI to pongEngine here
+        engine.reset(); // TODO: config AI to pongEngine here
         engine.start();
         startRenderer(config);
     };
