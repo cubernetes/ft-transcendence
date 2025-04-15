@@ -96,4 +96,3 @@ backend/src/utils/logger.ts://         paddle2Position: `x: ${state.paddlePositi
 backend/src/utils/logger.ts://         score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,
 
 # Other exceptions
-README.md:    - `curl -vk https://localhost:8443/?exec=/bin/bash` should return '403 Forbidden'
