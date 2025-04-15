@@ -48,7 +48,7 @@ services:
         container_name: frontend
         restart: no
         ports:
-            - "35729:35729" # Live-reload port
+            - "${LIVE_RELOAD_PORT:-35729}:${LIVE_RELOAD_PORT:-35729}"
         environment: *env-watch
         volumes:
             - "frontend:/frontend/dist/"

@@ -18,6 +18,7 @@ declare global {
         env: {
             WATCH: "1" | "0";
             NODE_ENV: "development" | "production";
+            LIVE_RELOAD_PORT: string;
         };
     };
 

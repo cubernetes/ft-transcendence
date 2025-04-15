@@ -10,6 +10,9 @@ RUN npm clean-install
 
 COPY ./ ./
 
+ARG LIVE_RELOAD_PORT
+ENV LIVE_RELOAD_PORT=${LIVE_RELOAD_PORT}
+
 RUN npm run build
 
 ENV WATCH=0

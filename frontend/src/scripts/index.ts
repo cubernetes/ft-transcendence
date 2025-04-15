@@ -9,8 +9,9 @@ window.log = logger; // Register logger
 
 // Register WebSocket for live reload
 if (process.env.WATCH === "1") {
-    const ws = new WebSocket("ws://localhost:35729");
-    window.log.info("WebSocket for live reload connected");
+    const port = process.env.LIVE_RELOAD_PORT ?? 35729;
+    const ws = new WebSocket(`ws://localhost:${port}`);
+    window.log.info(`WebSocket for live reload connected at port ${port}`);
     ws.onmessage = (msg) => {
         if (msg.data === "reload") {
             location.reload();
