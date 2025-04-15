@@ -25,7 +25,7 @@ grep_for_quotes () {
 		(roff_dquote)
 			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]``.*'\'''\''' ;;
 		(*)
-			die 'Got invalid argument to function grep_for_quotes: "%s"' "$1" ;;
+			die 'Got invalid argument to function grep_for_quotes: "'"%1"'"' ;;
 	esac
 }
 
@@ -47,7 +47,7 @@ find_quotes () {
 		(dquote|squote|backtick|roff_squote|roff_dquote)
 			;;
 		(*)
-			die 'First argument must be one of "dquote", "squote", "backtick", "roff_squote", or "roff_dquote" not "%s"' "$1" ;;
+			die 'First argument must be one of "dquote", "squote", "backtick", "roff_squote", or "roff_dquote" not "'"$1"'"' ;;
 	esac
 
 	grep \
