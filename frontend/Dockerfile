@@ -10,6 +10,7 @@ RUN npm clean-install
 
 COPY ./ ./
 
+# Needed at build time for the npm run build after
 ARG LIVE_RELOAD_PORT
 ENV LIVE_RELOAD_PORT=${LIVE_RELOAD_PORT}
 
