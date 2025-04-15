@@ -5,7 +5,7 @@ import { User } from "./user.types.ts";
 /** Remove sensitive fields from user before sending response to themselves. */
 export const toPersonalUser = (user: User): Omit<User, "passwordHash" | "totpSecret"> => {
     const { passwordHash, totpSecret, ...personalUser } = user;
-    return personalUser;
+    return personalUser; // TODO: Maybe add type "PersonalUser"
 };
 
 /** Remove sensitive fields from user before sending response to public. */
