@@ -3,8 +3,8 @@ import { PublicUser } from "@darrenkuro/pong-core";
 import { User } from "./user.types.ts";
 
 /** Remove sensitive fields from user before sending response to themselves. */
-export const toPersonalUser = (user: User): Omit<User, "passwordHash"> => {
-    const { passwordHash, ...personalUser } = user;
+export const toPersonalUser = (user: User): Omit<User, "passwordHash" | "totpSecret"> => {
+    const { passwordHash, totpSecret, ...personalUser } = user;
     return personalUser;
 };
 
