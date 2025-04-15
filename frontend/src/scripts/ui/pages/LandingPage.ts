@@ -1,4 +1,5 @@
 import { createPongEngine } from "@darrenkuro/pong-core";
+import { navigateTo } from "../../global/router";
 import { authStore, initAuthState } from "../../modules/auth/auth.store";
 import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer } from "../../modules/game/game.renderer";
@@ -43,14 +44,14 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
             const engine = createPongEngine();
             const controller = createGameController(renderer, engine);
 
-            gameStore.update({ renderer, controller, engine });
+            gameStore.update({ controller });
         });
 
         initAuthState().then(async (state) => {
             authStore.set(state);
             if (state.isAuthenticated) {
-                window.log.debug("User is authenticated, redirect to home");
-                window.location.href = window.cfg.url.home;
+                window.log.debug("User is authenticated, navigate to home");
+                navigateTo(window.cfg.url.home);
                 return;
             }
 

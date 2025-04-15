@@ -1,3 +1,5 @@
+import { navigateTo } from "../../global/router";
+
 /**
  * TODO: refactor this into a modal
  */
@@ -88,7 +90,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
                 window.location.reload();
             } else {
                 localStorage.setItem("token", jwt);
-                window.location.href = "#setup";
+                navigateTo("setup");
             }
         }
     });

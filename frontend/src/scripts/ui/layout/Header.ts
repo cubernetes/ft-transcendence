@@ -1,3 +1,4 @@
+import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";
@@ -5,26 +6,37 @@ import { appendUserStatus } from "./UserStatus";
 export const createHeader = (header: HTMLElement): HTMLElement => {
     const anchor = createEl("a", "text-3xl font-bold", {
         text: "ft-transcendence",
-        attributes: { href: window.cfg.url.home },
+        events: {
+            click: (e) => {
+                e.preventDefault(); // prevent full reload
+                navigateTo(window.cfg.url.home);
+            },
+        },
     });
+
     const title = createEl("h1", "", { children: [anchor] });
 
     const navItems = {
         Home: window.cfg.url.home,
         Setup: window.cfg.url.home,
-        Game: "#localgame", // Temporary, gives an entry point to local game, for dev
-        Online: "#onlinegame", // Temporary, gives an entry point to online game, for dev
-        Leaderboard: "#leaderboard",
-        Profile: "#profile",
-        TOTP: "#totp", // TODO: Refactor
+        Game: "localgame", // Temporary, gives an entry point to local game, for dev
+        Online: "onlinegame", // Temporary, gives an entry point to online game, for dev
+        Leaderboard: "leaderboard",
+        Profile: "profile",
+        TOTP: "totp", // TODO: Refactor
     };
 
     const navList = createEl("ul", "flex text-1xl space-x-4");
 
-    for (const [title, hashId] of Object.entries(navItems)) {
+    for (const [title, route] of Object.entries(navItems)) {
         const link = createEl("a", "hover:underline", {
             text: title,
-            attributes: { href: hashId },
+            events: {
+                click: (e) => {
+                    e.preventDefault(); // prevent full reload
+                    navigateTo(route);
+                },
+            },
         });
         const li = createEl("li", "", { children: [link] });
         navList.appendChild(li);

@@ -1,4 +1,5 @@
 import type { GetMeResponse } from "@darrenkuro/pong-core";
+import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createTotpModal } from "../../ui/layout/TotpModal";
 import { sendApiRequest } from "../../utils/api";
@@ -64,12 +65,12 @@ authStore.subscribe(async (state) => {
 
     // Redirect to default page and close socket connection once logged out
     if (!state.isAuthenticated || !state.token) {
-        window.location.href = window.cfg.url.default;
+        navigateTo(window.cfg.url.default);
         closeSocketConn();
         return;
     }
 
     // Redirect to home and open socket connection once successfully authenticated
-    window.location.href = window.cfg.url.home;
+    navigateTo(window.cfg.url.home);
     establishSocketConn(state.token);
 });
