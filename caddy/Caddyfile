@@ -27,6 +27,7 @@
 	handle {
 		import waf
 		root * /frontend/dist/
+		try_files {path} /index.html
 		file_server
 	}
 	handle_path /api/* {
