@@ -2,6 +2,11 @@
 
 set -eu
 
+die () {
+	printf '\033[31mError: %s\033[m\n' "${1:-"Script $0 exited with unknown error"}"
+	exit 1
+}
+
 toplevel=$(git rev-parse --show-toplevel)
 
 cd -- "$toplevel"
@@ -9,45 +14,89 @@ cd -- "$toplevel"
 grep_for_quotes () {
 	case "$1" in
 		(dquote)
-			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]".*"' ;;
+			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]".*"' ;;
 		(squote)
-			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]'\''.*'\''' ;;
+			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]'\''.*'\''' ;;
 		(backtick)
 			# shellcheck disable=SC2016
-			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*`' ;;
-		(groff_squote)
-			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*'\''' ;;
-		(groff_dquote)
-			grep --color=always '\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]``.*'\'''\''' ;;
+			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*`' ;;
+		(roff_squote)
+			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*'\''' ;;
+		(roff_dquote)
+			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]``.*'\'''\''' ;;
 		(*)
-			echo 'Got invalid argument to function grep_for_quotes: "'"$1"'"'
-			exit 3
-			;;
+			die 'Got invalid argument to function grep_for_quotes: "%s"' "$1" ;;
 	esac
 }
 
-[ ! "$#" = "1" ] && { echo "Expecting exactly 1 argument"; exit 1; }
 
-case "$1" in
-	(dquote|squote|backtick|groff_squote|groff_dquote)
-		;;
-	(*)
-		echo 'First argument must be one of "dquote", "squote", "backtick", "groff_squote", or "groff_dquote" not "'"$1"'"'
-		exit 2
-		;;
-esac
+find_quotes () {
+	exclude_lines_numbers=$1
+	quote_type=$2
 
-grep \
-	--exclude-from=script/quote_search_exclusions \
-	--exclude-dir=node_modules \
-	--exclude-dir=.git \
-	-FRIn \
-	-e '#' \
-	-e '//' \
-	-e '/*' \
-	-e '*/' |
+	case "$exclude_lines_numbers" in
+		(true)
+			first_grep_extra_args='--line-number' ;;
+		(false)
+			first_grep_extra_args='' ;;
+		(*)
+			die 'exclude_lines_numbers argument must be "true" or "false"' ;;
+	esac
+
+	case "$quote_type" in
+		(dquote|squote|backtick|roff_squote|roff_dquote)
+			;;
+		(*)
+			die 'First argument must be one of "dquote", "squote", "backtick", "roff_squote", or "roff_dquote" not "%s"' "$1" ;;
+	esac
+
 	grep \
-		-vxF \
-		-f script/squote_backtick_exceptions \
-		-f script/dquote_exceptions |
-		grep_for_quotes "$1"
+		--exclude-from=script/quote_search_exclusions \
+		--exclude-dir=node_modules   \
+		--exclude-dir=.git           \
+		--binary-files=without-match \
+		--fixed-strings              \
+		--dereference-recursive      \
+		$first_grep_extra_args       \
+		--regexp '#'  \
+		--regexp '//' \
+		--regexp '/*' \
+		--regexp '*/' |
+		grep \
+			--file=script/quote_exceptions \
+			--invert-match \
+			--line-regexp \
+			--fixed-strings |
+			grep_for_quotes "$quote_type"
+}
+
+main () (
+	minus_n=true
+	option_parsing=true
+	args=
+	while [ -n "${1:-}" ]; do
+		case "$1" in
+			(-n)
+				if [ "$option_parsing" = "true" ]; then minus_n=false; else args=$args,$1; fi ;;
+			(--)
+				if [ "$option_parsing" = "true" ]; then option_parsing=false; else args=$args,$1; fi ;;
+			(-*)
+				if [ "$option_parsing" = "true" ]; then die 'Unknown option: "%s"' "$1"; else args=$args,$1; fi ;;
+			(*)
+				args=$args,$1
+		esac
+		shift
+	done
+	args=${args#,}
+
+	minus_n=false # Always disable showing line numbers, makes exceptions complicated...
+
+	[ -n "$args" ] || die "Expected at least one quote type"
+
+	IFS=,
+	for quote_type in $args; do
+		find_quotes "$minus_n" "$quote_type"
+	done
+)
+
+main "$@"

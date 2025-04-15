@@ -1,5 +1,4 @@
 package-lock.json
-dquote_exceptions
-squote_backtick_exceptions
 find_quotes
+quote_exceptions
 quote_search_exclusions
