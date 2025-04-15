@@ -59,7 +59,7 @@ find_quotes () {
 		--exclude-dir=.git           \
 		--binary-files=without-match \
 		--fixed-strings              \
-		--dereference-recursive      \
+		--recursive                  \
 		$first_grep_extra_args       \
 		--regexp '#'  \
 		--regexp '//' \
