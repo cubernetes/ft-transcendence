@@ -50,8 +50,11 @@ find_quotes () {
 			die 'First argument must be one of "dquote", "squote", "backtick", "roff_squote", or "roff_dquote" not "'"$1"'"' ;;
 	esac
 
+	OLDIFS=$IFS
+	IFS="$(printf '\n.')"
+	IFS=${IFS%.}
 	grep \
-		--exclude-from=script/quote_search_exclusions \
+		$(sed 's/^/--exclude=/' script/quote_search_exclusions) \
 		--exclude-dir=node_modules   \
 		--exclude-dir=.git           \
 		--binary-files=without-match \
@@ -68,9 +71,12 @@ find_quotes () {
 			--line-regexp \
 			--fixed-strings |
 			grep_for_quotes "$quote_type"
+	ret=$?
+	IFS=$OLDIFS
+	return $ret
 }
 
-main () (
+main () {
 	minus_n=true
 	option_parsing=true
 	args=
@@ -93,14 +99,16 @@ main () (
 
 	[ -n "$args" ] || die "Expected at least one quote type"
 
+	OLDIFS=$IFS
 	IFS=,
 	found_something=1 # 1==false
 	for quote_type in $args; do
+		IFS=$OLDIFS
 		if find_quotes "$minus_n" "$quote_type"; then
 			found_something=0
 		fi
 	done
 	exit "$found_something"
-)
+}
 
 main "$@"
