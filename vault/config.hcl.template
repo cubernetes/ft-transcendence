@@ -1,4 +1,4 @@
-#api_addr      = "http://127.0.0.1:8200"
+#api_addr      = "http://127.0.0.1:${VAULT_API_PORT}"
 #disable_mlock = true
 
 storage "file" {
@@ -6,6 +6,6 @@ storage "file" {
 }
 
 listener "tcp" {
-  address = "0.0.0.0:8200"
+  address = "0.0.0.0:${VAULT_API_PORT}"
   tls_disable = true
 }

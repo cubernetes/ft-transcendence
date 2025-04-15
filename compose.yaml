@@ -175,7 +175,10 @@ services:
         restart: unless-stopped
 
     vault:
-        build: "./vault/"
+        build:
+            context: "./vault/"
+            args:
+                VAULT_API_PORT: ${VAULT_API_PORT:-8200}
         container_name: vault
         restart: unless-stopped
         networks:
@@ -212,9 +215,9 @@ services:
                 - path: "./vault/healthcheck.sh"
                   action: sync+restart
                   target: "/healthcheck.sh"
-                - path: "./vault/config.hcl"
+                - path: "./vault/config.hcl.template"
                   action: sync+restart
-                  target: "/vault/config/config.hcl"
+                  target: "/vault/config/config.hcl.template"
                 - path: "./vault/policies/"
                   action: sync+restart
                   target: "/vault/policies/"
