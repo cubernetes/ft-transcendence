@@ -25,18 +25,17 @@ export class GameManager {
     private renderer: CLIRenderer;
     private wsManager: WebSocketManager | null = null;
 
-    // private gameActive = false;
+    private activeGame: string | null = null;
 
     private remoteGameId: string | null = null;
     private remotePlayerIndex: number | null = null;
+    private opponentId: number | null = null;
 
     constructor() {
         this.renderer = new CLIRenderer();
         this.engine = createPongEngine(defaultGameConfig);
         this.configEngine();
     }
-
-    createEngine() {}
 
     start1PLocal() {
         this.cleanupController();
@@ -98,7 +97,24 @@ export class GameManager {
 
         await this.wsManager.sendGameStart();
     }
+    // "game-action": {
+    // gameId: string;
+    // index: number;
+    // action: UserInput;
+    // };
+    setRemoteGame(gameID: string, opponent: number, playerID: number) {
+        this.remoteGameId = gameID;
+        this.remotePlayerIndex = playerID;
+        this.opponentId = opponent;
+    }
 
+    // "wall-collision"?: EventCallback<"wall-collision">[] | undefined;
+    // "paddle-collision"?: EventCallback<"paddle-collision">[] | undefined;
+    // "state-update"?: EventCallback<"state-update">[] | undefined;
+    // "score-update"?: EventCallback<"score-update">[] | undefined;
+    // "ball-reset"?: EventCallback<"ball-reset">[] | undefined;
+    // "game-start"?: EventCallback<"game-start">[] | undefined;
+    // "game-end"?: EventCallback<"game-end">[] | undefined;
     configEngine() {
         this.engine.onEvent("game-start", (_) => {});
 
@@ -112,7 +128,7 @@ export class GameManager {
             });
         });
 
-        this.engine.onEvent("score", (evt) => {
+        this.engine.onEvent("score-update", (evt) => {
             audioManager.playSoundEffect(SCORE_SOUND);
         });
 

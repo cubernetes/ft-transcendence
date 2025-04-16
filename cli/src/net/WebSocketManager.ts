@@ -77,11 +77,20 @@ export class WebSocketManager {
             // console.log("Received WebSocket message:", message);
 
             switch (message.type) {
+                // "game-start": {
+                //     gameId: string;
+                //     opponentId: number;
+                //     index: 0 | 1;
+                // };
                 case "game-start":
                     console.log("Starting game with payload:", message.payload);
                     // Handle game start logic here, possibly calling gameStateManager.startGame
+                    gameManager.setRemoteGame(
+                        message.payload.gameId,
+                        message.payload.opponentId,
+                        message.payload.index
+                    );
                     break;
-
                 case "game-end":
                     gameManager.showRemoteWinner(message.payload.winner);
                     break;
