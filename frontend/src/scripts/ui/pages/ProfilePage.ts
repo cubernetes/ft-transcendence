@@ -3,9 +3,7 @@ import { showPageElements } from "../../modules/layout/layout.service";
 import { createEl } from "../../utils/dom-helper";
 import { createChart } from "../components/Chart";
 
-const fetchPlayerData = async (
-    playerId: number
-): Promise<Result<Record<string, unknown>, Error>> => {
+const fetchPlayerData = async (): Promise<Result<Record<string, unknown>, Error>> => {
     try {
         const response = await fetch(`${window.cfg.url.user}/me`, {
             headers: {
@@ -34,9 +32,7 @@ const fetchPlayerData = async (
     }
 };
 
-const fetchGameStats = async (
-    playerId: number
-): Promise<Result<Record<string, unknown>[], Error>> => {
+const fetchGameStats = async (): Promise<Result<Record<string, unknown>[], Error>> => {
     const gameStats = [
         { gameId: 1, hits: 23, misses: 4 },
         { gameId: 2, hits: 18, misses: 7 },
@@ -51,7 +47,11 @@ const fetchGameStats = async (
     ];
 
     // try {
-    //     const response = await fetch(`${window.cfg.url.user}/stats/${playerId}`);
+    // const response = await fetch(`${window.cfg.url.user}/me`, {
+    //     headers: {
+    //         Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
+    //     },
+    // });
     //     if (!response.ok) {
     //         throw new Error("Failed to fetch user stats");
     //     }
@@ -140,8 +140,8 @@ const createStatsDataSection = (
 const createProfileSection = async (): Promise<HTMLElement> => {
     const profileSection = createEl("section", "bg-white p-6 rounded-lg shadow-md");
 
-    const playerData = await fetchPlayerData(1);
-    const gameStats = await fetchGameStats(1);
+    const playerData = await fetchPlayerData();
+    const gameStats = await fetchGameStats();
 
     const playerSection = createPlayerDataSection(playerData);
     const statsSection = createStatsDataSection(gameStats);
