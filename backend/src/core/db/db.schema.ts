@@ -27,6 +27,8 @@ export const games = sqliteTable(
             .notNull()
             .references(() => users.id),
         winnerId: integer("winner_id").references(() => users.id),
+        player1Hits: integer("player1_hits").notNull(),
+        player2Hits: integer("player2_hits").notNull(),
         player1Score: integer("player1_score").notNull(),
         player2Score: integer("player2_score").notNull(),
         createdAt: numeric("created_at").default(sql`(CURRENT_TIMESTAMP)`),
