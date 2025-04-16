@@ -1,8 +1,8 @@
 import chokidar from "chokidar";
 import { WebSocketServer } from "ws";
 
-const port = process.env.LIVE_RELOAD_PORT ?? 35729;
-const wss = new WebSocketServer({ port, host: "0.0.0.0" }); // Classic livereload port
+const port = process.env.LIVE_RELOAD_PORT ?? 35729; // Classic livereload port as default
+const wss = new WebSocketServer({ port, host: "0.0.0.0" });
 
 wss.on("connection", (_) => {
     console.log(`Browser connected for live reload at port ${port}`);
