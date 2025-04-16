@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
-import { count, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { users } from "../../core/db/db.schema.ts";
 import { ApiError, UnknownError, errUniqueConstraintOn } from "../../utils/errors.ts";
 import { NewUser, User } from "./user.types.ts";
@@ -121,6 +121,19 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
+    /**
+     * Get the rank of a user by their id. Could change the implementation in the future.
+     */
+    const getRankById = async (id: number): Promise<Result<number, ApiError>> => {
+        const orderedByWins = await db
+            .select({ id: users.id, wins: users.wins })
+            .from(users)
+            .orderBy(desc(users.wins));
+
+        const rank = orderedByWins.findIndex((u) => u.id === id);
+        return ok(rank);
+    };
+
     return {
         create,
         findById,
@@ -129,5 +142,6 @@ export const createUserService = (app: FastifyInstance) => {
         update,
         remove,
         getCount,
+        getRankById,
     };
 };
