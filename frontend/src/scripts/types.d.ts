@@ -18,6 +18,7 @@ declare global {
         env: {
             WATCH: "1" | "0";
             NODE_ENV: "development" | "production";
+            LIVE_RELOAD_PORT: string;
         };
     };
 
@@ -37,12 +38,12 @@ declare module "@babylonjs/core" {
     interface Engine {
         shadowsEnabled: boolean;
         soundsEnabled: boolean;
+        audio: AudioEngineV2;
         shadowGenerator: ShadowGenerator;
         directionalLight: DirectionalLight;
         controls: AdvancedDynamicTexture;
         camera: ArcRotateCamera;
         scene: Scene;
-        audio: AudioEngineV2;
         ball: Mesh;
         leftPaddle: Mesh;
         rightPaddle: Mesh;

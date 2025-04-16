@@ -11,7 +11,7 @@ type ScoreConfig = {
     };
 };
 
-const scoreConfig = async (scene: Scene): Promise<Result<ScoreConfig, Error>> => {
+const scoreConfig = async (): Promise<Result<ScoreConfig, Error>> => {
     // TODO: change this
     const font = await (await fetch(`${window.cfg.dir.asset}/Montserrat_Regular.json`)).json();
     if (!font) {
@@ -31,7 +31,7 @@ const scoreConfig = async (scene: Scene): Promise<Result<ScoreConfig, Error>> =>
 
 export const createScore = async (engine: Engine, scores: [number, number], pos: Vector3) => {
     const { scene } = engine;
-    const config = await scoreConfig(scene);
+    const config = await scoreConfig();
 
     if (config.isErr()) {
         return window.log.error(config.error.message);

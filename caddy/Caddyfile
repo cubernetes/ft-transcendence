@@ -27,13 +27,14 @@
 	handle {
 		import waf
 		root * /frontend/dist/
+		try_files {path} /index.html
 		file_server
 	}
 	handle_path /api/* {
 		import waf
-		reverse_proxy http://backend:3000
+		reverse_proxy backend:{$BACKEND_PORT}
 	}
 	handle /ws { # websocket route must not use coraza WAF, otherwise it breaks
-		reverse_proxy backend:3000
+		reverse_proxy backend:{$BACKEND_PORT}
 	}
 }

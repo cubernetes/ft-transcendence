@@ -15,7 +15,10 @@
     "license": "UNLICENSED",
     "scripts": {
         "build": "npx tsup src/index.ts --dts --format esm,cjs --out-dir dist --clean",
-        "prepublishOnly": "npm run build"
+        "prepublishOnly": "npm run build",
+        "build:backend": "npx tsup src/index.ts --dts --format esm,cjs --out-dir ../frontend/node_modules/@darrenkuro/pong-core/dist --clean",
+        "build:frontend": "npx tsup src/index.ts --dts --format esm,cjs --out-dir ../frontend/node_modules/@darrenkuro/pong-core/dist --clean",
+        "build:local": "npm build:frontend && npm build:backend"
     },
     "devDependencies": {
         "tsup": "^8.4.0",

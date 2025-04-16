@@ -19,8 +19,8 @@ const config = {
         api: API_URL,
         game: `${API_URL}/game`,
         user: `${API_URL}/user`,
-        home: `#setup`, // Temporarily, should probably be profile?
-        default: `#landing`, // For invalid route, de facto 404
+        home: `setup`, // Temporarily, should probably be profile?
+        default: `landing`, // For invalid route, de facto 404
     },
     label: {
         activeBtn: "activeBtn",

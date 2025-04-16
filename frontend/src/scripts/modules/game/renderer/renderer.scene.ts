@@ -10,6 +10,7 @@ import {
     Space,
     Texture,
 } from "@babylonjs/core";
+import { PongConfig } from "@darrenkuro/pong-core";
 import { createCamera } from "./renderer.camera";
 import { createControls } from "./renderer.controls";
 import { createDirectionalLight, createHemisphericLight } from "./renderer.light";
@@ -44,7 +45,7 @@ const setupScene = (scene: Scene) => {
     skydome.rotate(Axis.Y, Math.PI, Space.LOCAL);
 };
 
-export const createScene = (engine: Engine): Scene => {
+export const createScene = (engine: Engine, config: PongConfig): Scene => {
     engine.scene = new Scene(engine);
     engine.scene.audioEnabled = true; // This doesn't seem to be official, separate for audio engine?
     // scene.environmentIntensity = 0.5;
@@ -56,11 +57,10 @@ export const createScene = (engine: Engine): Scene => {
     engine.directionalLight = createDirectionalLight(engine.scene);
     engine.shadowGenerator = createShadowGenerator(engine.directionalLight);
     engine.camera = createCamera(engine); // TODO: check if attaching camera is needed
+    engine.controls = createControls(engine);
 
     createHemisphericLight(engine.scene);
-    createObjects(engine);
-
-    engine.controls = createControls(engine);
+    createObjects(engine, config);
 
     return engine.scene;
 };

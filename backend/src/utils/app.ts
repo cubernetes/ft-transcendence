@@ -16,7 +16,9 @@ const buildApp = async (opts: FastifyServerOptions): Promise<Result<FastifyInsta
         await app.register(corePlugin);
         await app.register(modulesPlugin);
 
-        app.get("/healthcheck", async (_, reply) => reply.send({ status: "ok" }));
+        app.get("/healthcheck", { logLevel: "silent" }, async (_, reply) =>
+            reply.send({ status: "ok" })
+        );
 
         // Seed database if not in production
         if (process.env.NODE_ENV !== "production") {

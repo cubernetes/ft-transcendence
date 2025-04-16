@@ -1,4 +1,4 @@
-import { createRouter } from "../../global/router";
+import { handlePopState, navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -47,6 +47,10 @@ layoutStore.subscribe((state) => {
         // Create needed states for persisted elements
         createHeader(header);
 
-        createRouter();
+        // Attach pop state handler
+        window.addEventListener("popstate", handlePopState);
+
+        // Navigate To default page
+        navigateTo(window.cfg.url.default);
     }
 });
