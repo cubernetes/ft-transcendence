@@ -186,12 +186,16 @@ const getLeaderboardHandler = async (
 
 const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
     const user = await req.server.userService.findById(req.userId);
-
     if (user.isErr()) {
         return user.error.send(reply);
     }
 
-    return reply.send({ success: true, data: toPersonalUser(user.value) });
+    const rank = await req.server.userService.getRankById(req.userId);
+    if (rank.isErr()) {
+        return rank.error.send(reply);
+    }
+
+    return reply.send({ success: true, data: { ...toPersonalUser(user.value), rank } });
 };
 
 export default {
