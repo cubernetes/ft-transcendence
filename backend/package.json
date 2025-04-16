@@ -13,6 +13,7 @@
     "dependencies": {
         "@darrenkuro/pong-core": "^1.0.9",
         "@faker-js/faker": "^9.6.0",
+        "@fastify/cookie": "^11.0.2",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
         "@fastify/swagger": "^9.4.2",
