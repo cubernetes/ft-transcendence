@@ -183,21 +183,22 @@ export class CLIRenderer {
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         const { termWid, termHei } = this.#fieldConf;
+        const insideWidth = termWid - 2;
         const corners = CORNER_STYLES[this.#tickStyle];
         const edges = EDGE_STYLES[this.#tickStyle];
 
-        const border = `${corners.tl}${edges.hor.repeat(termWid / 4)}${corners.tr}`;
-        const bottomBorder = `${corners.bl}${edges.hor.repeat(termWid / 4)}${corners.br}`;
+        const border = `${corners.tl}${edges.hor.repeat(insideWidth / 4)}${corners.tr}`;
+        const bottomBorder = `${corners.bl}${edges.hor.repeat(insideWidth / 4)}${corners.br}`;
 
         const winnerText =
             winnerIndex === 0
                 ? chalk.green("🏆 PLAYER 1 WINS THE GAME 🏆")
                 : chalk.yellow("🏆 PLAYER 2 WINS THE GAME 🏆");
 
-        const emptyLine = `${edges.ver}${" ".repeat(termWid)}${edges.ver}`;
+        const emptyLine = `${edges.ver}${" ".repeat(insideWidth)}${edges.ver}`;
         const centeredMessageLine = `${edges.ver}${" ".repeat(
-            Math.floor((termWid - winnerText.length) / 2)
-        )}${winnerText}${" ".repeat(Math.ceil((termWid - winnerText.length) / 2))}${edges.ver}`;
+            Math.floor((insideWidth - winnerText.length) / 2)
+        )}${winnerText}${" ".repeat(Math.ceil((insideWidth - winnerText.length) / 2))}${edges.ver}`;
 
         let frame = "\x1b[H"; // top-left
         frame += chalk.cyan("Final Score:") + "\n";
@@ -206,13 +207,23 @@ export class CLIRenderer {
         const verticalPadding = Math.floor((termHei - 3) / 2); // room for centered message
         for (let i = 0; i < verticalPadding; i++) frame += emptyLine + "\n";
         frame += centeredMessageLine + "\n";
-        for (let i = 0; i < termHei - verticalPadding - 1; i++) frame += emptyLine + "\n";
+        frame += emptyLine + "\n";
+        for (let i = 0; i < termHei - verticalPadding - 2; i++) frame += emptyLine + "\n";
 
         frame += bottomBorder + "\n";
+        frame += chalk.gray("Press any key to continue...\n");
 
         process.stdout.write("\x1b[?25l\x1b[H" + frame + "\x1b[?25h");
 
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise<void>((resolve) => {
+            process.stdin.setRawMode(true);
+            process.stdin.resume();
+            process.stdin.once("data", () => {
+                process.stdin.setRawMode(false);
+                process.stdin.pause();
+                resolve();
+            });
+        });
     }
 }
 // // ▁▂▃▄▅▆▇█
