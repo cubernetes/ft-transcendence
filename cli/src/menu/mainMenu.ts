@@ -5,8 +5,8 @@ import { PongConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
 import { cleanup } from "../utils/cleanup";
-import { API_URL, GAME_FETCH_ERROR_MSG, MENU_MUSIC, SERVER_URL } from "../utils/config";
-import { clearToken, getToken, setToken } from "./auth";
+import { API_URL, GAME_FETCH_ERROR_MSG, MENU_MUSIC } from "../utils/config";
+import { getToken, setToken } from "./auth";
 import { optionsMenu } from "./options";
 
 let defaultMode = 1;
@@ -215,6 +215,7 @@ async function loginToServer(username: string, password: string): Promise<string
         const result = await response.json();
         return result.data.token;
     } catch (err) {
+        // console.error(chalk.red("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"));
         // Handle network-related errors (e.g., ECONNREFUSED)
         if (err.code === "ECONNREFUSED") {
             console.error(chalk.red("Connection refused. Please ensure the server is running."));
