@@ -7,7 +7,6 @@ import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
 import { cleanup } from "../utils/cleanup";
 import {
-    MENU_MUSIC,
     PADDLE_SOUND,
     PLAYER_ONE,
     PLAYER_TWO,
