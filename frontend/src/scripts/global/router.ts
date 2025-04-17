@@ -6,6 +6,7 @@ import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
+import { createQuickPlayPage } from "../ui/pages/QuickPlayPage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 
@@ -18,6 +19,7 @@ const routes = {
     localgame: createGamePage("local"),
     aigame: createGamePage("ai"),
     profile: createProfilePage,
+    quickplay: createQuickPlayPage,
     leaderboard: createLeaderboardPage,
     totp: createTotpSetupPage, // Refactor into modal later
 } satisfies Record<string, PageRenderer>;
