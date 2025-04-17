@@ -192,7 +192,7 @@ const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
         playerInputs.push(playerInput);
     }
 
-    const tournamentStartBtnCb = () => {        
+    const tournamentStartBtnCb = () => {
         for (let i = 0; i < playerAmount; i++) {
             const playerInput = playerInputs[i];
             if (!playerInput.value.trim()) {
@@ -296,6 +296,24 @@ export const createSetupModal = (): HTMLElement => {
         gameBtnGrp,
         tournamentBtn,
     ]);
+
+    const wrapper = createEl("div", "w-full", { children: [section] });
+
+    return wrapper;
+};
+
+export const createQuickPlaySetupModal = (): HTMLElement => {
+    const title = createTitleText("Choose Game Mode");
+    const line = createSetupLine();
+
+    const localBtnCb = () => localMode(wrapper);
+    const aiBtnCb = () => aiMode(wrapper);
+
+    const gameBtnGrp = createButtonGroup(["Local", "AI"], [localBtnCb, aiBtnCb], "flex-1", "mt-4");
+
+    // TODO: check what shaded is? couldn't find it (JK removed it)
+    // justify-center and items-center has no effects here.. so deleted but noted here because a little confused
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", [title, line, gameBtnGrp]);
 
     const wrapper = createEl("div", "w-full", { children: [section] });
 
