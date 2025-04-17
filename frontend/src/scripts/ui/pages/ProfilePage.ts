@@ -1,7 +1,7 @@
 import { Err, Result, err, ok } from "neverthrow";
 import { showPageElements } from "../../modules/layout/layout.service";
 import { createEl } from "../../utils/dom-helper";
-import { createChart } from "../components/Chart";
+import { createPlayerDataSection, createStatsDataSection } from "../layout/PlayerStatsModal";
 
 const fetchPlayerData = async (): Promise<Result<Record<string, unknown>, Error>> => {
     try {
@@ -66,76 +66,6 @@ const fetchGameStats = async (): Promise<Result<Record<string, unknown>[], Error
     // }
 
     return ok(gameStats);
-};
-
-const createPlayerDataSection = (
-    dataResult: Result<Record<string, unknown>, Error>
-): HTMLElement => {
-    const playerSection = createEl("section", "text-2xl font-bold mb-4", { text: "Your Profile:" });
-
-    if (dataResult.isErr()) {
-        playerSection.appendChild(
-            createEl("p", "text-red-500", { text: "Failed to query user data." })
-        );
-        return playerSection;
-    }
-    const playerInfo = createEl("div", "space-y-4");
-    const username = createEl("p", "font-semibold", { text: `Username: Player 1` });
-    const stats = createEl("p", "font-semibold", { text: "Games Played: 0" });
-
-    const wrapper = createEl("div", "w-full", {
-        children: [playerSection, playerInfo, username, stats],
-    });
-
-    return wrapper;
-};
-
-const createStatsDataSection = (
-    dataResult: Result<Record<string, unknown>[], Error>
-): HTMLElement => {
-    const statSection = createEl("section", "text-2xl font-bold mb-4", { text: "Your Stats:" });
-
-    if (dataResult.isErr()) {
-        statSection.appendChild(
-            createEl("p", "text-1xl text-red-500", { text: "Failed to generate chart." })
-        );
-        return statSection;
-    }
-
-    const dataValue = dataResult.value;
-
-    if (dataValue.length < 2) {
-        statSection.appendChild(
-            createEl("p", "text-1xl text-red-500", { text: "Not enough data to generate chart." })
-        );
-        return statSection;
-    }
-
-    const chartResult = createChart(
-        "line",
-        dataValue,
-        {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: "Pong Game Performance",
-                },
-            },
-        },
-        "gameId",
-        ["hits", "misses"]
-    );
-
-    if (chartResult.isOk()) {
-        statSection.appendChild(chartResult.value);
-    } else {
-        statSection.appendChild(
-            createEl("p", "text-1xl text-red-500", { text: "Failed to generate chart." })
-        );
-    }
-
-    return statSection;
 };
 
 const createProfileSection = async (): Promise<HTMLElement> => {
