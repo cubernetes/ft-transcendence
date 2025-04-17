@@ -23,6 +23,7 @@ const fetchPlayerData = async (): Promise<Result<Record<string, unknown>, Error>
             wins: data.data.wins,
             losses: data.data.losses,
             rank: data.data.rank,
+            img: data.data.avatarUrl,
         };
 
         return ok(processedData);
