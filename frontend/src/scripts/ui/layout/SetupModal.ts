@@ -58,7 +58,7 @@ const onlineMode = (ctn: HTMLElement) => {
         children: [createLobbyBtn, joinLobbyBtn],
     });
 
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
@@ -102,7 +102,7 @@ const aiMode = (ctn: HTMLElement) => {
 
     const playBtn = createCtaBtn("Play", playBtnCb);
 
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
@@ -163,7 +163,7 @@ const localMode = (ctn: HTMLElement) => {
     };
     const playBtn = createCtaBtn("Play", playBtnCb);
 
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
@@ -205,12 +205,12 @@ const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
     };
 
     const tournamentCreateBtn = createCtaBtn("Start Tournament", tournamentStartBtnCb);
-    
+
     const inputsWrapper = createEl("div", "grid grid-cols-1 md:grid-cols-2 gap-4 w-full", {
         children: playerInputs,
     });
 
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
@@ -242,18 +242,22 @@ const tournamentMode = (ctn: HTMLElement) => {
             return showErr("Player amount must be a number.");
         }
 
-        if (parseInt(playerAmount) < 2 || parseInt(playerAmount) > 10 || parseInt(playerAmount) % 2 !== 0) {
+        if (
+            parseInt(playerAmount) < 2 ||
+            parseInt(playerAmount) > 10 ||
+            parseInt(playerAmount) % 2 !== 0
+        ) {
             return showErr("Player amount must be an even number within 2 and 10.");
         }
 
         hideErr();
         window.log.debug(`Tournament Setup Data: ${playerAmount}`);
-        tournamentStart(ctn, parseInt(playerAmount)); 
+        tournamentStart(ctn, parseInt(playerAmount));
     };
 
     const tournamentCreateBtn = createCtaBtn("Create Tournament", tournamentStartBtnCb);
 
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
@@ -277,16 +281,16 @@ export const createSetupModal = (): HTMLElement => {
     const gameBtnGrp = createButtonGroup(
         ["Local", "Online", "AI"],
         [localBtnCb, onlineBtnCb, aiBtnCb],
-        "w-80",
+        "flex-1",
         "mt-4"
     );
 
     const tournamentCreateBtnCb = () => tournamentMode(wrapper);
     const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentCreateBtnCb);
 
-    // TODO: check what shaded is? couldn't find it
+    // TODO: check what shaded is? couldn't find it (JK removed it)
     // justify-center and items-center has no effects here.. so deleted but noted here because a little confused
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 shaded", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", [
         title,
         line,
         gameBtnGrp,
