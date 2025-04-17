@@ -1,74 +1,70 @@
 import type { LoginBody, RegisterBody } from "@darrenkuro/pong-core";
+import { navigateTo } from "../../global/router";
 import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
+import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
+
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "relative max-w-md mx-auto p-6 rounded-lg top-1/3";
-    wrapper.id = window.cfg.id.loginForm;
+    const wrapper = createEl("div", "relative max-w-md mx-auto p-6 rounded-lg top-1/3", {
+        attributes: { id: window.cfg.id.loginForm },
+    });
 
-    const toggleContainer = document.createElement("div");
-    toggleContainer.className = "flex justify-center mb-4";
+    const usernameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
+        props: {
+            type: "text",
+            placeholder: "Username",
+            autocomplete: "username",
+            required: true,
+        },
+    });
 
-    const loginBtn = document.createElement("button");
-    loginBtn.className = "px-4 py-2 bg-red-500 text-white rounded-l-md";
-    loginBtn.textContent = "Login";
+    const displayNameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
+        props: {
+            type: "text",
+            placeholder: "Display Name",
+            autocomplete: "given-name",
+            required: true,
+        },
+    });
 
-    const registerBtn = document.createElement("button");
-    registerBtn.className = "px-4 py-2 bg-gray-300 rounded-r-md";
-    registerBtn.textContent = "Register";
+    const passwordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
+        props: {
+            type: "password",
+            placeholder: "Password",
+            autocomplete: "current-password",
+            required: true,
+        },
+    });
 
-    toggleContainer.append(loginBtn, registerBtn);
+    const confirmPasswordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
+        props: {
+            type: "password",
+            placeholder: "Confirm Password",
+            autocomplete: "current-password", // or new-password if updated
+            required: true,
+        },
+    });
 
-    const exitButton = document.createElement("button");
-    exitButton.innerHTML = "&times;";
-    exitButton.className = "absolute top-2 right-6 text-red-600 text-2xl font-bold cursor-pointer";
+    const errorMessage = createEl("div", "hidden p-2 bg-red-100 text-red-500 rounded text-sm", {
+        attributes: { id: "formError" },
+        text: "",
+    });
 
-    const authForm = document.createElement("form");
-    authForm.className = "space-y-4";
-    authForm.noValidate = true;
+    const submitBtn = createEl("button", "w-full p-2 bg-red-500 text-white rounded", {
+        text: "Login",
+        props: {
+            type: "submit",
+        },
+    });
 
-    const usernameInput = document.createElement("input");
-    usernameInput.type = "text";
-    usernameInput.placeholder = "Username";
-    usernameInput.autocomplete = "username";
-    usernameInput.required = true;
-    usernameInput.className = "w-full p-2 border border-gray-300 rounded";
-
-    const displayNameInput = document.createElement("input");
-    displayNameInput.type = "text";
-    displayNameInput.placeholder = "Display Name";
-    displayNameInput.autocomplete = "given-name";
-    displayNameInput.required = true;
-    displayNameInput.className = "w-full p-2 border border-gray-300 rounded";
-
-    const passwordInput = document.createElement("input");
-    passwordInput.type = "password";
-    passwordInput.placeholder = "Password";
-    passwordInput.autocomplete = "current-password";
-    passwordInput.required = true;
-    passwordInput.className = "w-full p-2 border border-gray-300 rounded";
-
-    const confirmPasswordInput = document.createElement("input");
-    confirmPasswordInput.type = "password";
-    confirmPasswordInput.placeholder = "Confirm Password";
-    confirmPasswordInput.autocomplete = "current-password"; // This should be new-password but all these will be rewritten so whatever
-    confirmPasswordInput.required = true;
-    confirmPasswordInput.className = "w-full p-2 border border-gray-300 rounded";
-
-    const errorMessage = document.createElement("div");
-    errorMessage.id = "formError";
-    errorMessage.className = "hidden p-2 bg-red-100 text-red-500 rounded text-sm";
-    errorMessage.textContent = "";
-
-    const submitBtn = document.createElement("button");
-    submitBtn.type = "submit";
-    submitBtn.className = "w-full p-2 bg-red-500 text-white rounded";
-    submitBtn.textContent = "Login";
+    const authForm = createEl("form", "space-y-4", {
+        props: { noValidate: true },
+    });
 
     const quickplayButton = createButton(
         "Quickplay",
         "!px-4 py-2 bg-blue-500 text-white rounded-l-md mt-4 w-full",
-        () => window.log.info(window.location.href = "#localgame")
+        () => navigateTo("quickplay")
     );
 
     const showError = (message: string) => {
@@ -111,20 +107,41 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
     };
 
-    exitButton.addEventListener("click", () => {
-        wrapper.replaceWith(ctaButton);
+    const exitButton = createEl(
+        "button",
+        "absolute top-2 right-6 text-red-600 text-2xl font-bold cursor-pointer",
+        {
+            props: { innerHTML: "&times;" },
+            events: {
+                click: () => wrapper.replaceWith(ctaButton),
+            },
+        }
+    );
+
+    const loginBtn = createEl("button", "px-4 py-2 bg-red-500 text-white rounded-l-md", {
+        text: "Login",
+        events: {
+            click: () => {
+                mode = "login";
+                renderFormFields(mode);
+                updateToggleButtons();
+            },
+        },
     });
 
-    loginBtn.addEventListener("click", () => {
-        mode = "login";
-        renderFormFields(mode);
-        updateToggleButtons();
+    const registerBtn = createEl("button", "px-4 py-2 bg-gray-300 rounded-r-md", {
+        text: "Register",
+        events: {
+            click: () => {
+                mode = "register";
+                renderFormFields(mode);
+                updateToggleButtons();
+            },
+        },
     });
 
-    registerBtn.addEventListener("click", () => {
-        mode = "register";
-        renderFormFields(mode);
-        updateToggleButtons();
+    const toggleContainer = createEl("div", "flex justify-center mb-4", {
+        children: [loginBtn, registerBtn],
     });
 
     authForm.addEventListener("submit", async (evt) => {
@@ -161,7 +178,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         }
     });
 
-    wrapper.append(exitButton, toggleContainer, authForm, quickplayButton);
+    appendChildren(wrapper, [exitButton, toggleContainer, authForm, quickplayButton]);
 
     return wrapper;
 };
