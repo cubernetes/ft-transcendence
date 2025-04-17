@@ -1,11 +1,9 @@
 import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
-import { getToken } from "../menu/auth";
 import { mainMenu } from "../menu/mainMenu";
 import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
-import { cleanup } from "../utils/cleanup";
 import {
     PADDLE_SOUND,
     PLAYER_ONE,
