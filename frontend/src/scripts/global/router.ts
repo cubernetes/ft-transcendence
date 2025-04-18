@@ -26,14 +26,15 @@ const routes = {
 
 // A type-safe list of protected routes, i.e. only available after logging in
 // Temporarily protect all routes so always start in landing page
+// TODO: Commented out localgame and aigame for quickplay.
 const protectedRoutes: (keyof typeof routes)[] = [
     "setup",
     "onlinegame",
     "profile",
     "leaderboard",
     "totp",
-    "localgame",
-    "aigame",
+    // "localgame",
+    // "aigame",
 ];
 
 const renderRoute = async (dest: string) => {
