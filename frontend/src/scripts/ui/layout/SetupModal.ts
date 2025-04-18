@@ -1,3 +1,4 @@
+import { navigateTo } from "../../global/router";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
@@ -82,7 +83,8 @@ const aiMode = (ctn: HTMLElement) => {
 
         const gameData = { difficulty: selected.textContent?.toLowerCase() };
         hideErr();
-        window.log.debug(`Game Data: ${gameData}`);
+        navigateTo("aigame");
+        window.log.debug("Navigated to aigame via navigateTo(aigame) with gameData:", gameData);
     };
 
     const playBtn = createCtaBtn("Play", playBtnCb);
@@ -144,7 +146,11 @@ const localMode = (ctn: HTMLElement) => {
             difficulty: difficulty.textContent?.toLowerCase(),
         };
         hideErr();
-        window.log.debug(`Game Data: ${gameData}`);
+        navigateTo("localgame");
+        window.log.debug(
+            "Navigated to localgame via navigateTo(localgame) with gameData:",
+            gameData
+        );
     };
     const playBtn = createCtaBtn("Play", playBtnCb);
 
