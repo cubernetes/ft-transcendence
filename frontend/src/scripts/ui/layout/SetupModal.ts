@@ -1,3 +1,4 @@
+import { navigateTo } from "../../global/router";
 import { gameStore } from "../../modules/game/game.store";
 import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
@@ -159,7 +160,11 @@ const localMode = (ctn: HTMLElement) => {
             difficulty: difficulty.textContent?.toLowerCase(),
         };
         hideErr();
-        window.log.debug(`Game Data: ${gameData}`);
+        navigateTo("localgame");
+        window.log.debug(
+            "Navigated to localgame via navigateTo(localgame) with gameData:",
+            gameData
+        );
     };
     const playBtn = createCtaBtn("Play", playBtnCb);
 
