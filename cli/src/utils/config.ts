@@ -2,12 +2,12 @@ import { UserInput, createPongEngine } from "@darrenkuro/pong-core";
 
 export type PlayStyle = "normal" | "stylish" | "crazy";
 export type Resolution = "80x20" | "160x40" | "240x60" | "320x80";
-// export type ControlsKey = "p1Up" | "p1Down" | "p1Stop" | "p2Up" | "p2Down" | "p2Stop";
 
 // Constants
 export const SERVER_URL = "ws://localhost:8080/ws";
 export const API_URL = "http://localhost:8080/api";
 export const MENU_MUSIC = "menu";
+export const NORMAL_MUSIC = "normal";
 export const VICTORY_MUSIC = "victory";
 export const SCORE_SOUND = "score";
 export const WALL_SOUND = "wall_hit";

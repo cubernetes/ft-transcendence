@@ -1,4 +1,4 @@
-import { PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
+import { PongConfig, PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { mainMenu } from "../menu/mainMenu";
@@ -28,13 +28,17 @@ export class GameManager {
     private remotePlayerIndex: number | null = null;
     private opponentId: number | null = null;
 
+    private default: PongConfig;
+
     constructor() {
         this.renderer = new CLIRenderer();
-        this.engine = createPongEngine(defaultGameConfig);
-        this.configEngine();
+        this.engine = createPongEngine();
+        this.default = structuredClone(defaultGameConfig);
     }
 
     start1PLocal() {
+        this.engine.reset(this.default);
+        this.configEngine();
         this.cleanupController();
         this.controller = new GameController([
             {
@@ -49,6 +53,8 @@ export class GameManager {
     }
 
     start2PLocal() {
+        this.engine.reset(this.default);
+        this.configEngine();
         this.cleanupController();
         this.controller = new GameController([
             {
@@ -120,7 +126,6 @@ export class GameManager {
             audioManager.startMusic(VICTORY_MUSIC);
             this.cleanupController();
             this.renderer.showWinner(0).then(() => {
-                this.engine = null;
                 mainMenu();
             });
         });
