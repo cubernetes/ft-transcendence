@@ -236,7 +236,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const startLocalGame = (config: PongConfig) => {
-        engine.reset(config); //TODO: config input here correct?
+        engine.reset(config); //TODO: Moved reset to the start.
         attachLocalControl();
         attachLocalEngineEvents();
         engine.start(); // get config
