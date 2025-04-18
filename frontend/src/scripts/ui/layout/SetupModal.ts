@@ -33,43 +33,6 @@ const createInput = (placeholder: string) =>
         attributes: { placeholder },
     });
 
-const onlineMode = (ctn: HTMLElement) => {
-    const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Play Online");
-    const line = createSetupLine();
-
-    const createLobbyBtnCb = () => {
-        window.log.info("Creating a new lobby...");
-    };
-    const createLobbyBtn = createButton(
-        "Create Lobby",
-        "w-64 p-4 bg-red-500 text-white hover:bg-red-700",
-        createLobbyBtnCb
-    );
-
-    const joinLobbyBtnCb = () => {
-        window.log.info("Joining a new lobby...");
-    };
-    const joinLobbyBtn = createButton(
-        "Join Lobby",
-        "w-64 p-4 bg-blue-500 text-white hover:bg-blue-700"
-    );
-
-    const BtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
-        children: [createLobbyBtn, joinLobbyBtn],
-    });
-
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
-        returnBtn,
-        title,
-        line,
-        BtnGrp,
-    ]);
-
-    ctn.innerHTML = "";
-    ctn.appendChild(section);
-};
-
 const aiMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText("Play AI");
@@ -280,7 +243,7 @@ export const createSetupModal = (): HTMLElement => {
     const line = createSetupLine();
 
     const localBtnCb = () => localMode(wrapper);
-    const onlineBtnCb = () => onlineMode(wrapper);
+    const onlineBtnCb = () => navigateTo("onlinegame");
     const aiBtnCb = () => aiMode(wrapper);
 
     const gameBtnGrp = createButtonGroup(
