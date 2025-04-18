@@ -2,6 +2,7 @@ import fs from "fs";
 import player from "play-sound";
 import {
     MENU_MUSIC,
+    NORMAL_MUSIC,
     PADDLE_SOUND,
     SCORE_SOUND,
     VICTORY_MUSIC,
@@ -23,17 +24,18 @@ export class AudioManager {
 
     constructor() {
         // Register sound effects
-        this.soundEffects.set(PADDLE_SOUND, "src/content/hit.mp3");
-        this.soundEffects.set(WALL_SOUND, "src/content/bounce.mp3");
-        this.soundEffects.set(SCORE_SOUND, "src/content/score.mp3");
-        this.soundEffects.set("blop", "src/content/blop.mp3");
+        this.soundEffects.set(PADDLE_SOUND, "src/content/hit.wav");
+        this.soundEffects.set(WALL_SOUND, "src/content/bounce.wav");
+        this.soundEffects.set(SCORE_SOUND, "src/content/score.wav");
+        this.soundEffects.set("blop", "src/content/blop.wav");
 
         // Register background music tracks
-        this.musicTracks.set(MENU_MUSIC, "src/content/menu.mp3");
-        this.musicTracks.set(VICTORY_MUSIC, "src/content/victory.mp3");
-        this.musicTracks.set("normal", "src/content/neon-gaming.mp3");
-        this.musicTracks.set("stylish", "src/content/stylish_game.mp3");
-        this.musicTracks.set("crazy", "src/content/crazy_game.mp3");
+        this.musicTracks.set(MENU_MUSIC, "src/content/menu.wav");
+        this.musicTracks.set(VICTORY_MUSIC, "src/content/victory.wav");
+        this.musicTracks.set(NORMAL_MUSIC, "src/content/neon-gaming.wav");
+        // this.musicTracks.set("stylish", "src/content/stylish_game.mp3");
+        // this.musicTracks.set("crazy", "src/content/crazy_game.mp3");
+        // TODO: Add mode music tracks
 
         // this.checkAudioBackend();
         process.on("exit", () => this.stopMusic());
