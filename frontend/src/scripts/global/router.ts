@@ -84,7 +84,8 @@ const renderRoute = async (dest: string) => {
         route === "landing" ||
         route === "onlinegame" ||
         route === "localgame" ||
-        route === "quickplay"
+        route === "quickplay" ||
+        route === "aigame"
     ) {
         hidePageElements();
     } else {
