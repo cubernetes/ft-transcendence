@@ -86,11 +86,13 @@ const aiMode = (ctn: HTMLElement) => {
             return showErr("Game controller not initialized.");
         }
 
-        // Send game start message with AI difficulty
-        sendGameStart({ playAgainstAI: true, aiDifficulty: difficulty });
-
         // Navigate to AI game page using hash routing
         window.location.hash = "aigame";
+
+        // Start the game after a small delay to ensure page rendering is complete
+        setTimeout(() => {
+            controller.startGame("ai", undefined, { aiDifficulty: difficulty });
+        }, 100);
     };
 
     const playBtn = createPlayBtn(playBtnCb);
