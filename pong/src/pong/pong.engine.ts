@@ -1,4 +1,5 @@
 import { Result, err, ok } from "neverthrow";
+import { deepAssign } from "../utils";
 import { defaultGameConfig } from "./pong.config";
 import {
     Ball,
@@ -12,14 +13,15 @@ import {
 } from "./pong.types";
 
 // Enforce 2 players for now
-export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
+export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
     const listeners: { [K in keyof PongEngineEventMap]?: EventCallback<K>[] } = {};
     const userInputs: [UserInput, UserInput] = ["stop", "stop"];
-    const paddles: [Paddle, Paddle] = config.paddles;
+    const config: PongConfig = cfg;
+    const paddles: [Paddle, Paddle] = [...config.paddles]; // Use value instead of ref
+    const ball: Ball = { ...config.ball }; // Use value instead of ref
     const scores: [number, number] = [0, 0];
     const hits: [number, number] = [0, 0];
-    const ball: Ball = config.ball;
-    const tickRate = 1000 / config.fps;
+    let tickRate = 1000 / config.fps;
     let interval: ReturnType<typeof setInterval> | null = null;
     let status: PongStatus = "waiting";
 
@@ -233,31 +235,28 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    /** Reset all game states */
-    // TODO: more through check about how to properly reset all states cleanly
-    const reset = (config: PongConfig) => {
+    /** Reset all game states, will skip undefined */
+    const reset = (cfg: Partial<PongConfig>) => {
+        // Update config
+        deepAssign(config, cfg, true);
+
+        // Clear listeners
         (Object.keys(listeners) as Array<keyof PongEngineEventMap>).forEach((key) => {
             listeners[key] = [];
         });
 
+        // Complete reset
         userInputs.fill("stop");
         scores.fill(0);
         hits.fill(0);
-        paddles[0] = { ...config.paddles[0] };
-        paddles[1] = { ...config.paddles[1] };
-
-        ball.pos = config.ball.pos;
-        ball.r = config.ball.r;
-        ball.speed = config.ball.speed;
-        ball.vec = config.ball.vec;
-
+        paddles.forEach((p, i) => deepAssign(p, config.paddles[i]));
+        deepAssign(ball, config.ball);
         if (interval) {
             clearInterval(interval);
             interval = null;
         }
         status = "waiting";
     };
-
 
     /** For debug, delete later */
     const getInternalState = () => {
