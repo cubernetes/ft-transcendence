@@ -1,12 +1,11 @@
-import { showPageElements } from "../../modules/layout/layout.service";
 import { layoutStore } from "../../modules/layout/layout.store";
 import { createEl } from "../../utils/dom-helper";
 import { createPaddles } from "../layout/Paddles";
-import { createQuickPlaySetupModal } from "../layout/SetupModal";
+import { createSetupModal } from "../layout/SetupModal";
 
 export const createQuickPlayPage = async (): Promise<HTMLElement[]> => {
     const { router } = layoutStore.get();
-    const setupSection = createQuickPlaySetupModal();
+    const setupSection = createSetupModal();
     const paddles = createPaddles(router);
 
     // TODO: Check cursor url, doesn't seem to be working?

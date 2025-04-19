@@ -1,4 +1,5 @@
 import { navigateTo } from "../../global/router";
+import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
 import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
@@ -242,48 +243,32 @@ export const createSetupModal = (): HTMLElement => {
     const title = createTitleText("Choose Game Mode");
     const line = createSetupLine();
 
+    const wrapper = createEl("div", "w-full");
+
     const localBtnCb = () => localMode(wrapper);
+    const aiBtnCb = () => aiMode(wrapper);
     const onlineBtnCb = () => navigateTo("onlinegame");
-    const aiBtnCb = () => aiMode(wrapper);
-
-    const gameBtnGrp = createButtonGroup(
-        ["Local", "Online", "AI"],
-        [localBtnCb, onlineBtnCb, aiBtnCb],
-        "flex-1",
-        "mt-4"
-    );
-
     const tournamentCreateBtnCb = () => tournamentMode(wrapper);
-    const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentCreateBtnCb);
 
-    // TODO: check what shaded is? couldn't find it (JK removed it)
-    // justify-center and items-center has no effects here.. so deleted but noted here because a little confused
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", [
-        title,
-        line,
-        gameBtnGrp,
-        tournamentBtn,
-    ]);
+    const btnLabels = ["Local", "AI"];
+    const btnCallbacks = [localBtnCb, aiBtnCb];
 
-    const wrapper = createEl("div", "w-full", { children: [section] });
+    if (authStore.get().isAuthenticated) {
+        btnLabels.push("Online");
+        btnCallbacks.push(onlineBtnCb);
+    }
 
-    return wrapper;
-};
+    const gameBtnGrp = createButtonGroup(btnLabels, btnCallbacks, "flex-1", "mt-4");
 
-export const createQuickPlaySetupModal = (): HTMLElement => {
-    const title = createTitleText("Choose Game Mode");
-    const line = createSetupLine();
+    const children = [title, line, gameBtnGrp];
 
-    const localBtnCb = () => localMode(wrapper);
-    const aiBtnCb = () => aiMode(wrapper);
+    if (authStore.get().isAuthenticated) {
+        const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentCreateBtnCb);
+        children.push(tournamentBtn);
+    }
 
-    const gameBtnGrp = createButtonGroup(["Local", "AI"], [localBtnCb, aiBtnCb], "flex-1", "mt-4");
-
-    // TODO: check what shaded is? couldn't find it (JK removed it)
-    // justify-center and items-center has no effects here.. so deleted but noted here because a little confused
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", [title, line, gameBtnGrp]);
-
-    const wrapper = createEl("div", "w-full", { children: [section] });
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", children);
+    wrapper.appendChild(section);
 
     return wrapper;
 };
