@@ -15,8 +15,9 @@ import {
 export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
     const listeners: { [K in keyof PongEngineEventMap]?: EventCallback<K>[] } = {};
     const userInputs: [UserInput, UserInput] = ["stop", "stop"];
-    const scores: [number, number] = [0, 0];
     const paddles: [Paddle, Paddle] = config.paddles;
+    const scores: [number, number] = [0, 0];
+    const hits: [number, number] = [0, 0];
     const ball: Ball = config.ball;
     const tickRate = 1000 / config.fps;
     let interval: ReturnType<typeof setInterval> | null = null;
@@ -99,6 +100,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             pos.z >= p[0].pos.z - p[0].size.depth / 2 - ball.r
         ) {
             ball.vec.x = -ball.vec.x;
+            hits[0]++;
             emit("paddle-collision", null);
         }
 
@@ -109,6 +111,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             pos.z >= p[1].pos.z - p[1].size.depth / 2 - ball.r
         ) {
             ball.vec.x = -ball.vec.x;
+            hits[1]++;
             emit("paddle-collision", null);
         }
         return ok();
@@ -165,7 +168,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
 
         if (scores.some((n) => n >= config.playTo)) {
             status = "ended";
-            emit("game-end", { winner: scores[0] >= config.playTo ? 0 : 1 });
+            emit("game-end", { winner: scores[0] >= config.playTo ? 0 : 1, hits });
         }
 
         return ok();
@@ -217,7 +220,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
                 clearInterval(interval);
                 interval = null;
             }
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1 });
+            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits });
         }
     };
 
@@ -237,10 +240,9 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
             listeners[key] = [];
         });
 
-        userInputs[0] = "stop";
-        userInputs[1] = "stop";
-        scores[0] = 0;
-        scores[1] = 0;
+        userInputs.fill("stop");
+        scores.fill(0);
+        hits.fill(0);
         paddles[0] = { ...config.paddles[0] };
         paddles[1] = { ...config.paddles[1] };
 
@@ -255,6 +257,7 @@ export const createPongEngine = (config: PongConfig = defaultGameConfig) => {
         }
         status = "waiting";
     };
+
 
     /** For debug, delete later */
     const getInternalState = () => {

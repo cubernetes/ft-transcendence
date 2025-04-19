@@ -1,6 +1,6 @@
 {
     "name": "@darrenkuro/pong-core",
-    "version": "1.0.38",
+    "version": "1.1.2",
     "description": "Shared types and Pong engine for ft-transcendence project",
     "type": "module",
     "exports": {
@@ -18,7 +18,8 @@
         "prepublishOnly": "npm run build",
         "build:backend": "npx tsup src/index.ts --dts --format esm,cjs --out-dir ../frontend/node_modules/@darrenkuro/pong-core/dist --clean",
         "build:frontend": "npx tsup src/index.ts --dts --format esm,cjs --out-dir ../frontend/node_modules/@darrenkuro/pong-core/dist --clean",
-        "build:local": "npm build:frontend && npm build:backend"
+        "build:local": "npm build:frontend && npm build:backend",
+        "update": "npm update --prefix=../backend @darrenkuro/pong-core && npm update --prefix=../frontend @darrenkuro/pong-core"
     },
     "devDependencies": {
         "tsup": "^8.4.0",

@@ -54,7 +54,7 @@ export type PongEngineEventMap = {
     "score-update": { scores: [number, number] };
     "ball-reset": null;
     "game-start": null;
-    "game-end": { winner: 0 | 1 };
+    "game-end": { winner: 0 | 1; hits: [number, number] };
 };
 
 export type EventCallback<T extends keyof PongEngineEventMap> = (
