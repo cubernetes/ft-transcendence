@@ -1,5 +1,6 @@
 import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
 import {
+    AIDifficulty,
     Ball,
     GameMode,
     PongConfig,
@@ -250,15 +251,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         startRenderer(config); // move this to msg handler
     };
 
-    const startAiGame = (config: PongConfig, difficulty: string = "MEDIUM") => {
-        engine.reset(config); // Pass AI and difficulties here
+    const startAiGame = (config: PongConfig, aiDifficulty: AIDifficulty = "MEDIUM") => {
+        engine.reset({ aiMode: true, aiDifficulty });
         attachAiControl();
-        // Should be local events
-        //attachOnlineSocketEvents();
-        // sendGameStart({
-        //     playAgainstAI: true,
-        //     aiDifficulty: difficulty,
-        // });
         attachLocalEngineEvents();
         engine.start();
         startRenderer(config);
@@ -267,7 +262,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const startGame = (
         mode: GameMode,
         config: PongConfig = defaultGameConfig,
-        options?: { aiDifficulty?: string }
+        options?: { aiDifficulty?: AIDifficulty }
     ) => {
         hidePageElements();
         hideRouter();
