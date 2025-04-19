@@ -197,31 +197,24 @@ const tournamentMode = (ctn: HTMLElement) => {
     const title = createTitleText("Create a tournament");
     const line = createSetupLine();
 
-    const playerAmountInput = createInput("Number of players");
+    const modeLabel = createBodyText("Player Number");
+    const modeBtnGrp = createButtonGroup(["4P", "8P"], []);
+    const modeSection = createEl("div", "flex flex-col w-full mt-6", {
+        children: [modeLabel, modeBtnGrp],
+    });
 
     const { errorDiv, showErr, hideErr } = createError();
 
     const tournamentStartBtnCb = () => {
-        const playerAmount = playerAmountInput.value.trim();
-        if (!playerAmount) {
-            return showErr("Please enter a player amount.");
-        }
-
-        if (isNaN(parseInt(playerAmount))) {
-            return showErr("Player amount must be a number.");
-        }
-
-        if (
-            parseInt(playerAmount) < 2 ||
-            parseInt(playerAmount) > 10 ||
-            parseInt(playerAmount) % 2 !== 0
-        ) {
-            return showErr("Player amount must be an even number within 2 and 10.");
+        const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
+        if (!mode) {
+            return showErr("Please select an amount of players.");
         }
 
         hideErr();
+        const playerAmount: number = mode.textContent === "4P" ? 4 : 8;
         window.log.debug(`Tournament Setup Data: ${playerAmount}`);
-        tournamentStart(ctn, parseInt(playerAmount));
+        tournamentStart(ctn, playerAmount);
     };
 
     const tournamentCreateBtn = createCtaBtn("Create Tournament", tournamentStartBtnCb);
@@ -230,7 +223,7 @@ const tournamentMode = (ctn: HTMLElement) => {
         returnBtn,
         title,
         line,
-        playerAmountInput,
+        modeSection,
         tournamentCreateBtn,
         errorDiv,
     ]);
