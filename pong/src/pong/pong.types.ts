@@ -38,6 +38,8 @@ export type PongConfig = {
     playTo: number;
     fps: number;
     resetDelay: number;
+    aiMode: boolean;
+    aiDifficulty?: "easy" | "medium" | "hard";
 };
 
 export type UserInput = "up" | "down" | "stop";

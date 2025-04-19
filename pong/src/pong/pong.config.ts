@@ -30,4 +30,5 @@ export const defaultGameConfig: PongConfig = {
     playTo: 11,
     fps: 60,
     resetDelay: 1500,
+    aiMode: false,
 };
