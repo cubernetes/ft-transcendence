@@ -9,13 +9,15 @@
         "build:css:dev": "npx tailwindcss --input ./src/styles/styles.css --output ./dist/output.css --watch",
         "build:js": "node esbuild.config.js",
         "build:js:dev": "node esbuild.config.js --watch",
+        "dev": "concurrently \"npm run build:css:dev\" \"npm run build:js:dev\" \"live-server dist --watch=dist\"",
         "reload": "node reload-server.js"
     },
     "dependencies": {
         "@babylonjs/core": "^8.0.1",
         "@babylonjs/gui": "^8.0.1",
-        "@darrenkuro/pong-core": "^1.0.17",
+        "@darrenkuro/pong-core": "^1.0.18",
         "@types/earcut": "^3.0.0",
+        "chart.js": "^4.4.9",
         "earcut": "^3.0.1",
         "jwt-decode": "^4.0.0",
         "neverthrow": "^8.2.0",

@@ -1,32 +1,92 @@
+import { Err, Result, err, ok } from "neverthrow";
 import { showPageElements } from "../../modules/layout/layout.service";
+import { createEl } from "../../utils/dom-helper";
+import { createPlayerDataSection, createStatsDataSection } from "../layout/PlayerStatsModal";
 
-// TODO: 2FA, upload profile picture; profile pic, basic info
-export const createProfilePage: PageRenderer = async (): Promise<HTMLElement[]> => {
+const fetchPlayerData = async (): Promise<Result<Record<string, unknown>, Error>> => {
+    try {
+        const response = await fetch(`${window.cfg.url.user}/me`, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
+            },
+        });
+        if (!response.ok) {
+            throw new Error("Failed to fetch user");
+        }
+
+        const data = await response.json();
+
+        const processedData = {
+            id: data.data.id,
+            name: data.data.username,
+            games: data.data.wins + data.data.losses,
+            wins: data.data.wins,
+            losses: data.data.losses,
+            rank: data.data.rank,
+            img: data.data.avatarUrl,
+        };
+
+        return ok(processedData);
+    } catch (error) {
+        window.log.debug("Fetch error:", error);
+        return err(new Error("Fail to fetch user"));
+    }
+};
+
+const fetchGameStats = async (): Promise<Result<Record<string, unknown>[], Error>> => {
+    const gameStats = [
+        { gameId: 1, hits: 23, misses: 4 },
+        { gameId: 2, hits: 18, misses: 7 },
+        { gameId: 3, hits: 27, misses: 5 },
+        { gameId: 4, hits: 30, misses: 3 },
+        { gameId: 5, hits: 25, misses: 6 },
+        { gameId: 6, hits: 29, misses: 2 },
+        { gameId: 7, hits: 22, misses: 8 },
+        { gameId: 8, hits: 26, misses: 4 },
+        { gameId: 9, hits: 31, misses: 3 },
+        { gameId: 10, hits: 24, misses: 5 },
+    ];
+
+    // try {
+    // const response = await fetch(`${window.cfg.url.user}/me`, {
+    //     headers: {
+    //         Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
+    //     },
+    // });
+    //     if (!response.ok) {
+    //         throw new Error("Failed to fetch user stats");
+    //     }
+
+    //     const data = await response.json();
+
+    //     return ok(data);
+    // } catch (error) {
+    //     window.log.debug("Fetch error:", error);
+    //     return err(new Error("Fail to fetch user"));
+    // }
+
+    return ok(gameStats);
+};
+
+const createProfileSection = async (): Promise<HTMLElement> => {
+    const profileSection = createEl("section", "bg-white p-6 rounded-lg shadow-md");
+
+    const playerData = await fetchPlayerData();
+    const gameStats = await fetchGameStats();
+
+    const playerSection = createPlayerDataSection(playerData);
+    const statsSection = createStatsDataSection(gameStats);
+
+    profileSection.appendChild(playerSection);
+    profileSection.appendChild(statsSection);
+
+    return profileSection;
+};
+
+export const createProfilePage = async (): Promise<HTMLElement[]> => {
     showPageElements();
-
-    const main = document.createElement("main");
-    main.className = "container mx-auto p-4";
-
-    const profileSection = document.createElement("section");
-    profileSection.className = "bg-white p-6 rounded-lg shadow-md";
-
-    const profileTitle = document.createElement("h2");
-    profileTitle.className = "text-2xl font-bold mb-4";
-    profileTitle.textContent = "Your Profile";
-
-    const profileInfo = document.createElement("div");
-    profileInfo.className = "space-y-4";
-
-    const username = document.createElement("p");
-    username.innerHTML = '<span class="font-semibold">Username:</span> Player1';
-
-    const stats = document.createElement("p");
-    stats.innerHTML = '<span class="font-semibold">Games Played:</span> 0';
-
-    profileInfo.appendChild(username);
-    profileInfo.appendChild(stats);
-    profileSection.appendChild(profileTitle);
-    profileSection.appendChild(profileInfo);
+    const profileSection = await createProfileSection();
+    const main = createEl("main", "container mx-auto p-4", { children: [profileSection] });
 
     main.appendChild(profileSection);
 

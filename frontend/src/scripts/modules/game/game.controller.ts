@@ -236,9 +236,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const startLocalGame = (config: PongConfig) => {
+        engine.reset(config); //TODO: Moved reset to the start.
         attachLocalControl();
         attachLocalEngineEvents();
-        engine.reset();
         engine.start(); // get config
         startRenderer(config); // send config to renderer instead of using default
     };
@@ -251,9 +251,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const startAiGame = (config: PongConfig) => {
+        engine.reset(config); // TODO: config AI to pongEngine here
         attachAiControl();
         attachLocalEngineEvents();
-        engine.reset(); // TODO: config AI to pongEngine here
         engine.start();
         startRenderer(config);
     };
