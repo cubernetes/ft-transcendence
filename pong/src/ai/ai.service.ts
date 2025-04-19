@@ -40,6 +40,8 @@ export const createAIPlayer = (
         isActive: true,
     };
 
+    // aiPlayers.set(playerIndex, aiPlayer);
+
     // Register the event handler immediately
     const config = DIFFICULTY_LEVELS[difficulty];
     engine.onEvent("state-update", (evt) => {
