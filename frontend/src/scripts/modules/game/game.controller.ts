@@ -43,16 +43,16 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const handleKeydownAi = (evt: KeyboardEvent) => {
         if (window.cfg.key.up.includes(evt.key)) {
-            sendGameAction("up");
+            engine.setInput(0, "up");
         }
         if (window.cfg.key.down.includes(evt.key)) {
-            sendGameAction("down");
+            engine.setInput(0, "down");
         }
     };
 
     const handleKeyupAi = (evt: KeyboardEvent) => {
         if (window.cfg.key.paddle.includes(evt.key)) {
-            sendGameAction("stop");
+            engine.setInput(0, "stop");
         }
     };
 
@@ -236,9 +236,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const startLocalGame = (config: PongConfig) => {
+        engine.reset(config);
         attachLocalControl();
         attachLocalEngineEvents();
-        engine.reset();
         engine.start(); // get config
         startRenderer(config); // send config to renderer instead of using default
     };
@@ -251,12 +251,16 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const startAiGame = (config: PongConfig, difficulty: string = "MEDIUM") => {
+        engine.reset(config); // Pass AI and difficulties here
         attachAiControl();
-        attachOnlineSocketEvents();
-        sendGameStart({
-            playAgainstAI: true,
-            aiDifficulty: difficulty,
-        });
+        // Should be local events
+        //attachOnlineSocketEvents();
+        // sendGameStart({
+        //     playAgainstAI: true,
+        //     aiDifficulty: difficulty,
+        // });
+        attachLocalEngineEvents();
+        engine.start();
         startRenderer(config);
     };
 
