@@ -5,3 +5,5 @@ export * from "./pong/pong.config";
 export * from "./utils";
 export * from "./types/schemas.api";
 export * from "./types/schemas.user";
+export * from "./ai/ai.service";
+export * from "./ai/ai.types";

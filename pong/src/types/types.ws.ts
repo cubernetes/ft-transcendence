@@ -1,3 +1,4 @@
+import { AIDifficulty } from "../ai/ai.types";
 import { PongEngineEventMap, UserInput } from "../pong/pong.types";
 
 export type IncomingMessageType = "game-start" | "game-action";
@@ -7,12 +8,22 @@ export type OutgoingMessageType = keyof PongEngineEventMap | "waiting-for-oppone
 export type MessageType = IncomingMessageType | OutgoingMessageType;
 
 export type IncomingMessagePayloads = {
-    "game-start": { token: string };
+    "game-start": {
+        token: string;
+        playAgainstAI?: boolean;
+        aiDifficulty?: AIDifficulty;
+    };
     "game-action": { gameId: string; index: number; action: UserInput };
 };
 
 export type OutgoingMessagePayloads = Omit<PongEngineEventMap, "game-start"> & {
-    "game-start": { gameId: string; opponentId: number; index: 0 | 1 };
+    "game-start": {
+        gameId: string;
+        opponentId: number;
+        index: 0 | 1;
+        isAI?: boolean;
+        aiDifficulty?: AIDifficulty;
+    };
     "waiting-for-opponent": null;
 };
 

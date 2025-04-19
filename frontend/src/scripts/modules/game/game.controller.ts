@@ -43,16 +43,16 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const handleKeydownAi = (evt: KeyboardEvent) => {
         if (window.cfg.key.up.includes(evt.key)) {
-            engine.setInput(0, "up");
+            sendGameAction("up");
         }
         if (window.cfg.key.down.includes(evt.key)) {
-            engine.setInput(0, "down");
+            sendGameAction("down");
         }
     };
 
     const handleKeyupAi = (evt: KeyboardEvent) => {
         if (window.cfg.key.paddle.includes(evt.key)) {
-            engine.setInput(0, "stop");
+            sendGameAction("stop");
         }
     };
 
@@ -250,15 +250,21 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         startRenderer(config); // move this to msg handler
     };
 
-    const startAiGame = (config: PongConfig) => {
+    const startAiGame = (config: PongConfig, difficulty: string = "MEDIUM") => {
         attachAiControl();
-        attachLocalEngineEvents();
-        engine.reset(); // TODO: config AI to pongEngine here
-        engine.start();
+        attachOnlineSocketEvents();
+        sendGameStart({
+            playAgainstAI: true,
+            aiDifficulty: difficulty,
+        });
         startRenderer(config);
     };
 
-    const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
+    const startGame = (
+        mode: GameMode,
+        config: PongConfig = defaultGameConfig,
+        options?: { aiDifficulty?: string }
+    ) => {
         hidePageElements();
         hideRouter();
         showCanvas();
@@ -271,7 +277,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 startOnlineGame(config);
                 break;
             case "ai":
-                startAiGame(config);
+                startAiGame(config, options?.aiDifficulty || "MEDIUM");
                 break;
             default:
         }

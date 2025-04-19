@@ -32,7 +32,7 @@ export const closeSocketConn = () => {
     wsStore.update({ isConnected: false, conn: null });
 };
 
-export const sendGameStart = () => {
+export const sendGameStart = (options?: { playAgainstAI?: boolean; aiDifficulty?: string }) => {
     const { isConnected, conn } = wsStore.get();
     if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN) {
         window.log.error("SendGameStart but socket is not connected");
@@ -46,7 +46,13 @@ export const sendGameStart = () => {
     }
 
     window.log.debug(`Sending game-start`);
-    send(conn, { type: "game-start", payload: { token } });
+    send(conn, {
+        type: "game-start",
+        payload: {
+            token,
+            ...options,
+        },
+    });
 };
 
 export const sendGameAction = (action: UserInput) => {
