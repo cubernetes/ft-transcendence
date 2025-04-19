@@ -1,4 +1,5 @@
 import { Result, err, ok } from "neverthrow";
+import { createAIPlayer } from "../ai";
 import { deepAssign } from "../utils";
 import { defaultGameConfig } from "./pong.config";
 import {
@@ -210,6 +211,11 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         }
 
         status = "ongoing";
+
+        if (config.aiMode && config.aiDifficulty) {
+            createAIPlayer({ onEvent, setInput }, config.aiDifficulty, 1);
+        }
+
         interval = setInterval(tick, tickRate);
         emit("game-start", null);
         return ok();

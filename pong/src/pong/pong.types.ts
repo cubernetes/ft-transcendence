@@ -1,3 +1,4 @@
+import type { AIDifficulty } from "../ai/ai.types";
 import { createPongEngine } from "./pong.engine";
 
 export type Size3D = {
@@ -39,7 +40,7 @@ export type PongConfig = {
     fps: number;
     resetDelay: number;
     aiMode: boolean;
-    aiDifficulty?: "easy" | "medium" | "hard";
+    aiDifficulty?: AIDifficulty;
 };
 
 export type UserInput = "up" | "down" | "stop";

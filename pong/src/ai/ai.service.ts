@@ -1,5 +1,5 @@
-import { UserInput } from "../pong/pong.types";
-import { AIConfig, AIDifficulty, AIPlayer, AIPongEngine, AIService } from "./ai.types";
+import { PongEngine, UserInput } from "../pong/pong.types";
+import { AIConfig, AIDifficulty, AIPlayer } from "./ai.types";
 
 // Constants for AI configuration
 const AI_UPDATE_INTERVAL = 1000; // Update AI every 1 second
@@ -24,88 +24,78 @@ const DIFFICULTY_LEVELS: Record<AIDifficulty, AIConfig> = {
     },
 };
 
-export const createAIService = (): AIService => {
-    // Store all active AI players
-    const aiPlayers = new Map<number, AIPlayer>();
+// Store all active AI players
+// const aiPlayers = new Map<number, AIPlayer>();
 
-    const createAIPlayer = (
-        engine: AIPongEngine,
-        playerIndex: number,
-        difficulty: AIDifficulty = "MEDIUM"
-    ): void => {
-        const aiPlayer: AIPlayer = {
-            playerIndex,
-            lastUpdateTime: Date.now(),
-            engine,
-            difficulty,
-            isActive: true,
-        };
+export const createAIPlayer = (
+    engine: Pick<PongEngine, "onEvent" | "setInput">,
+    difficulty: AIDifficulty,
+    playerIndex: number = 1
+) => {
+    const aiPlayer: AIPlayer = {
+        playerIndex,
+        lastUpdateTime: Date.now(),
+        engine,
+        difficulty,
+        isActive: true,
+    };
 
-        aiPlayers.set(playerIndex, aiPlayer);
+    // Register the event handler immediately
+    const config = DIFFICULTY_LEVELS[difficulty];
+    engine.onEvent("state-update", (evt) => {
+        if (!aiPlayer.isActive) return;
 
-        // Register the event handler immediately
-        const config = DIFFICULTY_LEVELS[difficulty];
-        engine.onEvent("state-update", (event) => {
-            if (!aiPlayer.isActive) return;
+        const { ball, paddles } = evt.state;
+        const paddle = paddles[playerIndex];
 
-            const { ball, paddles } = event.state;
-            const paddle = paddles[playerIndex];
+        // Calculate the ideal position for the paddle
+        const idealZ = ball.pos.z;
+        const currentZ = paddle.pos.z;
+        const diff = idealZ - currentZ;
 
-            // Calculate the ideal position for the paddle
-            const idealZ = ball.pos.z;
-            const currentZ = paddle.pos.z;
-            const diff = idealZ - currentZ;
+        // Add some randomness based on difficulty
+        const randomFactor = Math.random() * config.randomnessFactor;
+        const adjustedDiff = diff * (1 + randomFactor);
 
-            // Add some randomness based on difficulty
-            const randomFactor = Math.random() * config.randomnessFactor;
-            const adjustedDiff = diff * (1 + randomFactor);
+        // Determine the move direction
+        let move: UserInput = "stop";
+        if (Math.abs(adjustedDiff) > 0.1) {
+            move = adjustedDiff > 0 ? "up" : "down";
+        }
 
-            // Determine the move direction
-            let move: UserInput = "stop";
-            if (Math.abs(adjustedDiff) > 0.1) {
-                move = adjustedDiff > 0 ? "up" : "down";
+        // Apply the move with reaction delay
+        const reactionDelay =
+            Math.random() * (REACTION_DELAY_MAX - REACTION_DELAY_MIN) + REACTION_DELAY_MIN;
+        setTimeout(() => {
+            if (aiPlayer.isActive) {
+                engine.setInput(playerIndex, move);
             }
+        }, reactionDelay * config.reactionSpeedMultiplier);
+    });
 
-            // Apply the move with reaction delay
-            const reactionDelay =
-                Math.random() * (REACTION_DELAY_MAX - REACTION_DELAY_MIN) + REACTION_DELAY_MIN;
-            setTimeout(() => {
-                if (aiPlayer.isActive) {
-                    engine.setInput(playerIndex, move);
-                }
-            }, reactionDelay * config.reactionSpeedMultiplier);
-        });
+    // Start the AI processing loop
+    processAI(aiPlayer);
+};
 
-        // Start the AI processing loop
-        processAI(aiPlayer);
-    };
+// const removeAIPlayer = (playerIndex: number): void => {
+//     const aiPlayer = aiPlayers.get(playerIndex);
+//     if (aiPlayer) {
+//         aiPlayer.isActive = false;
+//         aiPlayers.delete(playerIndex);
+//     }
+// };
 
-    const removeAIPlayer = (playerIndex: number): void => {
-        const aiPlayer = aiPlayers.get(playerIndex);
-        if (aiPlayer) {
-            aiPlayer.isActive = false;
-            aiPlayers.delete(playerIndex);
-        }
-    };
+const processAI = (player: AIPlayer): void => {
+    if (!player.isActive) return;
 
-    const processAI = (player: AIPlayer): void => {
-        if (!player.isActive) return;
+    const now = Date.now();
+    const timeSinceLastUpdate = now - player.lastUpdateTime;
 
-        const now = Date.now();
-        const timeSinceLastUpdate = now - player.lastUpdateTime;
+    if (timeSinceLastUpdate < AI_UPDATE_INTERVAL) {
+        setTimeout(() => processAI(player), AI_UPDATE_INTERVAL - timeSinceLastUpdate);
+        return;
+    }
 
-        if (timeSinceLastUpdate < AI_UPDATE_INTERVAL) {
-            setTimeout(() => processAI(player), AI_UPDATE_INTERVAL - timeSinceLastUpdate);
-            return;
-        }
-
-        player.lastUpdateTime = now;
-        setTimeout(() => processAI(player), AI_UPDATE_INTERVAL);
-    };
-
-    return {
-        createAIPlayer,
-        removeAIPlayer,
-        processAI,
-    };
+    player.lastUpdateTime = now;
+    setTimeout(() => processAI(player), AI_UPDATE_INTERVAL);
 };
