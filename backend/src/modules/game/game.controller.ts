@@ -17,35 +17,6 @@ export const handleGameStart =
 
         conn.userId = Number(userId.value.id);
 
-        // if (playAgainstAI) {
-        //     // Create a game with an AI opponent
-        //     app.log.info(`Creating game with AI opponent for user ${conn.userId}`);
-
-        //     const engine = createPongEngine();
-
-        //     // Register game session (player is always index 0, AI is index 1)
-        //     const gameId = app.gameService.registerGameSession(engine, [conn]);
-        //     app.gameService.registerCbHandlers(gameId);
-
-        //     // Create the AI player using the pong AI service directly
-        //     pongAIService.createAIPlayer(engine, 1, aiDifficulty);
-        //     app.log.info(`AI player created for game ${gameId} with difficulty ${aiDifficulty}`);
-
-        //     // Send game start message to human player
-        //     app.wsService.send(conn, {
-        //         type: "game-start",
-        //         payload: {
-        //             gameId,
-        //             opponentId: 0, // AI doesn't have a real userId
-        //             index: 0, // Human player is always index 0
-        //             isAI: true,
-        //             aiDifficulty,
-        //         },
-        //     });
-        //     engine.start();
-        //     return;
-        // }
-
         const opponent = app.gameService.tryGetOpponent(conn);
         if (opponent.isErr()) {
             return app.wsService.send(conn, {
