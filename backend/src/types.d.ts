@@ -25,7 +25,6 @@ declare module "fastify" {
         userService: ReturnType<typeof createUserService>;
         gameService: ReturnType<typeof createGameService>;
         tournamentService: ReturnType<typeof createTournamentService>;
-		// aiService: ReturnType<typeof createAIService>;
         //friendService: ReturnType<typeof createFriendService>;
         //authRoutes: ReturnType<typeof authRoutes>;
         userRoutes: ReturnType<typeof userRoutes>;

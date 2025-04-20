@@ -1,3 +1,4 @@
+import type { AIDifficulty } from "../ai/ai.types";
 import { createPongEngine } from "./pong.engine";
 
 export type Size3D = {
@@ -38,6 +39,8 @@ export type PongConfig = {
     playTo: number;
     fps: number;
     resetDelay: number;
+    aiMode: boolean;
+    aiDifficulty?: AIDifficulty;
 };
 
 export type UserInput = "up" | "down" | "stop";
@@ -54,7 +57,7 @@ export type PongEngineEventMap = {
     "score-update": { scores: [number, number] };
     "ball-reset": null;
     "game-start": null;
-    "game-end": { winner: 0 | 1 };
+    "game-end": { winner: 0 | 1; hits: [number, number] };
 };
 
 export type EventCallback<T extends keyof PongEngineEventMap> = (

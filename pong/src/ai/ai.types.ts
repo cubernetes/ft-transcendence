@@ -1,8 +1,8 @@
-import { createPongEngine } from "../pong/pong.engine";
-
-export type AIPongEngine = ReturnType<typeof createPongEngine>;
+import type { PongEngine } from "../pong/pong.types";
 
 export type AIDifficulty = "EASY" | "MEDIUM" | "HARD";
+
+export type AIPongEngine = Pick<PongEngine, "onEvent" | "setInput">;
 
 export type AIConfig = {
     maxDepth: number;

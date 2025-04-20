@@ -77,7 +77,7 @@ const renderRoute = async (dest: string) => {
     router.appendChild(fragment);
 
     // TODO: Clean up later
-    if (route === "landing" || route === "onlinegame" || route === "localgame") {
+    if (route === "landing" || route === "onlinegame" || route === "localgame" || route === "aigame") {
         hidePageElements();
     } else {
         showPageElements();

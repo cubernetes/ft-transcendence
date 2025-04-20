@@ -57,37 +57,24 @@ export const createGameService = (app: FastifyInstance) => {
         }
 
         engine.onEvent("game-start", (_) => {
-            // For AI games, only send to the human player (index 0)
-            if (players.length === 1) {
-                app.wsService.send(players[0], {
-                    type: "game-start",
-                    payload: {
-                        gameId: id,
-                        opponentId: 0, // AI doesn't have a userId
-                        index: 0,
-                        isAI: true,
-                    },
-                });
-            } else {
-                // Regular 2-player game
-                app.wsService.send(players[0], {
-                    type: "game-start",
-                    payload: {
-                        gameId: id,
-                        opponentId: players[1].userId!,
-                        index: 0,
-                    },
-                });
+            // Assuming 2 players
+            app.wsService.send(players[0], {
+                type: "game-start",
+                payload: {
+                    gameId: id,
+                    opponentId: players[1].userId!,
+                    index: 0,
+                },
+            });
 
-                app.wsService.send(players[1], {
-                    type: "game-start",
-                    payload: {
-                        gameId: id,
-                        opponentId: players[0].userId!,
-                        index: 1,
-                    },
-                });
-            }
+            app.wsService.send(players[1], {
+                type: "game-start",
+                payload: {
+                    gameId: id,
+                    opponentId: players[0].userId!,
+                    index: 1,
+                },
+            });
         });
 
         engine.onEvent("game-end", (evt) => {
