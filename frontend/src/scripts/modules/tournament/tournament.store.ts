@@ -17,9 +17,3 @@ export const defaultTournamentState: TournamentState = {
 };
 
 export const tournamentStore = createStore<TournamentState>(defaultTournamentState);
-
-tournamentStore.subscribe((state) => {
-    window.log.debug("GameStore subscriber triggered");
-
-    const { round, matches, current_match, players, winner } = state;
-});
