@@ -87,42 +87,31 @@ const localMode = (ctn: HTMLElement) => {
     const line = createSetupLine();
 
     // Player Section
+    const playerLabel = createBodyText("Enter player names:");
     const p1 = createInput("Name Player1");
     const p2 = createInput("Name Player2");
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
-        children: [p1, p2],
+        children: [playerLabel, p1, p2],
     });
 
-    // Mode Section
-    const modeLabel = createBodyText("Mode");
-    const modeBtnGrp = createButtonGroup(["2P", "4P"], []);
-    const modeSection = createEl("div", "flex flex-col w-full mt-6", {
-        children: [modeLabel, modeBtnGrp],
-    });
-
-    const difficultyGrp = createDifficultyGroup();
+    // const difficultyGrp = createDifficultyGroup();
     const { errorDiv, showErr, hideErr } = createError();
 
     const playBtnCb = () => {
         const player1 = p1.value.trim();
         const player2 = p2.value.trim();
-        const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
-        const difficulty = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
+        // const difficulty = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!player1 || !player2) {
             return showErr("Please enter names for both players.");
         }
-        if (!mode) {
-            return showErr("Please select a mode.");
-        }
-        if (!difficulty) {
-            return showErr("Please select a difficulty.");
-        }
+        // if (!difficulty) {
+        //     return showErr("Please select a difficulty.");
+        // }
 
         const gameData = {
             player1,
             player2,
-            mode: mode.textContent,
-            difficulty: difficulty.textContent?.toLowerCase(),
+            // difficulty: difficulty.textContent?.toLowerCase(),
         };
         hideErr();
         navigateTo("localgame");
@@ -138,8 +127,7 @@ const localMode = (ctn: HTMLElement) => {
         title,
         line,
         playersSection,
-        modeSection,
-        difficultyGrp,
+        // difficultyGrp,
         playBtn,
         errorDiv,
     ]);
