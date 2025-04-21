@@ -1,0 +1,27 @@
+# Server settings
+server.name: kibana
+server.host: "0.0.0.0"
+server.port: 5601
+
+# Elasticsearch connection
+elasticsearch.hosts: ["http://elasticsearch:9200"]
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "${KIBANA_PASSWORD}"
+elasticsearch.requestTimeout: 30000
+
+# Kibana index patterns
+kibana.index_pattern.default: "ft-transcendence-logs-*"
+
+# Monitoring
+monitoring.ui.container.elasticsearch.enabled: true
+monitoring.ui.container.logstash.enabled: true
+
+# Security settings
+xpack.security.enabled: true
+xpack.encryptedSavedObjects.encryptionKey: "${KIBANA_ENCRYPTION_KEY}"
+
+# Saved Objects settings
+xpack.savedObjects.maxImportExportSize: 10000
+
+# Default space settings
+xpack.spaces.enabled: true
