@@ -104,7 +104,6 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         ) {
             ball.vec.x = -ball.vec.x;
             hits[0]++;
-            hits[0]++;
             emit("paddle-collision", null);
         }
 
@@ -115,7 +114,6 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
             pos.z >= p[1].pos.z - p[1].size.depth / 2 - ball.r
         ) {
             ball.vec.x = -ball.vec.x;
-            hits[1]++;
             hits[1]++;
             emit("paddle-collision", null);
         }
@@ -174,7 +172,6 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         if (scores.some((n) => n >= config.playTo)) {
             status = "ended";
             emit("game-end", { winner: scores[0] >= config.playTo ? 0 : 1, hits });
-            emit("game-end", { winner: scores[0] >= config.playTo ? 0 : 1, hits });
         }
 
         return ok();
@@ -231,7 +228,6 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
                 clearInterval(interval);
                 interval = null;
             }
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits });
             emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits });
         }
     };
