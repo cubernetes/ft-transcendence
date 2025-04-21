@@ -1,12 +1,10 @@
-import { dir } from "console";
-import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
-import { mainMenu } from "../menu/mainMenu";
 import { cleanup } from "../utils/cleanup";
 import { ControllerConfig } from "../utils/config";
 
 export class GameController {
     private listeners: Array<() => void> = [];
+    private lastDirection: Map<number, "up" | "down" | "stop"> = new Map();
 
     constructor(private configs: ControllerConfig[]) {
         const primary = this.configs.find((cfg) => cfg.player === 0);
@@ -32,9 +30,33 @@ export class GameController {
             const keyStr = key.toString();
 
             for (const { keyMap, player, onMove } of this.configs) {
-                if (keyStr === keyMap.up) return onMove(player, "down");
-                if (keyStr === keyMap.down) return onMove(player, "up");
-                if (keyStr === keyMap.stop) return onMove(player, "stop");
+                if (keyStr === keyMap.up) {
+                    const lastDir = this.lastDirection.get(player);
+                    if (lastDir === "up") {
+                        onMove(player, "stop");
+                        this.lastDirection.set(player, "stop");
+                    } else {
+                        onMove(player, "down");
+                        this.lastDirection.set(player, "up");
+                    }
+                    return;
+                }
+                if (keyStr === keyMap.down) {
+                    const lastDir = this.lastDirection.get(player);
+                    if (lastDir === "down") {
+                        onMove(player, "stop");
+                        this.lastDirection.set(player, "stop");
+                    } else {
+                        onMove(player, "up");
+                        this.lastDirection.set(player, "down");
+                    }
+                    return;
+                }
+                if (keyStr === keyMap.stop && this.lastDirection.get(player) !== "stop") {
+                    onMove(player, "stop");
+                    this.lastDirection.set(player, "stop");
+                    return;
+                }
             }
 
             // Ctrl+C --> hard exit
