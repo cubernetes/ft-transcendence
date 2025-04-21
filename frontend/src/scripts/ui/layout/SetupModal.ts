@@ -1,6 +1,7 @@
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
+import { tournamentStart } from "../../modules/tournament/tournament.create";
 import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
@@ -171,6 +172,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
         hideErr();
         window.log.debug(`Tournament Start Data: ${playerInputs}`);
+        tournamentStart(playerInputs);
     };
 
     const tournamentCreateBtn = createCtaBtn("Start Tournament", participantsBtnCb);
