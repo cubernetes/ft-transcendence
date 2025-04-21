@@ -1,3 +1,4 @@
+import { currentLang, switchLanguage, texts } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -5,7 +6,7 @@ import { appendUserStatus } from "./UserStatus";
 
 export const createHeader = (header: HTMLElement): HTMLElement => {
     const anchor = createEl("a", "text-3xl font-bold", {
-        text: "ft-transcendence",
+        text: texts[currentLang].title,
         events: {
             click: (e) => {
                 e.preventDefault(); // prevent full reload
@@ -17,13 +18,13 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
     const title = createEl("h1", "", { children: [anchor] });
 
     const navItems = {
-        Home: window.cfg.url.home,
-        Setup: window.cfg.url.home,
-        Game: "localgame", // Temporary, gives an entry point to local game, for dev
-        Online: "onlinegame", // Temporary, gives an entry point to online game, for dev
-        AI: "aigame", // Temporary, gives an entry point to online game, for dev
-        Leaderboard: "leaderboard",
-        Profile: "profile",
+        [texts[currentLang].home]: window.cfg.url.home,
+        [texts[currentLang].setup]: window.cfg.url.home,
+        [texts[currentLang].game]: "localgame", // Temporary, gives an entry point to local game, for dev
+        [texts[currentLang].online]: "onlinegame", // Temporary, gives an entry point to online game, for dev
+        [texts[currentLang].ai]: "aigame", // Temporary, gives an entry point to online game, for dev
+        [texts[currentLang].leaderboard]: "leaderboard",
+        [texts[currentLang].profile]: "profile",
         TOTP: "totp", // TODO: Refactor
     };
 
@@ -53,7 +54,21 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
         }
     });
 
-    const nav = createEl("nav", "flex items-center space-x-6", { children: [navList] });
+    const languageButton = createEl("button", "hover:underline", {
+        text: "EN/DE",
+        events: {
+            click: (e) => {
+                window.log.debug("Language button clicked");
+                switchLanguage();
+                header.innerHTML = "";
+                createHeader(header);
+            },
+        },
+    });
+
+    const nav = createEl("nav", "flex items-center space-x-6", {
+        children: [navList, languageButton],
+    });
 
     appendChildren(header, [title, nav]);
 
