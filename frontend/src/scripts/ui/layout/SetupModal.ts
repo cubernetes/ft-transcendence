@@ -1,4 +1,7 @@
+import { navigateTo } from "../../global/router";
+import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
+import { tournamentStart } from "../../modules/tournament/tournament.create";
 import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
@@ -10,8 +13,13 @@ import { createBodyText, createTitleText } from "../components/Text";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
-const createPlayBtn = (cb: () => void) =>
-    createButton("Play", "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full", cb);
+const createCtaBtn = (text: string, cb: () => void): HTMLButtonElement => {
+    return createButton(
+        text,
+        "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
+        cb
+    );
+};
 
 const createDifficultyGroup = () => {
     const label = createBodyText("Difficulty");
@@ -27,6 +35,7 @@ const createInput = (placeholder: string) =>
         attributes: { placeholder },
     });
 
+//TODO: Currently both "Create Lobby" and "Join Lobby" navigate to "onlinegame"
 const onlineMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText("Play Online");
@@ -34,6 +43,7 @@ const onlineMode = (ctn: HTMLElement) => {
 
     const createLobbyBtnCb = () => {
         window.log.info("Creating a new lobby...");
+        navigateTo("onlinegame");
     };
     const createLobbyBtn = createButton(
         "Create Lobby",
@@ -43,10 +53,12 @@ const onlineMode = (ctn: HTMLElement) => {
 
     const joinLobbyBtnCb = () => {
         window.log.info("Joining a new lobby...");
+        navigateTo("onlinegame");
     };
     const joinLobbyBtn = createButton(
         "Join Lobby",
-        "w-64 p-4 bg-green-500 text-white hover:bg-green-700"
+        "w-64 p-4 bg-green-500 text-white hover:bg-green-700",
+        joinLobbyBtnCb
     );
 
     const BtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
@@ -86,18 +98,16 @@ const aiMode = (ctn: HTMLElement) => {
             return showErr("Game controller not initialized.");
         }
 
-        // // Navigate to AI game page using hash routing
-        // window.location.hash = "aigame";
+        navigateTo("aigame");
 
-        // // Start the game after a small delay to ensure page rendering is complete
-        // setTimeout(() => {
-        //     controller.startGame("ai", undefined, { aiDifficulty: difficulty });
-        // }, 100);
+        //TODO: Specify the difficulty (Delay will be handled in the game controller)
+        //Function call below has a type error.
+        //controller.startGame("ai", undefined, { aiDifficulty: difficulty });
     };
 
-    const playBtn = createPlayBtn(playBtnCb);
+    const playBtn = createCtaBtn("Play", playBtnCb);
 
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
@@ -116,56 +126,134 @@ const localMode = (ctn: HTMLElement) => {
     const line = createSetupLine();
 
     // Player Section
+    const playerLabel = createBodyText("Enter player names:");
     const p1 = createInput("Name Player1");
     const p2 = createInput("Name Player2");
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
-        children: [p1, p2],
+        children: [playerLabel, p1, p2],
     });
 
-    // Mode Section
-    const modeLabel = createBodyText("Mode");
-    const modeBtnGrp = createButtonGroup(["2P", "4P"], []);
-    const modeSection = createEl("div", "flex flex-col w-full mt-6", {
-        children: [modeLabel, modeBtnGrp],
-    });
-
-    const difficultyGrp = createDifficultyGroup();
+    // const difficultyGrp = createDifficultyGroup();
     const { errorDiv, showErr, hideErr } = createError();
 
     const playBtnCb = () => {
         const player1 = p1.value.trim();
         const player2 = p2.value.trim();
-        const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
-        const difficulty = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
+        // const difficulty = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!player1 || !player2) {
             return showErr("Please enter names for both players.");
         }
-        if (!mode) {
-            return showErr("Please select a mode.");
-        }
-        if (!difficulty) {
-            return showErr("Please select a difficulty.");
-        }
+        // if (!difficulty) {
+        //     return showErr("Please select a difficulty.");
+        // }
 
         const gameData = {
             player1,
             player2,
-            mode: mode.textContent,
-            difficulty: difficulty.textContent?.toLowerCase(),
+            // difficulty: difficulty.textContent?.toLowerCase(),
         };
         hideErr();
-        window.log.debug(`Game Data: ${gameData}`);
+        navigateTo("localgame");
+        window.log.debug(
+            "Navigated to localgame via navigateTo(localgame) with gameData:",
+            gameData
+        );
     };
-    const playBtn = createPlayBtn(playBtnCb);
+    const playBtn = createCtaBtn("Play", playBtnCb);
 
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center shaded relative", [
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
         playersSection,
-        modeSection,
-        difficultyGrp,
+        // difficultyGrp,
         playBtn,
+        errorDiv,
+    ]);
+
+    ctn.innerHTML = "";
+    ctn.appendChild(section);
+};
+
+const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
+    //TODO: Return should go to the previous step rather than the SetupModal.
+    const returnBtn = createReturnButton(ctn, createSetupModal());
+    const title = createTitleText("Start tournament");
+    const line = createSetupLine();
+
+    const { errorDiv, showErr, hideErr } = createError();
+
+    const playerInputs: HTMLInputElement[] = [];
+    for (let i = 0; i < playerAmount; i++) {
+        const playerInput = createInput(`Name Player${i + 1}`);
+        playerInputs.push(playerInput);
+    }
+
+    const participantsBtnCb = () => {
+        for (let i = 0; i < playerAmount; i++) {
+            const playerInput = playerInputs[i];
+            if (!playerInput.value.trim()) {
+                return showErr(`Please enter a name for Player ${i + 1}.`);
+            }
+        }
+
+        hideErr();
+        window.log.debug(`Tournament Start Data: ${playerInputs}`);
+        tournamentStart(playerInputs);
+    };
+
+    const tournamentCreateBtn = createCtaBtn("Start Tournament", participantsBtnCb);
+
+    const inputsWrapper = createEl("div", "grid grid-cols-1 md:grid-cols-2 gap-4 w-full", {
+        children: playerInputs,
+    });
+
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
+        returnBtn,
+        title,
+        line,
+        inputsWrapper,
+        tournamentCreateBtn,
+        errorDiv,
+    ]);
+
+    ctn.innerHTML = "";
+    ctn.appendChild(section);
+};
+
+const tournamentMode = (ctn: HTMLElement) => {
+    const returnBtn = createReturnButton(ctn, createSetupModal());
+    const title = createTitleText("Create a tournament");
+    const line = createSetupLine();
+
+    const modeLabel = createBodyText("Player Number");
+    const modeBtnGrp = createButtonGroup(["4P", "8P"], []);
+    const modeSection = createEl("div", "flex flex-col w-full mt-6", {
+        children: [modeLabel, modeBtnGrp],
+    });
+
+    const { errorDiv, showErr, hideErr } = createError();
+
+    const participantsBtnCb = () => {
+        const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
+        if (!mode) {
+            return showErr("Please select an amount of players.");
+        }
+
+        hideErr();
+        const playerAmount: number = mode.textContent === "4P" ? 4 : 8;
+        window.log.debug(`Tournament Setup Data: ${playerAmount}`);
+        setParticipants(ctn, playerAmount);
+    };
+
+    const tournamentCreateBtn = createCtaBtn("Create Tournament", participantsBtnCb);
+
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
+        returnBtn,
+        title,
+        line,
+        modeSection,
+        tournamentCreateBtn,
         errorDiv,
     ]);
 
@@ -177,29 +265,32 @@ export const createSetupModal = (): HTMLElement => {
     const title = createTitleText("Choose Game Mode");
     const line = createSetupLine();
 
+    const wrapper = createEl("div", "w-full");
+
     const localBtnCb = () => localMode(wrapper);
-    const onlineBtnCb = () => onlineMode(wrapper);
     const aiBtnCb = () => aiMode(wrapper);
-    const gameBtnGrp = createButtonGroup(
-        ["Local", "Online", "AI"],
-        [localBtnCb, onlineBtnCb, aiBtnCb],
-        "w-80",
-        "mt-4"
-    );
+    const onlineBtnCb = () => onlineMode(wrapper);
+    const tournamentCreateBtnCb = () => tournamentMode(wrapper);
 
-    const tournamentBtnCb = () => {};
-    const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentBtnCb);
+    const btnLabels = ["Local", "AI"];
+    const btnCallbacks = [localBtnCb, aiBtnCb];
 
-    // TODO: check what shaded is? couldn't find it
-    // justify-center and items-center has no effects here.. so deleted but noted here because a little confused
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8 shaded", [
-        title,
-        line,
-        gameBtnGrp,
-        tournamentBtn,
-    ]);
+    if (authStore.get().isAuthenticated) {
+        btnLabels.push("Online");
+        btnCallbacks.push(onlineBtnCb);
+    }
 
-    const wrapper = createEl("div", "w-full", { children: [section] });
+    const gameBtnGrp = createButtonGroup(btnLabels, btnCallbacks, "flex-1", "mt-4");
+
+    const children = [title, line, gameBtnGrp];
+
+    if (authStore.get().isAuthenticated) {
+        const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentCreateBtnCb);
+        children.push(tournamentBtn);
+    }
+
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", children);
+    wrapper.appendChild(section);
 
     return wrapper;
 };

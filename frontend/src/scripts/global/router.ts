@@ -6,6 +6,7 @@ import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
+import { createQuickPlayPage } from "../ui/pages/QuickPlayPage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 
@@ -18,20 +19,22 @@ const routes = {
     localgame: createGamePage("local"),
     aigame: createGamePage("ai"),
     profile: createProfilePage,
+    quickplay: createQuickPlayPage,
     leaderboard: createLeaderboardPage,
     totp: createTotpSetupPage, // Refactor into modal later
 } satisfies Record<string, PageRenderer>;
 
 // A type-safe list of protected routes, i.e. only available after logging in
 // Temporarily protect all routes so always start in landing page
+// TODO: Commented out localgame and aigame for quickplay.
 const protectedRoutes: (keyof typeof routes)[] = [
     "setup",
     "onlinegame",
     "profile",
     "leaderboard",
     "totp",
-    "localgame",
-    "aigame",
+    // "localgame",
+    // "aigame",
 ];
 
 const renderRoute = async (dest: string) => {
@@ -77,7 +80,13 @@ const renderRoute = async (dest: string) => {
     router.appendChild(fragment);
 
     // TODO: Clean up later
-    if (route === "landing" || route === "onlinegame" || route === "localgame" || route === "aigame") {
+    if (
+        route === "landing" ||
+        route === "onlinegame" ||
+        route === "localgame" ||
+        route === "aigame" ||
+        route === "quickplay"
+    ) {
         hidePageElements();
     } else {
         showPageElements();

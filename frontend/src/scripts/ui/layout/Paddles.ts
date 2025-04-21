@@ -2,9 +2,15 @@ import { createEl } from "../../utils/dom-helper";
 
 export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
     const paddleTailwind =
-        "absolute bg-black w-8 h-96 top-1/2 transform -translate-y-1/2 transition-all duration-50 ease-linear z-10";
+        "absolute bg-black w-8 top-1/2 transform -translate-y-1/2 transition-all duration-50 ease-linear z-10";
     const leftPaddle = createEl("div", [paddleTailwind, "left-10"].join(" "));
     const rightPaddle = createEl("div", [paddleTailwind, "right-10"].join(" "));
+
+    const updatePaddleHeight = () => {
+        const height = mainContainer.clientHeight * 0.3;
+        leftPaddle.style.height = `${height}px`;
+        rightPaddle.style.height = `${height}px`;
+    };
 
     const paddleContainer = createEl(
         "div",
@@ -17,8 +23,9 @@ export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
         const cursorY = evt.clientY;
         const cursorX = evt.clientX;
 
-        const minY = containerRect.top + 220;
-        const maxY = containerRect.bottom - 220;
+        const paddleHeight = leftPaddle.offsetHeight;
+        const minY = containerRect.top + paddleHeight / 2;
+        const maxY = containerRect.bottom - paddleHeight / 2;
         const newY = Math.min(Math.max(cursorY, minY), maxY);
 
         if (cursorX < containerRect.width / 2) {
@@ -28,13 +35,14 @@ export const createPaddles = (mainContainer: HTMLElement): HTMLElement => {
         }
     };
 
-    // window.log.debug("Registering paddle listener");
     document.addEventListener("mousemove", handleMouseMove);
-
+    window.addEventListener("resize", updatePaddleHeight);
     paddleContainer.addEventListener("destroy", () => {
-        // window.log.debug("Destroying paddle listener");
         document.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("resize", updatePaddleHeight);
     });
+
+    updatePaddleHeight();
 
     return paddleContainer;
 };
