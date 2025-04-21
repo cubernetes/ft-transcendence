@@ -30,6 +30,7 @@ export class AudioManager {
         this.soundEffects.set("blop", "src/content/blop.wav");
 
         // Register background music tracks
+        // this.musicTracks.set(MENU_MUSIC, "src/content/mp3/menu.mp3");
         this.musicTracks.set(MENU_MUSIC, "src/content/menu.wav");
         this.musicTracks.set(VICTORY_MUSIC, "src/content/victory.wav");
         this.musicTracks.set(NORMAL_MUSIC, "src/content/neon-gaming.wav");
