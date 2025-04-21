@@ -57,7 +57,8 @@ const onlineMode = (ctn: HTMLElement) => {
     };
     const joinLobbyBtn = createButton(
         "Join Lobby",
-        "w-64 p-4 bg-green-500 text-white hover:bg-green-700"
+        "w-64 p-4 bg-green-500 text-white hover:bg-green-700",
+        joinLobbyBtnCb
     );
 
     const BtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
