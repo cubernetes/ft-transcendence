@@ -57,11 +57,9 @@ const aiMode = (ctn: HTMLElement) => {
             return showErr("Game controller not initialized.");
         }
 
-        // Navigate to AI game page using hash routing
-        window.location.hash = "aigame";
-        //TODO: Specify the difficulty (Delay will be handled in the game controller)
-        controller.startGame("ai", undefined);
+        navigateTo("aigame");
 
+        //TODO: Specify the difficulty (Delay will be handled in the game controller)
         //Function call below has a type error.
         //controller.startGame("ai", undefined, { aiDifficulty: difficulty });
     };
