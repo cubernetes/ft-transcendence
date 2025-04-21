@@ -147,7 +147,7 @@ const localMode = (ctn: HTMLElement) => {
     ctn.appendChild(section);
 };
 
-const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
+const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     //TODO: Return should go to the previous step rather than the SetupModal.
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText("Start tournament");
@@ -161,7 +161,7 @@ const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
         playerInputs.push(playerInput);
     }
 
-    const tournamentStartBtnCb = () => {
+    const participantsBtnCb = () => {
         for (let i = 0; i < playerAmount; i++) {
             const playerInput = playerInputs[i];
             if (!playerInput.value.trim()) {
@@ -173,7 +173,7 @@ const tournamentStart = (ctn: HTMLElement, playerAmount: number) => {
         window.log.debug(`Tournament Start Data: ${playerInputs}`);
     };
 
-    const tournamentCreateBtn = createCtaBtn("Start Tournament", tournamentStartBtnCb);
+    const tournamentCreateBtn = createCtaBtn("Start Tournament", participantsBtnCb);
 
     const inputsWrapper = createEl("div", "grid grid-cols-1 md:grid-cols-2 gap-4 w-full", {
         children: playerInputs,
@@ -205,7 +205,7 @@ const tournamentMode = (ctn: HTMLElement) => {
 
     const { errorDiv, showErr, hideErr } = createError();
 
-    const tournamentStartBtnCb = () => {
+    const participantsBtnCb = () => {
         const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!mode) {
             return showErr("Please select an amount of players.");
@@ -214,10 +214,10 @@ const tournamentMode = (ctn: HTMLElement) => {
         hideErr();
         const playerAmount: number = mode.textContent === "4P" ? 4 : 8;
         window.log.debug(`Tournament Setup Data: ${playerAmount}`);
-        tournamentStart(ctn, playerAmount);
+        setParticipants(ctn, playerAmount);
     };
 
-    const tournamentCreateBtn = createCtaBtn("Create Tournament", tournamentStartBtnCb);
+    const tournamentCreateBtn = createCtaBtn("Create Tournament", participantsBtnCb);
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
