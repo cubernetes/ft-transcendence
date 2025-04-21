@@ -2,18 +2,23 @@
 
 set -e
 
-# Wait for Elasticsearch to start
+# Create certificates directory and set permissions
+mkdir -p /usr/share/elasticsearch/config/certs
+chmod 755 /usr/share/elasticsearch/config/certs
+
+# Generate certificates before Elasticsearch starts
+elasticsearch-certutil cert --out /usr/share/elasticsearch/config/certs/elastic-certificates.p12 --pass "" --silent
+
+# Set permissions on certificate file
+chmod 640 /usr/share/elasticsearch/config/certs/elastic-certificates.p12
+chown elasticsearch:elasticsearch /usr/share/elasticsearch/config/certs/elastic-certificates.p12
+
+# The rest of the script continues but now needs to wait for ES to start
 echo "Waiting for Elasticsearch to start..."
-until curl -s --head --fail http://elasticsearch:9200 > /dev/null; do
+until curl -s --head --retry 30 --retry-delay 1 --fail http://elasticsearch:9200 > /dev/null; do
     echo "Waiting for Elasticsearch..."
     sleep 5
 done
-
-# Generate certificates
-elasticsearch-certutil cert --out /usr/share/elasticsearch/config/certs/elastic-certificates.p12 --pass ""
-
-# Set permissions on certificate file
-chown elasticsearch:elasticsearch /usr/share/elasticsearch/config/certs/elastic-certificates.p12
 
 # Set bootstrap password
 echo "Setting up passwords..."

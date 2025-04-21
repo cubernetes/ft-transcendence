@@ -124,7 +124,7 @@ services:
             - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
             - "./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json:ro"
             - "./elk/elasticsearch/setup-ilm.sh:/usr/share/elasticsearch/setup-ilm.sh:ro"
-            - "./elk/setup-security.sh:/usr/share/elasticsearch/security-setup.sh:ro"
+            - "./elk/security-setup.sh:/usr/share/elasticsearch/security-setup.sh:ro"
             - "elasticsearch-certs:/usr/share/elasticsearch/config/certs"
         ports:
             - "${ELASTICSERACH_PORT:-9200}:${ELASTICSERACH_PORT:-9200}"
@@ -152,15 +152,14 @@ services:
             retries: 5
         command: >
             bash -c "
-              /usr/local/bin/docker-entrypoint.sh &
-              ES_PID=$!;
+              chmod +x /usr/share/elasticsearch/security-setup.sh;
+              /usr/share/elasticsearch/security-setup.sh;
+              /usr/local/bin/docker-entrypoint.sh eswrapper &
               echo 'Waiting for Elasticsearch to start...';
               sleep 30;
               chmod +x /usr/share/elasticsearch/setup-ilm.sh;
               /usr/share/elasticsearch/setup-ilm.sh;
-              chmod +x /usr/share/elasticsearch/setup-security.sh && /usr/share/elasticsearch/setup-security.sh;
-              wait $ES_PID
-            "
+              wait"
 
     logstash:
         image: docker.elastic.co/logstash/logstash:8.17.3
@@ -292,6 +291,9 @@ volumes:
     drizzle:
     frontend:
     elasticsearch-data:
+    elasticsearch-certs:
+    kibana-data:
+    logstash-data:
 
 networks:
     ft-transcendence-net:
