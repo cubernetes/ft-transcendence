@@ -100,17 +100,17 @@ See [vault/README.md](./vault/README.md)
 | Accessibility | Browser Compatibility |             Firefox Default + Chrome              |  0.5  |      100%       |                      Not tested thoroughly                       |
 |     Pong      |   Server-side Pong    |                                                   |   1   |      100%       |
 |               |      CLI Client       |                                                   |   1   |       80%       | Game engine (not needed for eval), 2FA & JWT integration missing |
-|               |                       |                  ✅ Committed ✅                  | 10.5  |                 |
+| Accessibility |   Multiple Language   |                   Ultra-simple                    |  0.5  |       0%        |
+|     Algo      |    Stats Dashboard    |                                                   |  0.5  |       5%        |        Backend only stores game history, no frontend code        |
+|     Algo      |      AI Opponent      |                                                   |   1   |       50%       |    Plans are being made how to integrate it into game engine     |
 |     User      |  Standard Management  |           Tedious Albeit Weird Without            |   1   |       60%       |             Frontend implementation missing, see 2FA             |
-|               |                       |             🟡 Partially Committed 🟡             | 11.5  |                 |
+|               |                       |                  ✅ Committed ✅                  | 13.5  |                 |
+|    Devops     |   Monitoring System   |               Prometheus + Grafana                |  0.5  |       0%        |                    Finish before end of April                    |
+|               |                       |             🟡 Partially Committed 🟡             | 14.0  |                 |
 |     User      | Remote Authentication | Google Sign-in, Simple But Extra API Key Required |   1   |       0%        |
 |     Game      |     Customization     |                                                   |  0.5  |       10%       |            Some foundations set, but not fleshed out             |
-|     Algo      |      AI Opponent      |                                                   |   1   |       50%       |    Plans are being made how to integrate it into game engine     |
-|     Algo      |    Stats Dashboard    |                                                   |  0.5  |       5%        |        Backend only stores game history, no frontend code        |
-| Accessibility |   Multiple Language   |                   Ultra-simple                    |  0.5  |       0%        |
 | Accessibility | Server-side Rendering |                   Ultra-simple                    |  0.5  |       0%        |
 | Cybersecurity |    GDPR Compliance    |                                                   |  0.5  |       0%        |
-|    Devops     |   Monitoring System   |               Prometheus + Grafana                |  0.5  |       0%        |                    Finish before end of April                    |
 |               |                       |                ⏳ Total Planned ⏳                | 16.5  |                 |
 
 ## License
