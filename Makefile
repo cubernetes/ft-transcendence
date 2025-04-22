@@ -64,7 +64,7 @@ prod: dev
 
 .PHONY: down
 down:
-	$(DC) down --remove-orphans
+	$(DC) --profile elk down --remove-orphans
 
 # "clean" will remove all volumes and some files (e.g. node_modules), see Makefile.clean
 .PHONY: re
