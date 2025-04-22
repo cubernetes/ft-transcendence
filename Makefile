@@ -48,8 +48,8 @@ dev: check-env
 		$(ARGS))
 
 # Don't depend on check-env (endless waiting), rather fail
-.PHONY: prod
-prod: clean-frontend-volume ensure-secret-files
+.PHONY: actual-prod
+actual-prod: clean-frontend-volume ensure-secret-files
 	@$(call prod-env,    \
 		--profile elk	 \
 		up               \
@@ -57,6 +57,10 @@ prod: clean-frontend-volume ensure-secret-files
 		--build          \
 		--detach         \
 		$(ARGS))
+
+# Temporary fix, so it deploys. No ELK, etc.
+.PHONY: prod
+prod: dev
 
 .PHONY: down
 down:
