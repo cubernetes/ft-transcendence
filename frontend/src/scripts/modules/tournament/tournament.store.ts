@@ -1,19 +1,12 @@
 import { createStore } from "../../global/store";
-
-type TournamentState = {
-    round: "Quarter" | "Semi" | "Final" | null;
-    matches: string[][] | null;
-    current_match: string[] | null;
-    players: string[] | null;
-    winner: string | null;
-};
+import { TournamentState } from "./tournament.types";
 
 export const defaultTournamentState: TournamentState = {
-    round: null,
-    matches: null,
+    round: "Waiting",
+    matches: [],
     current_match: null,
-    players: null,
-    winner: null,
+    players: [],
+    results: [],
 };
 
 export const tournamentStore = createStore<TournamentState>(defaultTournamentState);
