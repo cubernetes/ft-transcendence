@@ -15,7 +15,14 @@ type ElementParams = {
 export const createEl = <T extends keyof HTMLElementTagNameMap>(
     tag: T,
     className: string = "",
-    { text, attributes, props, events, children }: ElementParams = {}
+    {
+        text,
+        attributes,
+        props,
+        style,
+        events,
+        children,
+    }: ElementParams & { style?: Partial<CSSStyleDeclaration> } = {}
 ): HTMLElementTagNameMap[T] => {
     const el = document.createElement(tag);
     el.className = className;
@@ -33,6 +40,14 @@ export const createEl = <T extends keyof HTMLElementTagNameMap>(
     if (props) {
         for (const [key, value] of Object.entries(props)) {
             (el as any)[key] = value;
+        }
+    }
+
+    if (style) {
+        for (const [key, value] of Object.entries(style)) {
+            if (value != null) {
+                (el.style as any)[key] = value;
+            }
         }
     }
 
