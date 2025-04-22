@@ -1,4 +1,4 @@
-import { currentLang, subscribeLanguageChange, switchLanguage, texts } from "../../global/language";
+import { getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
@@ -12,6 +12,71 @@ import { createReturnButton } from "../components/ReturnButton";
 import { createSectionContainer } from "../components/SectionContainer";
 import { createBodyText, createTitleText } from "../components/Text";
 
+let setupModalWrapper: HTMLElement | null = null;
+let unsubscribeLang: (() => void) | null = null;
+
+const rerenderSetupModal = () => {
+    if (!setupModalWrapper || !setupModalWrapper.parentElement) return;
+    const parent = setupModalWrapper.parentElement;
+    const newWrapper = createSetupModalContent();
+    parent.replaceChild(newWrapper, setupModalWrapper);
+    setupModalWrapper = newWrapper;
+};
+
+const createSetupModalContent = (): HTMLElement => {
+    const wrapper = createEl("div", "w-full");
+
+    const title = createTitleText(getText("setup_choose_mode"));
+    const line = createSetupLine();
+    // const wrapper = createEl("div", "w-full");
+
+    const localBtnCb = () => localMode(wrapper);
+    const aiBtnCb = () => aiMode(wrapper);
+    const onlineBtnCb = () => onlineMode(wrapper);
+    const tournamentCreateBtnCb = () => tournamentMode(wrapper);
+
+    const btnLabels = [getText("setup_local"), getText("setup_ai")];
+    const btnCallbacks = [localBtnCb, aiBtnCb];
+
+    if (authStore.get().isAuthenticated) {
+        btnLabels.push("Online");
+        btnCallbacks.push(onlineBtnCb);
+    }
+
+    const gameBtnGrp = createButtonGroup(btnLabels, btnCallbacks, "flex-1", "mt-4");
+    const children = [title, line, gameBtnGrp];
+
+    if (authStore.get().isAuthenticated) {
+        const tournamentBtn = createButton(
+            getText("setup_tournament_mode"),
+            "w-full mt-4",
+            tournamentCreateBtnCb
+        );
+        children.push(tournamentBtn);
+    }
+
+    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", children);
+    wrapper.appendChild(section);
+
+    return wrapper;
+};
+
+/**
+ * Public entry: renders SetupModal into given container
+ */
+export const renderSetupModal = (container: HTMLElement) => {
+    if (setupModalWrapper) {
+        container.removeChild(setupModalWrapper);
+    }
+
+    setupModalWrapper = createSetupModalContent();
+    container.appendChild(setupModalWrapper);
+
+    if (!unsubscribeLang) {
+        unsubscribeLang = languageStore.subscribe(() => rerenderSetupModal());
+    }
+};
+
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
 const createCtaBtn = (text: string, cb: () => void): HTMLButtonElement => {
@@ -23,8 +88,8 @@ const createCtaBtn = (text: string, cb: () => void): HTMLButtonElement => {
 };
 
 const createDifficultyGroup = () => {
-    const label = createBodyText("Difficulty");
-    const btns = createButtonGroup(["Easy", "Medium", "Hard"], []);
+    const label = createBodyText(getText("difficulty"));
+    const btns = createButtonGroup([getText("easy"), getText("medium"), getText("hard")], []);
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
         children: [label, btns],
     });
@@ -39,7 +104,7 @@ const createInput = (placeholder: string) =>
 //TODO: Currently both "Create Lobby" and "Join Lobby" navigate to "onlinegame"
 const onlineMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Play Online");
+    const title = createTitleText(getText("setup_online"));
     const line = createSetupLine();
 
     const createLobbyBtnCb = () => {
@@ -79,7 +144,7 @@ const onlineMode = (ctn: HTMLElement) => {
 
 const aiMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Play AI");
+    const title = createTitleText(getText("setup_ai"));
     const line = createSetupLine();
     const difficultyGrp = createDifficultyGroup();
     const { errorDiv, showErr, hideErr } = createError();
@@ -87,7 +152,7 @@ const aiMode = (ctn: HTMLElement) => {
     const playBtnCb = () => {
         const selected = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!selected) {
-            return showErr("Please select a difficulty.");
+            return showErr(getText("selectDifficulty"));
         }
 
         const difficulty = selected.textContent?.toUpperCase() || "MEDIUM";
@@ -123,13 +188,13 @@ const aiMode = (ctn: HTMLElement) => {
 
 const localMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Play Local");
+    const title = createTitleText(getText("setup_play_local"));
     const line = createSetupLine();
 
     // Player Section
-    const playerLabel = createBodyText("Enter player names:");
-    const p1 = createInput("Name Player1");
-    const p2 = createInput("Name Player2");
+    const playerLabel = createBodyText(getText("enter_names"));
+    const p1 = createInput(`${getText("name_player")}1`);
+    const p2 = createInput(`${getText("name_player")}2`);
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, p1, p2],
     });
@@ -262,51 +327,17 @@ const tournamentMode = (ctn: HTMLElement) => {
     ctn.appendChild(section);
 };
 
-// let setupModalContainer: HTMLElement | null = null;
-
-// export const renderSetupModal = (container: HTMLElement) => {
-//     setupModalContainer = container;
-//     container.innerHTML = "";
-//     container.appendChild(createSetupModal());
-// };
-
-// // Subscribe to language change
-// subscribeLanguageChange(() => {
-//     if (setupModalContainer) {
-//         renderSetupModal(setupModalContainer);
-//     }
-// });
-
 export const createSetupModal = (): HTMLElement => {
-    const title = createTitleText("Choose Game Mode");
-    const line = createSetupLine();
-
-    const wrapper = createEl("div", "w-full");
-
-    const localBtnCb = () => localMode(wrapper);
-    const aiBtnCb = () => aiMode(wrapper);
-    const onlineBtnCb = () => onlineMode(wrapper);
-    const tournamentCreateBtnCb = () => tournamentMode(wrapper);
-
-    const btnLabels = ["Local", "AI"];
-    const btnCallbacks = [localBtnCb, aiBtnCb];
-
-    if (authStore.get().isAuthenticated) {
-        btnLabels.push("Online");
-        btnCallbacks.push(onlineBtnCb);
+    if (unsubscribeLang) {
+        unsubscribeLang();
+        unsubscribeLang = null;
     }
 
-    const gameBtnGrp = createButtonGroup(btnLabels, btnCallbacks, "flex-1", "mt-4");
+    const wrapper = createSetupModalContent();
 
-    const children = [title, line, gameBtnGrp];
-
-    if (authStore.get().isAuthenticated) {
-        const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentCreateBtnCb);
-        children.push(tournamentBtn);
-    }
-
-    const section = createSectionContainer("w-1/2 bg-gray-300 p-8", children);
-    wrapper.appendChild(section);
+    unsubscribeLang = languageStore.subscribe(() => {
+        rerenderSetupModal();
+    });
 
     return wrapper;
 };
