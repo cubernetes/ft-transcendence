@@ -1,5 +1,5 @@
 # Change to docker-compose if you need
-DC := docker compose
+DC := COMPOSE_BAKE=false docker compose
 # Change to podman if you need
 D := docker
 # Enables you do run `make` alone
