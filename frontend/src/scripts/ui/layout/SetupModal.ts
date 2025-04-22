@@ -2,7 +2,8 @@ import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
-import { tournamentStart } from "../../modules/tournament/tournament.create";
+import { setupTournament } from "../../modules/tournament/tournament.create";
+import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
@@ -212,8 +213,11 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
         hideErr();
         window.log.debug(`Tournament Start Data: ${playerInputs}`);
-        tournamentStart(playerInputs);
-    });
+        setupTournament(playerInputs);
+        navigateTo("tournament");
+    };
+
+    const tournamentCreateBtn = createCtaBtn("Start Tournament", participantsBtnCb);
 
     const inputsWrapper = createEl("div", "grid grid-cols-1 md:grid-cols-2 gap-4 w-full", {
         children: playerInputs,
