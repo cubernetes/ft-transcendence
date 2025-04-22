@@ -1,5 +1,5 @@
 # Change to docker-compose if you need
-DC := docker compose
+DC := COMPOSE_BAKE=false docker compose
 # Change to podman if you need
 D := docker
 # Enables you do run `make` alone
@@ -60,8 +60,14 @@ actual-prod: clean-frontend-volume ensure-secret-files
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod:
-	@$(MAKE) dev ARGS=--detach
+prod: check-env
+	$(MAKE) clean-frontend-volume ensure-secret-files
+	@$(call dev-env,     \
+		up               \
+		--remove-orphans \
+		--build          \
+		--detach         \
+		$(ARGS))
 
 .PHONY: down
 down:
