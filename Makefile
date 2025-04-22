@@ -60,7 +60,8 @@ actual-prod: clean-frontend-volume ensure-secret-files
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod: dev
+prod:
+	@$(MAKE) dev ARGS=--detach
 
 .PHONY: down
 down:
