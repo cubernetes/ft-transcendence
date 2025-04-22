@@ -207,11 +207,11 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const resizeListener = () => renderer.resize();
 
     /** Destroy the current game session */
-    const destory = () => {
-        window.log.debug("Game controller destory triggered");
+    const destroy = () => {
+        window.log.debug("Game controller destroy triggered");
         hideCanvas();
 
-        // Destory renderer related stuff
+        // Destroy renderer related stuff
         disposeScene(renderer);
         renderer.stopRenderLoop();
 
@@ -283,7 +283,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     return {
-        destory,
+        destroy,
         startGame,
     };
 };

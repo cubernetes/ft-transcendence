@@ -28,6 +28,6 @@ gameStore.subscribe((state) => {
     const { isPlaying, controller } = state;
 
     if (!isPlaying && controller) {
-        controller.destory();
+        controller.destroy();
     }
 });

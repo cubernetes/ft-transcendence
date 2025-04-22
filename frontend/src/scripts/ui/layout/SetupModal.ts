@@ -1,3 +1,4 @@
+import { currentLang, subscribeLanguageChange, switchLanguage, texts } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
@@ -260,6 +261,21 @@ const tournamentMode = (ctn: HTMLElement) => {
     ctn.innerHTML = "";
     ctn.appendChild(section);
 };
+
+// let setupModalContainer: HTMLElement | null = null;
+
+// export const renderSetupModal = (container: HTMLElement) => {
+//     setupModalContainer = container;
+//     container.innerHTML = "";
+//     container.appendChild(createSetupModal());
+// };
+
+// // Subscribe to language change
+// subscribeLanguageChange(() => {
+//     if (setupModalContainer) {
+//         renderSetupModal(setupModalContainer);
+//     }
+// });
 
 export const createSetupModal = (): HTMLElement => {
     const title = createTitleText("Choose Game Mode");
