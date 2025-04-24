@@ -27,14 +27,17 @@ const formatError = (e: unknown) => {
     };
 };
 
-// const formatGameState = (state: GameState) => {
-//     return {
-//         ballPosition: `x: ${state.ballPosition.x}, y: ${state.ballPosition.y}, z: ${state.ballPosition.z}`,
-//         paddle1Position: `x: ${state.paddlePosition["player-1"].x}, y: ${state.paddlePosition["player-1"].y}, z: ${state.paddlePosition["player-1"].z}`,
-//         paddle2Position: `x: ${state.paddlePosition["player-2"].x}, y: ${state.paddlePosition["player-2"].y}, z: ${state.paddlePosition["player-2"].z}`,
-//         score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,
-//     };
-// };
+// Helper to ensure only plain, serializable objects are logged
+export function toPlain(obj: any) {
+    if (obj instanceof Error) {
+        return formatError(obj);
+    }
+    try {
+        return JSON.parse(JSON.stringify(obj));
+    } catch {
+        return { message: String(obj) };
+    }
+}
 
 const baseLoggerConfig = {
     level: process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug"),
@@ -133,7 +136,7 @@ const getLoggerConfig = (): PinoLoggerOptions => {
                             address: process.env.LOGSTASH_HOST,
                             port: Number(process.env.LOGSTASH_PORT || 5050),
                             enablePipelining: true,
-                            formatLine: (obj: any) => JSON.stringify(obj) + "\n",
+                            //formatLine: (obj: any) => JSON.stringify(obj) + "\n",
                         },
                     },
                 ],
@@ -153,8 +156,3 @@ export const loggerConfig = getLoggerConfig();
 // For backward compatibility
 export const devLoggerConfig = loggerConfig;
 export const prodLoggerConfig = loggerConfig;
-
-// Helper to create contextual loggers
-export const createContextLogger = (baseLogger: pino.Logger, context: Record<string, any>) => {
-    return baseLogger.child(context);
-};
