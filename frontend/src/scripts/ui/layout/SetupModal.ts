@@ -1,8 +1,8 @@
+import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
 import { tournamentStart } from "../../modules/tournament/tournament.create";
-import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
@@ -13,53 +13,64 @@ import { createBodyText, createTitleText } from "../components/Text";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
-const createCtaBtn = (text: string, cb: () => void): HTMLButtonElement => {
-    return createButton(
-        text,
+const translatableElements: Partial<Record<string, HTMLElement>> = {};
+
+languageStore.subscribe(() => {
+    window.log.debug("LanguageStore triggered -> update SetupModal texts");
+    (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
+        const el = translatableElements[key];
+        if (el) {
+            el.textContent = getText(key);
+        }
+    });
+});
+
+const createCtaBtn = (textKey: TranslationKey, cb: () => void): HTMLButtonElement => {
+    const btn = createButton(
+        getText(textKey),
         "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
         cb
     );
+    translatableElements[textKey] = btn;
+    return btn;
 };
 
 const createDifficultyGroup = () => {
-    const label = createBodyText("Difficulty");
-    const btns = createButtonGroup(["Easy", "Medium", "Hard"], []);
+    const label = createBodyText(getText("difficulty"));
+    translatableElements["difficulty"] = label;
+
+    const btns = createButtonGroup(
+        (["easy", "medium", "hard"] as TranslationKey[]).map((key) => getText(key)),
+        []
+    );
+
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
         children: [label, btns],
     });
     return difficultyGrp;
 };
 
-const createInput = (placeholder: string) =>
+const createInput = (placeholderKey: TranslationKey) =>
     createEl("input", "w-full p-2 bg-gray-100 text-black rounded text-xl", {
-        attributes: { placeholder },
+        attributes: { placeholder: getText(placeholderKey) },
     });
 
-//TODO: Currently both "Create Lobby" and "Join Lobby" navigate to "onlinegame"
 const onlineMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Play Online");
+    const title = createTitleText(getText("setup_online"));
+    translatableElements["setup_online"] = title;
+
     const line = createSetupLine();
 
-    const createLobbyBtnCb = () => {
+    const createLobbyBtn = createCtaBtn("create_lobby", () => {
         window.log.info("Creating a new lobby...");
         navigateTo("onlinegame");
-    };
-    const createLobbyBtn = createButton(
-        "Create Lobby",
-        "w-64 p-4 bg-red-500 text-white hover:bg-red-700",
-        createLobbyBtnCb
-    );
+    });
 
-    const joinLobbyBtnCb = () => {
+    const joinLobbyBtn = createCtaBtn("join_lobby", () => {
         window.log.info("Joining a new lobby...");
         navigateTo("onlinegame");
-    };
-    const joinLobbyBtn = createButton(
-        "Join Lobby",
-        "w-64 p-4 bg-green-500 text-white hover:bg-green-700",
-        joinLobbyBtnCb
-    );
+    });
 
     const BtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
         children: [createLobbyBtn, joinLobbyBtn],
@@ -78,34 +89,29 @@ const onlineMode = (ctn: HTMLElement) => {
 
 const aiMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Play AI");
+    const title = createTitleText(getText("play_ai"));
+    translatableElements["play_ai"] = title;
+
     const line = createSetupLine();
     const difficultyGrp = createDifficultyGroup();
     const { errorDiv, showErr, hideErr } = createError();
 
-    const playBtnCb = () => {
+    const playBtn = createCtaBtn("setup_play", () => {
         const selected = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!selected) {
-            return showErr("Please select a difficulty.");
+            return showErr(getText("selectDifficulty"));
         }
 
         const difficulty = selected.textContent?.toUpperCase() || "MEDIUM";
         hideErr();
 
-        // Get the game controller and start AI game
         const { controller } = gameStore.get();
         if (!controller) {
             return showErr("Game controller not initialized.");
         }
 
         navigateTo("aigame");
-
-        //TODO: Specify the difficulty (Delay will be handled in the game controller)
-        //Function call below has a type error.
-        //controller.startGame("ai", undefined, { aiDifficulty: difficulty });
-    };
-
-    const playBtn = createCtaBtn("Play", playBtnCb);
+    });
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
@@ -122,51 +128,40 @@ const aiMode = (ctn: HTMLElement) => {
 
 const localMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Play Local");
+    const title = createTitleText(getText("setup_play_local"));
+    translatableElements["setup_play_local"] = title;
+
     const line = createSetupLine();
 
-    // Player Section
-    const playerLabel = createBodyText("Enter player names:");
-    const p1 = createInput("Name Player1");
-    const p2 = createInput("Name Player2");
+    const playerLabel = createBodyText(getText("enter_names"));
+    translatableElements["enter_names"] = playerLabel;
+
+    const p1 = createInput("name_player");
+    const p2 = createInput("name_player");
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, p1, p2],
     });
 
-    // const difficultyGrp = createDifficultyGroup();
     const { errorDiv, showErr, hideErr } = createError();
 
-    const playBtnCb = () => {
+    const playBtn = createCtaBtn("setup_play", () => {
         const player1 = p1.value.trim();
         const player2 = p2.value.trim();
-        // const difficulty = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!player1 || !player2) {
-            return showErr("Please enter names for both players.");
+            return showErr(getText("player_names_required"));
         }
-        // if (!difficulty) {
-        //     return showErr("Please select a difficulty.");
-        // }
 
-        const gameData = {
-            player1,
-            player2,
-            // difficulty: difficulty.textContent?.toLowerCase(),
-        };
+        const gameData = { player1, player2 };
         hideErr();
         navigateTo("localgame");
-        window.log.debug(
-            "Navigated to localgame via navigateTo(localgame) with gameData:",
-            gameData
-        );
-    };
-    const playBtn = createCtaBtn("Play", playBtnCb);
+        window.log.debug("Navigated to localgame with gameData:", gameData);
+    });
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
         title,
         line,
         playersSection,
-        // difficultyGrp,
         playBtn,
         errorDiv,
     ]);
@@ -176,33 +171,32 @@ const localMode = (ctn: HTMLElement) => {
 };
 
 const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
-    //TODO: Return should go to the previous step rather than the SetupModal.
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Start tournament");
+    const title = createTitleText(getText("start_tournament"));
+    translatableElements["start_tournament"] = title;
+
     const line = createSetupLine();
 
     const { errorDiv, showErr, hideErr } = createError();
 
     const playerInputs: HTMLInputElement[] = [];
     for (let i = 0; i < playerAmount; i++) {
-        const playerInput = createInput(`Name Player${i + 1}`);
+        const playerInput = createInput("name_player");
         playerInputs.push(playerInput);
     }
 
-    const participantsBtnCb = () => {
+    const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
         for (let i = 0; i < playerAmount; i++) {
             const playerInput = playerInputs[i];
             if (!playerInput.value.trim()) {
-                return showErr(`Please enter a name for Player ${i + 1}.`);
+                return showErr(getText("player_names_required"));
             }
         }
 
         hideErr();
         window.log.debug(`Tournament Start Data: ${playerInputs}`);
         tournamentStart(playerInputs);
-    };
-
-    const tournamentCreateBtn = createCtaBtn("Start Tournament", participantsBtnCb);
+    });
 
     const inputsWrapper = createEl("div", "grid grid-cols-1 md:grid-cols-2 gap-4 w-full", {
         children: playerInputs,
@@ -223,10 +217,14 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
 const tournamentMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText("Create a tournament");
+    const title = createTitleText(getText("create_tournament"));
+    translatableElements["create_tournament"] = title;
+
     const line = createSetupLine();
 
-    const modeLabel = createBodyText("Player Number");
+    const modeLabel = createBodyText(getText("player_number"));
+    translatableElements["player_number"] = modeLabel;
+
     const modeBtnGrp = createButtonGroup(["4P", "8P"], []);
     const modeSection = createEl("div", "flex flex-col w-full mt-6", {
         children: [modeLabel, modeBtnGrp],
@@ -234,19 +232,16 @@ const tournamentMode = (ctn: HTMLElement) => {
 
     const { errorDiv, showErr, hideErr } = createError();
 
-    const participantsBtnCb = () => {
+    const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
         const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!mode) {
-            return showErr("Please select an amount of players.");
+            return showErr(getText("select_player_amount"));
         }
 
         hideErr();
-        const playerAmount: number = mode.textContent === "4P" ? 4 : 8;
-        window.log.debug(`Tournament Setup Data: ${playerAmount}`);
+        const playerAmount = mode.textContent === "4P" ? 4 : 8;
         setParticipants(ctn, playerAmount);
-    };
-
-    const tournamentCreateBtn = createCtaBtn("Create Tournament", participantsBtnCb);
+    });
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
@@ -262,7 +257,9 @@ const tournamentMode = (ctn: HTMLElement) => {
 };
 
 export const createSetupModal = (): HTMLElement => {
-    const title = createTitleText("Choose Game Mode");
+    const title = createTitleText(getText("setup_choose_mode"));
+    translatableElements["setup_choose_mode"] = title;
+
     const line = createSetupLine();
 
     const wrapper = createEl("div", "w-full");
@@ -272,20 +269,30 @@ export const createSetupModal = (): HTMLElement => {
     const onlineBtnCb = () => onlineMode(wrapper);
     const tournamentCreateBtnCb = () => tournamentMode(wrapper);
 
-    const btnLabels = ["Local", "AI"];
+    const btnLabels = ["setup_local", "setup_ai"];
     const btnCallbacks = [localBtnCb, aiBtnCb];
 
     if (authStore.get().isAuthenticated) {
-        btnLabels.push("Online");
+        btnLabels.push("setup_online");
         btnCallbacks.push(onlineBtnCb);
     }
 
-    const gameBtnGrp = createButtonGroup(btnLabels, btnCallbacks, "flex-1", "mt-4");
+    const gameBtnGrp = createButtonGroup(
+        (btnLabels as TranslationKey[]).map((key) => getText(key)),
+        btnCallbacks,
+        "flex-1",
+        "mt-4"
+    );
+
+    btnLabels.forEach((key, index) => {
+        translatableElements[key] = gameBtnGrp.children[index] as HTMLElement;
+    });
 
     const children = [title, line, gameBtnGrp];
 
     if (authStore.get().isAuthenticated) {
-        const tournamentBtn = createButton("Tournament Mode", "w-full mt-4", tournamentCreateBtnCb);
+        const tournamentBtn = createCtaBtn("setup_tournament_mode", tournamentCreateBtnCb);
+        translatableElements["setup_tournament_mode"] = tournamentBtn;
         children.push(tournamentBtn);
     }
 
