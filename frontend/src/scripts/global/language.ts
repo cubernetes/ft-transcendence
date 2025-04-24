@@ -45,7 +45,6 @@ export const getText = (key: TranslationKey | string): string => {
 export const texts = {
     en: {
         ai: "AI",
-        aiMode: "AI-Mode",
         chooseMode: "Choose Game Mode",
         confirm_password: "Confirm Password",
         create_lobby: "Create Lobby",
@@ -85,7 +84,7 @@ export const texts = {
         register: "Register",
         register_failed: "Registration failed. Please try again.",
         setup: "Setup",
-        setup_ai: "AI",
+        setup_ai: "AI-Mode",
         setup_choose_mode: "Choose Game Mode",
         setup_local: "Local",
         setup_online: "Play Online",
@@ -105,7 +104,6 @@ export const texts = {
     },
     de: {
         ai: "KI",
-        aiMode: "KI-Modus",
         chooseMode: "Spielmodus wählen",
         confirm_password: "Passwort bestätigen",
         create_lobby: "Lobby erstellen",
@@ -145,7 +143,7 @@ export const texts = {
         register: "Registrieren",
         register_failed: "Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.",
         setup: "Einrichtung",
-        setup_ai: "KI",
+        setup_ai: "KI-Modus",
         setup_choose_mode: "Spielmodus wählen",
         setup_local: "Lokal",
         setup_online: "Online spielen",
@@ -165,7 +163,6 @@ export const texts = {
     },
     fr: {
         ai: "IA",
-        aiMode: "Mode IA",
         chooseMode: "Choisir le mode de jeu",
         confirm_password: "Confirmer le mot de passe",
         create_lobby: "Créer un salon",
@@ -205,7 +202,7 @@ export const texts = {
         register: "S'inscrire",
         register_failed: "Échec de l'inscription. Veuillez réessayer.",
         setup: "Configuration",
-        setup_ai: "IA",
+        setup_ai: "IA-Mode",
         setup_choose_mode: "Choisir le mode de jeu",
         setup_local: "Local",
         setup_online: "Jouer en ligne",
@@ -225,7 +222,6 @@ export const texts = {
     },
     es: {
         ai: "IA",
-        aiMode: "Modo IA",
         chooseMode: "Elegir modo de juego",
         confirm_password: "Confirmar contraseña",
         create_lobby: "Crear sala",
@@ -265,7 +261,7 @@ export const texts = {
         register: "Registrarse",
         register_failed: "Error al registrarse. Por favor, inténtelo de nuevo.",
         setup: "Configuración",
-        setup_ai: "IA",
+        setup_ai: "IA-Modo",
         setup_choose_mode: "Elegir modo de juego",
         setup_local: "Local",
         setup_online: "Jugar en línea",
