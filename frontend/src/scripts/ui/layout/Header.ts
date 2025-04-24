@@ -96,7 +96,7 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
     build();
 
     unsubscribeLanguage = languageStore.subscribe(() => {
-        window.log.debug("LanguageStore triggered -> update text content");
+        window.log.debug("LanguageStore triggered in Header.ts -> update text content");
         (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
             const el = translatableElements[key];
             if (el) {

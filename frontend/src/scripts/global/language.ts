@@ -22,6 +22,7 @@ export const getText = (key: keyof (typeof texts)["en"]) => {
 
 export const texts = {
     en: {
+        logout: "Logout",
         home: "Home",
         setup: "Setup",
         game: "Game",
@@ -34,7 +35,6 @@ export const texts = {
         chooseMode: "Choose Game Mode",
         local: "Local",
         aiMode: "AI",
-        logout: "Logout",
         setup_choose_mode: "Choose Game Mode",
         setup_local: "Local",
         setup_ai: "AI",
@@ -62,6 +62,7 @@ export const texts = {
         please_enter_name: "Please enter a name for Player",
     },
     de: {
+        logout: "Abmelden",
         home: "Startseite",
         setup: "Einrichtung",
         game: "Spiel",
@@ -74,7 +75,6 @@ export const texts = {
         chooseMode: "Spielmodus wählen",
         local: "Lokal",
         aiMode: "KI-Modus",
-        logout: "Abmelden",
         setup_choose_mode: "Spielmodus wählen",
         setup_local: "Lokal",
         setup_ai: "KI",
