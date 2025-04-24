@@ -1,3 +1,4 @@
+import { AIDifficulty } from "@darrenkuro/pong-core";
 import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
@@ -116,7 +117,7 @@ const aiMode = (ctn: HTMLElement) => {
             return showErr("select_Difficulty");
         }
 
-        const difficulty = selected.textContent?.toUpperCase() || "MEDIUM";
+        const difficulty = (selected.textContent?.toUpperCase() as AIDifficulty) || "MEDIUM";
         hideErr();
 
         const { controller } = gameStore.get();
@@ -125,7 +126,12 @@ const aiMode = (ctn: HTMLElement) => {
         }
 
         navigateTo("aigame");
-    });
+        //TODO: The below doesnt hide the right elements.
+        // window.location.hash = "aigame";
+        // controller.startGame("ai", undefined, { aiDifficulty: difficulty });
+    };
+
+    const playBtn = createCtaBtn("Play", playBtnCb);
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
