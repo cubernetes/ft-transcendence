@@ -29,6 +29,7 @@ export const texts = {
         ai: "AI",
         leaderboard: "Leaderboard",
         profile: "Profile",
+        TOTP: "TOTP",
         title: "ft-transcendence",
         chooseMode: "Choose Game Mode",
         local: "Local",
@@ -67,6 +68,7 @@ export const texts = {
         ai: "KI",
         leaderboard: "Bestenliste",
         profile: "Profil",
+        TOTP: "TOTP",
         title: "zv-Überschreitung",
         chooseMode: "Spielmodus wählen",
         local: "Lokal",
@@ -98,3 +100,5 @@ export const texts = {
         please_enter_name: "Bitte geben Sie einen Namen für Spieler",
     },
 } as const;
+
+export type TranslationKey = keyof typeof texts.en;

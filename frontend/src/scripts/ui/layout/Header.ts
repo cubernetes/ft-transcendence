@@ -1,4 +1,4 @@
-import { getText, languageStore, setLanguage } from "../../global/language";
+import { TranslationKey, getText, languageStore, setLanguage } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -8,9 +8,12 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
     let unsubscribeAuth: () => void;
     let unsubscribeLanguage: () => void;
 
+    const translatableElements: Partial<Record<TranslationKey, HTMLElement>> = {};
+
     const build = () => {
         header.innerHTML = "";
 
+        // Title
         const anchor = createEl("a", "text-3xl font-bold", {
             text: getText("title"),
             events: {
@@ -20,25 +23,26 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
                 },
             },
         });
+        translatableElements["title"] = anchor;
 
         const title = createEl("h1", "", { children: [anchor] });
 
-        const navItems = {
-            [getText("home")]: window.cfg.url.home,
-            [getText("setup")]: window.cfg.url.home,
-            [getText("game")]: "localgame",
-            [getText("online")]: "onlinegame",
-            [getText("ai")]: "aigame",
-            [getText("leaderboard")]: "leaderboard",
-            [getText("profile")]: "profile",
-            TOTP: "totp",
-        };
-
         const navList = createEl("ul", "flex text-1xl space-x-4");
 
-        for (const [label, route] of Object.entries(navItems)) {
+        const navKeys: [keyof typeof translatableElements, string][] = [
+            ["home", window.cfg.url.home],
+            ["setup", window.cfg.url.home],
+            ["game", "localgame"],
+            ["online", "onlinegame"],
+            ["ai", "aigame"],
+            ["leaderboard", "leaderboard"],
+            ["profile", "profile"],
+            ["TOTP", "totp"],
+        ];
+
+        for (const [key, route] of navKeys) {
             const link = createEl("a", "hover:underline", {
-                text: label,
+                text: getText(key),
                 events: {
                     click: (e) => {
                         e.preventDefault();
@@ -46,10 +50,12 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
                     },
                 },
             });
+            translatableElements[key] = link;
             const li = createEl("li", "", { children: [link] });
             navList.appendChild(li);
         }
 
+        // User login status
         const loginStatus = createEl("li");
         navList.appendChild(loginStatus);
 
@@ -61,12 +67,13 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
         if (unsubscribeAuth) unsubscribeAuth();
         unsubscribeAuth = authStore.subscribe((state) => {
             window.log.debug("AuthStore triggered in header");
-            loginStatus.innerHTML = ""; // Clear old content
+            loginStatus.innerHTML = "";
             if (state.isAuthenticated && state.username) {
                 appendUserStatus(loginStatus, state.username);
             }
         });
 
+        // Language toggle
         const languageButton = createEl("button", "hover:underline", {
             text: "EN/DE",
             events: {
@@ -89,8 +96,13 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
     build();
 
     unsubscribeLanguage = languageStore.subscribe(() => {
-        window.log.debug("LanguageStore triggered -> rebuild header");
-        build();
+        window.log.debug("LanguageStore triggered -> update text content");
+        (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
+            const el = translatableElements[key];
+            if (el) {
+                el.textContent = getText(key);
+            }
+        });
     });
 
     header.addEventListener("destroy", () => {
