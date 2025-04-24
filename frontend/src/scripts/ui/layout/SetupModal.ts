@@ -99,7 +99,7 @@ const aiMode = (ctn: HTMLElement) => {
     const playBtn = createCtaBtn("setup_play", () => {
         const selected = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!selected) {
-            return showErr(getText("selectDifficulty"));
+            return showErr("select_Difficulty");
         }
 
         const difficulty = selected.textContent?.toUpperCase() || "MEDIUM";
@@ -107,7 +107,7 @@ const aiMode = (ctn: HTMLElement) => {
 
         const { controller } = gameStore.get();
         if (!controller) {
-            return showErr("Game controller not initialized.");
+            return showErr("initialize_controller");
         }
 
         navigateTo("aigame");
@@ -148,7 +148,7 @@ const localMode = (ctn: HTMLElement) => {
         const player1 = p1.value.trim();
         const player2 = p2.value.trim();
         if (!player1 || !player2) {
-            return showErr(getText("player_names_required"));
+            return showErr("player_names_required");
         }
 
         const gameData = { player1, player2 };
@@ -189,7 +189,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
         for (let i = 0; i < playerAmount; i++) {
             const playerInput = playerInputs[i];
             if (!playerInput.value.trim()) {
-                return showErr(getText("player_names_required"));
+                return showErr("player_names_required");
             }
         }
 
@@ -235,7 +235,7 @@ const tournamentMode = (ctn: HTMLElement) => {
     const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
         const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
         if (!mode) {
-            return showErr(getText("select_player_amount"));
+            return showErr("select_player_amount");
         }
 
         hideErr();
