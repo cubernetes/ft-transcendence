@@ -16,7 +16,6 @@ const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-wh
 const translatableElements: Partial<Record<string, HTMLElement>> = {};
 
 languageStore.subscribe(() => {
-    window.log.debug("LanguageStore triggered -> update SetupModal texts");
     (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
         const el = translatableElements[key];
         if (el) {

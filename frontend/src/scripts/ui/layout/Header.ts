@@ -1,4 +1,4 @@
-import { TranslationKey, getText, languageStore, setLanguage } from "../../global/language";
+import { TranslationKey, changeLanguage, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -75,16 +75,14 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
 
         // Language toggle
         const languageButton = createEl("button", "hover:underline", {
-            text: "EN/DE",
+            text: getText("lang"),
             events: {
                 click: (e) => {
-                    window.log.debug("Language button clicked");
-                    const currentLang = languageStore.get().language;
-                    const nextLang = currentLang === "en" ? "de" : "en";
-                    setLanguage(nextLang);
+                    changeLanguage();
                 },
             },
         });
+        translatableElements["lang"] = languageButton;
 
         const nav = createEl("nav", "flex items-center space-x-6", {
             children: [navList, languageButton],
@@ -96,7 +94,6 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
     build();
 
     unsubscribeLanguage = languageStore.subscribe(() => {
-        window.log.debug("LanguageStore triggered in Header.ts -> update text content");
         (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
             const el = translatableElements[key];
             if (el) {
