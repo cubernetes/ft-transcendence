@@ -5,9 +5,9 @@ server.port: 5601
 
 # Elasticsearch connection
 elasticsearch.hosts: ["http://elasticsearch:9200"]
-elasticsearch.username: "kibana_system"
-elasticsearch.password: "${KIBANA_PASSWORD}"
 elasticsearch.requestTimeout: 30000
+elasticsearch.username: "${KIBANA_USER}"
+elasticsearch.password: "${KIBANA_PASSWORD}"
 
 # Kibana index patterns
 kibana.index_pattern.default: "ft-transcendence-logs-*"
@@ -18,7 +18,9 @@ monitoring.ui.container.logstash.enabled: true
 
 # Security settings
 xpack.security.enabled: true
-xpack.encryptedSavedObjects.encryptionKey: "${KIBANA_ENCRYPTION_KEY}"
+xpack.encryptedSavedObjects.encryptionKey: "On0wtWLem6X9zPqflgMZLErS0uBAP1TxK2C/61aVtN8="
+xpack.security.encryptionKey: "EwjRVSiLReWe8evzfUuUqkNwHoEU8FKgGvPoak6L/PA="
+xpack.reporting.encryptionKey: "DLJa1ntjYc6SsJvkUa9Kqawqkm+jksn/4pOR9EQOlGQ="
 
 # Saved Objects settings
 xpack.savedObjects.maxImportExportSize: 10000

@@ -46,7 +46,7 @@ const baseLoggerConfig = {
     serializers: {
         error: formatError,
         // Don't log full request and response objects
-        req: (req) => ({
+        req: (req: any) => ({
             id: req.id,
             method: req.method,
             url: req.url,
@@ -56,19 +56,14 @@ const baseLoggerConfig = {
             },
             remoteAddress: req.remoteAddress || req.ip,
         }),
-        res: (res) => ({
+        res: (res: any) => ({
             statusCode: res.statusCode,
         }),
     },
     timestamp: pino.stdTimeFunctions.isoTime,
-    formatters: {
-        level: (label) => {
-            return { level: label };
-        },
-    },
     // Custom hook to add tags
     hooks: {
-        logMethod(inputArgs, method) {
+        logMethod(inputArgs: any[], method: (...args: any[]) => any) {
             // Check for context objects in the log message
             if (inputArgs.length >= 2 && typeof inputArgs[0] === "object") {
                 const obj = inputArgs[0];
@@ -138,7 +133,7 @@ const getLoggerConfig = (): PinoLoggerOptions => {
                             address: process.env.LOGSTASH_HOST,
                             port: Number(process.env.LOGSTASH_PORT || 5050),
                             enablePipelining: true,
-                            formatLine: (obj) => JSON.stringify(obj) + "\n",
+                            formatLine: (obj: any) => JSON.stringify(obj) + "\n",
                         },
                     },
                 ],

@@ -116,6 +116,12 @@ services:
             ES_JAVA_OPTS: "-Xms512m -Xmx512m"
             discovery.type: "single-node"
             xpack.security.enabled: "true"
+            xpack.security.transport.ssl.enabled: "false"
+            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
+            LOGSTASH_USER: "${LOGSTASH_USER}"
+            LOGSTASH_PASSWORD: "${LOGSTASH_PASSWORD}"
+            KIBANA_USER: "${KIBANA_USER}"
+            KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
             bootstrap.memory_lock: "true"
             cluster.name: "ft-transcendence-logs"
             node.name: "single-node"
@@ -124,10 +130,9 @@ services:
             - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
             - "./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json:ro"
             - "./elk/elasticsearch/setup-ilm.sh:/usr/share/elasticsearch/setup-ilm.sh:ro"
-            - "./elk/security-setup.sh:/usr/share/elasticsearch/security-setup.sh:ro"
-            - "elasticsearch-certs:/usr/share/elasticsearch/config/certs"
+            - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh:ro"
         ports:
-            - "${ELASTICSERACH_PORT:-9200}:${ELASTICSERACH_PORT:-9200}"
+            - "${ELASTICSEARCH_PORT:-9200}:${ELASTICSEARCH_PORT:-9200}"
         networks:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
@@ -150,16 +155,7 @@ services:
             interval: 30s
             timeout: 10s
             retries: 5
-        command: >
-            bash -c "
-              chmod +x /usr/share/elasticsearch/security-setup.sh;
-              /usr/share/elasticsearch/security-setup.sh;
-              /usr/local/bin/docker-entrypoint.sh eswrapper &
-              echo 'Waiting for Elasticsearch to start...';
-              sleep 30;
-              chmod +x /usr/share/elasticsearch/setup-ilm.sh;
-              /usr/share/elasticsearch/setup-ilm.sh;
-              wait"
+        command: ["/bin/bash", "/usr/share/elasticsearch/setup-single-node.sh"]
 
     logstash:
         image: docker.elastic.co/logstash/logstash:8.17.3
@@ -176,6 +172,8 @@ services:
             LS_JAVA_OPTS: "-Xmx256m -Xms256m"
             DEBUG: "${DEBUG:-false}" # For controlling debug output
             LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
+            LOGSTASH_USER: "${LOGSTASH_USER}"
+            LOGSTASH_PASSWORD: "${LOGSTASH_PASSWORD}"
         env_file:
             - ./elk/elasticsearch/config/.env
         networks:
@@ -199,17 +197,17 @@ services:
         ports:
             - "${KIBANA_PORT:-5601}:${KIBANA_PORT:-5601}"
         environment:
-            ELASTICSEARCH_HOSTS: "http://elasticsearch:${ELASTICSERACH_PORT:-9200}"
-            ELASTICSEARCH_USERNAME: "${ELASTICSEARCH_USERNAME:-}"
-            ELASTICSEARCH_PASSWORD: "${ELASTICSEARCH_PASSWORD:-}"
+            ELASTICSEARCH_HOSTS: "http://elasticsearch:${ELASTICSEARCH_PORT:-9200}"
+            KIBANA_USER: "${KIBANA_USER}"
+            KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
             SERVER_NAME: "kibana"
             SERVER_HOST: "0.0.0.0"
             SERVER_PORT: ${KIBANA_PORT:-5601}
-            XPACK_SECURITY_ENABLED: "false"
+            XPACK_SECURITY_ENABLED: "true"
         env_file:
             - ./elk/elasticsearch/config/.env
         volumes:
-            - "./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
+            - "./elk/kibana/config/kibana.yaml:/usr/share/kibana/config/kibana.yaml:ro"
             - "./elk/kibana/dashboards:/usr/share/kibana/dashboards:ro"
             - "./elk/kibana/setup-dashboards.sh:/usr/share/kibana/setup-dashboards.sh:ro"
             - "kibana-data:/usr/share/kibana/data"
@@ -291,7 +289,6 @@ volumes:
     drizzle:
     frontend:
     elasticsearch-data:
-    elasticsearch-certs:
     kibana-data:
     logstash-data:
 
