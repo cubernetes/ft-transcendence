@@ -44,13 +44,21 @@ const createDifficultyGroup = () => {
     const label = createBodyText(getText("difficulty"));
     translatableElements["difficulty"] = label;
 
-    const btns = createButtonGroup(
-        (["easy", "medium", "hard"] as TranslationKey[]).map((key) => getText(key)),
-        []
-    );
+    const difficultyKeys = ["easy", "medium", "hard"] as TranslationKey[];
+    const btnLabels = difficultyKeys.map((key) => getText(key)); // Get button labels as strings
+    const btnCallbacks = difficultyKeys.map((key) => () => {
+        window.log.debug(`Selected difficulty: ${key}`);
+    });
+
+    const btnGroup = createButtonGroup(btnLabels, btnCallbacks);
+
+    difficultyKeys.forEach((key, index) => {
+        const btn = btnGroup.children[index] as HTMLElement;
+        translatableElements[key] = btn;
+    });
 
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
-        children: [label, btns],
+        children: [label, btnGroup],
     });
     return difficultyGrp;
 };
