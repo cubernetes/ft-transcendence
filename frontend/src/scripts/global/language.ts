@@ -15,9 +15,22 @@ export const setLanguage = (lang: LanguageState["language"]) => {
     languageStore.set({ language: lang });
 };
 
-export const getText = (key: keyof (typeof texts)["en"]) => {
+export const getText = (key: TranslationKey | string): string => {
     const lang = languageStore.get().language;
-    return texts[lang][key];
+    const translation = texts[lang][key as TranslationKey];
+    if (translation) {
+        return translation;
+    }
+
+    // Fallback logic for dynamic keys like name_player_X
+    if (key.startsWith("name_player_")) {
+        const playerNumber = key.split("_").pop(); // Extract the number after "name_player_"
+        const baseTranslation = texts[lang]["name_player"];
+        return baseTranslation ? `${baseTranslation} ${playerNumber}` : `Player ${playerNumber}`;
+    }
+
+    console.warn(`Missing translation for key: ${key}`);
+    return key; // Return the key itself as a last resort
 };
 
 export const texts = {
@@ -77,7 +90,7 @@ export const texts = {
         player_number: "Player Number",
         select_player_amount: "Please select an amount of players.",
         initialize_controller: "Game controller not initialized.",
-        name_player: "Name Player", // This can be combined with a number
+        name_player: "Name Player ",
         tournament_mode: "Tournament Mode",
         please_enter_name: "Please enter a name for Player",
     },
@@ -137,7 +150,7 @@ export const texts = {
         player_number: "Spieleranzahl",
         select_player_amount: "Bitte wählen Sie eine Anzahl von Spielern aus.",
         initialize_controller: "Spielcontroller nicht initialisiert.",
-        name_player: "Spieler benennen",
+        name_player: "Benenne Spieler ",
         tournament_mode: "Turniermodus",
         please_enter_name: "Bitte geben Sie einen Namen für Spieler",
     },

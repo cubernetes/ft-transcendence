@@ -20,7 +20,13 @@ languageStore.subscribe(() => {
     (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
         const el = translatableElements[key];
         if (el) {
-            el.textContent = getText(key);
+            if (el instanceof HTMLInputElement) {
+                el.placeholder = getText(key);
+            } else {
+                el.textContent = getText(key);
+            }
+        } else {
+            console.warn(`Element for key "${key}" not found in translatableElements.`);
         }
     });
 });
@@ -50,7 +56,7 @@ const createDifficultyGroup = () => {
     return difficultyGrp;
 };
 
-const createInput = (placeholderKey: TranslationKey) =>
+const createInput = (placeholderKey: TranslationKey | string) =>
     createEl("input", "w-full p-2 bg-gray-100 text-black rounded text-xl", {
         attributes: { placeholder: getText(placeholderKey) },
     });
@@ -136,8 +142,10 @@ const localMode = (ctn: HTMLElement) => {
     const playerLabel = createBodyText(getText("enter_names"));
     translatableElements["enter_names"] = playerLabel;
 
-    const p1 = createInput("name_player");
-    const p2 = createInput("name_player");
+    const p1 = createInput("name_player_1");
+    const p2 = createInput("name_player_2");
+    translatableElements["name_player_1"] = p1;
+    translatableElements["name_player_2"] = p2;
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, p1, p2],
     });
@@ -181,7 +189,9 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
     const playerInputs: HTMLInputElement[] = [];
     for (let i = 0; i < playerAmount; i++) {
-        const playerInput = createInput("name_player");
+        const translationKey = `name_player_${i + 1}` as TranslationKey; // Dynamically generate the key
+        const playerInput = createInput(translationKey); // Pass the dynamic key to createInput
+        translatableElements[translationKey] = playerInput; // Track the input for language updates
         playerInputs.push(playerInput);
     }
 
