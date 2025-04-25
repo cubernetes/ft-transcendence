@@ -1,3 +1,4 @@
+import { getText, languageStore } from "../../global/language";
 import { logout } from "../../modules/auth/auth.service";
 
 export const appendUserStatus = (container: HTMLElement, username: string) => {
@@ -16,13 +17,28 @@ export const appendUserStatus = (container: HTMLElement, username: string) => {
 
     // Logout button
     const logoutBtn = document.createElement("button");
-    logoutBtn.textContent = "Logout";
+    logoutBtn.textContent = getText("logout");
     logoutBtn.className =
         "ml-4 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded focus:outline-none";
 
     logoutBtn.onclick = logout;
 
+    // Append elements to the wrapper
     statusWrapper.appendChild(userNameEl);
     statusWrapper.appendChild(logoutBtn);
     container.append(statusWrapper);
+
+    // Subscribe to language changes
+    const updateTexts = () => {
+        logoutBtn.textContent = getText("logout");
+    };
+
+    const unsubscribe = languageStore.subscribe(() => {
+        updateTexts();
+    });
+
+    // Clean up subscription when the container is removed
+    container.addEventListener("destroy", () => {
+        unsubscribe();
+    });
 };
