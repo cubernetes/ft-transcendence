@@ -1,15 +1,24 @@
-import { showPageElements } from "../../modules/layout/layout.service";
-import { stopTournament } from "../../modules/tournament/tournament.create";
+import { tournamentStore } from "../../modules/tournament/tournament.store";
 import { connectBlockchain } from "../../modules/tournament/tournament.ui";
-import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createEl } from "../../utils/dom-helper";
 
 export const createTournamentPage = async (): Promise<HTMLElement[]> => {
-    showPageElements();
-    stopTournament();
+    const { controller } = tournamentStore.get();
+    const pageContainer = createEl("div", "tournament-page-container");
+
+    if (!controller) {
+        window.log.error("Tournament controller not initialized.");
+        return [];
+    }
+
+    const tree = controller?.getTournamentTree();
+    if (tree) {
+        pageContainer.appendChild(tree); // Add the tournament tree to the page
+    } else {
+        window.log.error("Tournament tree not available.");
+        return [];
+    }
     const blockchainSection = await connectBlockchain();
-    const main = createEl("main", "container mx-auto p-4", { children: [blockchainSection] });
-
-    main.appendChild(blockchainSection);
-
-    return [main];
+    pageContainer.appendChild(blockchainSection);
+    return [pageContainer];
 };
