@@ -1,16 +1,19 @@
-export type Round = "Quarter" | "Semi" | "Final" | "Waiting";
+import { createTournamentController } from "./tournament.controller";
 
-export type MatchResult = {
+export type Round = "Quarter" | "Semi" | "Final" | "Default" | "End";
+
+export type TournamentController = ReturnType<typeof createTournamentController>;
+
+export type MatchState = {
     players: [string, string];
     winner: string | null;
     score?: [number, number];
-    round: Round;
 };
 
 export type TournamentState = {
     round: Round;
-    matches: string[][] | null;
-    current_match: string[] | null;
-    players: string[] | null;
-    results: MatchResult[];
+    matches: MatchState[][] | null;
+    current_match: MatchState | null;
+    activePlayers: string[] | null;
+    controller: TournamentController | null;
 };
