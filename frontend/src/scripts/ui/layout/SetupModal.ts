@@ -3,7 +3,7 @@ import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
-import { setupTournament } from "../../modules/tournament/tournament.create";
+import { createTournamentController } from "../../modules/tournament/tournament.controller";
 import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
@@ -12,6 +12,7 @@ import { createError } from "../components/Error";
 import { createReturnButton } from "../components/ReturnButton";
 import { createSectionContainer } from "../components/SectionContainer";
 import { createBodyText, createTitleText } from "../components/Text";
+import { createTournamentTree } from "./TournamentBracket";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
@@ -219,7 +220,15 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
         hideErr();
         window.log.debug(`Tournament Start Data: ${playerInputs}`);
-        setupTournament(playerInputs);
+
+        //TODO: I don't like the way I am currently intializing tournament relevant data inside the SetupModal. Should this optimally on the create Tournament Page?
+        const players = playerInputs.map((p) => p.value.trim());
+        const tree = createTournamentTree(playerAmount);
+        const controller = createTournamentController(players, tree);
+        controller.startTournament();
+        window.log.debug("Tournament controller initialized with players:", players);
+        window.log.debug("Tournament tree initialized:", tree);
+        window.log.debug("Tournament controller started", controller);
         navigateTo("tournament");
     };
 
