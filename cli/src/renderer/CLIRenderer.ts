@@ -21,7 +21,7 @@ const EDGE_STYLES = [
 
 function makeChar(index: number): string {
     const styles = [chalk.white, chalk.cyan, chalk.blue, chalk.green, chalk.red];
-    const chars = [".", "•", "●", "◉", "⬤"];
+    const chars = ["•", "○", "●", "◉", "⬤"];
     const safeIndex = Math.min(index, chars.length - 1);
     return styles[safeIndex](chars[safeIndex]);
 }
