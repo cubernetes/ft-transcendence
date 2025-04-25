@@ -1,4 +1,5 @@
-import { MatchResult } from "../tournament.types";
+import { Result, err, ok } from "neverthrow";
+import { MatchState } from "../tournament.types";
 import { CONTRACT_ABI } from "./contracts.abi";
 import { CONTRACT_ADDRESS } from "./contracts.constants";
 
@@ -17,11 +18,14 @@ export const writeLocalContract = async (
     functionName: string,
     account: `0x${string}`,
     gameId: bigint,
-    results: MatchResult | MatchResult[]
+    results: MatchState[][] | null
 ) => {
-    const resultArray = Array.isArray(results) ? results : [results];
+    if (!results || results.length === 0) {
+        return err(new Error("Results are empty"));
+    }
+    const flatResults = results.flat();
 
-    const gameResults = resultArray.map(({ players, score }) => ({
+    const gameResults = flatResults.map(({ players, score }) => ({
         _playerName1: players[0],
         _playerName2: players[1],
         _playerScore1: BigInt(score?.[0] ?? 0),

@@ -61,7 +61,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
                 "addTournamentHistory",
                 account,
                 gameId,
-                tournamentData.results
+                tournamentData.matches
             );
             window.log.info("Transaction hash:", tx);
         } catch (err) {
