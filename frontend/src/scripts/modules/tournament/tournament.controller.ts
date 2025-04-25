@@ -1,7 +1,5 @@
-import { createTournamentTree, updateTournamentTree } from "../../ui/layout/TournamentBracket";
-import { showPageElements } from "../layout/layout.service";
-import { tournamentStore } from "./tournament.store";
-import { MatchState, TournamentState } from "./tournament.types";
+import { updateTournamentTree } from "../../ui/layout/TournamentBracket";
+import { TournamentState, tournamentStore } from "./tournament.store";
 import { determineRound, generateRoundMatches } from "./tournament.utils";
 
 export const createTournamentController = (allPlayers: string[], tree: HTMLElement) => {

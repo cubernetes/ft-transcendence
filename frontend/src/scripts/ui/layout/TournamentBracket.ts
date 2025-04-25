@@ -1,6 +1,5 @@
 import { navigateTo } from "../../global/router";
-import { tournamentStore } from "../../modules/tournament/tournament.store";
-import { Round } from "../../modules/tournament/tournament.types";
+import { Round, tournamentStore } from "../../modules/tournament/tournament.store";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 

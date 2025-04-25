@@ -1,5 +1,5 @@
 import { Result, err, ok } from "neverthrow";
-import { MatchState } from "../tournament.types";
+import { MatchState } from "../tournament.store";
 import { CONTRACT_ABI } from "./contracts.abi";
 import { CONTRACT_ADDRESS } from "./contracts.constants";
 

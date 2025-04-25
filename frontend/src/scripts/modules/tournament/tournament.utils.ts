@@ -1,5 +1,4 @@
-import { tournamentStore } from "./tournament.store";
-import { MatchState, Round } from "./tournament.types";
+import { MatchState, Round } from "./tournament.store";
 
 export const generateRoundMatches = (players: string[]): MatchState[] => {
     if (!players || players.length < 2) {
