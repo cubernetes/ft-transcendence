@@ -4,9 +4,9 @@ import inquirer from "inquirer";
 import { PongConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
+import { getToken, setToken } from "../utils/auth";
 import { cleanup } from "../utils/cleanup";
 import { API_URL, GAME_FETCH_ERROR_MSG, MENU_MUSIC } from "../utils/config";
-import { getToken, setToken } from "./auth";
 import { optionsMenu } from "./options";
 
 let defaultMode = 1;

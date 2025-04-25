@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
-import { getToken } from "../menu/auth";
+import { getToken } from "../utils/auth";
 import { PADDLE_SOUND, SCORE_SOUND, WALL_SOUND } from "../utils/config";
 
 export class WebSocketManager {
@@ -59,6 +59,21 @@ export class WebSocketManager {
         this.#socket.send(response);
     }
 
+    // "wall-collision": null;
+    // "paddle-collision": null;
+    // "state-update": {
+    //     state: PongState;
+    // };
+    // "score-update": {
+    //     scores: [number, number];
+    // };
+    // "ball-reset": null;
+    // "game-start": null;
+    // "game-end": {
+    //     winner: 0 | 1;
+    //     hits: [number, number];
+    // };
+
     /**
      * Handles incoming messages from the server.
      * @param {WebSocket.Data} event - The incoming message -> event.
@@ -84,7 +99,7 @@ export class WebSocketManager {
                 case "game-end":
                     gameManager.showRemoteWinner(message.payload.winner);
                     break;
-                case "score":
+                case "score-update":
                     audioManager.playSoundEffect(SCORE_SOUND);
                     break;
                 case "wall-collision":
@@ -94,7 +109,7 @@ export class WebSocketManager {
                     audioManager.playSoundEffect(PADDLE_SOUND);
                     break;
                 case "state-update":
-                    gameManager.renderRemoteState(message.payload);
+                    gameManager.renderRemoteState(message.payload.state);
                     break;
                 case "waiting-for-opponent":
                     console.log("Waiting for opponent...");
