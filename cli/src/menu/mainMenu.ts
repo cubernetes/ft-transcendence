@@ -22,7 +22,7 @@ export async function mainMenu(): Promise<void> {
     }
 }
 
-function printTitle(): void {
+export function printTitle(): void {
     console.clear();
     const title = figlet.textSync(" PONG   CLI", { font: "Small Poison" });
     console.log(chalk.green(title));
@@ -64,9 +64,9 @@ async function handleMenuSelection(mode: number): Promise<void> {
                     message: figlet.textSync("LOCAL GAME\n", { font: "Soft" }),
                     choices: [
                         new inquirer.Separator(),
-                        { name: chalk.magenta("🎮  1P Game"), value: "1P" },
+                        { name: chalk.magenta("🎮  1P AI Game"), value: "1P" },
                         new inquirer.Separator(),
-                        { name: chalk.magenta("👥  2P Game"), value: "2P" },
+                        { name: chalk.magenta("👥  2P VS Game"), value: "2P" },
                         new inquirer.Separator(),
                         { name: chalk.red("🔙  Back"), value: "back" },
                     ],
@@ -75,7 +75,29 @@ async function handleMenuSelection(mode: number): Promise<void> {
 
             switch (localMode) {
                 case "1P":
-                    gameManager.start1PLocal();
+                    printTitle();
+                    console.log(chalk.cyan(figlet.textSync("1P AI GAME", { font: "Soft" })));
+                    const { difficulty } = await inquirer.prompt([
+                        {
+                            type: "list",
+                            name: "difficulty",
+                            message: "Choose Difficulty:",
+                            choices: [
+                                new inquirer.Separator(),
+                                { name: chalk.green("🟢 Easy"), value: "EASY" },
+                                { name: chalk.yellow("🟡 Medium"), value: "MEDIUM" },
+                                { name: chalk.red("🔴 Hard"), value: "HARD" },
+                                new inquirer.Separator(),
+                                { name: chalk.red("🔙 Back"), value: "back" },
+                            ],
+                        },
+                    ]);
+
+                    if (difficulty === "back") {
+                        return await handleMenuSelection(1);
+                    }
+
+                    gameManager.start1PLocal(difficulty);
                     break;
                 case "2P":
                     gameManager.start2PLocal();
