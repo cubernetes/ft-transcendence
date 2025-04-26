@@ -30,10 +30,10 @@ curl -k -X POST "https://localhost:9200/_security/user/${LOGSTASH_USER}" -H 'Con
   \"full_name\" : \"Logstash User\"
 }"
 
-# Create kibana user
+# Create kibana user with both superuser and kibana_system roles
 curl -k -X POST "https://localhost:9200/_security/user/${KIBANA_USER}" -H 'Content-Type: application/json' -u elastic:${ELASTIC_PASSWORD} -d "{
   \"password\" : \"${KIBANA_PASSWORD}\",
-  \"roles\" : [ \"superuser\" ],
+  \"roles\" : [ \"superuser\", \"kibana_system\" ],
   \"full_name\" : \"Kibana System User\"
 }"
 

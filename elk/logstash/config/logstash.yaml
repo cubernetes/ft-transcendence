@@ -1,12 +1,13 @@
-http.host: "0.0.0.0"
+api.http.host: "0.0.0.0"
 xpack.monitoring.enabled: true
-xpack.monitoring.elasticsearch.hosts: ["http://elasticsearch:9200"]
+xpack.monitoring.elasticsearch.hosts: ["https://elasticsearch:9200"]
 xpack.monitoring.elasticsearch.username: "${LOGSTASH_USER}"
 xpack.monitoring.elasticsearch.password: "${LOGSTASH_PASSWORD}"
 xpack.monitoring.elasticsearch.ssl.verification_mode: none
 xpack.monitoring.elasticsearch.sniffing: false
 
 # Pipeline settings
+pipeline.buffer.type: "heap"
 pipeline.workers: 2
 pipeline.batch.size: 125
 pipeline.batch.delay: 50

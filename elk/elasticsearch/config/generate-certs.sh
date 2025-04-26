@@ -30,10 +30,14 @@ if [ ! -f "$CERTS_DIR/elastic-certificates.p12" ]; then
         --silent
 
     echo "SSL certificates generated successfully"
+elif [ ! -f "$CERTS_DIR/ca.crt" ]; then
+	# If CA certificate doesn't exist, extract it
+	openssl pkcs12 -in "$CERTS_DIR/elastic-stack-ca.p12" -cacerts -nokeys -out "$CERTS_DIR/ca.crt" -passin pass:"$KEYSTORE_PASSWORD"
+	echo "CA certificate extracted successfully"
 else
-    echo "SSL certificates already exist"
+	echo "SSL certificates already exist"
 fi
 
 # Set proper permissions on generated files
 chown -R elasticsearch:elasticsearch "$CERTS_DIR"
-chmod -R 660 "$CERTS_DIR"/* 
+chmod -R 644 "$CERTS_DIR"/*
