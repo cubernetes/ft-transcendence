@@ -52,7 +52,8 @@ const publicUser = z.object({
 });
 
 const loginPayload = z.object({
-    token: z.string(),
+    username: z.string(),
+    displayName: z.string(),
     totpEnabled: z.coerce.number().int().gte(0),
 });
 
@@ -61,7 +62,7 @@ const totpSetupPayload = z.object({
     b32secret: z.string(),
 });
 
-const totpVerifyPayload = z.object({ token: z.string() });
+const totpVerifyPayload = z.object({ username: z.string(), displayName: z.string() });
 
 const getMePayload = publicUser;
 // const getMeResponse = apiResponse(publicUser);
