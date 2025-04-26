@@ -2,12 +2,14 @@
 server.name: kibana
 server.host: "0.0.0.0"
 server.port: 5601
+server.ssl.enabled: false
 
 # Elasticsearch connection
 elasticsearch.hosts: ["http://elasticsearch:9200"]
 elasticsearch.requestTimeout: 30000
 elasticsearch.username: "${KIBANA_USER}"
 elasticsearch.password: "${KIBANA_PASSWORD}"
+elasticsearch.ssl.verificationMode: none
 
 # Kibana index patterns
 kibana.index_pattern.default: "ft-transcendence-logs-*"
@@ -27,3 +29,10 @@ xpack.savedObjects.maxImportExportSize: 10000
 
 # Default space settings
 xpack.spaces.enabled: true
+
+# Performance settings
+optimize.enabled: true
+optimize.lazy: true
+optimize.lazyPort: 5602
+optimize.lazyPrebuild: true
+optimize.lazyProxyTimeout: 30000

@@ -7,110 +7,40 @@ KIBANA_PASSWORD="${KIBANA_PASSWORD:?Missing KIBANA_PASSWORD}"
 LOGSTASH_USER="${LOGSTASH_USER:?Missing LOGSTASH_USER}"
 LOGSTASH_PASSWORD="${LOGSTASH_PASSWORD:?Missing LOGSTASH_PASSWORD}"
 
+# Generate certificates first
+/usr/share/elasticsearch/config/generate-certs.sh
 
 # Start Elasticsearch in the background
-echo "Starting Elasticsearch..."
 /usr/local/bin/docker-entrypoint.sh eswrapper &
+ES_PID=$!
 
-# Wait for Elasticsearch to be ready
-echo "Waiting for Elasticsearch to be ready..."
-until curl -s http://localhost:9200/ > /dev/null; do
-  echo "Waiting for Elasticsearch..."
-  sleep 5
+# Wait for Elasticsearch to start
+echo "Waiting for Elasticsearch to start..."
+until curl -s -k -u elastic:${ELASTIC_PASSWORD} --fail https://localhost:9200/_cluster/health; do
+    sleep 5
 done
 
-# Try to authenticate with the bootstrap password
-echo "Checking if Elasticsearch is ready with authentication..."
-until curl -s -u elastic:"${ELASTIC_PASSWORD}" "http://localhost:9200/_cluster/health" > /dev/null; do
-  echo "Waiting for Elasticsearch security to be ready..."
-  sleep 2
-done
+# Create users and set up security
+echo "Setting up users and security..."
 
-echo "Creating .env file with credentials..."
-cat > /usr/share/elasticsearch/config/.env << EOF
-ELASTIC_PASSWORD=$ELASTIC_PASSWORD
-KIBANA_USER=$KIBANA_USER
-KIBANA_PASSWORD=$KIBANA_PASSWORD
-LOGSTASH_USER=$LOGSTASH_USER
-LOGSTASH_PASSWORD=$LOGSTASH_PASSWORD
-KIBANA_ENCRYPTION_KEY=$(openssl rand -hex 32)
-EOF
+# Create logstash user
+curl -k -X POST "https://localhost:9200/_security/user/${LOGSTASH_USER}" -H 'Content-Type: application/json' -u elastic:${ELASTIC_PASSWORD} -d "{
+  \"password\" : \"${LOGSTASH_PASSWORD}\",
+  \"roles\" : [ \"superuser\" ],
+  \"full_name\" : \"Logstash User\"
+}"
 
-# Create logstash user with write privileges
-echo "Creating logstash_writer role and user..."
-curl -X POST -u elastic:"${ELASTIC_PASSWORD}" "http://localhost:9200/_security/role/logstash_writer" -H "Content-Type: application/json" -d '
-{
-  "cluster": ["manage_index_templates", "monitor", "manage_ilm"],
-  "indices": [
-    {
-      "names": ["ft-transcendence-logs-*"],
-      "privileges": ["write", "create_index", "manage"]
-    }
-  ]
-}'
+# Create kibana user
+curl -k -X POST "https://localhost:9200/_security/user/${KIBANA_USER}" -H 'Content-Type: application/json' -u elastic:${ELASTIC_PASSWORD} -d "{
+  \"password\" : \"${KIBANA_PASSWORD}\",
+  \"roles\" : [ \"superuser\" ],
+  \"full_name\" : \"Kibana System User\"
+}"
 
-curl -X POST -u elastic:"${ELASTIC_PASSWORD}" "http://localhost:9200/_security/user/$LOGSTASH_USER" -H "Content-Type: application/json" -d '
-{
-  "password": "'"$LOGSTASH_PASSWORD"'",
-  "roles": ["logstash_writer"],
-  "full_name": "Logstash Writer"
-}'
+# Set up ILM policy
+curl -k -X PUT "https://localhost:9200/_ilm/policy/logs" -H 'Content-Type: application/json' -u elastic:${ELASTIC_PASSWORD} --data "@/usr/share/elasticsearch/config/ilm-policy.json"
 
-# Run ILM setup
-echo "Running index lifecycle management setup..."
-curl -X PUT -u elastic:"${ELASTIC_PASSWORD}" "http://localhost:9200/_ilm/policy/ft-transcendence-logs-policy" \
-  -H 'Content-Type: application/json' \
-  -d @/usr/share/elasticsearch/config/ilm-policy.json
+# Wait for the original Elasticsearch process
+wait $ES_PID
 
-# Create index template with ILM policy
-echo "Creating index template with ILM policy..."
-curl -X PUT -u elastic:"${ELASTIC_PASSWORD}" "http://localhost:9200/_template/ft-transcendence-logs" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "index_patterns": ["ft-transcendence-logs-*"],
-    "settings": {
-      "index.lifecycle.name": "ft-transcendence-logs-policy",
-      "index.lifecycle.rollover_alias": "ft-transcendence-logs",
-      "number_of_shards": 1,
-      "number_of_replicas": 0
-    },
-    "mappings": {
-      "properties": {
-        "@timestamp": { "type": "date" },
-        "level": { "type": "keyword" },
-        "message": { "type": "text" },
-        "log_message": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-        "tags": { "type": "keyword" },
-        "hostname": { "type": "keyword" },
-        "userId": { "type": "long" },
-        "gameId": { "type": "keyword" },
-        "service": { "type": "keyword" }
-      }
-    }
-  }'
-
-# Create initial index
-echo "Creating initial index..."
-curl -X PUT -u elastic:"${ELASTIC_PASSWORD}" "http://localhost:9200/%3Cft-transcendence-logs-%7Bnow%2Fd%7D-000001%3E" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "aliases": {
-      "ft-transcendence-logs": {
-        "is_write_index": true
-      }
-    }
-  }'
-
-# Create Kibana user
-echo "Creating Kibana user..."
-curl -X POST -u elastic:"${ELASTIC_PASSWORD}" "http://localhost:9200/_security/user/$KIBANA_USER" -H "Content-Type: application/json" -d '
-{
-  "password": "'"$KIBANA_PASSWORD"'",
-  "roles": ["kibana_system"],
-  "full_name": "Kibana User"
-}'
-
-echo "Elasticsearch setup complete!"
-
-# Keep container running
-wait
+echo "\nElasticsearch setup complete!"
