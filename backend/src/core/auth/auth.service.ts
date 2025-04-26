@@ -6,6 +6,17 @@ import bcrypt from "bcrypt";
 import { schemas } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/errors.ts";
 
+export const verifyCookie = (req: FastifyRequest, _: FastifyReply) => {
+    const { cookieName } = req.server.config;
+    const token = req.cookies?.[cookieName];
+    if (!token) return;
+
+    const payload = req.server.authService.verifyToken(token);
+    if (payload.isOk() && payload.value.id && !isNaN(Number(payload.value.id))) {
+        req.userId = Number(payload.value.id);
+    }
+};
+
 export const createAuthService = (app: FastifyInstance) => {
     const { jwt } = app;
     const saltRounds = 10;
@@ -37,24 +48,12 @@ export const createAuthService = (app: FastifyInstance) => {
         }
     };
 
-    const jwtAuth = async (req: FastifyRequest, reply: FastifyReply) => {
-        const header = req.headers.authorization;
-        if (!header) {
-            const error = new ApiError("UNAUTHORIZED", 401, "Missing Authorization header");
+    const requireAuth = async (req: FastifyRequest, reply: FastifyReply) => {
+        // Check that userId exists and is larger than 0 (Attached by onRequest hook)
+        if (!req.userId || req.userId <= 0) {
+            const error = new ApiError("UNAUTHORIZED", 401, "Authentication required");
             return error.send(reply);
         }
-        const [type, token] = header.split(" ");
-        if (type !== "Bearer" || !token) {
-            const error = new ApiError("UNAUTHORIZED", 401, "Invalid Authorization format");
-            return error.send(reply);
-        }
-        const payload = req.server.authService.verifyToken(token);
-        if (payload.isErr() || !payload.value.id || isNaN(Number(payload.value.id))) {
-            const error = new ApiError("UNAUTHORIZED", 401, "Invalid or expired token");
-            return error.send(reply);
-        }
-
-        req.userId = Number(payload.value.id);
     };
 
     return {
@@ -62,6 +61,6 @@ export const createAuthService = (app: FastifyInstance) => {
         comparePassword,
         generateToken,
         verifyToken,
-        jwtAuth,
+        requireAuth,
     };
 };
