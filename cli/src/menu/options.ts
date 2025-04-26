@@ -12,17 +12,15 @@ export async function optionsMenu(): Promise<void> {
 
     while (!exit) {
         try {
-            printTitle();
-            const subtitle = figlet.textSync("OPTIONS", { font: "Soft" });
-            console.log(chalk.whiteBright(subtitle));
+            printTitle("OPTIONS");
 
             const setString =
                 `${chalk.cyan("\tMusic:     ")} ${userOptions.music ? chalk.greenBright("Enabled ✓") : chalk.redBright("Disabled ✘")}\n` +
                 `${chalk.cyan("\tSounds:    ")} ${userOptions.sfx ? chalk.greenBright("Enabled ✓") : chalk.redBright("Disabled ✘")}\n` +
                 `${chalk.cyan("\tPlay Style:")} ${chalk.yellowBright(userOptions.playStyle)}\n` +
                 `${chalk.cyan("\tResolution:")} ${chalk.blueBright(userOptions.resolution)}\n` +
-                `${chalk.cyan("\tControls:  ")} ${chalk.magenta(`P1  ↑:${userOptions.p1Keys.up}  ↓:${userOptions.p1Keys.down}  ■: ${userOptions.p1Keys.stop}`)} | ` +
-                `${chalk.yellow(`P2  ↑:${userOptions.p2Keys.up}  ↓:${userOptions.p2Keys.down}  ■:${userOptions.p2Keys.stop}`)}\n\n`;
+                `${chalk.cyan("\tControls:  ")} ${chalk.magenta(`P1:  ↑ ${userOptions.p1Keys.up}   ↓ ${userOptions.p1Keys.down}   ■ ${userOptions.p1Keys.stop}`)}` +
+                `${chalk.yellow(`\n\t            P2:  ↑ ${userOptions.p2Keys.up}   ↓ ${userOptions.p2Keys.down}   ■ ${userOptions.p2Keys.stop}`)}\n\n`;
 
             const { option } = await inquirer.prompt([
                 {
@@ -31,15 +29,13 @@ export async function optionsMenu(): Promise<void> {
                     message: setString,
                     choices: [
                         new inquirer.Separator(),
-                        { name: "🎵  Music", value: "music" },
+                        { name: chalk.magenta("🔊  Audio"), value: "audio" },
                         new inquirer.Separator(),
-                        { name: "💥  Sounds", value: "sfx" },
+                        { name: chalk.magenta("🕹️  Play Style"), value: "playStyle" },
                         new inquirer.Separator(),
-                        { name: "🕹️  Play Style", value: "playStyle" },
+                        { name: chalk.magenta("🖥️  Resolution"), value: "resolution" },
                         new inquirer.Separator(),
-                        { name: "🖥️  Resolution", value: "resolution" },
-                        new inquirer.Separator(),
-                        { name: "🎮  Controls", value: "controls" },
+                        { name: chalk.magenta("🎮  Controls"), value: "controls" },
                         new inquirer.Separator(),
                         { name: chalk.red("🔙  Back"), value: "exit" },
                     ],
@@ -51,40 +47,33 @@ export async function optionsMenu(): Promise<void> {
 
             lastChoice = option;
             switch (option) {
-                case "music": {
-                    const { music } = await inquirer.prompt([
+                case "audio": {
+                    // Combine music and sfx toggles into one checkbox menu
+                    const { toggles } = await inquirer.prompt([
                         {
-                            type: "list",
-                            name: "music",
-                            message: chalk.magentaBright("Enable music?"),
+                            type: "checkbox",
+                            name: "toggles",
+                            message: "",
                             choices: [
                                 new inquirer.Separator(),
-                                { name: chalk.greenBright("Yes ✓"), value: true },
-                                { name: chalk.redBright("No  ✘"), value: false },
+                                {
+                                    name: chalk.greenBright("🎵 Music"),
+                                    value: "music",
+                                    checked: userOptions.music,
+                                },
+                                new inquirer.Separator(" "),
+                                {
+                                    name: chalk.greenBright("💥 Sounds"),
+                                    value: "sfx",
+                                    checked: userOptions.sfx,
+                                },
                             ],
-                            default: userOptions.music,
                         },
                     ]);
-                    userOptions.music = music;
+                    userOptions.music = toggles.includes("music");
                     audioManager.startMusic(MENU_MUSIC);
-                    break;
-                }
-
-                case "sfx": {
-                    const { sfx } = await inquirer.prompt([
-                        {
-                            type: "list",
-                            name: "sfx",
-                            message: chalk.magentaBright("Enable Sounds?"),
-                            choices: [
-                                new inquirer.Separator(),
-                                { name: chalk.greenBright("Yes ✓"), value: true },
-                                { name: chalk.redBright("No  ✘"), value: false },
-                            ],
-                            default: userOptions.sfx,
-                        },
-                    ]);
-                    userOptions.sfx = sfx;
+                    userOptions.sfx = toggles.includes("sfx");
+                    if (userOptions.music) audioManager.startMusic(MENU_MUSIC);
                     break;
                 }
 
