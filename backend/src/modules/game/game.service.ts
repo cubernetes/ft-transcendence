@@ -63,6 +63,7 @@ export const createGameService = (app: FastifyInstance) => {
                 payload: {
                     gameId: id,
                     opponentId: players[1].userId!,
+                    opponentName: players[1].userDisplayName!,
                     index: 0,
                 },
             });
@@ -72,6 +73,7 @@ export const createGameService = (app: FastifyInstance) => {
                 payload: {
                     gameId: id,
                     opponentId: players[0].userId!,
+                    opponentName: players[0].userDisplayName!,
                     index: 1,
                 },
             });

@@ -40,5 +40,6 @@ declare module "fastify" {
 
     interface WebSocket extends WsWebSocket {
         userId?: number;
+        userDisplayName?: string;
     }
 }
