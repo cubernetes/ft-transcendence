@@ -22,18 +22,23 @@ export async function mainMenu(): Promise<void> {
     }
 }
 
-export function printTitle(): void {
+export function printTitle(subtitle?: string): void {
     console.clear();
     const title = figlet.textSync(" PONG   CLI", { font: "Small Poison" });
     console.log(chalk.green(title));
+    if (subtitle) {
+        const sub = figlet.textSync(subtitle, { font: "Soft" });
+        console.log(chalk.cyan(sub));
+    }
 }
 
 async function promptMainMenu(): Promise<number> {
+    printTitle("MAIN MENU");
     const { mode } = await inquirer.prompt([
         {
             type: "list",
             name: "mode",
-            message: figlet.textSync("MAIN MENU\n", { font: "Soft" }),
+            message: "",
             choices: [
                 new inquirer.Separator(),
                 { name: chalk.magenta("🏠  Local Game"), value: 1 },
@@ -54,14 +59,14 @@ async function promptMainMenu(): Promise<number> {
 }
 
 async function handleMenuSelection(mode: number): Promise<void> {
-    printTitle();
+    printTitle("LOCAL GAME");
     switch (mode) {
         case 1:
             const { localMode } = await inquirer.prompt([
                 {
                     type: "list",
                     name: "localMode",
-                    message: figlet.textSync("LOCAL GAME\n", { font: "Soft" }),
+                    message: "",
                     choices: [
                         new inquirer.Separator(),
                         { name: chalk.magenta("🎮  1P AI Game"), value: "1P" },
@@ -75,8 +80,7 @@ async function handleMenuSelection(mode: number): Promise<void> {
 
             switch (localMode) {
                 case "1P":
-                    printTitle();
-                    console.log(chalk.cyan(figlet.textSync("1P AI GAME", { font: "Soft" })));
+                    printTitle("1P AI GAME");
                     const { difficulty } = await inquirer.prompt([
                         {
                             type: "list",
@@ -84,9 +88,9 @@ async function handleMenuSelection(mode: number): Promise<void> {
                             message: "Choose Difficulty:",
                             choices: [
                                 new inquirer.Separator(),
-                                { name: chalk.green("🟢 Easy"), value: "EASY" },
-                                { name: chalk.yellow("🟡 Medium"), value: "MEDIUM" },
-                                { name: chalk.red("🔴 Hard"), value: "HARD" },
+                                { name: chalk.green("🟢  Easy"), value: "EASY" },
+                                { name: chalk.yellow("🟡  Medium"), value: "MEDIUM" },
+                                { name: chalk.red("🔴  Hard"), value: "HARD" },
                                 new inquirer.Separator(),
                                 { name: chalk.red("🔙 Back"), value: "back" },
                             ],
@@ -121,8 +125,8 @@ async function handleMenuSelection(mode: number): Promise<void> {
     }
 }
 
-async function promptRemotePlayMenu(): Promise<void> {
-    printTitle();
+async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
+    printTitle("REMOTE GAME");
     const token = getToken();
 
     if (token) {
@@ -134,14 +138,14 @@ async function promptRemotePlayMenu(): Promise<void> {
         {
             type: "list",
             name: "action",
-            message: figlet.textSync("REMOTE GAME", { font: "Soft" }),
+            message: (errorMsg ? chalk.red(errorMsg) + "\n" : "") + "",
             choices: [
                 new inquirer.Separator(),
-                { name: chalk.magenta("🔐 Login"), value: "login" },
+                { name: chalk.magenta("🔐  Login"), value: "login" },
                 new inquirer.Separator(),
-                { name: chalk.magenta("📝 Register"), value: "register" },
+                { name: chalk.magenta("📝  Register"), value: "register" },
                 new inquirer.Separator(),
-                { name: chalk.red("🔙 Back"), value: "back" },
+                { name: chalk.red("🔙  Back"), value: "back" },
             ],
         },
     ]);
@@ -151,8 +155,8 @@ async function promptRemotePlayMenu(): Promise<void> {
             await handleServerLogin();
             break;
         case "register":
-            await registerUser();
-            return await handleServerLogin(); // or return to promptRemotePlayMenu
+            if (await registerUser()) return await handleServerLogin();
+            else return await promptRemotePlayMenu("Registration failed. Please try again.");
         case "back":
         default:
             return await mainMenu();
@@ -175,6 +179,7 @@ async function fetchGameConfig(): Promise<PongConfig> {
 
 async function handleServerLogin() {
     try {
+        console.log(" ");
         const { username, password } = await inquirer.prompt([
             { type: "input", name: "username", message: "Username:" },
             { type: "password", name: "password", message: "Password:" },
@@ -183,40 +188,18 @@ async function handleServerLogin() {
         const token = await loginToServer(username, password);
 
         if (!token) {
-            printTitle();
-            const { action } = await inquirer.prompt([
-                {
-                    type: "list",
-                    name: "action",
-                    message: "Login failed. What do you want to do?",
-                    choices: [
-                        new inquirer.Separator(),
-                        { name: chalk.magenta("Try again"), value: "retry" },
-                        new inquirer.Separator(),
-                        { name: chalk.magenta("Register new account"), value: "register" },
-                        new inquirer.Separator(),
-                        { name: chalk.red("Back to Menu"), value: "back" },
-                    ],
-                },
-            ]);
-
-            switch (action) {
-                case "retry":
-                    return await handleServerLogin();
-                case "register":
-                    if (await registerUser()) return await handleServerLogin();
-                    else return await promptRemotePlayMenu();
-                case "back":
-                default:
-                    return await mainMenu();
-            }
+            return promptRemotePlayMenu("Login failed. Please try again.");
         }
 
         setToken(token);
         gameManager.start1PRemote();
-    } catch (err) {
-        console.error(chalk.red("Error during login process."), err);
-        cleanup("Login process failed.");
+    } catch (err: any) {
+        if (err?.isTtyError || err?.constructor?.name === "ExitPromptError") {
+            cleanup();
+        } else {
+            console.error(chalk.red("Error during login process."), err);
+            cleanup("Login process failed.");
+        }
     }
 }
 
@@ -249,6 +232,7 @@ async function loginToServer(username: string, password: string): Promise<string
 }
 
 async function registerUser(): Promise<boolean> {
+    console.log(" ");
     const { username, password, displayName, confirmPassword } = await inquirer.prompt([
         { type: "input", name: "username", message: "New username: " },
         { type: "password", name: "password", message: "New password: " },
