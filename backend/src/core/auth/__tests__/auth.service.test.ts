@@ -29,10 +29,10 @@ test("authService - jwt sign + verify", async (t) => {
     const authService = createAuthService(app);
 
     const user = mockUser();
-    const token = authService.generateToken(user);
+    const token = authService.generateJwtToken(user);
     t.type(token, "string", "should return a string JWT");
 
-    const decoded = authService.verifyToken(token);
+    const decoded = authService.verifyJwtToken(token);
     const { id, username, displayName } = user;
 
     if (decoded.isErr()) {

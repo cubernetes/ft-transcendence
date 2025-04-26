@@ -3,6 +3,8 @@ import type { JwtPayload } from "@darrenkuro/pong-core";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import bcrypt from "bcrypt";
+import QRCode from "qrcode";
+import * as speakeasy from "speakeasy";
 import { schemas } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/errors.ts";
 
@@ -11,7 +13,7 @@ export const verifyCookie = (req: FastifyRequest, _: FastifyReply) => {
     const token = req.cookies?.[cookieName];
     if (!token) return;
 
-    const payload = req.server.authService.verifyToken(token);
+    const payload = req.server.authService.verifyJwtToken(token);
     if (payload.isOk() && payload.value.id && !isNaN(Number(payload.value.id))) {
         req.userId = Number(payload.value.id);
     }
@@ -27,7 +29,7 @@ export const createAuthService = (app: FastifyInstance) => {
         bcrypt.compare(password, hash);
 
     // TODO: exp to be defined in jwt plugin; also, maybe use access/refresh token?
-    const generateToken = (user: User, exp: string = "1d"): string => {
+    const generateJwtToken = (user: User, exp: string = "1d"): string => {
         const { id, username, displayName } = user;
 
         const payload = { id: String(id), username, displayName } satisfies Omit<
@@ -38,7 +40,7 @@ export const createAuthService = (app: FastifyInstance) => {
         return jwt.sign(payload, { expiresIn: exp });
     };
 
-    const verifyToken = (token: string): Result<JwtPayload, Error> => {
+    const verifyJwtToken = (token: string): Result<JwtPayload, Error> => {
         try {
             const payload = jwt.verify(token) as JwtPayload;
             schemas.jwtPayload.parse(payload); // Runtime type check to ensure token is valid
@@ -46,6 +48,20 @@ export const createAuthService = (app: FastifyInstance) => {
         } catch (error) {
             return err(new Error("Invalid JWT token or payload"));
         }
+    };
+
+    const generateTotpSecret = async (): Promise<{ qrCode: string; secret: string }> => {
+        const generatedSecret = speakeasy.generateSecret({ otpauth_url: true });
+
+        const encoding = app.config.totpEncoding;
+        const secret = generatedSecret[encoding];
+        const qrCode = await QRCode.toDataURL(generatedSecret.otpauth_url);
+        return { secret, qrCode };
+    };
+
+    const verifyTotpToken = (secret: string, token: string): boolean => {
+        const encoding = app.config.totpEncoding;
+        return speakeasy.totp.verify({ secret, token, encoding });
     };
 
     const requireAuth = async (req: FastifyRequest, reply: FastifyReply) => {
@@ -59,8 +75,10 @@ export const createAuthService = (app: FastifyInstance) => {
     return {
         hashPassword,
         comparePassword,
-        generateToken,
-        verifyToken,
+        generateJwtToken,
+        verifyJwtToken,
+        generateTotpSecret,
+        verifyTotpToken,
         requireAuth,
     };
 };
