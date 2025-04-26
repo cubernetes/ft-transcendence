@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import audioManager from "../audio/AudioManager";
 import { cleanup } from "../utils/cleanup";
 import { MENU_MUSIC, userOptions } from "../utils/config";
-import { mainMenu } from "./mainMenu";
+import { mainMenu, printTitle } from "./mainMenu";
 
 export async function optionsMenu(): Promise<void> {
     let exit = false;
@@ -12,10 +12,7 @@ export async function optionsMenu(): Promise<void> {
 
     while (!exit) {
         try {
-            console.clear();
-
-            const title = figlet.textSync(" PONG   CLI", { font: "Small Poison" });
-            console.log(chalk.green(title));
+            printTitle();
             const subtitle = figlet.textSync("OPTIONS", { font: "Soft" });
             console.log(chalk.whiteBright(subtitle));
 

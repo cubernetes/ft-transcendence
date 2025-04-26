@@ -1,4 +1,10 @@
-import { PongConfig, PongState, createPongEngine, defaultGameConfig } from "@darrenkuro/pong-core";
+import {
+    AIDifficulty,
+    PongConfig,
+    PongState,
+    createPongEngine,
+    defaultGameConfig,
+} from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { mainMenu } from "../menu/mainMenu";
@@ -36,8 +42,9 @@ export class GameManager {
         this.default = structuredClone(defaultGameConfig);
     }
 
-    start1PLocal() {
-        this.engine.reset(this.default);
+    start1PLocal(difficulty: AIDifficulty) {
+        this.engine.reset({ aiMode: true, aiDifficulty: difficulty });
+        // this.engine.reset(defaultGameConfig);
         this.configEngine();
         this.cleanupController();
         this.controller = new GameController([
@@ -53,7 +60,8 @@ export class GameManager {
     }
 
     start2PLocal() {
-        this.engine.reset(this.default);
+        this.engine.reset({ aiMode: false });
+        // this.engine.reset(this.default);
         this.configEngine();
         this.cleanupController();
         this.controller = new GameController([
