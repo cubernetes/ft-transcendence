@@ -7,4 +7,5 @@ export type AppConfig = {
     host: string;
     domains: string[];
     corsOrigin: string[] | "*";
+    cookieName: string;
 };

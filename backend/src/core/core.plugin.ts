@@ -15,8 +15,14 @@ const corePlugin = async (app: FastifyInstance) => {
 
     await app.register(cors, { origin: app.config.corsOrigin });
 
-    // TODO: Add more options here for JWT, see: https://github.com/fastify/fastify-jwt
-    await app.register(jwt, { secret: app.config.jwtSecret }); // Register jwt plugin
+    // Register jwt plugin
+    await app.register(jwt, {
+        secret: app.config.jwtSecret,
+        cookie: {
+            cookieName: app.config.cookieName,
+            signed: false,
+        },
+    });
 
     await app.register(cookies);
     await app.register(dbPlugin);

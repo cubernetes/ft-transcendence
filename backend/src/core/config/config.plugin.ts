@@ -5,6 +5,9 @@ import path from "path";
 import { configSchema } from "./config.schema.ts";
 import { AppConfig } from "./config.types.ts";
 
+// Constants
+const COOKIE_NAME = "token";
+
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (app: FastifyInstance): Promise<void> => {
     // Validate config integrity with zod schema
@@ -37,6 +40,7 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
         host,
         domains,
         corsOrigin,
+        cookieName: COOKIE_NAME,
     };
 
     app.decorate("config", config);
