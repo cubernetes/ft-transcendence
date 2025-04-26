@@ -7,12 +7,12 @@ export type OutgoingMessageType = keyof PongEngineEventMap | "waiting-for-oppone
 export type MessageType = IncomingMessageType | OutgoingMessageType;
 
 export type IncomingMessagePayloads = {
-    "game-start": { token: string };
+    "game-start": null;
     "game-action": { gameId: string; index: number; action: UserInput };
 };
 
 export type OutgoingMessagePayloads = Omit<PongEngineEventMap, "game-start"> & {
-    "game-start": { gameId: string; opponentId: number; index: 0 | 1 };
+    "game-start": { gameId: string; opponentId: number; opponentName: string; index: 0 | 1 };
     "waiting-for-opponent": null;
 };
 
