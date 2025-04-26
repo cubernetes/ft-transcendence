@@ -21,10 +21,7 @@ const registerHandler = async (
 
     const passwordHash = await req.server.authService.hashPassword(userData.password);
 
-    const userWithHash = {
-        ...userData,
-        passwordHash,
-    };
+    const userWithHash = { ...userData, passwordHash };
 
     const user = await req.server.userService.create(userWithHash);
 
@@ -33,9 +30,13 @@ const registerHandler = async (
     }
 
     const token = req.server.authService.generateToken(user.value);
-    const totpEnabled = user.value.totpEnabled;
+    const { username, displayName, totpEnabled } = user.value;
+    const { cookieName, cookieConfig } = req.server.config;
 
-    return reply.code(201).send({ success: true, data: { token, totpEnabled } });
+    return reply
+        .setCookie(cookieName, token, cookieConfig)
+        .code(201)
+        .send({ success: true, data: { username, displayName, totpEnabled } });
 };
 
 const totpSetupHandler = async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
@@ -90,9 +91,13 @@ const totpVerifyHandler = async (
         return err.send(reply);
     }
 
-    const jwtToken = req.server.authService.generateToken(user.value);
+    const token = req.server.authService.generateToken(user.value);
+    const { username, displayName, totpEnabled } = user.value;
+    const { cookieName, cookieConfig } = req.server.config;
 
-    return reply.send({ success: true, data: { token: jwtToken } });
+    return reply
+        .setCookie(cookieName, token, cookieConfig)
+        .send({ success: true, data: { username, displayName, totpEnabled } });
 };
 
 const totpVerifyInitialHandler = async (
@@ -129,9 +134,10 @@ const totpVerifyInitialHandler = async (
     user.value.totpSecret = user.value.temporaryTotpSecret;
     req.server.userService.update(user.value.id, user.value);
 
-    const jwtToken = req.server.authService.generateToken(user.value);
+    // const jwtToken = req.server.authService.generateToken(user.value);
 
-    return reply.send({ success: true, data: { token: jwtToken } });
+    // TODO: Do not need to send back anything!
+    return reply.send({ success: true, data: { token: "" } });
 };
 
 const loginHandler = async (
@@ -139,12 +145,13 @@ const loginHandler = async (
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
+    // Find user
     const user = await req.server.userService.findByUsername(body.username);
-
     if (user.isErr()) {
         return user.error.send(reply);
     }
 
+    // Validate password
     const isPasswordValid = await req.server.authService.comparePassword(
         body.password,
         user.value.passwordHash
@@ -154,16 +161,16 @@ const loginHandler = async (
         return err.send(reply);
     }
 
-    const totpEnabled = user.value.totpEnabled;
+    // Check 2FA
+    const { username, displayName, totpEnabled } = user.value;
 
-    let token;
-    if (totpEnabled) {
-        token = "totp-needed";
-    } else {
-        token = req.server.authService.generateToken(user.value);
+    if (!totpEnabled) {
+        const token = req.server.authService.generateToken(user.value);
+        const { cookieName, cookieConfig } = req.server.config;
+        reply.setCookie(cookieName, token, cookieConfig);
     }
 
-    return reply.send({ success: true, data: { token, totpEnabled } });
+    return reply.send({ success: true, data: { username, displayName, totpEnabled } });
 };
 
 const getLeaderboardHandler = async (
