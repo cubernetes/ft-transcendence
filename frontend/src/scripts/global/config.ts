@@ -35,7 +35,7 @@ const config = {
         header: "header-ctn",
         canvas: "rendering-canvas",
         router: "router-ctn",
-        footer: "fotter-ctn",
+        footer: "footer-ctn",
     },
     key: {
         lup: [...L_UP], // For local, i.e. left paddle up
