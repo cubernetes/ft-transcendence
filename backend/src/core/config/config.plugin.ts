@@ -3,10 +3,16 @@ import fp from "fastify-plugin";
 import fs from "fs";
 import path from "path";
 import { configSchema } from "./config.schema.ts";
-import { AppConfig } from "./config.types.ts";
+import { AppConfig, CookieConfig } from "./config.types.ts";
 
 // Constants
 const COOKIE_NAME = "token";
+const COOKIE_CONFIG: CookieConfig = {
+    path: "/",
+    //secure: true, // send cookie over HTTPS only
+    httpOnly: true,
+    //sameSite: true, // alternative CSRF protection
+};
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (app: FastifyInstance): Promise<void> => {
@@ -41,6 +47,7 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
         domains,
         corsOrigin,
         cookieName: COOKIE_NAME,
+        cookieConfig: COOKIE_CONFIG,
     };
 
     app.decorate("config", config);

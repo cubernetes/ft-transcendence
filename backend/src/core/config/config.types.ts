@@ -1,3 +1,12 @@
+// TODO: Figure out the correct setting for cookies
+export type CookieConfig = {
+    domain?: "your.domain";
+    path: string;
+    secure?: boolean; // send cookie over HTTPS only
+    httpOnly: boolean;
+    sameSite?: boolean; // alternative CSRF protection
+};
+
 export type AppConfig = {
     port: number;
     jwtSecret: string;
@@ -8,4 +17,5 @@ export type AppConfig = {
     domains: string[];
     corsOrigin: string[] | "*";
     cookieName: string;
+    cookieConfig: CookieConfig;
 };
