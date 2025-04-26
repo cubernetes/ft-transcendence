@@ -66,7 +66,7 @@ async function handleMenuSelection(mode: number): Promise<void> {
                 {
                     type: "list",
                     name: "localMode",
-                    message: "",
+                    message: "Choose Game Mode:",
                     choices: [
                         new inquirer.Separator(),
                         { name: chalk.magenta("🎮  1P AI Game"), value: "1P" },
@@ -138,7 +138,7 @@ async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
         {
             type: "list",
             name: "action",
-            message: (errorMsg ? chalk.red(errorMsg) + "\n" : "") + "",
+            message: errorMsg ? chalk.red(errorMsg) : "Login / Register:",
             choices: [
                 new inquirer.Separator(),
                 { name: chalk.magenta("🔐  Login"), value: "login" },
