@@ -13,16 +13,11 @@ const post = async <T, E extends ApiResponse<any>>(
 ): Promise<Result<E, Error>> => {
     try {
         const headers: HeadersInit = { "Content-Type": "application/json" };
-        const token = localStorage.getItem(window.cfg.label.token);
-        if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
-        }
-
         const response = await fetch(url, {
             method: "POST",
             headers,
             body: body ? JSON.stringify(body) : undefined,
-            credentials: "include", // Needed when switch to HttpCookies in the future
+            credentials: "include", // Cookies
         });
 
         // Code 401 means token invalid, log out user
@@ -52,11 +47,9 @@ const post = async <T, E extends ApiResponse<any>>(
 
 const get = async <T extends ApiResponse<any>>(url: string): Promise<Result<T, Error>> => {
     try {
-        const token = localStorage.getItem(window.cfg.label.token);
-
         const response = await fetch(url, {
             method: "GET",
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            credentials: "include", // Cookies
         });
 
         // Code 401 means token invalid, log out user

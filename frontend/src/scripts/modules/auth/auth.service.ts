@@ -1,5 +1,4 @@
 import type {
-    JwtPayload,
     LoginBody,
     LoginResponse,
     RegisterBody,
@@ -7,17 +6,8 @@ import type {
     TotpVerifyResponse,
 } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
-import { jwtDecode } from "jwt-decode";
 import { sendApiRequest } from "../../utils/api";
 import { authStore, emptyAuthState } from "./auth.store";
-
-/** Process JWT token, local storage, authStore update */
-const processToken = (token: string) => {
-    localStorage.setItem(window.cfg.label.token, token);
-    const jwtPayload: JwtPayload = jwtDecode(token); // Failable?
-    const { id, username } = jwtPayload;
-    authStore.set({ isAuthenticated: true, id, username, token, totpRequired: false });
-};
 
 /**
  * @returns boolean true - success; false - totp required
@@ -47,7 +37,8 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
         window.log.debug("TOTP required, authStore should notify");
         return ok(false);
     } else {
-        processToken(data.token);
+        const { username, displayName } = data;
+        authStore.set({ isAuthenticated: true, totpRequired: false, username, displayName });
         return ok(true);
     }
 };
@@ -69,7 +60,8 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
         return err(new Error("never"));
     }
 
-    processToken(result.value.data.token);
+    const { username, displayName } = result.value.data;
+    authStore.set({ isAuthenticated: true, totpRequired: false, username, displayName });
     return ok();
 };
 
@@ -97,7 +89,8 @@ export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
         return err(new Error("never"));
     }
 
-    processToken(result.value.data.token);
+    const { displayName } = result.value.data;
+    authStore.set({ isAuthenticated: true, totpRequired: false, username, displayName });
     return ok();
 };
 
@@ -105,5 +98,4 @@ export const logout = () => {
     window.log.debug("Logging out...");
 
     authStore.set(emptyAuthState);
-    localStorage.removeItem(window.cfg.label.token);
 };
