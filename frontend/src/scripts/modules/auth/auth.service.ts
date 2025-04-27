@@ -109,5 +109,6 @@ export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
 export const logout = () => {
     window.log.debug("Logging out...");
 
+    sendApiRequest.post(`${window.cfg.url.user}/logout`);
     authStore.set(emptyAuthState);
 };

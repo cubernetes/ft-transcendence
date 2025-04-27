@@ -12,7 +12,7 @@ const post = async <T, E extends ApiResponse<any>>(
     body?: T
 ): Promise<Result<E, Error>> => {
     try {
-        const headers: HeadersInit = { "Content-Type": "application/json" };
+        const headers: HeadersInit = body ? { "Content-Type": "application/json" } : {};
         const response = await fetch(url, {
             method: "POST",
             headers,

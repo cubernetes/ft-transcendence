@@ -64,6 +64,13 @@ const loginHandler = async (
     return reply.send({ success: true, data: { username, displayName, totpEnabled } });
 };
 
+const logoutHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+    const { cookieName } = req.server.config;
+    reply.clearCookie(cookieName);
+
+    return { success: true, data: {} };
+};
+
 const getLeaderboardHandler = async (
     { params }: { params: LeaderboardParams },
     req: FastifyRequest,
@@ -95,6 +102,7 @@ const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
 export default {
     register: registerHandler,
     login: loginHandler,
+    logout: logoutHandler,
     leaderboard: getLeaderboardHandler,
     me: getMeHandler,
 };

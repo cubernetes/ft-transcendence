@@ -10,7 +10,7 @@ const buildApp = async (opts: FastifyServerOptions): Promise<Result<FastifyInsta
     // Disable ajv validation for request schema validation
     app.setValidatorCompiler(() => () => true);
     // Disable fast-json-stringify for response schema validation, leave it for now
-    // app.setSerializerCompiler(() => JSON.stringify);
+    app.setSerializerCompiler(() => JSON.stringify); // TODO: disable this
 
     try {
         await app.register(corePlugin);

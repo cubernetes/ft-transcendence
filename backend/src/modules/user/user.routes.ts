@@ -17,6 +17,9 @@ const userRoutes: FastifyPluginAsync = async (app) => {
         withZod({ body: userSchemas.loginBody }, handlers.login)
     );
 
+    // TODO: add Schema
+    app.post("/logout", handlers.logout);
+
     app.get(
         "/leaderboard/:n",
         { schema: routeSchemas.leaderboard },
