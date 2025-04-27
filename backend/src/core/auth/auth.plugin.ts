@@ -4,6 +4,7 @@ import { createAuthService, verifyCookie } from "./auth.service.ts";
 
 const authPlugin = async (app: FastifyInstance) => {
     app.decorateRequest("userId", -1); // Default -1 to always have a number type
+    app.decorateRequest("userDisplayName", ""); // Default empty string to always have userDisplayName
 
     app.decorate("authService", createAuthService(app));
     app.decorate("requireAuth", app.authService.requireAuth);
