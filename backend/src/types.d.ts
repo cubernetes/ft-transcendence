@@ -29,6 +29,7 @@ declare module "fastify" {
 
     interface FastifyRequest {
         userId: number;
+        userDisplayName: string;
     }
 
     interface WebSocket extends WsWebSocket {

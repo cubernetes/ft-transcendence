@@ -6,16 +6,8 @@ import { safeJsonParse } from "@darrenkuro/pong-core";
 export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
     const { server } = req;
 
-    // Authentication
-    // const token = req.cookies[req.server.config.cookieName];
-    // const user = server.authService.verifyToken(token ?? "");
-    // if (!token || user.isErr()) {
-    //     conn.close();
-    //     return server.log.error("Client contains no valid token");
-    // }
-
     conn.userId = Number(req.userId);
-    //conn.userDisplayName = req.displayName;
+    conn.userDisplayName = req.userDisplayName;
 
     server.wsService.addConnection(conn);
 
