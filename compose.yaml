@@ -243,10 +243,12 @@ services:
 
         command: >
             bash -c "
-              /usr/local/bin/kibana-docker;
-              sleep 60;
-              chmod +x /usr/share/kibana/setup-dashboards.sh;
-              /usr/share/kibana/setup-dashboards.sh
+              /usr/local/bin/kibana-docker &
+              KIBANA_PID=$!;
+              echo 'Kibana starting with PID $KIBANA_PID';
+              sleep 120;
+              /usr/share/kibana/setup-dashboards.sh &
+              wait $KIBANA_PID
             "
 
     vault:

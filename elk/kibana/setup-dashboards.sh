@@ -1,45 +1,23 @@
 #!/bin/bash
 
-# Wait for Kibana to be available
-echo "Waiting for Kibana to be available..."
-until curl -s -u elastic:$ELASTIC_PASSWORD http://kibana:5601/api/status | grep '"overall":{"level":"available"'; do
-  echo "Kibana is unavailable - waiting"
+# Wait for Kibana to be fully operational
+echo "Waiting for Kibana to be fully operational..."
+while ! curl -s "http://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
+  echo "Kibana is not yet fully available - waiting..."
   sleep 10
 done
 
-# Create index pattern
-echo "Creating index pattern..."
-curl -X POST "http://kibana:5601/api/saved_objects/index-pattern/ft-transcendence-logs-*" \
-  -u elastic:$ELASTIC_PASSWORD \
-  -H 'kbn-xsrf: true' \
-  -H 'Content-Type: application/json' \
-  -d '{"attributes":{"title":"ft-transcendence-logs-*","timeFieldName":"@timestamp"}}'
+# Try to authenticate and import dashboards
+echo "Kibana is fully operational. Importing dashboards..."
 
 # Import dashboards
-echo "Importing dashboards..."
+for dashboard in /usr/share/kibana/dashboards/*.ndjson; do
+  echo "Importing dashboard: $(basename $dashboard)"
+  curl -X POST "http://kibana:5601/api/saved_objects/_import" \
+    -u "${KIBANA_USER}:${KIBANA_PASSWORD}" \
+    -H "kbn-xsrf: true" \
+    --form file=@$dashboard \
+    -v
+done
 
-# Application Overview dashboard
-curl -X POST "http://kibana:5601/api/saved_objects/_import" \
-  -u elastic:$ELASTIC_PASSWORD \
-  -H "kbn-xsrf: true" \
-  --form file=@/kibana/dashboards/app-overview-dashboard.ndjson
-
-# Game Activity dashboard
-curl -X POST "http://kibana:5601/api/saved_objects/_import" \
-  -u elastic:$ELASTIC_PASSWORD \
-  -H "kbn-xsrf: true" \
-  --form file=@/kibana/dashboards/game-activity-dashboard.ndjson
-
-# User Activity dashboard
-curl -X POST "http://kibana:5601/api/saved_objects/_import" \
-  -u elastic:$ELASTIC_PASSWORD \
-  -H "kbn-xsrf: true" \
-  --form file=@/kibana/dashboards/user-activity-dashboard.ndjson
-
-# Error Tracking dashboard
-curl -X POST "http://kibana:5601/api/saved_objects/_import" \
-  -u elastic:$ELASTIC_PASSWORD \
-  -H "kbn-xsrf: true" \
-  --form file=@/kibana/dashboards/error-tracking-dashboard.ndjson
-
-echo "Setup complete!"
+echo "Dashboard import completed. Check Kibana UI to verify."
