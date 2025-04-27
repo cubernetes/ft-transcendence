@@ -20,8 +20,7 @@ export const users = sqliteTable("users", {
 export const games = sqliteTable(
     "games",
     {
-        id: integer().primaryKey({ autoIncrement: true }),
-        tournamentId: integer("tournament_id").references(() => tournaments.id),
+        id: text().unique().primaryKey().notNull(), // UUID
         player1Id: integer("player1_id")
             .notNull()
             .references(() => users.id),
@@ -31,42 +30,20 @@ export const games = sqliteTable(
         winnerId: integer("winner_id")
             .notNull()
             .references(() => users.id),
+        player1Hits: integer("player1_hits").notNull(),
+        player2Hits: integer("player2_hits").notNull(),
         player1Score: integer("player1_score").notNull(),
         player2Score: integer("player2_score").notNull(),
-        createdAt: numeric("created_at").default(sql`(CURRENT_TIMESTAMP)`),
-        finishedAt: numeric("finished_at"),
+        createdAt: numeric("created_at").notNull(),
+        finishedAt: numeric("finished_at")
+            .notNull()
+            .default(sql`(CURRENT_TIMESTAMP)`), // Games is written when it ends
     },
     () => [
-        check(
-            "games_check_1",
-            sql`winner_id IS NULL OR (winner_id = player1_id OR winner_id = player2_id)`
-        ),
+        check("games_check_1", sql`winner_id = player1_id OR winner_id = player2_id`),
         check("games_check_2", sql`player1_id != player2_id`),
         check("games_check_3", sql`player1_score >= 0 AND player2_score >= 0`),
-        check(
-            "game_check_4",
-            sql`(winner_id IS NULL AND finished_at IS NULL) OR (winner_id IS NOT NULL AND finished_at IS NOT NULL)`
-        ),
-    ]
-);
-
-export const tournaments = sqliteTable(
-    "tournaments",
-    {
-        id: integer().primaryKey({ autoIncrement: true }),
-        name: text().notNull(),
-        creatorId: integer("creator_id")
-            .notNull()
-            .references(() => users.id),
-        winnerId: integer("winner_id").references(() => users.id),
-        createdAt: numeric("created_at").default(sql`(CURRENT_TIMESTAMP)`),
-        finishedAt: numeric("finished_at"),
-    },
-    () => [
-        check(
-            "tournaments_check_1",
-            sql`(winner_id IS NULL AND finished_at IS NULL) OR (winner_id IS NOT NULL AND finished_at IS NOT NULL)`
-        ),
+        check("games_check_4", sql`player1_hits >= 0 AND player2_hits >= 0`),
     ]
 );
 
