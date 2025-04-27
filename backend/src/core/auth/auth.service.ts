@@ -5,7 +5,7 @@ import { Result, err, ok } from "neverthrow";
 import bcrypt from "bcrypt";
 import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
-import { schemas } from "@darrenkuro/pong-core";
+import { userSchemas } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/errors.ts";
 
 export const verifyCookie = (req: FastifyRequest, _: FastifyReply) => {
@@ -43,7 +43,7 @@ export const createAuthService = (app: FastifyInstance) => {
     const verifyJwtToken = (token: string): Result<JwtPayload, Error> => {
         try {
             const payload = jwt.verify(token) as JwtPayload;
-            schemas.jwtPayload.parse(payload); // Runtime type check to ensure token is valid
+            userSchemas.jwtPayload.parse(payload); // Runtime type check to ensure token is valid
             return ok(payload);
         } catch (error) {
             return err(new Error("Invalid JWT token or payload"));

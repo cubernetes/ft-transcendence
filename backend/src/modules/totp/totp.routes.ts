@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { schemas } from "@darrenkuro/pong-core";
+import { totpSchemas } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
 import handlers from "./totp.controller.ts";
 import routeSchemas from "./totp.schema.ts";
@@ -14,19 +14,19 @@ const totpRoutes: FastifyPluginAsync = async (app) => {
     app.post(
         "/verify",
         { preHandler: [app.requireAuth], schema: routeSchemas.verify },
-        withZod({ body: schemas.totpBody }, handlers.verify)
+        withZod({ body: totpSchemas.totpBody }, handlers.verify)
     );
 
     app.post(
         "/update",
         { preHandler: [app.requireAuth], schema: routeSchemas.update },
-        withZod({ body: schemas.totpBody }, handlers.update)
+        withZod({ body: totpSchemas.totpUpdateBody }, handlers.update)
     );
 
     app.post(
         "/disable",
         { preHandler: [app.requireAuth], schema: routeSchemas.disable },
-        withZod({ body: schemas.totpBody }, handlers.disable)
+        withZod({ body: totpSchemas.totpBody }, handlers.disable)
     );
 };
 

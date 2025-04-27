@@ -18,4 +18,5 @@ export type AppConfig = {
     corsOrigin: string[] | "*";
     cookieName: string;
     cookieConfig: CookieConfig;
+    totpEncoding: "ascii" | "hex" | "base32";
 };

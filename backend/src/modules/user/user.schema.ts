@@ -1,13 +1,12 @@
 import zodToJsonSchema from "zod-to-json-schema";
-import { apiError, apiSuccess, schemas } from "@darrenkuro/pong-core";
+import { apiError, apiSuccess, userSchemas } from "@darrenkuro/pong-core";
 
-/** Schemas for swagger UI */
 const registerRouteSchema = {
     tags: ["User"],
     description: "Register a new user",
-    body: zodToJsonSchema(schemas.registerBody),
+    body: zodToJsonSchema(userSchemas.registerBody),
     response: {
-        201: zodToJsonSchema(apiSuccess(schemas.loginPayload)),
+        201: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         409: zodToJsonSchema(apiError("USERNAME_TAKEN")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
@@ -17,9 +16,9 @@ const registerRouteSchema = {
 const loginRouteSchema = {
     tags: ["User"],
     description: "Login an user",
-    body: zodToJsonSchema(schemas.loginBody),
+    body: zodToJsonSchema(userSchemas.loginBody),
     response: {
-        201: zodToJsonSchema(apiSuccess(schemas.loginPayload)),
+        201: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         404: zodToJsonSchema(apiError("NOT_FOUND")),
@@ -30,9 +29,9 @@ const loginRouteSchema = {
 const getMeRouteSchema = {
     tags: ["User"],
     description: "Get current user info",
-    security: [{ bearerAuth: [] }],
+    security: [{ cookieAuth: [] }],
     response: {
-        200: zodToJsonSchema(apiSuccess(schemas.getMePayload)),
+        200: zodToJsonSchema(apiSuccess(userSchemas.getMePayload)),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },
@@ -41,9 +40,9 @@ const getMeRouteSchema = {
 const getLeaderboardRouteSchema = {
     tags: ["User"],
     description: "Get top n users by wins",
-    params: zodToJsonSchema(schemas.leaderboardParams),
+    params: zodToJsonSchema(userSchemas.leaderboardParams),
     response: {
-        200: zodToJsonSchema(apiSuccess(schemas.leaderboardPayload)),
+        200: zodToJsonSchema(apiSuccess(userSchemas.leaderboardPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },

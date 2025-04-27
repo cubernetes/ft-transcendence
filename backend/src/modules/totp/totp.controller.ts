@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
-import { TotpBody } from "@darrenkuro/pong-core";
+import { TotpBody, TotpUpdateBody } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/errors";
 import { User } from "../user/user.types";
 
@@ -59,7 +59,7 @@ const verify = async (
     user.value.temporaryTotpSecret = null;
     await server.userService.update(user.value.id, user.value);
 
-    return reply.send({ success: true, data: null });
+    return reply.send({ success: true, data: {} });
 };
 
 const update = async (
@@ -87,7 +87,7 @@ const update = async (
     user.value.temporaryTotpSecret = null;
     await server.userService.update(user.value.id, user.value);
 
-    return reply.send({ success: true, data: null });
+    return reply.send({ success: true, data: {} });
 };
 
 const disable = async (
@@ -107,7 +107,7 @@ const disable = async (
     user.value.totpSecret = null;
     await server.userService.update(user.value.id, user.value);
 
-    return reply.send({ success: true, data: null });
+    return reply.send({ success: true, data: {} });
 };
 
 export default {
