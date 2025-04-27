@@ -8,7 +8,7 @@ import * as speakeasy from "speakeasy";
 import { userSchemas } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/errors.ts";
 
-export const verifyCookie = (req: FastifyRequest, _: FastifyReply) => {
+export const verifyCookie = async (req: FastifyRequest, _: FastifyReply) => {
     const { cookieName } = req.server.config;
     const token = req.cookies?.[cookieName];
     if (!token) return;

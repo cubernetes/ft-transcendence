@@ -123,7 +123,7 @@ export const createUserService = (app: FastifyInstance) => {
 
     const getRankById = async (id: number): Promise<Result<number, ApiError>> => {
         // TODO:
-        return ok(1);
+        return ok(id);
     };
 
     return {

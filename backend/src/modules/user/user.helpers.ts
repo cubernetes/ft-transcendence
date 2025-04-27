@@ -10,19 +10,18 @@ export const toPersonalUser = (user: User): Omit<User, "passwordHash" | "totpSec
 };
 
 /** Remove sensitive fields from user before sending response to public. */
-export const toPublicUser = async (
-    user: User,
-    app: FastifyInstance
-): Promise<PublicUser | null> => {
-    const { passwordHash, totpSecret, ...originalUser } = user;
-    const rank = await app.userService.getRankById(user.id);
-    // TODO: Fix
-    if (rank.isErr()) {
-        return null;
-    }
-    const publicUser = { ...originalUser, rank: rank.value };
-    return publicUser as PublicUser; // TODO: Fix Type
-};
+export const toPublicUser =
+    (app: FastifyInstance) =>
+    async (user: User): Promise<PublicUser> => {
+        const { passwordHash, totpSecret, ...originalUser } = user;
+        const rank = await app.userService.getRankById(user.id);
+        // TODO: Fix
+        if (rank.isErr()) {
+            return { ...originalUser, rank: -1 };
+        }
+        const publicUser = { ...originalUser, rank: rank.value };
+        return publicUser as PublicUser; // TODO: Fix Type
+    };
 
 export const mockUser = (): User => {
     return {

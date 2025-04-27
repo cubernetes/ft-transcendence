@@ -76,7 +76,7 @@ const getLeaderboardHandler = async (
         return users.error.send(reply);
     }
 
-    const publicUsers = users.value.map(toPublicUser);
+    const publicUsers = await Promise.all(users.value.map(toPublicUser(req.server)));
     const leadUsers = publicUsers.sort((a, b) => b.wins - a.wins).slice(0, n);
 
     return reply.send({ success: true, data: leadUsers });
