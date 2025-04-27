@@ -14,7 +14,7 @@ export const toPublicUser =
     (app: FastifyInstance) =>
     async (user: User): Promise<PublicUser> => {
         const { passwordHash, totpSecret, ...originalUser } = user;
-        const rank = await app.userService.getRankById(user.id);
+        const rank = await app.userService.getRankByUsername(user.username);
         // TODO: Fix
         if (rank.isErr()) {
             return { ...originalUser, rank: -1 };

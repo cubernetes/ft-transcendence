@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
-import { count, eq } from "drizzle-orm";
+import { count, desc, eq } from "drizzle-orm";
 import { users } from "../../core/db/db.schema.ts";
 import { ApiError, UnknownError, errUniqueConstraintOn } from "../../utils/errors.ts";
 import { NewUser, User } from "./user.types.ts";
@@ -121,9 +121,14 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
-    const getRankById = async (id: number): Promise<Result<number, ApiError>> => {
-        // TODO:
-        return ok(id);
+    const getRankByUsername = async (username: string): Promise<Result<number, ApiError>> => {
+        const orderedByWins = await db
+            .select({ username: users.username, wins: users.wins })
+            .from(users)
+            .orderBy(desc(users.wins)); // TODO: consider other metrics to break the tie etc.
+
+        const rank = orderedByWins.findIndex((u) => u.username === username) + 1; // Zero indexed
+        return ok(rank);
     };
 
     return {
@@ -134,6 +139,6 @@ export const createUserService = (app: FastifyInstance) => {
         update,
         remove,
         getCount,
-        getRankById,
+        getRankByUsername,
     };
 };
