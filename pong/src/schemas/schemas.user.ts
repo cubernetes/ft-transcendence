@@ -33,8 +33,8 @@ const leaderboardParams = z.object({ n: z.coerce.number().int().gt(0) });
 export type LoginPayload = z.infer<typeof loginPayload>;
 export type LoginResponse = ApiResponse<typeof loginPayload>;
 const loginPayload = z.object({
-    username: z.string(),
-    displayName: z.string(),
+    username: z.string().optional(),
+    displayName: z.string().optional(),
     totpEnabled: z.coerce.number().int().gte(0).optional(),
 });
 

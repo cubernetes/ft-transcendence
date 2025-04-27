@@ -22,7 +22,7 @@ export type TotpSetupPayload = z.infer<typeof setupPayload>;
 export type TotpSetupResponse = ApiResponse<typeof setupPayload>;
 const setupPayload = z.object({
     qrCode: z.string(),
-    b32secret: z.string(),
+    secret: z.string(),
 });
 
 export const totpSchemas = {
