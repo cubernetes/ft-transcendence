@@ -14,6 +14,7 @@ import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/
 import { sendGameAction, sendGameStart } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
+import { gameStore } from "./game.store";
 import { createScore } from "./objects/objects.score";
 import { pulseBall, pulseLight } from "./renderer/renderer.animations";
 import { showGameOver } from "./renderer/renderer.event";
@@ -216,7 +217,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         renderer.stopRenderLoop();
 
         // Reset engine
-        engine.stop();
+        // When navigating with back and forward button, engine cannot emit game over
+        // need new logic
+        // engine.stop();
 
         // Remove event listeners
         window.removeEventListener("resize", resizeListener);
@@ -227,7 +230,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         renderer.scene = createScene(renderer, config);
 
         renderer.runRenderLoop(() => {
-            renderer.scene!.render();
+            renderer.scene.render();
         });
 
         window.addEventListener("resize", resizeListener);
@@ -280,6 +283,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 break;
             default:
         }
+        gameStore.update({ isPlaying: true });
     };
 
     return {

@@ -31,6 +31,7 @@ export const disposeRenderer = (engine: Engine) => {
     engine.audio.dispose();
 
     engine.scene.dispose();
+
     engine.controls.dispose();
     engine.stopRenderLoop();
     engine.dispose();

@@ -111,5 +111,6 @@ export const handlePopState = () => {
     // Remove slash
     const dest = window.location.pathname.slice(1);
 
+    window.log.debug(`HandlePopState triggered, dest: ${dest}`);
     renderRoute(dest);
 };
