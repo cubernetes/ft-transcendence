@@ -33,6 +33,15 @@ export class CLIRenderer {
     #renderTick = 0;
     #tickStyle = 0;
 
+    #halfBoardW = 0;
+    #halfBoardD = 0;
+    #invBoardW = 0;
+    #invBoardD = 0;
+    #termWid = 0;
+    #termHei = 0;
+    #termWidMinus1 = 0;
+    #termHeiMinus1 = 0;
+
     constructor(gameConf?: PongConfig, fieldConf?: FieldConfig) {
         this.#gameConf = gameConf || defaultGameConfig;
         this.#fieldConf = fieldConf || defaultFieldConfig;
@@ -68,13 +77,25 @@ export class CLIRenderer {
     }
 
     #setFieldConfig(): void {
-        this.#fieldConf.scaleX = this.#fieldConf.termWid / this.#gameConf.board.size.width;
-        this.#fieldConf.scaleZ = this.#fieldConf.termHei / this.#gameConf.board.size.depth;
-        this.#fieldConf.paddleHeight =
-            (this.#gameConf.paddles[0].size.depth * this.#fieldConf.termHei) /
-            this.#gameConf.board.size.depth;
-        this.#fieldConf.fieldBuffer = Array.from({ length: this.#fieldConf.termHei }, () =>
-            Array(this.#fieldConf.termWid).fill(" ")
+        const boardW = this.#gameConf.board.size.width;
+        const boardD = this.#gameConf.board.size.depth;
+        const termWid = this.#fieldConf.termWid;
+        const termHei = this.#fieldConf.termHei;
+
+        this.#halfBoardW = boardW / 2;
+        this.#halfBoardD = boardD / 2;
+        this.#invBoardW = 1 / boardW;
+        this.#invBoardD = 1 / boardD;
+        this.#termWid = termWid;
+        this.#termHei = termHei;
+        this.#termWidMinus1 = termWid - 1;
+        this.#termHeiMinus1 = termHei - 1;
+
+        this.#fieldConf.scaleX = termWid / boardW;
+        this.#fieldConf.scaleZ = termHei / boardD;
+        this.#fieldConf.paddleHeight = (this.#gameConf.paddles[0].size.depth * termHei) / boardD;
+        this.#fieldConf.fieldBuffer = Array.from({ length: termHei }, () =>
+            Array(termWid).fill(" ")
         );
     }
 
@@ -102,57 +123,85 @@ export class CLIRenderer {
         }
     }
 
+    // --- Mapping helpers ---
+    #gameXToCol(x: number): number {
+        return (x + this.#halfBoardW) * this.#invBoardW * this.#termWid;
+    }
+    #gameZToRow(z: number): number {
+        return (z + this.#halfBoardD) * this.#invBoardD * this.#termHei;
+    }
+    #colToGameX(col: number): number {
+        return (col / this.#termWid) * this.#gameConf.board.size.width - this.#halfBoardW;
+    }
+    #rowToGameZ(row: number): number {
+        return (row / this.#termHei) * this.#gameConf.board.size.depth - this.#halfBoardD;
+    }
+
     #drawPaddles(state: PongState): void {
-        const { scaleX, scaleZ, termHei, termWid } = this.#fieldConf;
-        const padLen = this.#gameConf.paddles[0].size.depth * scaleZ;
+        const draw = (paddle: Paddle) => {
+            const gx = paddle.pos.x,
+                gz = paddle.pos.z;
+            const gw = paddle.size.width,
+                gd = paddle.size.depth;
 
-        const draw = (zMin: number, padX: number) => {
-            const zFracTop = zMin - Math.floor(zMin);
-            const zFracBottom = zMin + padLen - Math.floor(zMin + padLen);
-            const rowTop = Math.floor(zMin);
-            const rowBottom = Math.floor(zMin + padLen) - 1;
+            const leftColF = this.#gameXToCol(gx - gw / 2);
+            const rightColF = this.#gameXToCol(gx + gw / 2);
+            const topRowF = this.#gameZToRow(gz - gd / 2);
+            const bottomRowF = this.#gameZToRow(gz + gd / 2);
 
-            if (rowTop >= 0 && rowTop < termHei) {
-                this.#fieldConf.fieldBuffer[rowTop][padX] =
-                    zFracTop < 0.25 ? "█" : zFracTop < 0.75 ? "▄" : " ";
-            }
-            for (let z = Math.ceil(zMin); z <= Math.floor(zMin + padLen - 1); z++) {
-                if (z >= 0 && z < termHei) this.#fieldConf.fieldBuffer[z][padX] = "█";
-            }
-            if (rowBottom >= 0 && rowBottom < termHei) {
-                this.#fieldConf.fieldBuffer[rowBottom][padX] =
-                    zFracBottom >= 0.75 ? "█" : zFracBottom >= 0.25 ? "▀" : " ";
+            for (
+                let x = Math.max(0, Math.floor(leftColF));
+                x <= Math.min(this.#termWidMinus1, Math.ceil(rightColF));
+                x++
+            ) {
+                for (
+                    let z = Math.max(0, Math.floor(topRowF));
+                    z <= Math.min(this.#termHeiMinus1, Math.ceil(bottomRowF));
+                    z++
+                ) {
+                    const cellTop = this.#rowToGameZ(z);
+                    const cellBottom = this.#rowToGameZ(z + 1);
+
+                    const overlapTop = Math.max(cellTop, gz - gd / 2);
+                    const overlapBottom = Math.min(cellBottom, gz + gd / 2);
+                    const overlap = overlapBottom - overlapTop;
+
+                    const cellHeight = cellBottom - cellTop;
+                    const frac = overlap / cellHeight;
+
+                    if (frac >= 0.75) {
+                        this.#fieldConf.fieldBuffer[z][x] = "█";
+                    } else if (frac >= 0.25) {
+                        const overlapCenter = (overlapTop + overlapBottom) / 2;
+                        const cellCenter = (cellTop + cellBottom) / 2;
+                        this.#fieldConf.fieldBuffer[z][x] = overlapCenter < cellCenter ? "▀" : "▄";
+                    }
+                }
             }
         };
+        draw(state.paddles[0]);
+        draw(state.paddles[1]);
+    }
 
-        const pad1X = Math.round(state.paddles[0].pos.x * scaleX + termWid / 2 - 1);
-        const pad2X = Math.round(state.paddles[1].pos.x * scaleX + termWid / 2 - 1);
-        const pad1Z = state.paddles[0].pos.z * scaleZ + termHei / 2 - padLen / 2;
-        const pad2Z = state.paddles[1].pos.z * scaleZ + termHei / 2 - padLen / 2;
-
-        draw(pad1Z, pad1X);
-        draw(pad2Z, pad2X);
+    #drawBall(): void {
+        const { fieldBuffer } = this.#fieldConf;
+        for (let i = 0; i < this.#ballTrail.length; i++) {
+            const pos = this.#ballTrail[i];
+            const x = Math.max(
+                0,
+                Math.min(this.#termWidMinus1, Math.round(this.#gameXToCol(pos.x)))
+            );
+            const z = Math.max(
+                0,
+                Math.min(this.#termHeiMinus1, Math.round(this.#gameZToRow(pos.z)))
+            );
+            fieldBuffer[z][x] = makeChar(i);
+        }
     }
 
     #updateBallTrail(position: Position3D): void {
         this.#ballTrail.push({ ...position });
         if (this.#ballTrail.length > BALL_TRAIL_LENGTH) this.#ballTrail.shift();
-    }
-
-    #drawBall(): void {
-        const { scaleX, scaleZ, termWid, termHei, fieldBuffer } = this.#fieldConf;
-        for (let i = 0; i < this.#ballTrail.length; i++) {
-            const pos = this.#ballTrail[i];
-            const x = Math.max(
-                0,
-                Math.min(termWid - 1, Math.round(pos.x * scaleX + termWid / 2 - 1))
-            );
-            const z = Math.max(
-                0,
-                Math.min(termHei - 1, Math.round(pos.z * scaleZ + termHei / 2 - 1))
-            );
-            fieldBuffer[z][x] = makeChar(i);
-        }
     }
 
     #printFrame(state: PongState): void {
