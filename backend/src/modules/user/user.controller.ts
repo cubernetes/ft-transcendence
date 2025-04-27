@@ -22,13 +22,13 @@ const registerHandler = async (
     }
 
     const token = req.server.authService.generateJwtToken(user.value);
-    const { username, displayName, totpEnabled } = user.value;
+    const { username, displayName } = user.value;
     const { cookieName, cookieConfig } = req.server.config;
 
     return reply
         .setCookie(cookieName, token, cookieConfig)
         .code(201)
-        .send({ success: true, data: { username, displayName, totpEnabled } });
+        .send({ success: true, data: { username, displayName } });
 };
 
 const loginHandler = async (
@@ -52,16 +52,35 @@ const loginHandler = async (
         return err.send(reply);
     }
 
-    // Check 2FA
-    const { username, displayName, totpEnabled } = user.value;
+    const { username, displayName, totpEnabled, totpSecret } = user.value;
 
-    if (!totpEnabled) {
-        const token = req.server.authService.generateJwtToken(user.value);
-        const { cookieName, cookieConfig } = req.server.config;
-        reply.setCookie(cookieName, token, cookieConfig);
+    // Check 2FA
+    if (totpEnabled) {
+        // 2FA enabled but have yet to receive token
+        if (!body.totpToken) {
+            return reply.send({ success: true, data: { totpEnabled } });
+        }
+
+        // 2FA enabled but no TOTP secret in database (should never happen ideally)
+        if (!totpSecret) {
+            const err = new ApiError("INTERNAL_SERVER_ERROR", 500, "TOTP setup incomplete");
+            return err.send(reply);
+        }
+
+        // Verify the TOTP token
+        const isTotpValid = req.server.authService.verifyTotpToken(totpSecret, body.totpToken);
+        if (!isTotpValid) {
+            const err = new ApiError("UNAUTHORIZED", 401, "Invalid TOTP token");
+            return err.send(reply);
+        }
     }
 
-    return reply.send({ success: true, data: { username, displayName, totpEnabled } });
+    // 2FA verified, send cookies
+    const token = req.server.authService.generateJwtToken(user.value);
+    const { cookieName, cookieConfig } = req.server.config;
+    return reply
+        .setCookie(cookieName, token, cookieConfig)
+        .send({ success: true, data: { username, displayName } });
 };
 
 const logoutHandler = async (req: FastifyRequest, reply: FastifyReply) => {

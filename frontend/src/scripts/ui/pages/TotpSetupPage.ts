@@ -55,21 +55,21 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
     });
 
     submitButton.addEventListener("click", async () => {
-        const { isAuthenticated, username } = authStore.get();
+        const { isAuthenticated } = authStore.get();
 
         if (!isAuthenticated) {
             alert("You have to be logged in to set up TOTP");
             return;
         }
 
-        const resp = await sendApiRequest.post(`${window.cfg.url.user}/totpVerifyInitial`, {
-            username,
+        const resp = await sendApiRequest.post(`${window.cfg.url.totp}/verify`, {
             token: (document.getElementById("totpToken") as HTMLInputElement)?.value,
         });
 
         if (resp.isErr()) {
             return;
         }
+        navigateTo(window.cfg.url.home);
         // if (resp.status == 400) {
         //     alert("Invalid request"); // TODO: Remove alerts
         // } else if (resp.status == 401) {
@@ -96,12 +96,12 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
 };
 
 const fetchQrCode = async () => {
-    const resp = await sendApiRequest.get<TotpSetupResponse>(`${window.cfg.url.user}/totpSetup`);
+    const resp = await sendApiRequest.get<TotpSetupResponse>(`${window.cfg.url.totp}/setup`);
 
     if (resp.isErr() || !resp.value.success) {
         return ["", ""];
     }
 
-    const { qrCode, b32secret } = resp.value.data;
-    return [qrCode, b32secret];
+    const { qrCode, secret } = resp.value.data;
+    return [qrCode, secret];
 };

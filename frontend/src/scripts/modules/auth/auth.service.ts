@@ -28,7 +28,6 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
     if (data.totpEnabled) {
         const { username, password } = payload;
         authStore.update({ totpRequired: true, username, password });
-        window.log.debug("TOTP required, authStore should notify");
         return ok(false);
     } else {
         const { username, displayName } = data;
@@ -109,6 +108,7 @@ export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
 export const logout = () => {
     window.log.debug("Logging out...");
 
+    // Remove cookies
     sendApiRequest.post(`${window.cfg.url.user}/logout`);
     authStore.set(emptyAuthState);
 };

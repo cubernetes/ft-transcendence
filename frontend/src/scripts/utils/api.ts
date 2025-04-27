@@ -20,10 +20,10 @@ const post = async <T, E extends ApiResponse<any>>(
             credentials: "include", // Cookies
         });
 
-        // Code 401 means token invalid, log out user
-        if (response.status === 401) {
-            logout();
-        }
+        // // Code 401 means token invalid, log out user
+        // if (response.status === 401) {
+        //     logout();
+        // }
 
         if (!response.ok) {
             const message = `POST to ${url}, response not ok, status: ${response.status}`;

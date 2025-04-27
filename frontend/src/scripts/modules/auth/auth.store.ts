@@ -8,8 +8,8 @@ import { closeSocketConn, establishSocketConn } from "../ws/ws.service";
 type AuthState = {
     isAuthenticated: boolean;
     totpRequired: boolean;
-    username: string | null;
-    displayName: string | null;
+    username: string | null | undefined;
+    displayName: string | null | undefined;
     password: string | null;
 };
 

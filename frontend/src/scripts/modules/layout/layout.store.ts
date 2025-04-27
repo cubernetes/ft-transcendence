@@ -51,6 +51,6 @@ layoutStore.subscribe((state) => {
         window.addEventListener("popstate", handlePopState);
 
         // Navigate To default page
-        navigateTo(window.cfg.url.default);
+        navigateTo(window.cfg.url.default, true);
     }
 });
