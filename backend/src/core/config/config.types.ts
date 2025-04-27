@@ -19,4 +19,5 @@ export type AppConfig = {
     cookieName: string;
     cookieConfig: CookieConfig;
     totpEncoding: "ascii" | "hex" | "base32";
+    wsMaxPayload: number;
 };

@@ -14,6 +14,7 @@ const COOKIE_CONFIG: CookieConfig = {
     //sameSite: true, // alternative CSRF protection
 };
 const TOTP_ENCODING = "base32";
+const WS_MAX_PAYLOAD = 65536;
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (app: FastifyInstance): Promise<void> => {
@@ -50,6 +51,7 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
         cookieName: COOKIE_NAME,
         cookieConfig: COOKIE_CONFIG,
         totpEncoding: TOTP_ENCODING,
+        wsMaxPayload: WS_MAX_PAYLOAD,
     };
 
     app.decorate("config", config);

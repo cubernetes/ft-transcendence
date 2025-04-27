@@ -5,9 +5,10 @@ import { handleConnection } from "./ws.controller.ts";
 import { createWsService } from "./ws.service.ts";
 
 const wsPlugin = async (app: FastifyInstance) => {
-    await app.register(websocket, { options: { maxPayload: 1048576 } });
-    app.decorate("wsService", createWsService(app));
+    const maxPayload = app.config.wsMaxPayload;
+    await app.register(websocket, { options: { maxPayload } });
 
+    app.decorate("wsService", createWsService(app));
     app.get(
         "/ws",
         { preHandler: [app.requireAuth], websocket: true, schema: { hide: true } },
