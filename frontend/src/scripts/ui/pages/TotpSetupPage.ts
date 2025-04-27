@@ -75,7 +75,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
         // } else if (resp.status == 401) {
         //     alert("Invalid TOTP code");
         // } else if (resp.status == 404) {
-        //     alert(`User '${username}' not found`);
+        //     alert(`User ${username} not found`);
         // } else {
         // const data = resp.value;
         // const jwt = data.data.token;
