@@ -1,10 +1,4 @@
-import type {
-    LoginBody,
-    LoginResponse,
-    RegisterBody,
-    TotpBody,
-    TotpVerifyResponse,
-} from "@darrenkuro/pong-core";
+import type { LoginBody, LoginResponse, RegisterBody } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
 import { sendApiRequest } from "../../utils/api";
 import { authStore, emptyAuthState } from "./auth.store";
@@ -32,13 +26,19 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
     const { data } = result.value;
 
     if (data.totpEnabled) {
-        const { username } = payload;
-        authStore.update({ totpRequired: true, username });
+        const { username, password } = payload;
+        authStore.update({ totpRequired: true, username, password });
         window.log.debug("TOTP required, authStore should notify");
         return ok(false);
     } else {
         const { username, displayName } = data;
-        authStore.set({ isAuthenticated: true, totpRequired: false, username, displayName });
+        authStore.set({
+            isAuthenticated: true,
+            totpRequired: false,
+            username,
+            displayName,
+            password: null,
+        });
         return ok(true);
     }
 };
@@ -61,21 +61,27 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
     }
 
     const { username, displayName } = result.value.data;
-    authStore.set({ isAuthenticated: true, totpRequired: false, username, displayName });
+    authStore.set({
+        isAuthenticated: true,
+        totpRequired: false,
+        username,
+        displayName,
+        password: null,
+    });
     return ok();
 };
 
-export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
-    const { username } = authStore.get();
+export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
+    const { username, password } = authStore.get();
     const totpTokenEl = document.getElementById(window.cfg.id.totpToken);
-    const token = (totpTokenEl as HTMLInputElement)?.value;
-    if (!username || !totpTokenEl || !token) {
-        return err(new Error("Fail to get username or input element for totp token"));
+    const totpToken = (totpTokenEl as HTMLInputElement)?.value;
+    if (!username || !password || !totpTokenEl || !totpToken) {
+        return err(new Error("Fail to get data for totp log in"));
     }
 
-    const result = await sendApiRequest.post<TotpBody, TotpVerifyResponse>(
-        `${window.cfg.url.user}/totpVerify`,
-        { username, token }
+    const result = await sendApiRequest.post<LoginBody, LoginResponse>(
+        `${window.cfg.url.user}/login`,
+        { username, password, totpToken }
     );
 
     if (result.isErr()) {
@@ -90,7 +96,13 @@ export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
     }
 
     const { displayName } = result.value.data;
-    authStore.set({ isAuthenticated: true, totpRequired: false, username, displayName });
+    authStore.set({
+        isAuthenticated: true,
+        totpRequired: false,
+        username,
+        displayName,
+        password: null,
+    });
     return ok();
 };
 

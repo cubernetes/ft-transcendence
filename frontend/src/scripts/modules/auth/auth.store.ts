@@ -10,6 +10,7 @@ type AuthState = {
     totpRequired: boolean;
     username: string | null;
     displayName: string | null;
+    password: string | null;
 };
 
 export const emptyAuthState = {
@@ -17,6 +18,7 @@ export const emptyAuthState = {
     totpRequired: false,
     username: null,
     displayName: null,
+    password: null,
 };
 
 export const initAuthState = async (): Promise<AuthState> => {
@@ -32,6 +34,7 @@ export const initAuthState = async (): Promise<AuthState> => {
         totpRequired: false,
         username,
         displayName,
+        password: null,
     };
 };
 

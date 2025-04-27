@@ -1,4 +1,4 @@
-import { tryTotpVerify } from "../../modules/auth/auth.service";
+import { tryLoginWithTotp } from "../../modules/auth/auth.service";
 
 export const createTotpModal = async (): Promise<HTMLElement> => {
     const totpVerifyContainer = document.createElement("div");
@@ -35,7 +35,7 @@ export const createTotpModal = async (): Promise<HTMLElement> => {
         }
     });
 
-    submitButton.addEventListener("click", tryTotpVerify);
+    submitButton.addEventListener("click", tryLoginWithTotp);
 
     return totpVerifyContainer;
 };
