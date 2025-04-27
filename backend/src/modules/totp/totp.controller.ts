@@ -11,19 +11,16 @@ const verifyTotp = async (
     useTempSecret: boolean
 ): Promise<Result<User, ApiError>> => {
     const user = await app.userService.findById(userId);
-
     if (user.isErr()) {
         return err(user.error);
     }
 
     const secret = useTempSecret ? user.value.temporaryTotpSecret : user.value.totpSecret;
-
     if (!secret) {
         return err(new ApiError("BAD_REQUEST", 400, "User does not have TOTP enabled"));
     }
 
     const verified = app.authService.verifyTotpToken(secret, token);
-
     if (!verified) {
         return err(new ApiError("UNAUTHORIZED", 401, "Invalid TOTP token"));
     }
@@ -33,9 +30,12 @@ const verifyTotp = async (
 
 const setup = async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
     const { server } = req;
-
     const { secret, qrCode } = await server.authService.generateTotpSecret();
-    server.userService.update(req.userId, { temporaryTotpSecret: secret });
+
+    const tryUpdate = await server.userService.update(req.userId, { temporaryTotpSecret: secret });
+    if (tryUpdate.isErr()) {
+        return tryUpdate.error.send(reply);
+    }
 
     return reply.send({ success: true, data: { qrCode, secret } });
 };
@@ -45,19 +45,23 @@ const verify = async (
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
-    const { server } = req;
+    const { server, userId } = req;
     const { token } = body;
 
-    const user = await verifyTotp(server, req.userId, token, true);
-
-    if (user.isErr()) {
-        return user.error.send(reply);
+    const tryVerify = await verifyTotp(server, userId, token, true);
+    if (tryVerify.isErr()) {
+        return tryVerify.error.send(reply);
     }
 
-    user.value.totpEnabled = 1;
-    user.value.totpSecret = user.value.temporaryTotpSecret;
-    user.value.temporaryTotpSecret = null;
-    await server.userService.update(user.value.id, user.value);
+    const user = tryVerify.value;
+    const tryUpdate = await server.userService.update(user.id, {
+        totpEnabled: 1,
+        totpSecret: user.temporaryTotpSecret,
+        temporaryTotpSecret: null,
+    });
+    if (tryUpdate.isErr()) {
+        return tryUpdate.error.send(reply);
+    }
 
     return reply.send({ success: true, data: {} });
 };
@@ -67,25 +71,30 @@ const update = async (
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
-    const { server } = req;
+    const { server, userId } = req;
     const { token, newToken } = body;
 
     // Verify original token
-    const user = await verifyTotp(server, req.userId, token, false);
-    if (user.isErr()) {
-        return user.error.send(reply);
+    const tryVerifyOriginal = await verifyTotp(server, userId, token, false);
+    if (tryVerifyOriginal.isErr()) {
+        return tryVerifyOriginal.error.send(reply);
     }
 
     // Verfiy new token
-    const newUser = await verifyTotp(server, req.userId, newToken, true);
-    if (newUser.isErr()) {
-        return newUser.error.send(reply);
+    const tryVerifyNew = await verifyTotp(server, userId, newToken, true);
+    if (tryVerifyNew.isErr()) {
+        return tryVerifyNew.error.send(reply);
     }
 
+    const user = tryVerifyNew.value;
     // Update to new sercret
-    user.value.totpSecret = user.value.temporaryTotpSecret;
-    user.value.temporaryTotpSecret = null;
-    await server.userService.update(user.value.id, user.value);
+    const tryUpdate = await server.userService.update(userId, {
+        totpSecret: user.temporaryTotpSecret,
+        temporaryTotpSecret: null,
+    });
+    if (tryUpdate.isErr()) {
+        return tryUpdate.error.send(reply);
+    }
 
     return reply.send({ success: true, data: {} });
 };
@@ -95,17 +104,21 @@ const disable = async (
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
-    const { server } = req;
+    const { server, userId } = req;
     const { token } = body;
 
-    const user = await verifyTotp(server, req.userId, token, false);
+    const user = await verifyTotp(server, userId, token, false);
     if (user.isErr()) {
         return user.error.send(reply);
     }
 
-    user.value.totpEnabled = 0;
-    user.value.totpSecret = null;
-    await server.userService.update(user.value.id, user.value);
+    const tryUpdate = await server.userService.update(user.value.id, {
+        totpEnabled: 0,
+        totpSecret: null,
+    });
+    if (tryUpdate.isErr()) {
+        return tryUpdate.error.send(reply);
+    }
 
     return reply.send({ success: true, data: {} });
 };

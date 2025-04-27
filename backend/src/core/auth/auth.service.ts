@@ -1,11 +1,10 @@
 import type { User } from "../../modules/user/user.types.ts";
-import type { JwtPayload } from "@darrenkuro/pong-core";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import bcrypt from "bcrypt";
 import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
-import { userSchemas } from "@darrenkuro/pong-core";
+import { type JwtPayload, TotpSetupPayload, userSchemas } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/errors.ts";
 
 export const verifyCookie = async (req: FastifyRequest, _: FastifyReply) => {
@@ -30,6 +29,7 @@ export const createAuthService = (app: FastifyInstance) => {
         bcrypt.compare(password, hash);
 
     // TODO: exp to be defined in jwt plugin; also, maybe use access/refresh token?
+    // With saving jwt to cookies, figure out how to handle expiration
     const generateJwtToken = (user: User, exp: string = "1d"): string => {
         const { id, username, displayName } = user;
 
@@ -44,14 +44,15 @@ export const createAuthService = (app: FastifyInstance) => {
     const verifyJwtToken = (token: string): Result<JwtPayload, Error> => {
         try {
             const payload = jwt.verify(token) as JwtPayload;
-            userSchemas.jwtPayload.parse(payload); // Runtime type check to ensure token is valid
+            // Runtime type check to ensure token is valid and has the correct fields
+            userSchemas.jwtPayload.parse(payload);
             return ok(payload);
         } catch (error) {
             return err(new Error("Invalid JWT token or payload"));
         }
     };
 
-    const generateTotpSecret = async (): Promise<{ qrCode: string; secret: string }> => {
+    const generateTotpSecret = async (): Promise<TotpSetupPayload> => {
         const generatedSecret = speakeasy.generateSecret({ otpauth_url: true });
 
         const encoding = app.config.totpEncoding;
@@ -66,7 +67,7 @@ export const createAuthService = (app: FastifyInstance) => {
     };
 
     const requireAuth = async (req: FastifyRequest, reply: FastifyReply) => {
-        // Check that userId exists and is larger than 0 (Attached by onRequest hook)
+        // Check that userId exists and is larger than 0 (attached by onRequest hook)
         if (!req.userId || req.userId <= 0) {
             const error = new ApiError("UNAUTHORIZED", 401, "Authentication required");
             return error.send(reply);

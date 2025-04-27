@@ -6,6 +6,7 @@ import { safeJsonParse } from "@darrenkuro/pong-core";
 export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
     const { server } = req;
 
+    // Prehandler ensures request always has these fields
     conn.userId = Number(req.userId);
     conn.userDisplayName = req.userDisplayName;
 
