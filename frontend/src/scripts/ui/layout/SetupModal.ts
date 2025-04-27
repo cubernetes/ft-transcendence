@@ -130,9 +130,7 @@ const aiMode = (ctn: HTMLElement) => {
         //TODO: The below doesnt hide the right elements.
         // window.location.hash = "aigame";
         // controller.startGame("ai", undefined, { aiDifficulty: difficulty });
-    };
-
-    const playBtn = createCtaBtn("Play", playBtnCb);
+    });
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
         returnBtn,
@@ -230,9 +228,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
         window.log.debug("Tournament tree initialized:", tree);
         window.log.debug("Tournament controller started", controller);
         navigateTo("tournament");
-    };
-
-    const tournamentCreateBtn = createCtaBtn("Start Tournament", participantsBtnCb);
+    });
 
     const inputsWrapper = createEl("div", "grid grid-cols-1 md:grid-cols-2 gap-4 w-full", {
         children: playerInputs,
