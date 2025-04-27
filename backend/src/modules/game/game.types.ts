@@ -1,3 +1,4 @@
+import type { WebSocket } from "fastify";
 import { z } from "zod";
 import { createPongEngine } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
@@ -13,3 +14,9 @@ export type GameIdDTO = z.infer<typeof gameIdSchema>;
 
 export type Game = typeof games.$inferSelect;
 export type NewGame = typeof games.$inferInsert;
+
+export type GameSession = {
+    engine: PongEngine;
+    players: WebSocket[];
+    createdAt: string; // Confirm to sqlite datetime structure "YYYY-MM-DD HH:MM:SS"
+};
