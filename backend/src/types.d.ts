@@ -3,7 +3,6 @@ import type { AppConfig } from "./core/config/config.types.ts";
 import type { DbClient } from "./core/db/db.plugin.ts";
 import type { createPongService } from "./core/pong/pong.service.ts";
 import type { createWsService } from "./core/ws/ws.service.ts";
-import type gameRoutes from "./modules/game/game.routes.ts";
 import type { createGameService } from "./modules/game/game.service.ts";
 // import friendRoutes from "./friend/friend.routes";
 // import type { createFriendService } from "./friend/friend.service";
@@ -22,7 +21,6 @@ declare module "fastify" {
         gameService: ReturnType<typeof createGameService>;
         //friendService: ReturnType<typeof createFriendService>;
         userRoutes: ReturnType<typeof userRoutes>;
-        gameRoutes: ReturnType<typeof gameRoutes>;
         //friendRoutes: ReturnType<typeof friendRoutes>;
         requireAuth: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
     }
