@@ -27,7 +27,7 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
 
     if (data.totpEnabled) {
         const { username, password } = payload;
-        authStore.update({ totpRequired: true, username, password });
+        authStore.update({ totpRequired: true, username, tempPassword: password });
         return ok(false);
     } else {
         const { username, displayName } = data;
@@ -36,7 +36,7 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
             totpRequired: false,
             username,
             displayName,
-            password: null,
+            tempPassword: null,
         });
         return ok(true);
     }
@@ -65,22 +65,22 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
         totpRequired: false,
         username,
         displayName,
-        password: null,
+        tempPassword: null,
     });
     return ok();
 };
 
 export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
-    const { username, password } = authStore.get();
+    const { username, tempPassword } = authStore.get();
     const totpTokenEl = document.getElementById(window.cfg.id.totpToken);
     const totpToken = (totpTokenEl as HTMLInputElement)?.value;
-    if (!username || !password || !totpTokenEl || !totpToken) {
+    if (!username || !tempPassword || !totpTokenEl || !totpToken) {
         return err(new Error("Fail to get data for totp log in"));
     }
 
     const result = await sendApiRequest.post<LoginBody, LoginResponse>(
         `${window.cfg.url.user}/login`,
-        { username, password, totpToken }
+        { username, password: tempPassword, totpToken }
     );
 
     if (result.isErr()) {
@@ -100,7 +100,7 @@ export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
         totpRequired: false,
         username,
         displayName,
-        password: null,
+        tempPassword: null,
     });
     return ok();
 };
