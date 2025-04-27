@@ -1,10 +1,8 @@
-// TODO: Figure out the correct setting for cookies
 export type CookieConfig = {
-    domain?: "your.domain";
     path: string;
-    secure?: boolean; // send cookie over HTTPS only
+    secure: boolean;
     httpOnly: boolean;
-    sameSite?: boolean; // alternative CSRF protection
+    sameSite: boolean | "strict" | "lax" | "none";
 };
 
 export type AppConfig = {

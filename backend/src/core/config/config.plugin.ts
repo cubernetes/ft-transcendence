@@ -8,10 +8,10 @@ import { AppConfig, CookieConfig } from "./config.types.ts";
 // Constants
 const COOKIE_NAME = "token";
 const COOKIE_CONFIG: CookieConfig = {
-    path: "/",
-    //secure: true, // send cookie over HTTPS only
-    httpOnly: true,
-    //sameSite: true, // alternative CSRF protection
+    path: "/", // Valid for the whole site
+    secure: process.env.NODE_ENV === "production", // Send cookie over HTTPS only in production only
+    httpOnly: true, // Forbid JavaScript from accessing cookies, prevent XSS
+    sameSite: "strict", // alternative CSRF protection
 };
 const TOTP_ENCODING = "base32";
 const WS_MAX_PAYLOAD = 65536;
