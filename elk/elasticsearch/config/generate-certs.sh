@@ -27,16 +27,24 @@ if [ ! -f "$CERTS_DIR/elastic-certificates.p12" ]; then
         --ca-pass "$KEYSTORE_PASSWORD" \
         --out "$CERTS_DIR/elastic-certificates.p12" \
         --pass "$KEYSTORE_PASSWORD" \
-        --silent
+        --silent \
+		--dns elasticsearch \
+  		--dns localhost \
+  		--ip 127.0.0.1 \
+		--ip 10.42.42.3
 
     echo "SSL certificates generated successfully"
-elif [ ! -f "$CERTS_DIR/ca.crt" ]; then
-	# If CA certificate doesn't exist, extract it
-	openssl pkcs12 -in "$CERTS_DIR/elastic-stack-ca.p12" -cacerts -nokeys -out "$CERTS_DIR/ca.crt" -passin pass:"$KEYSTORE_PASSWORD"
-	echo "CA certificate extracted successfully"
 else
 	echo "SSL certificates already exist"
 fi
+
+# Always extract the CA certificate (for Logstash)
+openssl pkcs12 \
+	-in "$CERTS_DIR/elastic-stack-ca.p12" \
+	-nokeys \
+	-passin pass:"$KEYSTORE_PASSWORD" \
+	-out "$CERTS_DIR/ca.crt"
+echo "CA certificate extracted successfully"
 
 # Set proper permissions on generated files
 chown -R elasticsearch:elasticsearch "$CERTS_DIR"

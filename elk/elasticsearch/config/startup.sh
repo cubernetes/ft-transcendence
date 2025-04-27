@@ -14,11 +14,8 @@ export KIBANA_USER
 export KIBANA_PASSWORD
 export ELASTIC_KEYSTORE_PASS
 
-# Generate certificates if they don't exist
-if [ ! -f "/usr/share/elasticsearch/config/certs/elastic-certificates.p12" ]; then
-    echo "Generating SSL certificates..."
-    su - elasticsearch -c "export ELASTIC_PASSWORD='$ELASTIC_PASSWORD' && export LOGSTASH_USER='$LOGSTASH_USER' && export LOGSTASH_PASSWORD='$LOGSTASH_PASSWORD' && export KIBANA_USER='$KIBANA_USER' && export KIBANA_PASSWORD='$KIBANA_PASSWORD' && export ELASTIC_KEYSTORE_PASS='$ELASTIC_KEYSTORE_PASS' && /usr/share/elasticsearch/config/generate-certs.sh"
-fi
+# Checking if certificates exist
+su - elasticsearch -c "export ELASTIC_PASSWORD='$ELASTIC_PASSWORD' && export LOGSTASH_USER='$LOGSTASH_USER' && export LOGSTASH_PASSWORD='$LOGSTASH_PASSWORD' && export KIBANA_USER='$KIBANA_USER' && export KIBANA_PASSWORD='$KIBANA_PASSWORD' && export ELASTIC_KEYSTORE_PASS='$ELASTIC_KEYSTORE_PASS' && /usr/share/elasticsearch/config/generate-certs.sh"
 
 # Create elasticsearch.keystore and add the keystore password
 if [ ! -f "/usr/share/elasticsearch/config/elasticsearch.keystore" ]; then

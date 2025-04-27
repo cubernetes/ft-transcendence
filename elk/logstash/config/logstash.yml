@@ -3,7 +3,7 @@ xpack.monitoring.enabled: true
 xpack.monitoring.elasticsearch.hosts: ["https://elasticsearch:9200"]
 xpack.monitoring.elasticsearch.username: "${LOGSTASH_USER}"
 xpack.monitoring.elasticsearch.password: "${LOGSTASH_PASSWORD}"
-xpack.monitoring.elasticsearch.ssl.verification_mode: none
+xpack.monitoring.elasticsearch.ssl.verification_mode: full
 xpack.monitoring.elasticsearch.sniffing: false
 
 # Pipeline settings
@@ -27,6 +27,3 @@ path.logs: /usr/share/logstash/logs
 # Performance settings
 config.reload.automatic: true
 config.reload.interval: 3s
-
-# JVM settings
-jvm.options: "-Xms256m -Xmx256m"

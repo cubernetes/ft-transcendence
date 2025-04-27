@@ -7,9 +7,6 @@ KIBANA_PASSWORD="${KIBANA_PASSWORD:?Missing KIBANA_PASSWORD}"
 LOGSTASH_USER="${LOGSTASH_USER:?Missing LOGSTASH_USER}"
 LOGSTASH_PASSWORD="${LOGSTASH_PASSWORD:?Missing LOGSTASH_PASSWORD}"
 
-# Generate certificates first
-/usr/share/elasticsearch/config/generate-certs.sh
-
 # Start Elasticsearch in the background
 /usr/local/bin/docker-entrypoint.sh eswrapper &
 ES_PID=$!

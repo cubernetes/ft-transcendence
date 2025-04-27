@@ -131,11 +131,11 @@ services:
         volumes:
             - "elasticsearch-data:/usr/share/elasticsearch/data/"
             - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/"
-            - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
-            - "./elk/elasticsearch/config/generate-certs.sh:/usr/share/elasticsearch/config/generate-certs.sh:ro"
-            - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh:ro"
-            - ./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json:ro
-            - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh:ro"
+            - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
+            - "./elk/elasticsearch/config/generate-certs.sh:/usr/share/elasticsearch/config/generate-certs.sh"
+            - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh"
+            - ./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json
+            - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh"
         command: ["/bin/bash", "/usr/share/elasticsearch/config/startup.sh"]
         user: "0:0" # Run as root to ensure we can set permissions
         ports:
@@ -168,9 +168,10 @@ services:
         container_name: logstash
         volumes:
             - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/"
-            - "./elk/logstash/config/logstash.yaml:/usr/share/logstash/config/logstash.yaml:ro"
+            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml"
             - "logstash-data:/usr/share/logstash/data/"
-            - "elasticsearch-certs:/etc/logstash/config/certs:ro" # Mount certs for SSL
+            - "elasticsearch-certs:/etc/logstash/config/certs" # Mount certs for SSL
+            - "./elk/logstash/scripts/import-logstash-ca.sh:/usr/local/bin/import-logstash-ca.sh"
         ports:
             - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"
             - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/udp"
@@ -198,6 +199,12 @@ services:
             timeout: 5s
             retries: 3
             start_period: 30s
+        entrypoint:
+            [
+                "/bin/sh",
+                "-c",
+                "sh /usr/local/bin/import-logstash-ca.sh && /usr/local/bin/docker-entrypoint",
+            ]
 
     kibana:
         image: docker.elastic.co/kibana/kibana:8.17.3
@@ -216,9 +223,9 @@ services:
             SERVER_PORT: ${KIBANA_PORT:-5601}
             XPACK_SECURITY_ENABLED: "true"
         volumes:
-            - "./elk/kibana/config/kibana.yaml:/usr/share/kibana/config/kibana.yaml:ro"
-            - "./elk/kibana/dashboards:/usr/share/kibana/dashboards:ro"
-            - "./elk/kibana/setup-dashboards.sh:/usr/share/kibana/setup-dashboards.sh:ro"
+            - "./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml"
+            - "./elk/kibana/dashboards:/usr/share/kibana/dashboards"
+            - "./elk/kibana/setup-dashboards.sh:/usr/share/kibana/setup-dashboards.sh"
             - "kibana-data:/usr/share/kibana/data"
         networks:
             ft-transcendence-net:
@@ -264,7 +271,7 @@ services:
             - "vault-storage:/vault/file/"
             - "vault-secret:/vault/secret/"
             - "vault-logs:/vault/logs/"
-            - "./env.json:/vault/config/env.json:ro"
+            - "./env.json:/vault/config/env.json"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         environment:
             <<: *env-watch
