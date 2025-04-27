@@ -256,19 +256,15 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         startRenderer(config); // move this to msg handler
     };
 
-    const startAiGame = (config: PongConfig, aiDifficulty: AIDifficulty = "MEDIUM") => {
-        engine.reset({ aiMode: true, aiDifficulty });
+    const startAiGame = (config: PongConfig) => {
+        engine.reset(config);
         attachAiControl();
         attachLocalEngineEvents();
         engine.start();
         startRenderer(config);
     };
 
-    const startGame = (
-        mode: GameMode,
-        config: PongConfig = defaultGameConfig,
-        options?: { aiDifficulty?: AIDifficulty }
-    ) => {
+    const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
         hidePageElements();
         hideRouter();
         showCanvas();
@@ -281,7 +277,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 startOnlineGame(config);
                 break;
             case "ai":
-                startAiGame(config, options?.aiDifficulty || "MEDIUM");
+                startAiGame(config);
                 break;
             default:
         }
