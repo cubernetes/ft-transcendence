@@ -1,3 +1,4 @@
+import type { FastifyInstance } from "fastify";
 import { faker } from "@faker-js/faker";
 import { PublicUser } from "@darrenkuro/pong-core";
 import { User } from "./user.types.ts";
@@ -9,8 +10,17 @@ export const toPersonalUser = (user: User): Omit<User, "passwordHash" | "totpSec
 };
 
 /** Remove sensitive fields from user before sending response to public. */
-export const toPublicUser = (user: User): PublicUser => {
-    const { passwordHash, totpSecret, ...publicUser } = user;
+export const toPublicUser = async (
+    user: User,
+    app: FastifyInstance
+): Promise<PublicUser | null> => {
+    const { passwordHash, totpSecret, ...originalUser } = user;
+    const rank = await app.userService.getRankById(user.id);
+    // TODO: Fix
+    if (rank.isErr()) {
+        return null;
+    }
+    const publicUser = { ...originalUser, rank: rank.value };
     return publicUser as PublicUser; // TODO: Fix Type
 };
 

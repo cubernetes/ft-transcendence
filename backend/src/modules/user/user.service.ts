@@ -121,6 +121,11 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
+    const getRankById = async (id: number): Promise<Result<number, ApiError>> => {
+        // TODO:
+        return ok(1);
+    };
+
     return {
         create,
         findById,
@@ -129,5 +134,6 @@ export const createUserService = (app: FastifyInstance) => {
         update,
         remove,
         getCount,
+        getRankById,
     };
 };
