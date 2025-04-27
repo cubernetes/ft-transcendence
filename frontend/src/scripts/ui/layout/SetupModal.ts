@@ -1,4 +1,4 @@
-import { AIDifficulty } from "@darrenkuro/pong-core";
+import { AIDifficulty, defaultGameConfig } from "@darrenkuro/pong-core";
 import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
@@ -125,11 +125,11 @@ const aiMode = (ctn: HTMLElement) => {
         if (!controller) {
             return showErr("initialize_controller");
         }
-
-        navigateTo("aigame");
-        //TODO: The below doesnt hide the right elements.
-        // window.location.hash = "aigame";
-        // controller.startGame("ai", undefined, { aiDifficulty: difficulty });
+        controller.startGame("ai", {
+            ...defaultGameConfig,
+            aiDifficulty: difficulty,
+            aiMode: true,
+        });
     });
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
@@ -171,11 +171,12 @@ const localMode = (ctn: HTMLElement) => {
         if (!player1 || !player2) {
             return showErr("player_names_required");
         }
-
-        const gameData = { player1, player2 };
         hideErr();
-        navigateTo("localgame");
-        window.log.debug("Navigated to localgame with gameData:", gameData);
+        const { controller } = gameStore.get();
+        if (!controller) {
+            return showErr("initialize_controller");
+        }
+        controller.startGame("local");
     });
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
