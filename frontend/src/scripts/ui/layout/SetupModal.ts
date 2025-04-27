@@ -49,11 +49,8 @@ const createDifficultyGroup = () => {
 
     const difficultyKeys = ["easy", "medium", "hard"] as TranslationKey[];
     const btnLabels = difficultyKeys.map((key) => getText(key)); // Get button labels as strings
-    const btnCallbacks = difficultyKeys.map((key) => () => {
-        window.log.debug(`Selected difficulty: ${key}`);
-    });
 
-    const btnGroup = createButtonGroup(btnLabels, btnCallbacks);
+    const btnGroup = createButtonGroup(btnLabels, []);
 
     difficultyKeys.forEach((key, index) => {
         const btn = btnGroup.children[index] as HTMLElement;
