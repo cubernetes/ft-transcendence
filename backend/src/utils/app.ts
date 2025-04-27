@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
+import fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { ZodError } from "zod";
 import corePlugin from "../core/core.plugin.ts";
