@@ -56,9 +56,16 @@ const publicUser = z.object({
     games: gameSchemas.publicGame.array(),
 });
 
+export type GetInfoPayload = z.infer<typeof getInfoPayload>;
+export type GetInfoResponse = ApiResponse<typeof getInfoPayload>;
+const getInfoPayload = publicUser;
+
+export type PersonalUser = z.infer<typeof personalUser>;
+const personalUser = publicUser.merge(z.object({ totpEnabled: z.number() }));
+
 export type GetMePayload = z.infer<typeof getMePayload>;
 export type GetMeResponse = ApiResponse<typeof getMePayload>;
-const getMePayload = publicUser;
+const getMePayload = personalUser;
 
 export type LeaderboardPayload = z.infer<typeof leaderboardPayload>;
 export type leaderboardResponse = ApiResponse<typeof leaderboardPayload>;
@@ -70,7 +77,9 @@ export const userSchemas = {
     loginBody,
     leaderboardParams,
     infoParams,
+    getInfoPayload,
     publicUser,
+    personalUser,
     getMePayload,
     loginPayload,
     leaderboardPayload,
