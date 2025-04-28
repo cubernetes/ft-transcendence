@@ -3,8 +3,8 @@ import type { FastifyInstance, FastifyReply } from "fastify";
 
 export class ApiSuccess<T> {
     constructor(
-        private data: T,
-        private statusCode: number = 200
+        public data: T,
+        public statusCode: number = 200
     ) {}
 
     send(reply: FastifyReply) {
@@ -22,8 +22,8 @@ export class ApiSuccess<T> {
 
 export class ApiError extends Error {
     constructor(
-        private code: ErrorCode,
-        private statusCode: number,
+        public code: ErrorCode,
+        public statusCode: number,
         public message: string
     ) {
         super(message);
