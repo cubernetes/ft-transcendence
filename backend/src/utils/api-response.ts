@@ -24,9 +24,10 @@ export class ApiError extends Error {
     constructor(
         public code: ErrorCode,
         public statusCode: number,
-        public message: string
+        message?: string
     ) {
-        super(message);
+        // When instanstiated without message, use code as message
+        super(message ?? code);
     }
 
     send(reply: FastifyReply) {

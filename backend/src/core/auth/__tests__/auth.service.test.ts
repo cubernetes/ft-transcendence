@@ -2,7 +2,7 @@ import { test } from "tap";
 import Fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import { faker } from "@faker-js/faker";
-import { mockUser } from "../../../modules/user/user.helpers.ts";
+import { mockUser } from "../../../modules/user/user.utils.ts";
 import { createAuthService } from "../auth.service.ts";
 
 test("authService - hashPassword + comparePassword", async (t) => {

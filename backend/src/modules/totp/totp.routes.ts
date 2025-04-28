@@ -1,10 +1,10 @@
-import type { FastifyPluginAsync } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { totpSchemas } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
 import handlers from "./totp.controller.ts";
 import routeSchemas from "./totp.schema.ts";
 
-const totpRoutes: FastifyPluginAsync = async (app) => {
+const totpRoutes = async (app: FastifyInstance) => {
     app.get(
         "/setup",
         { preHandler: [app.requireAuth], schema: routeSchemas.setup },

@@ -72,7 +72,7 @@ export default {
     register: registerRouteSchema,
     login: loginRouteSchema,
     logout: logoutRouteSchema,
-    info: getInfoRouteSchema,
-    me: getMeRouteSchema,
-    leaderboard: getLeaderboardRouteSchema,
+    getInfo: getInfoRouteSchema,
+    getMe: getMeRouteSchema,
+    getLeaderboard: getLeaderboardRouteSchema,
 };

@@ -1,22 +1,21 @@
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { count, desc, eq } from "drizzle-orm";
-import { PublicUser } from "@darrenkuro/pong-core";
+import { PersonalUser, PublicUser } from "@darrenkuro/pong-core";
 import { users } from "../../core/db/db.schema.ts";
 import { ApiError, ServerError, errUniqueConstraintOn } from "../../utils/api-response.ts";
 import { NewUser, User } from "./user.types.ts";
+import { getDynamicFields, hideFieldsPersonal, hideFieldsPublic } from "./user.utils.ts";
 
 export const createUserService = (app: FastifyInstance) => {
-    const db = app.db;
+    const { db } = app;
 
     const create = async (data: NewUser): Promise<Result<User, ApiError>> => {
         try {
             const inserted = await db.insert(users).values(data).returning();
             const user = inserted[0];
 
-            if (!user) {
-                return err(new ServerError("Failed to create user"));
-            }
+            if (!user) return err(new ServerError("Database error when creating user"));
 
             return ok(user);
         } catch (error) {
@@ -34,9 +33,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.id, id));
             const user = result[0];
 
-            if (!user) {
-                return err(new ApiError("NOT_FOUND", 404, "User not found"));
-            }
+            if (!user) return err(new ApiError("NOT_FOUND", 404, "User not found"));
 
             return ok(user);
         } catch (error) {
@@ -50,9 +47,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.username, username));
             const user = result[0];
 
-            if (!user) {
-                return err(new ApiError("NOT_FOUND", 404, "User not found"));
-            }
+            if (!user) return err(new ApiError("NOT_FOUND", 404, "User not found"));
 
             return ok(user);
         } catch (error) {
@@ -66,9 +61,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.id, id));
             const user = result[0];
 
-            if (!user) {
-                return err(new ApiError("NOT_FOUND", 404, "User not found"));
-            }
+            if (!user) return err(new ApiError("NOT_FOUND", 404, "User not found"));
 
             return ok(user.username);
         } catch (error) {
@@ -92,9 +85,7 @@ export const createUserService = (app: FastifyInstance) => {
             const updated = await db.update(users).set(data).where(eq(users.id, id)).returning();
             const user = updated[0];
 
-            if (!user) {
-                return err(new ApiError("NOT_FOUND", 404, "User not found"));
-            }
+            if (!user) return err(new ApiError("NOT_FOUND", 404, "User not found"));
 
             return ok(user);
         } catch (error) {
@@ -112,9 +103,7 @@ export const createUserService = (app: FastifyInstance) => {
             const deleted = await db.delete(users).where(eq(users.id, id)).returning();
             const user = deleted[0];
 
-            if (!user) {
-                return err(new ApiError("NOT_FOUND", 404, "User not found"));
-            }
+            if (!user) return err(new ApiError("NOT_FOUND", 404, "User not found"));
 
             return ok(user);
         } catch (error) {
@@ -127,22 +116,15 @@ export const createUserService = (app: FastifyInstance) => {
         try {
             const [result] = await db.select({ count: count() }).from(users);
 
-            if (!result || typeof result.count !== "number") {
-                return err(new ServerError("Failed to get user count"));
-            }
+            if (!result) return err(new ServerError("Failed to get user count"));
+            if (typeof result.count !== "number")
+                return err(new ServerError("User count isn't of type number"));
 
             return ok(result.count);
         } catch (error) {
             app.log.debug({ error }, "Failed to get user count");
             return err(new ServerError("Failed to get user count"));
         }
-    };
-
-    const hideSensitiveFields = (
-        user: User
-    ): Omit<User, "passwordHash" | "totpSecret" | "temporaryTotpSecret" | "totpEnabled"> => {
-        const { passwordHash, totpSecret, temporaryTotpSecret, totpEnabled, ...safeUser } = user;
-        return safeUser;
     };
 
     const getRankByUsername = async (username: string): Promise<Result<number, ApiError>> => {
@@ -156,24 +138,17 @@ export const createUserService = (app: FastifyInstance) => {
     };
 
     const toPublicUser = async (user: User): Promise<Result<PublicUser, ApiError>> => {
-        const result = hideSensitiveFields(user);
+        const tryGetDynamicFields = await getDynamicFields(user, app);
+        if (tryGetDynamicFields.isErr()) return err(tryGetDynamicFields.error);
 
-        // Game history
-        const tryGetGames = await app.gameService.getGamesByUsername(user.username);
-        if (tryGetGames.isErr()) {
-            return err(tryGetGames.error);
-        }
-        const games = tryGetGames.value;
+        return ok({ ...hideFieldsPublic(user), ...tryGetDynamicFields.value });
+    };
 
-        // Calculated fields
-        const tryGetRank = await getRankByUsername(user.username);
-        if (tryGetRank.isErr()) {
-            return err(tryGetRank.error);
-        }
-        const rank = tryGetRank.value;
-        const totalGames = games.length;
+    const toPersonalUser = async (user: User): Promise<Result<PersonalUser, ApiError>> => {
+        const tryGetDynamicFields = await getDynamicFields(user, app);
+        if (tryGetDynamicFields.isErr()) return err(tryGetDynamicFields.error);
 
-        return ok({ ...result, rank, games, totalGames });
+        return ok({ ...hideFieldsPersonal(user), ...tryGetDynamicFields.value });
     };
 
     return {
@@ -187,5 +162,6 @@ export const createUserService = (app: FastifyInstance) => {
         getCount,
         getRankByUsername,
         toPublicUser,
+        toPersonalUser,
     };
 };

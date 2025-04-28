@@ -35,12 +35,9 @@ const register = async (
     const user = tryCreateUser.value;
     const token = app.authService.generateJwtToken(user);
     const { username, displayName } = user;
-    const { cookieName, cookieConfig } = app.config;
+    const data = { username, displayName };
 
-    return reply
-        .setCookie(cookieName, token, cookieConfig)
-        .code(201)
-        .send({ success: true, data: { username, displayName } });
+    return new ApiSuccess<LoginPayload>(data, 201).sendWithCookie(reply, token, app);
 };
 
 /** Login handler. */
@@ -142,6 +139,7 @@ const getInfo = async (
     return new ApiSuccess<GetInfoPayload>(data).send(reply);
 };
 
+/** Get me handler. */
 const getMe = async (req: FastifyRequest, reply: FastifyReply) => {
     const app = req.server;
     const { username } = req;
@@ -150,13 +148,11 @@ const getMe = async (req: FastifyRequest, reply: FastifyReply) => {
     const tryGetUser = await app.userService.findByUsername(username);
     if (tryGetUser.isErr()) return tryGetUser.error.send(reply);
 
-    // Try to map user to public user data, send back error if failed
-    const tryMapUser = await app.userService.toPublicUser(tryGetUser.value);
+    // Try to map user to personal user data, send back error if failed
+    const tryMapUser = await app.userService.toPersonalUser(tryGetUser.value);
     if (tryMapUser.isErr()) return tryMapUser.error.send(reply);
 
-    // Include totpEnabled in addition to public data
-    const { totpEnabled } = tryGetUser.value;
-    const data = { ...tryMapUser.value, totpEnabled };
+    const data = tryMapUser.value;
     return new ApiSuccess<GetMePayload>(data).send(reply);
 };
 
