@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
 import { type JwtPayload, TotpSetupPayload, userSchemas } from "@darrenkuro/pong-core";
-import { ApiError } from "../../utils/errors.ts";
+import { ApiError } from "../../utils/api-response.ts";
 
 export const verifyCookie = async (req: FastifyRequest, _: FastifyReply) => {
     const { cookieName } = req.server.config;

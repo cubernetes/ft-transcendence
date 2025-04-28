@@ -1,34 +1,41 @@
 import type {
+    GetInfoPayload,
+    GetMePayload,
     InfoParams,
     LeaderboardParams,
+    LeaderboardPayload,
     LoginBody,
+    LoginPayload,
     PublicUser,
     RegisterBody,
 } from "@darrenkuro/pong-core";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { ApiError } from "../../utils/errors.ts";
+import { ApiSuccess, ServerError, UnauthorizedError } from "../../utils/api-response.ts";
 
-const registerHandler = async (
+/** Register handler. */
+const register = async (
     { body }: { body: RegisterBody },
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
-    // Remove confirmPassword from data
-    const { confirmPassword, ...userData } = body;
+    const app = req.server;
 
-    const passwordHash = await req.server.authService.hashPassword(userData.password);
+    // Remove password fields from user data
+    const { confirmPassword, password, ...userData } = body;
 
+    // Generate and add password hash to user data
+    const passwordHash = await app.authService.hashPassword(password);
     const userWithHash = { ...userData, passwordHash };
 
-    const user = await req.server.userService.create(userWithHash);
+    // Try create user in database, send back error if failed
+    const tryCreateUser = await app.userService.create(userWithHash);
+    if (tryCreateUser.isErr()) return tryCreateUser.error.send(reply);
 
-    if (user.isErr()) {
-        return user.error.send(reply);
-    }
-
-    const token = req.server.authService.generateJwtToken(user.value);
-    const { username, displayName } = user.value;
-    const { cookieName, cookieConfig } = req.server.config;
+    // Generate JWT token and send back as cookies
+    const user = tryCreateUser.value;
+    const token = app.authService.generateJwtToken(user);
+    const { username, displayName } = user;
+    const { cookieName, cookieConfig } = app.config;
 
     return reply
         .setCookie(cookieName, token, cookieConfig)
@@ -36,123 +43,128 @@ const registerHandler = async (
         .send({ success: true, data: { username, displayName } });
 };
 
-const loginHandler = async (
+/** Login handler. */
+const login = async (
     { body }: { body: LoginBody },
     req: FastifyRequest,
     reply: FastifyReply
 ): Promise<void> => {
-    // Find user
-    const user = await req.server.userService.findByUsername(body.username);
-    if (user.isErr()) {
-        return user.error.send(reply);
-    }
+    const app = req.server;
+    const { username, password, totpToken } = body;
 
-    // Validate password
-    const isPasswordValid = await req.server.authService.comparePassword(
-        body.password,
-        user.value.passwordHash
-    );
-    if (!isPasswordValid) {
-        const err = new ApiError("UNAUTHORIZED", 401, "Invalid password");
-        return err.send(reply);
-    }
+    // Try to find user with username provided, send back error if failed
+    const tryGetUser = await app.userService.findByUsername(username);
+    if (tryGetUser.isErr()) return tryGetUser.error.send(reply);
 
-    const { username, displayName, totpEnabled, totpSecret } = user.value;
+    const user = tryGetUser.value;
+    const { displayName, totpEnabled, totpSecret, passwordHash } = user;
+
+    // Validate password, send back 401 error if failed
+    const verifyPassword = await app.authService.comparePassword(password, passwordHash);
+    if (!verifyPassword) return new UnauthorizedError("Invalid password").send(reply);
 
     // Check 2FA
     if (totpEnabled) {
-        // 2FA enabled but have yet to receive token
-        if (!body.totpToken) {
-            return reply.send({ success: true, data: { totpEnabled } });
-        }
+        // 2FA enabled but have yet to receive token, send back totp request
+        if (!totpToken) return new ApiSuccess<LoginPayload>({ totpEnabled }).send(reply);
 
-        // 2FA enabled but no TOTP secret in database (should never happen ideally)
-        if (!totpSecret) {
-            const err = new ApiError("INTERNAL_SERVER_ERROR", 500, "TOTP setup incomplete");
-            return err.send(reply);
-        }
+        // 2FA enabled but no TOTP secret in database, should never happen in theory
+        if (!totpSecret) return new ServerError("TOTP setup incomplete").send(reply);
 
-        // Verify the TOTP token
-        const isTotpValid = req.server.authService.verifyTotpToken(totpSecret, body.totpToken);
-        if (!isTotpValid) {
-            const err = new ApiError("UNAUTHORIZED", 401, "Invalid TOTP token");
-            return err.send(reply);
-        }
+        // Verify TOTP token
+        const verifyToken = app.authService.verifyTotpToken(totpSecret, totpToken);
+        if (!verifyToken) return new UnauthorizedError("Invalid TOTP token").send(reply);
     }
 
-    // 2FA verified, send cookies
-    const token = req.server.authService.generateJwtToken(user.value);
-    const { cookieName, cookieConfig } = req.server.config;
-    return reply
-        .setCookie(cookieName, token, cookieConfig)
-        .send({ success: true, data: { username, displayName } });
+    // Password and 2FA have been verified, send cookies
+    const token = app.authService.generateJwtToken(user);
+    const data = { username, displayName };
+    return new ApiSuccess<LoginPayload>(data).sendWithCookie(reply, token, app);
 };
 
-const logoutHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+/** Logout handler. */
+const logout = async (req: FastifyRequest, reply: FastifyReply) => {
     const { cookieName } = req.server.config;
     reply.clearCookie(cookieName);
 
-    return { success: true, data: {} };
+    return new ApiSuccess({}).send(reply);
 };
 
-const getLeaderboardHandler = async (
+/** Get leaderboard handler. */
+const getLeaderboard = async (
     { params }: { params: LeaderboardParams },
     req: FastifyRequest,
     reply: FastifyReply
 ) => {
+    const app = req.server;
+
+    // Get number of users requested from params
     const { n } = params;
-    const users = await req.server.userService.findAll();
 
-    if (users.isErr()) {
-        return users.error.send(reply);
-    }
+    // Fetch all users from database, send back error if failed
+    const tryGetUsers = await app.userService.findAll();
+    if (tryGetUsers.isErr()) return tryGetUsers.error.send(reply);
 
+    // Map each user to public user data
     const publicUsers: PublicUser[] = [];
+    for (const user of tryGetUsers.value) {
+        const tryMapUser = await app.userService.toPublicUser(user);
 
-    for (const user of users.value) {
-        const result = await req.server.userService.toPublicUser(user);
-        if (result.isErr()) {
-            return result.error.send(reply); // Early return if error
-        }
-        publicUsers.push(result.value);
+        // If any user is failing for whatever reason, stop and send back error
+        if (tryMapUser.isErr()) return tryMapUser.error.send(reply);
+
+        publicUsers.push(tryMapUser.value);
     }
 
     // Sort by rank, then get the first n users
-    const leadUsers = publicUsers.sort((a, b) => a.rank - b.rank).slice(0, n);
-
-    return reply.send({ success: true, data: leadUsers });
+    const data = publicUsers.sort((a, b) => a.rank - b.rank).slice(0, n);
+    return new ApiSuccess<LeaderboardPayload>(data).send(reply);
 };
 
-const getInfoHandler = async (
+/** Get info handler. */
+const getInfo = async (
     { params }: { params: InfoParams },
     req: FastifyRequest,
     reply: FastifyReply
 ) => {
+    const app = req.server;
     const { username } = params;
-    const tryGetInfo = await req.server.userService.getInfoByUsername(username);
 
-    if (tryGetInfo.isErr()) {
-        return tryGetInfo.error.send(reply);
-    }
+    // Try to find user with username provided, send back error if failed
+    const tryGetUser = await app.userService.findByUsername(username);
+    if (tryGetUser.isErr()) return tryGetUser.error.send(reply);
 
-    return reply.send({ success: true, data: tryGetInfo.value });
+    // Try to map user to public user data, send back error if failed
+    const tryMapUser = await app.userService.toPublicUser(tryGetUser.value);
+    if (tryMapUser.isErr()) return tryMapUser.error.send(reply);
+
+    const data = tryMapUser.value;
+    return new ApiSuccess<GetInfoPayload>(data).send(reply);
 };
 
-const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    const tryGetInfo = await req.server.userService.getInfoByUsername(req.username);
+const getMe = async (req: FastifyRequest, reply: FastifyReply) => {
+    const app = req.server;
+    const { username } = req;
 
-    if (tryGetInfo.isErr()) {
-        return tryGetInfo.error.send(reply);
-    }
+    // Try to find user with username provided, send back error if failed
+    const tryGetUser = await app.userService.findByUsername(username);
+    if (tryGetUser.isErr()) return tryGetUser.error.send(reply);
 
-    return reply.send({ success: true, data: tryGetInfo.value });
+    // Try to map user to public user data, send back error if failed
+    const tryMapUser = await app.userService.toPublicUser(tryGetUser.value);
+    if (tryMapUser.isErr()) return tryMapUser.error.send(reply);
+
+    // Include totpEnabled in addition to public data
+    const { totpEnabled } = tryGetUser.value;
+    const data = { ...tryMapUser.value, totpEnabled };
+    return new ApiSuccess<GetMePayload>(data).send(reply);
 };
 
 export default {
-    register: registerHandler,
-    login: loginHandler,
-    logout: logoutHandler,
-    leaderboard: getLeaderboardHandler,
-    info: getInfoHandler,
-    me: getMeHandler,
+    register,
+    login,
+    logout,
+    getLeaderboard,
+    getInfo,
+    getMe,
 };

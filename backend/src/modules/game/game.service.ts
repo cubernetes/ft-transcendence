@@ -4,7 +4,7 @@ import { desc, eq, or } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { PublicGame, UserInput } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
-import { ApiError, UnknownError } from "../../utils/errors.ts";
+import { ApiError, ServerError } from "../../utils/api-response.ts";
 import { Game, GameId, GameSession, NewGame, PongEngine } from "./game.types.ts";
 
 export const createGameService = (app: FastifyInstance) => {
@@ -138,13 +138,13 @@ export const createGameService = (app: FastifyInstance) => {
             const game = inserted[0];
 
             if (!game) {
-                return err(new UnknownError("Failed to create game"));
+                return err(new ServerError("Failed to create game"));
             }
 
             return ok(game);
         } catch (error) {
             app.log.debug({ error }, "Failed to create game");
-            return err(new UnknownError("Failed to create game"));
+            return err(new ServerError("Failed to create game"));
         }
     };
 
@@ -176,7 +176,7 @@ export const createGameService = (app: FastifyInstance) => {
             return ok(result);
         } catch (error) {
             app.log.debug({ error }, "Failed to get games by username");
-            return err(new UnknownError("Failed to get games by username"));
+            return err(new ServerError("Failed to get games by username"));
         }
     };
 
@@ -184,7 +184,7 @@ export const createGameService = (app: FastifyInstance) => {
         const tryGetPlayer1Username = await app.userService.getUsernameById(game.player1Id);
         const tryGetPlayer2Username = await app.userService.getUsernameById(game.player2Id);
         if (tryGetPlayer1Username.isErr() || tryGetPlayer2Username.isErr()) {
-            return err(new UnknownError("Failed to map to public game: can't find username"));
+            return err(new ServerError("Failed to map to public game: can't find username"));
         }
 
         const player1Username = tryGetPlayer1Username.value;

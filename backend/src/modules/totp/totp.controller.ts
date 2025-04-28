@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { TotpBody, TotpUpdateBody } from "@darrenkuro/pong-core";
-import { ApiError } from "../../utils/errors";
+import { ApiError } from "../../utils/api-response";
 import { User } from "../user/user.types";
 
 const verifyTotp = async (

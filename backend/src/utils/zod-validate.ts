@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError, ZodTypeAny, z } from "zod";
-import { ApiError } from "./errors.ts";
+import { ApiError } from "./api-response.ts";
 
 type ZodTarget = "body" | "query" | "params" | "headers";
 type SchemaMap = Partial<Record<ZodTarget, ZodTypeAny>>;

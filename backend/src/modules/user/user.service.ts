@@ -3,7 +3,7 @@ import { Result, err, ok } from "neverthrow";
 import { count, desc, eq } from "drizzle-orm";
 import { PublicUser } from "@darrenkuro/pong-core";
 import { users } from "../../core/db/db.schema.ts";
-import { ApiError, UnknownError, errUniqueConstraintOn } from "../../utils/errors.ts";
+import { ApiError, ServerError, errUniqueConstraintOn } from "../../utils/api-response.ts";
 import { NewUser, User } from "./user.types.ts";
 
 export const createUserService = (app: FastifyInstance) => {
@@ -15,7 +15,7 @@ export const createUserService = (app: FastifyInstance) => {
             const user = inserted[0];
 
             if (!user) {
-                return err(new UnknownError("Failed to create user"));
+                return err(new ServerError("Failed to create user"));
             }
 
             return ok(user);
@@ -25,7 +25,7 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             app.log.debug({ error }, "Failed to create user");
-            return err(new UnknownError("Failed to create user"));
+            return err(new ServerError("Failed to create user"));
         }
     };
 
@@ -41,7 +41,7 @@ export const createUserService = (app: FastifyInstance) => {
             return ok(user);
         } catch (error) {
             app.log.debug({ error }, "Failed to find user by id");
-            return err(new UnknownError("Failed to find user by id"));
+            return err(new ServerError("Failed to find user by id"));
         }
     };
 
@@ -57,7 +57,7 @@ export const createUserService = (app: FastifyInstance) => {
             return ok(user);
         } catch (error) {
             app.log.debug({ error }, "Failed to find user by username");
-            return err(new UnknownError("Failed to find user by username"));
+            return err(new ServerError("Failed to find user by username"));
         }
     };
 
@@ -73,7 +73,7 @@ export const createUserService = (app: FastifyInstance) => {
             return ok(user.username);
         } catch (error) {
             app.log.debug({ error }, "Failed to find user by id");
-            return err(new UnknownError("Failed to find user by id"));
+            return err(new ServerError("Failed to find user by id"));
         }
     };
 
@@ -83,7 +83,7 @@ export const createUserService = (app: FastifyInstance) => {
             return ok(result);
         } catch (error) {
             app.log.debug({ error }, "Failed to find all users");
-            return err(new UnknownError("Failed to find all users"));
+            return err(new ServerError("Failed to find all users"));
         }
     };
 
@@ -103,7 +103,7 @@ export const createUserService = (app: FastifyInstance) => {
             }
 
             app.log.debug({ error }, "Failed to update user");
-            return err(new UnknownError("Failed to update user"));
+            return err(new ServerError("Failed to update user"));
         }
     };
 
@@ -119,7 +119,7 @@ export const createUserService = (app: FastifyInstance) => {
             return ok(user);
         } catch (error) {
             app.log.debug({ error }, "Failed to remove user");
-            return err(new UnknownError("Failed to remove user"));
+            return err(new ServerError("Failed to remove user"));
         }
     };
 
@@ -128,13 +128,13 @@ export const createUserService = (app: FastifyInstance) => {
             const [result] = await db.select({ count: count() }).from(users);
 
             if (!result || typeof result.count !== "number") {
-                return err(new UnknownError("Failed to get user count"));
+                return err(new ServerError("Failed to get user count"));
             }
 
             return ok(result.count);
         } catch (error) {
             app.log.debug({ error }, "Failed to get user count");
-            return err(new UnknownError("Failed to get user count"));
+            return err(new ServerError("Failed to get user count"));
         }
     };
 
@@ -153,14 +153,6 @@ export const createUserService = (app: FastifyInstance) => {
 
         const rank = orderedByWins.findIndex((u) => u.username === username) + 1; // Zero indexed
         return ok(rank);
-    };
-
-    const getInfoByUsername = async (username: string): Promise<Result<PublicUser, ApiError>> => {
-        const tryGetUser = await app.userService.findByUsername(username);
-        if (tryGetUser.isErr()) {
-            return err(tryGetUser.error);
-        }
-        return toPublicUser(tryGetUser.value);
     };
 
     const toPublicUser = async (user: User): Promise<Result<PublicUser, ApiError>> => {
@@ -193,7 +185,6 @@ export const createUserService = (app: FastifyInstance) => {
         update,
         remove,
         getCount,
-        getInfoByUsername,
         getRankByUsername,
         toPublicUser,
     };

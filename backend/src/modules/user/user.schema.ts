@@ -1,3 +1,4 @@
+import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 import { apiError, apiSuccess, userSchemas } from "@darrenkuro/pong-core";
 
@@ -22,6 +23,25 @@ const loginRouteSchema = {
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         404: zodToJsonSchema(apiError("NOT_FOUND")),
+        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+    },
+};
+
+const logoutRouteSchema = {
+    tags: ["User"],
+    description: "Logout an user (clear cookies)",
+    security: [{ cookieAuth: [] }],
+    response: {
+        200: zodToJsonSchema(apiSuccess(z.object({}))),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+    },
+};
+
+const getInfoRouteSchema = {
+    tags: ["User"],
+    description: "Get user info by username",
+    response: {
+        200: zodToJsonSchema(apiSuccess(userSchemas.getInfoPayload)),
         500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
     },
 };
@@ -51,6 +71,8 @@ const getLeaderboardRouteSchema = {
 export default {
     register: registerRouteSchema,
     login: loginRouteSchema,
+    logout: logoutRouteSchema,
+    info: getInfoRouteSchema,
     me: getMeRouteSchema,
     leaderboard: getLeaderboardRouteSchema,
 };
