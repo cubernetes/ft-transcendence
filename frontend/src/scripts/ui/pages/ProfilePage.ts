@@ -1,28 +1,25 @@
-import { Err, Result, err, ok } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
+import { GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
 import { showPageElements } from "../../modules/layout/layout.service";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
-import { createPlayerDataSection, createStatsDataSection } from "../layout/PlayerStatsModal";
+import { createProfileSetting, createStatsDataSection } from "../layout/PlayerStatsModal";
 
-const fetchPlayerData = async (): Promise<Result<Record<string, unknown>, Error>> => {
-    try {
-        const response = sendApiRequest.get(`${window.cfg.url.user}/me`);
+const fetchPlayerData = async (): Promise<Result<GetMePayload, Error>> => {
+    const tryFetch = await sendApiRequest.get<GetMeResponse>(`${window.cfg.url.user}/me`);
 
-        // const processedData = {
-        //     id: data.data.id,
-        //     name: data.data.username,
-        //     games: data.data.wins + data.data.losses,
-        //     wins: data.data.wins,
-        //     losses: data.data.losses,
-        //     rank: data.data.rank,
-        //     img: data.data.avatarUrl,
-        // };
-
-        return ok({});
-    } catch (error) {
-        window.log.debug("Fetch error:", error);
-        return err(new Error("Fail to fetch user"));
+    if (tryFetch.isErr()) {
+        return err(tryFetch.error);
     }
+
+    // Will never reach this becuase result will return Error when success is off
+    // However it is difficult to come up with good type guard or ways to please ts
+    // TODO: FIX
+    if (!tryFetch.value.success) {
+        return err(new Error("never"));
+    }
+
+    return ok(tryFetch.value.data);
 };
 
 const fetchGameStats = async (): Promise<Result<Record<string, unknown>[], Error>> => {
@@ -46,13 +43,13 @@ const createProfileSection = async (): Promise<HTMLElement> => {
     const profileSection = createEl("section", "bg-white p-6 rounded-lg shadow-md");
 
     const playerData = await fetchPlayerData();
-    const gameStats = await fetchGameStats();
+    // const gameStats = await fetchGameStats();
 
-    const playerSection = createPlayerDataSection(playerData);
-    const statsSection = createStatsDataSection(gameStats);
+    const playerSection = createProfileSetting(playerData);
+    //const statsSection = createStatsDataSection(gameStats);
 
     profileSection.appendChild(playerSection);
-    profileSection.appendChild(statsSection);
+    //profileSection.appendChild(statsSection);
 
     return profileSection;
 };

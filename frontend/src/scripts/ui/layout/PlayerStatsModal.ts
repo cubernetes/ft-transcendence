@@ -1,79 +1,73 @@
-import { Err, Result } from "neverthrow";
+import { Result } from "neverthrow";
+import { PersonalUser, PublicUser } from "@darrenkuro/pong-core";
 import { TranslationKey, getText, languageStore } from "../../global/language";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createButton } from "../components/Button";
+import { createButtonGroup } from "../components/ButtonGroup";
 import { createChart } from "../components/Chart";
+import { createApiError } from "../components/Error";
+import { createBodyText } from "../components/Text";
 
-export const createPlayerDataSection = (
-    dataResult: Result<Record<string, unknown>, Error>
-): HTMLElement => {
+// TODO: Change name to profile or setting
+export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLElement => {
     const playerSection = createEl("section", "bg-white p-6 rounded-lg shadow-md mb-6");
+    if (data.isErr()) return createApiError(playerSection, data.error.message);
 
-    const translatableElements: Partial<Record<TranslationKey, HTMLElement>> = {};
+    const user = data.value;
 
-    if (dataResult.isErr()) {
-        playerSection.appendChild(
-            createEl("p", "text-red-500 text-lg", { text: getText("failed_query") })
-        );
-        return playerSection;
-    }
-
-    const data = dataResult.value;
-    const name = `${data.name}`;
-    const rank = `${data.rank}`;
-    let profilePicturePath = `${data.img}`;
-
-    const avatar = createEl("img", "w-20 h-20 rounded-full mb-4", {
+    window.log.debug(user);
+    // TODO: Click, upload
+    const avatarEl = createEl("img", "w-20 h-20 rounded-full mb-4", {
         attributes: {
-            src: profilePicturePath,
+            src: user.avatarUrl,
             alt: getText("profile_picture"),
         },
     });
 
-    const title = createEl("h2", "text-2xl font-bold mb-4", { text: getText("your_profile") });
-    translatableElements["your_profile"] = title;
+    const titleEl = createEl("h2", "text-2xl font-bold mb-4", { text: getText("your_profile") });
+    const usernameEl = createBodyText(`${getText("username")}: ${user.username}`);
 
-    const fields = [
-        { label: "username", key: "name" },
-        { label: "games_played", key: "games" },
-        { label: "wins", key: "wins" },
-        { label: "losses", key: "losses" },
-    ];
+    // totp on
+    const totpUpdateCb = () => {};
+    const totpEnableCb = () => {};
+    const totpDisableCb = () => {};
 
-    const infoList = fields.map(({ label, key }) => {
-        const fieldElement = createEl("p", "text-gray-700 text-base", {
-            text: `${getText(label as TranslationKey)}: ${data[key]}`,
-        });
-        translatableElements[label as TranslationKey] = fieldElement;
-        return fieldElement;
-    });
+    const totpOnSettings = createButtonGroup(["update", "disable"], [totpUpdateCb, totpDisableCb]);
+    const totpOffSetting = createButton("enable", "", totpEnableCb);
+    const totpSettingEl = user.totpEnabled ? totpOnSettings : totpOffSetting;
+    // const fields = [
+    //     { label: "username", key: "username" },
+    //     { label: "games_played", key: "games" },
+    //     { label: "wins", key: "wins" },
+    //     { label: "losses", key: "losses" },
+    // ];
 
-    const rankElement = createEl("p", "", {
-        text: `${getText("rank")}: ${rank}`,
-    });
-    translatableElements["rank"] = rankElement;
+    // const infoList = fields.map(({ label, key }) => {
+    //     const fieldElement = createEl("p", "text-gray-700 text-base", {
+    //         text: `${getText(label as TranslationKey)}: ${data[key]}`,
+    //     });
+    //     translatableElements[label as TranslationKey] = fieldElement;
+    //     return fieldElement;
+    // });
 
-    appendChildren(playerSection, [title, avatar, ...infoList, rankElement]);
+    const rankEl = createBodyText(`${getText("rank")}: ${user.rank}`);
+
+    appendChildren(playerSection, [titleEl, avatarEl, usernameEl, totpSettingEl, rankEl]);
 
     // Subscribe to language changes
-    const updateTexts = () => {
-        title.textContent = getText("your_profile");
-        avatar.setAttribute("alt", getText("profile_picture"));
-        fields.forEach(({ label, key }) => {
-            const el = translatableElements[label as TranslationKey];
-            if (el) {
-                el.textContent = `${getText(label as TranslationKey)}: ${data[key]}`;
-            }
-        });
-        rankElement.textContent = `${getText("rank")}: ${rank}`;
-    };
-
-    const unsubscribe = languageStore.subscribe(() => {
-        updateTexts();
+    const unsubscribeLanguageStore = languageStore.subscribe(() => {
+        titleEl.textContent = getText("your_profile");
+        avatarEl.setAttribute("alt", getText("profile_picture"));
+        // fields.forEach(({ label, key }) => {
+        //     const el = translatableElements[label as TranslationKey];
+        //     if (el) {
+        //         el.textContent = `${getText(label as TranslationKey)}: ${data[key]}`;
+        //     }
+        // });
+        rankEl.textContent = `${getText("rank")}: ${user.rank}`;
     });
 
-    playerSection.addEventListener("destroy", () => {
-        unsubscribe();
-    });
+    playerSection.addEventListener("destroy", unsubscribeLanguageStore);
 
     return playerSection;
 };

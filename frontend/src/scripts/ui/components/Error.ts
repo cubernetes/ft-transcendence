@@ -1,5 +1,6 @@
 import { TranslationKey, getText, languageStore } from "../../global/language";
 import { createEl } from "../../utils/dom-helper";
+import { createBodyText } from "./Text";
 
 export const createError = (
     tw: string = ""
@@ -38,4 +39,10 @@ export const createError = (
         },
         updateErr,
     };
+};
+
+// When API fetching failed
+export const createApiError = (ctn: HTMLElement, message: string): HTMLElement => {
+    ctn.appendChild(createBodyText(getText("failed_query"), "text-red-500 text-lg"));
+    return ctn;
 };
