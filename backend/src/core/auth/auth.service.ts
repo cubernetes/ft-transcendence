@@ -15,6 +15,7 @@ export const verifyCookie = async (req: FastifyRequest, _: FastifyReply) => {
     const payload = req.server.authService.verifyJwtToken(token);
     if (payload.isOk() && payload.value.id && !isNaN(Number(payload.value.id))) {
         req.userId = Number(payload.value.id);
+        req.username = payload.value.username;
         req.userDisplayName = payload.value.displayName;
     }
 };

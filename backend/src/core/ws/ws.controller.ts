@@ -8,6 +8,7 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
 
     // Prehandler ensures request always has these fields
     conn.userId = Number(req.userId);
+    conn.username = req.username;
     conn.userDisplayName = req.userDisplayName;
 
     server.wsService.addConnection(conn);
