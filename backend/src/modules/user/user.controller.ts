@@ -1,7 +1,12 @@
-import type { LeaderboardParams, LoginBody, RegisterBody } from "@darrenkuro/pong-core";
+import type {
+    InfoParams,
+    LeaderboardParams,
+    LoginBody,
+    PublicUser,
+    RegisterBody,
+} from "@darrenkuro/pong-core";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { ApiError } from "../../utils/errors.ts";
-import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
 
 const registerHandler = async (
     { body }: { body: RegisterBody },
@@ -102,20 +107,45 @@ const getLeaderboardHandler = async (
         return users.error.send(reply);
     }
 
-    const publicUsers = await Promise.all(users.value.map(toPublicUser(req.server)));
-    const leadUsers = publicUsers.sort((a, b) => b.wins - a.wins).slice(0, n);
+    const publicUsers: PublicUser[] = [];
+
+    for (const user of users.value) {
+        const result = await req.server.userService.toPublicUser(user);
+        if (result.isErr()) {
+            return result.error.send(reply); // Early return if error
+        }
+        publicUsers.push(result.value);
+    }
+
+    // Sort by rank, then get the first n users
+    const leadUsers = publicUsers.sort((a, b) => a.rank - b.rank).slice(0, n);
 
     return reply.send({ success: true, data: leadUsers });
 };
 
-const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    const user = await req.server.userService.findById(req.userId);
+const getInfoHandler = async (
+    { params }: { params: InfoParams },
+    req: FastifyRequest,
+    reply: FastifyReply
+) => {
+    const { username } = params;
+    const tryGetInfo = await req.server.userService.getInfoByUsername(username);
 
-    if (user.isErr()) {
-        return user.error.send(reply);
+    if (tryGetInfo.isErr()) {
+        return tryGetInfo.error.send(reply);
     }
 
-    return reply.send({ success: true, data: toPersonalUser(user.value) });
+    return reply.send({ success: true, data: tryGetInfo.value });
+};
+
+const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+    const tryGetInfo = await req.server.userService.getInfoByUsername(req.username);
+
+    if (tryGetInfo.isErr()) {
+        return tryGetInfo.error.send(reply);
+    }
+
+    return reply.send({ success: true, data: tryGetInfo.value });
 };
 
 export default {
@@ -123,5 +153,6 @@ export default {
     login: loginHandler,
     logout: logoutHandler,
     leaderboard: getLeaderboardHandler,
+    info: getInfoHandler,
     me: getMeHandler,
 };

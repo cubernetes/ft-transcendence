@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { count, desc, eq } from "drizzle-orm";
+import { PublicUser } from "@darrenkuro/pong-core";
 import { users } from "../../core/db/db.schema.ts";
 import { ApiError, UnknownError, errUniqueConstraintOn } from "../../utils/errors.ts";
 import { NewUser, User } from "./user.types.ts";
@@ -57,6 +58,22 @@ export const createUserService = (app: FastifyInstance) => {
         } catch (error) {
             app.log.debug({ error }, "Failed to find user by username");
             return err(new UnknownError("Failed to find user by username"));
+        }
+    };
+
+    const getUsernameById = async (id: number): Promise<Result<string, ApiError>> => {
+        try {
+            const result = await db.select().from(users).where(eq(users.id, id));
+            const user = result[0];
+
+            if (!user) {
+                return err(new ApiError("NOT_FOUND", 404, "User not found"));
+            }
+
+            return ok(user.username);
+        } catch (error) {
+            app.log.debug({ error }, "Failed to find user by id");
+            return err(new UnknownError("Failed to find user by id"));
         }
     };
 
@@ -121,6 +138,13 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
+    const hideSensitiveFields = (
+        user: User
+    ): Omit<User, "passwordHash" | "totpSecret" | "temporaryTotpSecret" | "totpEnabled"> => {
+        const { passwordHash, totpSecret, temporaryTotpSecret, totpEnabled, ...safeUser } = user;
+        return safeUser;
+    };
+
     const getRankByUsername = async (username: string): Promise<Result<number, ApiError>> => {
         const orderedByWins = await db
             .select({ username: users.username, wins: users.wins })
@@ -131,14 +155,46 @@ export const createUserService = (app: FastifyInstance) => {
         return ok(rank);
     };
 
+    const getInfoByUsername = async (username: string): Promise<Result<PublicUser, ApiError>> => {
+        const tryGetUser = await app.userService.findByUsername(username);
+        if (tryGetUser.isErr()) {
+            return err(tryGetUser.error);
+        }
+        return toPublicUser(tryGetUser.value);
+    };
+
+    const toPublicUser = async (user: User): Promise<Result<PublicUser, ApiError>> => {
+        const result = hideSensitiveFields(user);
+
+        // Game history
+        const tryGetGames = await app.gameService.getGamesByUsername(user.username);
+        if (tryGetGames.isErr()) {
+            return err(tryGetGames.error);
+        }
+        const games = tryGetGames.value;
+
+        // Calculated fields
+        const tryGetRank = await getRankByUsername(user.username);
+        if (tryGetRank.isErr()) {
+            return err(tryGetRank.error);
+        }
+        const rank = tryGetRank.value;
+        const totalGames = games.length;
+
+        return ok({ ...result, rank, games, totalGames });
+    };
+
     return {
         create,
         findById,
         findByUsername,
+        getUsernameById,
         findAll,
         update,
         remove,
         getCount,
+        getInfoByUsername,
         getRankByUsername,
+        toPublicUser,
     };
 };

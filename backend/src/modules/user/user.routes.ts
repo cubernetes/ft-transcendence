@@ -26,6 +26,9 @@ const userRoutes: FastifyPluginAsync = async (app) => {
         withZod({ params: userSchemas.leaderboardParams }, handlers.leaderboard)
     );
 
+    // TODO: add schema
+    app.get("/info/:username", withZod({ params: userSchemas.infoParams }, handlers.info));
+
     app.get("/me", { preHandler: [app.requireAuth], schema: routeSchemas.me }, handlers.me);
 };
 
