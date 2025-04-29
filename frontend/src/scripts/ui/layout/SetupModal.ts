@@ -1,4 +1,4 @@
-import { AIDifficulty, defaultGameConfig } from "@pong-core";
+import { AIDifficulty, defaultGameConfig } from "@darrenkuro/pong-core";
 import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";

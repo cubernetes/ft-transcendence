@@ -1,5 +1,5 @@
-import { defaultGameConfig } from "@pong-core";
-import { PongState } from "@pong-core";
+import { defaultGameConfig } from "@darrenkuro/pong-core";
+import { PongState } from "@darrenkuro/pong-core";
 import { buildTournamentTree } from "../../ui/layout/TournamentBracket";
 import { gameStore } from "../game/game.store";
 import { Round, TournamentState, tournamentStore } from "./tournament.store";
