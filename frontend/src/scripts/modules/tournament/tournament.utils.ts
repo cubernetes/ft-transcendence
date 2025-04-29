@@ -19,12 +19,36 @@ export const generateRoundMatches = (players: string[]): MatchState[] => {
 };
 
 export const determineRound = (matches: MatchState[]): Round => {
-    if (matches.length === 1) {
+    const matchCount = matches.length;
+    window.log.debug("What is the length: ", matchCount);
+    if (matchCount === 1) {
         return "Final";
-    } else if (matches.length === 2) {
+    } else if (matchCount === 2) {
         return "Semi";
-    } else if (matches.length > 2) {
+    } else if (matchCount > 2) {
         return "Quarter";
     }
     return "Default";
+};
+
+export const roundCompleted = (matches: MatchState[][] | null): boolean => {
+    if (!matches || matches.length === 0) {
+        return false;
+    }
+
+    // Get the matches for the current round (last added)
+    const currentRoundMatches = matches[matches.length - 1];
+
+    window.log.debug("Current Round Matches: ", currentRoundMatches);
+
+    if (!currentRoundMatches || currentRoundMatches.length === 0) {
+        return false;
+    }
+
+    // A round is completed if every match has a winner
+    return currentRoundMatches.every((match) => match.winner !== null);
+};
+
+export const generateUniqueTournamentId = (): number => {
+    return Date.now() * 1000 + Math.floor(Math.random() * 1000);
 };
