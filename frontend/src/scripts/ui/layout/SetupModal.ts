@@ -243,6 +243,13 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 };
 
 const tournamentMode = (ctn: HTMLElement) => {
+    const { round } = tournamentStore.get();
+    if (round !== "Default") {
+        window.log.error("Tournament already started. Cannot create a new tournament.");
+        navigateTo("tournament");
+    } else {
+        window.log.debug("Tournament not started. Proceeding to create a new tournament.");
+    }
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("create_tournament"));
     translatableElements["create_tournament"] = title;
