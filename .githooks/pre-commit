@@ -47,8 +47,9 @@ wrong_quotes () {
 	if [ "${1:-}" = "enforce" ]; then
 		false
 	else
-		printf '\033[33m%s\033[m\n' \
-			"Not enforcing. This warning will turn into an error in the future."
+		: #This will never be enforced, as it would probably get annoying too quickly
+		#printf "\033[33m%s\033[m\n" \
+		#	"Not enforcing. This warning will turn into an error in the future."
 	fi
 }
 
