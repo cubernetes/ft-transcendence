@@ -45,7 +45,7 @@ export type PongConfig = {
 
 export type UserInput = "up" | "down" | "stop";
 
-export type GameMode = "local" | "online" | "ai";
+export type GameMode = "local" | "online" | "ai" | "tournament";
 
 // Maybe add waiting, paused
 export type PongStatus = "waiting" | "ongoing" | "ended";
@@ -57,7 +57,11 @@ export type PongEngineEventMap = {
     "score-update": { scores: [number, number] };
     "ball-reset": null;
     "game-start": null;
-    "game-end": { winner: 0 | 1; hits: [number, number] };
+    "game-end": {
+        winner: 0 | 1;
+        hits: [number, number];
+        state: PongState;
+    };
 };
 
 export type EventCallback<T extends keyof PongEngineEventMap> = (
