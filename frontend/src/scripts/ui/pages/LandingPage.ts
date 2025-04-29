@@ -1,4 +1,5 @@
 import { createPongEngine } from "@darrenkuro/pong-core";
+import { changeLanguage, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore, initAuthState } from "../../modules/auth/auth.store";
 import { createGameController } from "../../modules/game/game.controller";
@@ -29,7 +30,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
             "hover:scale-105 w-[100px] h-[100px] leading-[100px]",
         ].join(" "),
         {
-            text: "Play",
+            text: getText("play"),
         }
     );
 
@@ -60,10 +61,30 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         });
     };
 
+    // Language toggle button
+    const languageButton = createEl(
+        "button",
+        "absolute top-4 right-60 bg-red-500 hover:bg-red-600 text-white text-sm py-2 px-4 rounded focus:outline-none",
+        {
+            text: getText("lang"),
+            events: {
+                click: () => {
+                    changeLanguage();
+                },
+            },
+        }
+    );
+
+    // Subscribe to language changes
+    const unsubscribeLanguage = languageStore.subscribe(() => {
+        ctaButton.textContent = getText("play");
+        languageButton.textContent = getText("lang");
+    });
+
     const heroEl = createEl(
         "div",
         "absolute top-0 left-0 w-full h-full flex flex-col p-8 rounded-lg text-center",
-        { children: [ctaButton] }
+        { children: [ctaButton, languageButton] }
     );
 
     const musicEl = createEl("audio", "", {
@@ -73,6 +94,10 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
     const mainEl = createEl("main", "w-full h-screen relative", {
         children: [videoEl, overlayEl, heroEl],
+    });
+
+    mainEl.addEventListener("destroy", () => {
+        unsubscribeLanguage();
     });
 
     return [mainEl];

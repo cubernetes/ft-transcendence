@@ -70,16 +70,20 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
     });
 
     // Language toggle
-    const languageButton = createEl("button", "hover:underline", {
-        text: getText("lang"),
-        events: {
-            click: (e) => {
-                changeLanguage();
+    const languageButton = createEl(
+        "button",
+        "absolute top-4 right-60 bg-red-500 hover:bg-red-600 text-white text-sm py-3 px-4 rounded focus:outline-none",
+        {
+            text: getText("lang"),
+            events: {
+                click: (e) => {
+                    changeLanguage();
+                },
             },
-        },
-    });
+        }
+    );
 
-    const nav = createEl("nav", "flex items-center space-x-6", {
+    const nav = createEl("nav", "flex items-center space-x-8", {
         children: [navList, languageButton],
     });
 
