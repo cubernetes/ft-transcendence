@@ -31,7 +31,7 @@ export const getText = (key: TranslationKey | string): string => {
         return translation;
     }
 
-    // console.warn(`Translation for key '${key}' was asked ...`);
+    // console.warn(`Translation for key "${key}" was asked ...`);
     if (key === undefined) {
         console.warn("Key is undefined");
         return "Key is undefined";
