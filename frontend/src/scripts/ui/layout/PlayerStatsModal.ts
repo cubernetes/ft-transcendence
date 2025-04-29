@@ -8,8 +8,6 @@ export const createPlayerDataSection = (
 ): HTMLElement => {
     const playerSection = createEl("section", "bg-white p-6 rounded-lg shadow-md mb-6");
 
-    const translatableElements: Partial<Record<TranslationKey, HTMLElement>> = {};
-
     if (dataResult.isErr()) {
         playerSection.appendChild(
             createEl("p", "text-red-500 text-lg", { text: getText("failed_query") })
@@ -30,7 +28,6 @@ export const createPlayerDataSection = (
     });
 
     const title = createEl("h2", "text-2xl font-bold mb-4", { text: getText("your_profile") });
-    translatableElements["your_profile"] = title;
 
     const fields = [
         { label: "username", key: "name" },
@@ -39,36 +36,25 @@ export const createPlayerDataSection = (
         { label: "losses", key: "losses" },
     ];
 
-    const infoList = fields.map(({ label, key }) => {
-        const fieldElement = createEl("p", "text-gray-700 text-base", {
+    const infoList = fields.map(({ label, key }) =>
+        createEl("p", "text-gray-700 text-base", {
             text: `${getText(label as TranslationKey)}: ${data[key]}`,
-        });
-        translatableElements[label as TranslationKey] = fieldElement;
-        return fieldElement;
-    });
+        })
+    );
 
     const rankElement = createEl("p", "", {
         text: `${getText("rank")}: ${rank}`,
     });
-    translatableElements["rank"] = rankElement;
 
     appendChildren(playerSection, [title, avatar, ...infoList, rankElement]);
 
-    // Subscribe to language changes
-    const updateTexts = () => {
+    const unsubscribe = languageStore.subscribe(() => {
         title.textContent = getText("your_profile");
         avatar.setAttribute("alt", getText("profile_picture"));
-        fields.forEach(({ label, key }) => {
-            const el = translatableElements[label as TranslationKey];
-            if (el) {
-                el.textContent = `${getText(label as TranslationKey)}: ${data[key]}`;
-            }
+        fields.forEach(({ label, key }, index) => {
+            infoList[index].textContent = `${getText(label as TranslationKey)}: ${data[key]}`;
         });
         rankElement.textContent = `${getText("rank")}: ${rank}`;
-    };
-
-    const unsubscribe = languageStore.subscribe(() => {
-        updateTexts();
     });
 
     playerSection.addEventListener("destroy", () => {
@@ -85,14 +71,21 @@ export const createStatsDataSection = (
         text: getText("your_stats"),
     });
 
-    const translatableElements: Partial<Record<TranslationKey, HTMLElement>> = {};
-
     if (dataResult.isErr()) {
         const errorElement = createEl("p", "text-1xl text-red-500", {
             text: getText("failed_generate_chart"),
         });
-        translatableElements["failed_generate_chart"] = errorElement;
         statSection.appendChild(errorElement);
+
+        // Subscribe to language changes
+        const unsubscribe = languageStore.subscribe(() => {
+            errorElement.textContent = getText("failed_generate_chart");
+        });
+
+        statSection.addEventListener("destroy", () => {
+            unsubscribe();
+        });
+
         return statSection;
     }
 
@@ -102,8 +95,17 @@ export const createStatsDataSection = (
         const notEnoughDataElement = createEl("p", "text-1xl text-red-500", {
             text: getText("not_enough_data"),
         });
-        translatableElements["not_enough_data"] = notEnoughDataElement;
         statSection.appendChild(notEnoughDataElement);
+
+        // Subscribe to language changes
+        const unsubscribe = languageStore.subscribe(() => {
+            notEnoughDataElement.textContent = getText("not_enough_data");
+        });
+
+        statSection.addEventListener("destroy", () => {
+            unsubscribe();
+        });
+
         return statSection;
     }
 
@@ -116,7 +118,7 @@ export const createStatsDataSection = (
             plugins: {
                 title: {
                     display: true,
-                    text: "Pong Game Performance",
+                    text: getText("pong_game_performance"),
                 },
                 tooltip: {
                     enabled: true,
@@ -134,30 +136,38 @@ export const createStatsDataSection = (
     );
 
     if (chartResult.isOk()) {
-        statSection.appendChild(chartResult.value);
+        const chartElement = chartResult.value;
+        statSection.appendChild(chartElement);
+
+        // Subscribe to language changes
+        const unsubscribe = languageStore.subscribe(() => {
+            const chartInstance = (chartElement as any).chart; // Assuming chartElement has a `chart` property
+            if (chartInstance) {
+                chartInstance.options.plugins.title.text = getText("pong_game_performance");
+                chartInstance.update(); // Refresh the chart to apply the new text
+            }
+        });
+
+        statSection.addEventListener("destroy", () => {
+            unsubscribe();
+        });
     } else {
         const failedChartElement = createEl("p", "text-1xl text-red-500", {
             text: getText("failed_generate_chart"),
         });
-        translatableElements["failed_generate_chart"] = failedChartElement;
         statSection.appendChild(failedChartElement);
+
+        const unsubscribe = languageStore.subscribe(() => {
+            failedChartElement.textContent = getText("failed_generate_chart");
+        });
+
+        statSection.addEventListener("destroy", () => {
+            unsubscribe();
+        });
     }
 
-    // Subscribe to language changes
-    const updateTexts = () => {
-        statSection.firstChild!.textContent = getText("your_stats");
-        const failedChartEl = translatableElements["failed_generate_chart"];
-        if (failedChartEl) {
-            failedChartEl.textContent = getText("failed_generate_chart");
-        }
-        const notEnoughDataEl = translatableElements["not_enough_data"];
-        if (notEnoughDataEl) {
-            notEnoughDataEl.textContent = getText("not_enough_data");
-        }
-    };
-
     const unsubscribe = languageStore.subscribe(() => {
-        updateTexts();
+        statSection.firstChild!.textContent = getText("your_stats");
     });
 
     statSection.addEventListener("destroy", () => {
