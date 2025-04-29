@@ -50,10 +50,20 @@ export const createTournamentController = (allPlayers: string[]) => {
         window.log.debug("Tournament started");
     };
 
-    const cleanup = () => {
-        if (unsubscribeTreeUpdate) {
-            unsubscribeTreeUpdate();
+    const getFinalWinner = (): string | null => {
+        const { matches, round } = tournamentStore.get();
+
+        if (!Array.isArray(matches) || matches.length === 0) {
+            window.log.warn("No matches found in tournament store.");
+            return null;
         }
+
+        if (round !== "Final") return null;
+
+        const lastRound = matches[matches.length - 1];
+        const finalMatch = lastRound?.[0];
+
+        return finalMatch?.winner ?? null;
     };
 
     const startMatch = () => {
