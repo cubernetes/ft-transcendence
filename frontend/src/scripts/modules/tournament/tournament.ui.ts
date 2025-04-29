@@ -1,8 +1,10 @@
+import { navigateTo } from "../../global/router";
 import {
+    connectWallet,
     readLocalContract,
+    setupWallet,
     writeLocalContract,
 } from "../../modules/tournament/contracts/contract.interactions";
-import { connectWallet, setupWallet } from "../../modules/tournament/contracts/contracts.utils";
 import { tournamentStore } from "../../modules/tournament/tournament.store";
 import { createButton } from "../../ui/components/Button";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -22,25 +24,23 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
             connectButton.style.display = "none";
             readButton.style.display = "block";
             writeButton.style.display = "block";
-            inputWrite.style.display = "block";
-            inputRead.style.display = "block";
         }
     });
 
-    const inputRead = createEl("input", "mx-2", {
-        props: { type: "text", placeholder: "Get GameID" },
-        attributes: { id: "value" },
-        style: { display: "none" },
-    });
+    // const inputRead = createEl("input", "mx-2", {
+    //     props: { type: "text", placeholder: "Get GameID" },
+    //     attributes: { id: "value" },
+    //     style: { display: "none" },
+    // });
 
-    const inputWrite = createEl("input", "mx-2", {
-        props: { type: "text", placeholder: "Write GameId" },
-        attributes: { id: "value", display: "none" },
-        style: { display: "none" },
-    });
+    // const inputWrite = createEl("input", "mx-2", {
+    //     props: { type: "text", placeholder: "Write GameId" },
+    //     attributes: { id: "value", display: "none" },
+    //     style: { display: "none" },
+    // });
 
     const readButton = createButton("Get Tournament History", "", async () => {
-        const gameId = BigInt(inputRead.value || "0");
+        const gameId = BigInt(tournamentStore.get().tournamentId || "0");
         const result = await readLocalContract(publicClient, "getAllGameIds", [gameId]);
         window.log.info("Game Got:", result);
     });
@@ -53,7 +53,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
         }
 
         const tournamentData = tournamentStore.get();
-        const gameId = BigInt(inputWrite.value || "0");
+        const gameId = BigInt(tournamentStore.get().tournamentId || "0");
         try {
             const tx = await writeLocalContract(
                 publicClient,
@@ -71,7 +71,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
     writeButton.style.display = "none";
 
     const container = createEl("div", "flex flex-col gap-4 items-center");
-    appendChildren(container, [connectButton, inputRead, readButton, inputWrite, writeButton]);
+    appendChildren(container, [connectButton, readButton, writeButton]);
 
     return container;
 };
