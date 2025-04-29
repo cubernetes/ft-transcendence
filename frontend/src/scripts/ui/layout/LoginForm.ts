@@ -11,41 +11,22 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         attributes: { id: window.cfg.id.loginForm },
     });
 
-    const usernameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
-        props: {
-            type: "text",
-            placeholder: getText("username"),
-            autocomplete: "username",
-            required: true,
-        },
-    });
+    // Helper: Create input fields
+    const createInput = (type: string, placeholderKey: TranslationKey, autocomplete: string) =>
+        createEl("input", "w-full p-2 border border-gray-300 rounded", {
+            props: {
+                type,
+                placeholder: getText(placeholderKey),
+                autocomplete,
+                required: true,
+            },
+        });
 
-    const displayNameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
-        props: {
-            type: "text",
-            placeholder: getText("display_name"),
-            autocomplete: "given-name",
-            required: true,
-        },
-    });
-
-    const passwordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
-        props: {
-            type: "password",
-            placeholder: getText("password"),
-            autocomplete: "current-password",
-            required: true,
-        },
-    });
-
-    const confirmPasswordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
-        props: {
-            type: "password",
-            placeholder: getText("confirm_password"),
-            autocomplete: "current-password", // or new-password if updated
-            required: true,
-        },
-    });
+    // Form fields
+    const usernameInput = createInput("text", "username", "username");
+    const displayNameInput = createInput("text", "display_name", "given-name");
+    const passwordInput = createInput("password", "password", "current-password");
+    const confirmPasswordInput = createInput("password", "confirm_password", "current-password");
 
     const errorMessage = createEl("div", "hidden p-2 bg-red-100 text-red-500 rounded text-sm", {
         attributes: { id: "formError" },
@@ -98,15 +79,15 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
     renderFormFields(mode);
 
     const updateToggleButtons = () => {
-        if (mode === "login") {
-            loginBtn.className = "px-4 py-2 bg-red-500 text-white rounded-l-md";
-            registerBtn.className = "px-4 py-2 bg-gray-300 rounded-r-md";
-            submitBtn.textContent = getText("login");
-        } else {
-            registerBtn.className = "px-4 py-2 bg-red-500 text-white rounded-r-md";
-            loginBtn.className = "px-4 py-2 bg-gray-300 rounded-l-md";
-            submitBtn.textContent = getText("register");
-        }
+        loginBtn.className =
+            mode === "login"
+                ? "px-4 py-2 bg-red-500 text-white rounded-l-md"
+                : "px-4 py-2 bg-gray-300 rounded-l-md";
+        registerBtn.className =
+            mode === "login"
+                ? "px-4 py-2 bg-gray-300 rounded-r-md"
+                : "px-4 py-2 bg-red-500 text-white rounded-r-md";
+        submitBtn.textContent = getText(mode === "login" ? "login" : "register");
     };
 
     const exitButton = createEl(
@@ -162,21 +143,14 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             }
         }
 
-        if (mode === "login") {
-            const result = await tryLogin(formData as LoginBody);
+        const result =
+            mode === "login"
+                ? await tryLogin(formData as LoginBody)
+                : await tryRegister(formData as RegisterBody);
 
-            if (result.isErr()) {
-                window.log.debug(`Fail to register: ${result.error.message}`);
-                showError(getText("login_failed"));
-                return;
-            }
-        } else {
-            const result = await tryRegister(formData as RegisterBody);
-            if (result.isErr()) {
-                window.log.debug(`Fail to register: ${result.error.message}`);
-                showError(getText("register_failed"));
-                return;
-            }
+        if (result.isErr()) {
+            window.log.debug(`Failed to ${mode}: ${result.error.message}`);
+            showError(getText(mode === "login" ? "login_failed" : "register_failed"));
         }
     });
 
