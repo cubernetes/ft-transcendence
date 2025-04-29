@@ -78,10 +78,40 @@ export const createTournamentController = (allPlayers: string[]) => {
         });
     };
 
-        subscribeTournamentTree();
-        createNextRound();
-        updateTournamentTree(tree);
-        window.log.debug("Tournament started");
+    const handleEndMatch = async (winnerName: string, finalState: PongState) => {
+        const { matches, activePlayers, round } = tournamentStore.get();
+        if (!matches || matches.length === 0) {
+            window.log.error("No matches found in tournament store.");
+            return;
+        }
+
+        const currentRoundMatches = matches[matches.length - 1];
+
+        // Find the match where winnerName is one of the two players and winner is still null
+        const matchToUpdate = currentRoundMatches.find(
+            (match) => match.players.includes(winnerName) && match.winner === null
+        );
+
+        if (!matchToUpdate) {
+            window.log.error("Match not found for winner:", winnerName);
+            return;
+        }
+
+        // Update match
+        matchToUpdate.winner = winnerName;
+        matchToUpdate.score = finalState.scores;
+
+        // Update the store (force store to update)
+        tournamentStore.update({
+            matches: [...matches],
+            activePlayers: [...(activePlayers ?? []), winnerName],
+        });
+
+        // Check if entire round is now completed
+        if (roundCompleted(matches) && round !== "Final") {
+            window.log.debug("Round completed, creating next round.");
+            createNextRound();
+        }
     };
 
     const stopTournament = () => {
