@@ -1,8 +1,8 @@
 import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
 import {
-    AIDifficulty,
     Ball,
     GameMode,
+    Paddle,
     PongConfig,
     PongEngine,
     PongState,
@@ -10,7 +10,9 @@ import {
     defaultGameConfig,
     registerOutgoingMessageHandler as registerHandler,
 } from "@darrenkuro/pong-core";
+import { navigateTo } from "../../global/router";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
+import { tournamentStore } from "../tournament/tournament.store";
 import { sendGameAction, sendGameStart } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
@@ -122,6 +124,16 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         // engine.onEvent("game-end", (_) => handleEndGame("winnerName"));
     };
 
+    const attachTournamentEngineEvents = () => {
+        engine.onEvent("wall-collision", handleWallCollision);
+        engine.onEvent("paddle-collision", handlePaddleCollision);
+        engine.onEvent("score-update", (evt) => handleScoreUpdate(evt.scores));
+        engine.onEvent("state-update", (evt) => handleStateUpdate(evt.state));
+        engine.onEvent("ball-reset", handleBallReset);
+        // TODO: GET NAME, requires a tournament player with the name "default".
+        engine.onEvent("game-end", (evt) => handleEndRoundMatch("default", evt.state));
+    };
+
     const attachOnlineSocketEvents = () => {
         const { isConnected, handlers } = wsStore.get();
         if (!isConnected) {
@@ -200,6 +212,17 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         // Dispose stuff right away? Probably not..
     };
 
+    const handleEndRoundMatch = async (winner: string, state: PongState) => {
+        const { controller } = tournamentStore.get();
+        if (!controller) {
+            window.log.error("Tournament controller not found");
+            return;
+        }
+        //showGameOver(renderer.scene, renderer.camera, winner);
+        await controller.handleEndMatch(winner, state);
+        navigateTo("tournament");
+    };
+
     const handleStateUpdate = (state: PongState) => {
         // window.log.debug(state);
         updateBall(state.ball);
@@ -264,6 +287,39 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         startRenderer(config);
     };
 
+    const startTournamentGame = (config: PongConfig) => {
+        engine.reset(config);
+        attachLocalControl();
+        attachTournamentEngineEvents();
+        engine.start();
+        startRenderer(config);
+
+        //Comment out the above and use below for easier testing:
+        // const paddle1: Paddle = {
+        //     pos: { x: 0, y: 0, z: 0 },
+        //     size: { width: 1, height: 1, depth: 1 },
+        //     speed: 1,
+        // };
+        // const paddle2: Paddle = {
+        //     pos: { x: 0, y: 0, z: 0 },
+        //     size: { width: 1, height: 1, depth: 1 },
+        //     speed: 1,
+        // };
+        // const ball: Ball = {
+        //     pos: { x: 0, y: 0, z: 0 },
+        //     vec: { x: 0, y: 0, z: 0 },
+        //     r: 1,
+        //     speed: 1,
+        // };
+        // const state: PongState = {
+        //     status: "ended",
+        //     scores: [4, 5],
+        //     ball: ball,
+        //     paddles: [paddle1, paddle2],
+        // };
+        // handleEndRoundMatch("default", state);
+    };
+
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
         hidePageElements();
         hideRouter();
@@ -278,6 +334,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 break;
             case "ai":
                 startAiGame(config);
+                break;
+            case "tournament":
+                startTournamentGame(config);
                 break;
             default:
         }
