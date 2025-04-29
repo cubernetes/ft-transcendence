@@ -3,7 +3,18 @@ import fp from "fastify-plugin";
 import fs from "fs";
 import path from "path";
 import { configSchema } from "./config.schema.ts";
-import { AppConfig } from "./config.types.ts";
+import { AppConfig, CookieConfig } from "./config.types.ts";
+
+// Constants
+const COOKIE_NAME = "token";
+const COOKIE_CONFIG: CookieConfig = {
+    path: "/", // Valid for the whole site
+    secure: process.env.NODE_ENV === "production", // Send cookie over HTTPS only in production only
+    httpOnly: true, // Forbid JavaScript from accessing cookies, prevent XSS
+    sameSite: "strict", // alternative CSRF protection
+};
+const TOTP_ENCODING = "base32";
+const WS_MAX_PAYLOAD = 65536;
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
 const configPlugin = async (app: FastifyInstance): Promise<void> => {
@@ -37,6 +48,10 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
         host,
         domains,
         corsOrigin,
+        cookieName: COOKIE_NAME,
+        cookieConfig: COOKIE_CONFIG,
+        totpEncoding: TOTP_ENCODING,
+        wsMaxPayload: WS_MAX_PAYLOAD,
     };
 
     app.decorate("config", config);

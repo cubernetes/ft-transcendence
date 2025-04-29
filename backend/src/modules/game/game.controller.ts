@@ -4,19 +4,7 @@ import { CreateGameDTO, GameIdDTO } from "./game.types.ts";
 
 export const handleGameStart =
     (app: FastifyInstance) =>
-    (conn: WebSocket, payload: IncomingMessagePayloads["game-start"]): void => {
-        const { token } = payload;
-        if (!token) {
-            return app.log.error("Game start message has no token");
-        }
-
-        const userId = app.authService.verifyToken(token);
-        if (userId.isErr()) {
-            return app.log.error("Invalid token");
-        }
-
-        conn.userId = Number(userId.value.id);
-
+    (conn: WebSocket): void => {
         const opponent = app.gameService.tryGetOpponent(conn);
         if (opponent.isErr()) {
             return app.wsService.send(conn, {

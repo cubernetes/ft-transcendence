@@ -19,6 +19,7 @@ const config = {
         api: API_URL,
         game: `${API_URL}/game`,
         user: `${API_URL}/user`,
+        totp: `${API_URL}/totp`,
         home: `setup`, // Temporarily, should probably be profile?
         default: `landing`, // For invalid route, de facto 404
     },
@@ -35,7 +36,7 @@ const config = {
         header: "header-ctn",
         canvas: "rendering-canvas",
         router: "router-ctn",
-        footer: "fotter-ctn",
+        footer: "footer-ctn",
     },
     key: {
         lup: [...L_UP], // For local, i.e. left paddle up

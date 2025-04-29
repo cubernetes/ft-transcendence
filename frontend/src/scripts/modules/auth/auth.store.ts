@@ -8,39 +8,33 @@ import { closeSocketConn, establishSocketConn } from "../ws/ws.service";
 type AuthState = {
     isAuthenticated: boolean;
     totpRequired: boolean;
-    token: string | null;
-    id: string | null;
-    username: string | null;
+    username: string | null | undefined;
+    displayName: string | null | undefined;
+    tempAuthString: string | null;
 };
 
 export const emptyAuthState = {
     isAuthenticated: false,
     totpRequired: false,
-    token: null,
-    id: null,
     username: null,
+    displayName: null,
+    tempAuthString: null,
 };
 
 export const initAuthState = async (): Promise<AuthState> => {
-    const token = localStorage.getItem(window.cfg.label.token);
-
-    if (!token) {
-        return emptyAuthState;
-    }
-
     const result = await sendApiRequest.get<GetMeResponse>(`${window.cfg.url.user}/me`);
 
     if (result.isErr() || !result.value.success) {
         return emptyAuthState;
     }
 
-    const { id, username } = result.value.data;
+    const { username, displayName } = result.value.data;
     return {
         isAuthenticated: true,
         totpRequired: false,
-        token,
-        id: String(id),
         username,
+        displayName,
+        tempAuthString: null,
     };
 };
 
@@ -64,7 +58,7 @@ authStore.subscribe(async (state) => {
     }
 
     // Redirect to default page and close socket connection once logged out
-    if (!state.isAuthenticated || !state.token) {
+    if (!state.isAuthenticated) {
         navigateTo(window.cfg.url.default);
         closeSocketConn();
         return;
@@ -72,5 +66,5 @@ authStore.subscribe(async (state) => {
 
     // Redirect to home and open socket connection once successfully authenticated
     navigateTo(window.cfg.url.home);
-    establishSocketConn(state.token);
+    establishSocketConn();
 });

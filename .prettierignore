@@ -1,2 +1,3 @@
 frontend/src/public/assets/*
+backend/drizzle/migrations/meta/*
 **/package-lock.json

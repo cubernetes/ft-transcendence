@@ -8,11 +8,13 @@
         "start:dev": "tsc && npx nodemon --watch src --ext ts --exec \"npx tsx src/index.ts\"",
         "build": "tsc && node esbuild.config.js",
         "build:dev": "tsc && node esbuild.config.js --watch",
+        "db:migration": "npx drizzle-kit generate --config=./drizzle/drizzle.config.json",
         "test": "BACKEND_PORT=3000 JWT_SECRET=1234567890abcdef1234567890abcdef DB_PATH=:memory: DB_DIR=drizzle npx tap --allow-incomplete-coverage"
     },
     "dependencies": {
         "@darrenkuro/pong-core": "^1.0.9",
         "@faker-js/faker": "^9.6.0",
+        "@fastify/cookie": "^11.0.2",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
         "@fastify/swagger": "^9.4.2",
@@ -41,7 +43,7 @@
         "@types/tap": "^15.0.12",
         "@types/uuid": "^10.0.0",
         "@types/ws": "^8.18.0",
-        "drizzle-kit": "^0.18.1",
+        "drizzle-kit": "^0.31.0",
         "esbuild": "^0.25.2",
         "nodemon": "^3.1.9",
         "prettier": "3.5.3",

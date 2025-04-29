@@ -8,7 +8,7 @@ const send = (conn: WebSocket, message: IncomingMessage<IncomingMessageType>) =>
     conn.send(JSON.stringify(message));
 };
 
-export const establishSocketConn = (token?: string) => {
+export const establishSocketConn = () => {
     // Maybe use token to do auth over socket here
     const { isConnected } = wsStore.get();
     if (isConnected) {
@@ -32,27 +32,15 @@ export const closeSocketConn = () => {
     wsStore.update({ isConnected: false, conn: null });
 };
 
-export const sendGameStart = (options?: { playAgainstAI?: boolean; aiDifficulty?: string }) => {
+export const sendGameStart = () => {
     const { isConnected, conn } = wsStore.get();
     if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN) {
         window.log.error("SendGameStart but socket is not connected");
         return;
     }
 
-    const { token } = authStore.get();
-    if (!token) {
-        window.log.error("Token is null when trying to send game start");
-        return;
-    }
-
     window.log.debug(`Sending game-start`);
-    send(conn, {
-        type: "game-start",
-        payload: {
-            token,
-            ...options,
-        },
-    });
+    send(conn, { type: "game-start", payload: null });
 };
 
 export const sendGameAction = (action: UserInput) => {

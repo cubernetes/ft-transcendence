@@ -1,10 +1,23 @@
 import type { User } from "../../modules/user/user.types.ts";
-import type { JwtPayload } from "@darrenkuro/pong-core";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import bcrypt from "bcrypt";
-import { schemas } from "@darrenkuro/pong-core";
+import QRCode from "qrcode";
+import * as speakeasy from "speakeasy";
+import { type JwtPayload, TotpSetupPayload, userSchemas } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/errors.ts";
+
+export const verifyCookie = async (req: FastifyRequest, _: FastifyReply) => {
+    const { cookieName } = req.server.config;
+    const token = req.cookies?.[cookieName];
+    if (!token) return;
+
+    const payload = req.server.authService.verifyJwtToken(token);
+    if (payload.isOk() && payload.value.id && !isNaN(Number(payload.value.id))) {
+        req.userId = Number(payload.value.id);
+        req.userDisplayName = payload.value.displayName;
+    }
+};
 
 export const createAuthService = (app: FastifyInstance) => {
     const { jwt } = app;
@@ -16,7 +29,8 @@ export const createAuthService = (app: FastifyInstance) => {
         bcrypt.compare(password, hash);
 
     // TODO: exp to be defined in jwt plugin; also, maybe use access/refresh token?
-    const generateToken = (user: User, exp: string = "1d"): string => {
+    // With saving jwt to cookies, figure out how to handle expiration
+    const generateJwtToken = (user: User, exp: string = "1d"): string => {
         const { id, username, displayName } = user;
 
         const payload = { id: String(id), username, displayName } satisfies Omit<
@@ -27,41 +41,46 @@ export const createAuthService = (app: FastifyInstance) => {
         return jwt.sign(payload, { expiresIn: exp });
     };
 
-    const verifyToken = (token: string): Result<JwtPayload, Error> => {
+    const verifyJwtToken = (token: string): Result<JwtPayload, Error> => {
         try {
             const payload = jwt.verify(token) as JwtPayload;
-            schemas.jwtPayload.parse(payload); // Runtime type check to ensure token is valid
+            // Runtime type check to ensure token is valid and has the correct fields
+            userSchemas.jwtPayload.parse(payload);
             return ok(payload);
         } catch (error) {
             return err(new Error("Invalid JWT token or payload"));
         }
     };
 
-    const jwtAuth = async (req: FastifyRequest, reply: FastifyReply) => {
-        const header = req.headers.authorization;
-        if (!header) {
-            const error = new ApiError("UNAUTHORIZED", 401, "Missing Authorization header");
-            return error.send(reply);
-        }
-        const [type, token] = header.split(" ");
-        if (type !== "Bearer" || !token) {
-            const error = new ApiError("UNAUTHORIZED", 401, "Invalid Authorization format");
-            return error.send(reply);
-        }
-        const payload = req.server.authService.verifyToken(token);
-        if (payload.isErr() || !payload.value.id || isNaN(Number(payload.value.id))) {
-            const error = new ApiError("UNAUTHORIZED", 401, "Invalid or expired token");
-            return error.send(reply);
-        }
+    const generateTotpSecret = async (): Promise<TotpSetupPayload> => {
+        const generatedSecret = speakeasy.generateSecret({ otpauth_url: true });
 
-        req.userId = Number(payload.value.id);
+        const encoding = app.config.totpEncoding;
+        const secret = generatedSecret[encoding];
+        const qrCode = await QRCode.toDataURL(generatedSecret.otpauth_url);
+        return { secret, qrCode };
+    };
+
+    const verifyTotpToken = (secret: string, token: string): boolean => {
+        const encoding = app.config.totpEncoding;
+        return speakeasy.totp.verify({ secret, token, encoding });
+    };
+
+    const requireAuth = async (req: FastifyRequest, reply: FastifyReply) => {
+        // Check that userId exists and is larger than 0 (attached by onRequest hook)
+        if (!req.userId || req.userId <= 0) {
+            const error = new ApiError("UNAUTHORIZED", 401, "Authentication required");
+            return error.send(reply);
+        }
     };
 
     return {
         hashPassword,
         comparePassword,
-        generateToken,
-        verifyToken,
-        jwtAuth,
+        generateJwtToken,
+        verifyJwtToken,
+        generateTotpSecret,
+        verifyTotpToken,
+        requireAuth,
     };
 };

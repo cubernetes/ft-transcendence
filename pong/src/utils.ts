@@ -4,7 +4,7 @@ import {
     IncomingMessageType,
     OutgoingMessageHandler,
     OutgoingMessageType,
-} from "./types/types.ws";
+} from "./schemas/types.ws";
 
 /** Safely parse a string to JSON and return a Result. */
 export const safeJsonParse = <T>(text: string): Result<T, Error> => {

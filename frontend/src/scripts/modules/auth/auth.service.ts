@@ -1,23 +1,7 @@
-import type {
-    JwtPayload,
-    LoginBody,
-    LoginResponse,
-    RegisterBody,
-    TotpBody,
-    TotpVerifyResponse,
-} from "@darrenkuro/pong-core";
+import type { LoginBody, LoginResponse, RegisterBody } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
-import { jwtDecode } from "jwt-decode";
 import { sendApiRequest } from "../../utils/api";
 import { authStore, emptyAuthState } from "./auth.store";
-
-/** Process JWT token, local storage, authStore update */
-const processToken = (token: string) => {
-    localStorage.setItem(window.cfg.label.token, token);
-    const jwtPayload: JwtPayload = jwtDecode(token); // Failable?
-    const { id, username } = jwtPayload;
-    authStore.set({ isAuthenticated: true, id, username, token, totpRequired: false });
-};
 
 /**
  * @returns boolean true - success; false - totp required
@@ -42,12 +26,18 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
     const { data } = result.value;
 
     if (data.totpEnabled) {
-        const { username } = payload;
-        authStore.update({ totpRequired: true, username });
-        window.log.debug("TOTP required, authStore should notify");
+        const { username, password } = payload;
+        authStore.update({ totpRequired: true, username, tempAuthString: password });
         return ok(false);
     } else {
-        processToken(data.token);
+        const { username, displayName } = data;
+        authStore.set({
+            isAuthenticated: true,
+            totpRequired: false,
+            username,
+            displayName,
+            tempAuthString: null,
+        });
         return ok(true);
     }
 };
@@ -69,21 +59,28 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
         return err(new Error("never"));
     }
 
-    processToken(result.value.data.token);
+    const { username, displayName } = result.value.data;
+    authStore.set({
+        isAuthenticated: true,
+        totpRequired: false,
+        username,
+        displayName,
+        tempAuthString: null,
+    });
     return ok();
 };
 
-export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
-    const { username } = authStore.get();
+export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
+    const { username, tempAuthString } = authStore.get();
     const totpTokenEl = document.getElementById(window.cfg.id.totpToken);
-    const token = (totpTokenEl as HTMLInputElement)?.value;
-    if (!username || !totpTokenEl || !token) {
-        return err(new Error("Fail to get username or input element for totp token"));
+    const totpToken = (totpTokenEl as HTMLInputElement)?.value;
+    if (!username || !tempAuthString || !totpTokenEl || !totpToken) {
+        return err(new Error("Fail to get data for totp log in"));
     }
 
-    const result = await sendApiRequest.post<TotpBody, TotpVerifyResponse>(
-        `${window.cfg.url.user}/totpVerify`,
-        { username, token }
+    const result = await sendApiRequest.post<LoginBody, LoginResponse>(
+        `${window.cfg.url.user}/login`,
+        { username, password: tempAuthString, totpToken }
     );
 
     if (result.isErr()) {
@@ -97,13 +94,21 @@ export const tryTotpVerify = async (): Promise<Result<void, Error>> => {
         return err(new Error("never"));
     }
 
-    processToken(result.value.data.token);
+    const { displayName } = result.value.data;
+    authStore.set({
+        isAuthenticated: true,
+        totpRequired: false,
+        username,
+        displayName,
+        tempAuthString: null,
+    });
     return ok();
 };
 
 export const logout = () => {
     window.log.debug("Logging out...");
 
+    // Remove cookies
+    sendApiRequest.post(`${window.cfg.url.user}/logout`);
     authStore.set(emptyAuthState);
-    localStorage.removeItem(window.cfg.label.token);
 };

@@ -8,11 +8,13 @@ export const users = sqliteTable("users", {
     passwordHash: text("password_hash").notNull(),
     totpSecret: text("totp_secret"),
     temporaryTotpSecret: text("temporary_totp_secret"),
-    totpEnabled: integer("totp_enabled").default(0),
-    avatarUrl: text("avatar_url").default("/assets/default-avatar.png"),
-    wins: integer().default(0),
-    losses: integer().default(0),
-    createdAt: numeric("created_at").default(sql`(CURRENT_TIMESTAMP)`),
+    totpEnabled: integer("totp_enabled").notNull().default(0),
+    avatarUrl: text("avatar_url").notNull().default("/assets/default-avatar.png"),
+    wins: integer().notNull().default(0),
+    losses: integer().notNull().default(0),
+    createdAt: numeric("created_at")
+        .notNull()
+        .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 export const games = sqliteTable(
@@ -26,7 +28,9 @@ export const games = sqliteTable(
         player2Id: integer("player2_id")
             .notNull()
             .references(() => users.id),
-        winnerId: integer("winner_id").references(() => users.id),
+        winnerId: integer("winner_id")
+            .notNull()
+            .references(() => users.id),
         player1Score: integer("player1_score").notNull(),
         player2Score: integer("player2_score").notNull(),
         createdAt: numeric("created_at").default(sql`(CURRENT_TIMESTAMP)`),

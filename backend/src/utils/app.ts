@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
+import fastify, { type FastifyInstance, type FastifyServerOptions } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { ZodError } from "zod";
 import corePlugin from "../core/core.plugin.ts";
@@ -10,7 +10,7 @@ const buildApp = async (opts: FastifyServerOptions): Promise<Result<FastifyInsta
     // Disable ajv validation for request schema validation
     app.setValidatorCompiler(() => () => true);
     // Disable fast-json-stringify for response schema validation, leave it for now
-    // app.setSerializerCompiler(() => JSON.stringify);
+    app.setSerializerCompiler(() => JSON.stringify); // TODO: disable this
 
     try {
         await app.register(corePlugin);

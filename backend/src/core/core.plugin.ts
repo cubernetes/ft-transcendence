@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
+import cookies from "@fastify/cookie";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import apiPlugin from "./api/api.plugin.ts";
@@ -14,9 +15,16 @@ const corePlugin = async (app: FastifyInstance) => {
 
     await app.register(cors, { origin: app.config.corsOrigin });
 
-    // TODO: Add more options here for JWT, see: https://github.com/fastify/fastify-jwt
-    await app.register(jwt, { secret: app.config.jwtSecret }); // Register jwt plugin
+    // Register jwt plugin
+    await app.register(jwt, {
+        secret: app.config.jwtSecret,
+        cookie: {
+            cookieName: app.config.cookieName,
+            signed: false,
+        },
+    });
 
+    await app.register(cookies);
     await app.register(dbPlugin);
     await app.register(authPlugin);
     await app.register(wsPlugin);

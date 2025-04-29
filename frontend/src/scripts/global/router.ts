@@ -95,10 +95,11 @@ const renderRoute = async (dest: string) => {
     showRouter();
 };
 
-export const navigateTo = (dest: string) => {
+// Init to note whether it's the first time ever loading or not
+export const navigateTo = (dest: string, init: boolean = false) => {
     const path = `/${dest}`;
 
-    if (window.location.pathname === path) {
+    if (window.location.pathname === path && !init) {
         return; // Already in this page
     }
 
@@ -110,5 +111,6 @@ export const handlePopState = () => {
     // Remove slash
     const dest = window.location.pathname.slice(1);
 
+    window.log.debug(`HandlePopState triggered, dest: ${dest}`);
     renderRoute(dest);
 };

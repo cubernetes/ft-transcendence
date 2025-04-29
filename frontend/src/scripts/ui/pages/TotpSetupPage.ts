@@ -1,4 +1,7 @@
+import { TotpSetupResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
+import { authStore } from "../../modules/auth/auth.store";
+import { sendApiRequest } from "../../utils/api";
 
 /**
  * TODO: refactor this into a modal
@@ -52,62 +55,53 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
     });
 
     submitButton.addEventListener("click", async () => {
-        const username = localStorage.getItem("username") || "";
+        const { isAuthenticated } = authStore.get();
 
-        const jwt = localStorage.getItem("token");
-
-        if (!jwt) {
+        if (!isAuthenticated) {
             alert("You have to be logged in to set up TOTP");
             return;
         }
 
-        const resp = await fetch(`${window.cfg.url.user}/totpVerifyInitial`, {
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + jwt,
-            },
-            method: "POST",
-            body: JSON.stringify({
-                username,
-                token: (document.getElementById("totpToken") as HTMLInputElement)?.value,
-            }),
+        const resp = await sendApiRequest.post(`${window.cfg.url.totp}/verify`, {
+            token: (document.getElementById("totpToken") as HTMLInputElement)?.value,
         });
 
-        if (resp.status == 400) {
-            alert("Invalid request"); // TODO: Remove alerts
-        } else if (resp.status == 401) {
-            alert("Invalid TOTP code");
-        } else if (resp.status == 404) {
-            alert(`User '${username}' not found`);
-        } else {
-            const data = await resp.json();
-            const jwt = data.data.token;
-            if (!jwt) {
-                alert("Invalid response from server (JWT missing). Logging out");
-                localStorage.removeItem("token");
-                localStorage.removeItem("username");
-                //container.innerHTML = "";
-                window.location.reload();
-            } else {
-                localStorage.setItem("token", jwt);
-                navigateTo("setup");
-            }
+        if (resp.isErr()) {
+            return;
         }
+        navigateTo(window.cfg.url.home);
+        // if (resp.status == 400) {
+        //     alert("Invalid request"); // TODO: Remove alerts
+        // } else if (resp.status == 401) {
+        //     alert("Invalid TOTP code");
+        // } else if (resp.status == 404) {
+        //     alert(`User ${username} not found`);
+        // } else {
+        // const data = resp.value;
+        // const jwt = data.data.token;
+        // if (!jwt) {
+        //     alert("Invalid response from server (JWT missing). Logging out");
+        //     localStorage.removeItem("token");
+        //     localStorage.removeItem("username");
+        //     //container.innerHTML = "";
+        //     window.location.reload();
+        // } else {
+        //     localStorage.setItem("token", jwt);
+        //     navigateTo("setup");
+        // }
+        //}
     });
 
     return [main];
 };
 
 const fetchQrCode = async () => {
-    const resp = await fetch(`${window.cfg.url.user}/totpSetup`, {
-        headers: {
-            Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
-        },
-    });
-    try {
-        const data = await resp.json();
-        return [data?.data?.qrCode, data?.data?.b32secret];
-    } catch (error) {
+    const resp = await sendApiRequest.get<TotpSetupResponse>(`${window.cfg.url.totp}/setup`);
+
+    if (resp.isErr() || !resp.value.success) {
         return ["", ""];
     }
+
+    const { qrCode, secret } = resp.value.data;
+    return [qrCode, secret];
 };

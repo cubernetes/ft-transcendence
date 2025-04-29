@@ -4,7 +4,7 @@ import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 
 const swaggerPlugin = async (app: FastifyInstance) => {
-    const { apiPrefix } = app.config;
+    const { apiPrefix, cookieName } = app.config;
 
     await app.register(swagger, {
         openapi: {
@@ -21,10 +21,10 @@ const swaggerPlugin = async (app: FastifyInstance) => {
             ],
             components: {
                 securitySchemes: {
-                    bearerAuth: {
-                        type: "http",
-                        scheme: "bearer",
-                        bearerFormat: "JWT",
+                    cookieAuth: {
+                        type: "apiKey",
+                        in: "cookie",
+                        name: cookieName,
                     },
                 },
             },

@@ -1,32 +1,24 @@
 import { Err, Result, err, ok } from "neverthrow";
 import { showPageElements } from "../../modules/layout/layout.service";
+import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
 import { createPlayerDataSection, createStatsDataSection } from "../layout/PlayerStatsModal";
 
 const fetchPlayerData = async (): Promise<Result<Record<string, unknown>, Error>> => {
     try {
-        const response = await fetch(`${window.cfg.url.user}/me`, {
-            headers: {
-                Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
-            },
-        });
-        if (!response.ok) {
-            throw new Error("Failed to fetch user");
-        }
+        const response = sendApiRequest.get(`${window.cfg.url.user}/me`);
 
-        const data = await response.json();
+        // const processedData = {
+        //     id: data.data.id,
+        //     name: data.data.username,
+        //     games: data.data.wins + data.data.losses,
+        //     wins: data.data.wins,
+        //     losses: data.data.losses,
+        //     rank: data.data.rank,
+        //     img: data.data.avatarUrl,
+        // };
 
-        const processedData = {
-            id: data.data.id,
-            name: data.data.username,
-            games: data.data.wins + data.data.losses,
-            wins: data.data.wins,
-            losses: data.data.losses,
-            rank: data.data.rank,
-            img: data.data.avatarUrl,
-        };
-
-        return ok(processedData);
+        return ok({});
     } catch (error) {
         window.log.debug("Fetch error:", error);
         return err(new Error("Fail to fetch user"));
@@ -46,24 +38,6 @@ const fetchGameStats = async (): Promise<Result<Record<string, unknown>[], Error
         { gameId: 9, hits: 31, misses: 3 },
         { gameId: 10, hits: 24, misses: 5 },
     ];
-
-    // try {
-    // const response = await fetch(`${window.cfg.url.user}/me`, {
-    //     headers: {
-    //         Authorization: "Bearer " + localStorage.getItem("token") || "Unauthorized",
-    //     },
-    // });
-    //     if (!response.ok) {
-    //         throw new Error("Failed to fetch user stats");
-    //     }
-
-    //     const data = await response.json();
-
-    //     return ok(data);
-    // } catch (error) {
-    //     window.log.debug("Fetch error:", error);
-    //     return err(new Error("Fail to fetch user"));
-    // }
 
     return ok(gameStats);
 };
