@@ -13,30 +13,22 @@ import { createBodyText, createTitleText } from "../components/Text";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
-const translatableElements: Partial<Record<string, HTMLElement>> = {};
-
-languageStore.subscribe(() => {
-    (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
-        const el = translatableElements[key];
-        if (el) {
-            if (el instanceof HTMLInputElement) {
-                el.placeholder = getText(key);
-            } else {
-                el.textContent = getText(key);
-            }
-        } else {
-            console.warn(`Element for key "${key}" not found in translatableElements.`);
-        }
-    });
-});
-
-const createCtaBtn = (textKey: TranslationKey, cb: () => void): HTMLButtonElement => {
+const createCtaBtn = (key: TranslationKey, cb: () => void): HTMLButtonElement => {
     const btn = createButton(
-        getText(textKey),
+        getText(key),
         "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
         cb
     );
-    translatableElements[textKey] = btn;
+
+    const unsubscribe = languageStore.subscribe(() => {
+        btn.textContent = getText(key);
+    });
+
+    btn.addEventListener("destroy", () => {
+        window.log.debug(`Unsubscribing from languageStore for key: ${key}`);
+        unsubscribe(); // Unsubscribe from languageStore
+    });
+
     return btn;
 };
 
@@ -44,13 +36,13 @@ const createDifficultyGroup = () => {
     const label = createBodyText("difficulty");
 
     const difficultyKeys = ["easy", "medium", "hard"] as TranslationKey[];
-    const btnLabels = difficultyKeys.map((key) => getText(key)); // Get button labels as strings
+    // const btnLabels = difficultyKeys.map((key) => getText(key)); // Get button labels as strings
 
-    const btnGroup = createButtonGroup(btnLabels, []);
+    const btnGroup = createButtonGroup(difficultyKeys, []);
 
     difficultyKeys.forEach((key, index) => {
         const btn = btnGroup.children[index] as HTMLElement;
-        translatableElements[key] = btn;
+        // translatableElements[key] = btn;
     });
 
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
@@ -60,6 +52,9 @@ const createDifficultyGroup = () => {
 };
 
 const createInput = (key: TranslationKey | string): HTMLInputElement => {
+    if (!key) {
+        console.error("createInput called with an invalid key:", key);
+    }
     const input = createEl("input", "w-full p-2 bg-gray-100 text-black rounded text-xl", {
         attributes: {
             placeholder: getText(key),
@@ -74,7 +69,7 @@ const createInput = (key: TranslationKey | string): HTMLInputElement => {
 
     input.addEventListener("destroy", () => {
         window.log.debug(`Unsubscribing from languageStore for key: ${key}`);
-        unsubscribe(); // Unsubscribe from languageStore
+        unsubscribe();
     });
 
     return input;
@@ -159,8 +154,6 @@ const localMode = (ctn: HTMLElement) => {
 
     const p1 = createInput("name_player_1");
     const p2 = createInput("name_player_2");
-    // translatableElements["name_player_1"] = p1;
-    // translatableElements["name_player_2"] = p2;
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, p1, p2],
     });
@@ -205,7 +198,6 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     for (let i = 0; i < playerAmount; i++) {
         const translationKey = `name_player_${i + 1}`; // Dynamically generate the key
         const playerInput = createInput(translationKey); // Pass the dynamic key to createInput
-        // translatableElements[translationKey] = playerInput; // Track the input for language updates
         playerInputs.push(playerInput);
     }
 
@@ -247,7 +239,7 @@ const tournamentMode = (ctn: HTMLElement) => {
 
     const modeLabel = createBodyText("player_number");
 
-    const modeBtnGrp = createButtonGroup(["4P", "8P"], []);
+    const modeBtnGrp = createButtonGroup(["fourP", "eightP"], []);
     const modeSection = createEl("div", "flex flex-col w-full mt-6", {
         children: [modeLabel, modeBtnGrp],
     });
@@ -261,7 +253,7 @@ const tournamentMode = (ctn: HTMLElement) => {
         }
 
         hideErr();
-        const playerAmount = mode.textContent === "4P" ? 4 : 8;
+        const playerAmount = mode.textContent === getText("fourP") ? 4 : 8;
         setParticipants(ctn, playerAmount);
     });
 
@@ -299,21 +291,15 @@ export const createSetupModal = (): HTMLElement => {
     }
 
     const gameBtnGrp = createButtonGroup(
-        (btnLabels as TranslationKey[]).map((key) => getText(key)),
+        btnLabels as TranslationKey[],
         btnCallbacks,
         "flex-1",
         "mt-4"
     );
-
-    btnLabels.forEach((key, index) => {
-        translatableElements[key] = gameBtnGrp.children[index] as HTMLElement;
-    });
-
     const children = [title, line, gameBtnGrp];
 
     if (authStore.get().isAuthenticated) {
         const tournamentBtn = createCtaBtn("setup_tournament_mode", tournamentCreateBtnCb);
-        translatableElements["setup_tournament_mode"] = tournamentBtn;
         children.push(tournamentBtn);
     }
 

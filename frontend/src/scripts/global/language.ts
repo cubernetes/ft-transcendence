@@ -31,6 +31,12 @@ export const getText = (key: TranslationKey | string): string => {
         return translation;
     }
 
+    // console.warn(`Translation for key '${key}' was asked ...`);
+    if (key === undefined) {
+        console.warn("Key is undefined");
+        return "Key is undefined";
+    }
+
     // Fallback logic for dynamic keys like name_player_X
     if (key.startsWith("name_player_")) {
         const playerNumber = key.split("_").pop(); // Extract the number after "name_player_"
@@ -38,12 +44,13 @@ export const getText = (key: TranslationKey | string): string => {
         return baseTranslation ? `${baseTranslation} ${playerNumber}` : `Player ${playerNumber}`;
     }
 
-    console.warn(`Missing translation for key: ${key}`);
     return key; // Return the key itself as a last resort
 };
 
 export const texts = {
     en: {
+        fourP: "4 Player",
+        eightP: "8 Player",
         ai: "AI",
         chooseMode: "Choose Game Mode",
         confirm_password: "Confirm Password",
@@ -103,6 +110,8 @@ export const texts = {
         your_stats: "Your Stats:",
     },
     de: {
+        fourP: "4 Spieler",
+        eightP: "8 Spieler",
         ai: "KI",
         chooseMode: "Spielmodus wählen",
         confirm_password: "Passwort bestätigen",
@@ -162,6 +171,8 @@ export const texts = {
         your_stats: "Deine Statistiken:",
     },
     fr: {
+        fourP: "4 Joueurs",
+        eightP: "8 Joueurs",
         ai: "IA",
         chooseMode: "Choisir le mode de jeu",
         confirm_password: "Confirmer le mot de passe",
@@ -221,6 +232,8 @@ export const texts = {
         your_stats: "Vos statistiques :",
     },
     es: {
+        fourP: "4 Jugadores",
+        eightP: "8 Jugadores",
         ai: "IA",
         chooseMode: "Elegir modo de juego",
         confirm_password: "Confirmar contraseña",
