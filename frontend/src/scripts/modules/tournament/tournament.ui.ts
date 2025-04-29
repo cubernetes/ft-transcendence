@@ -75,3 +75,16 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
 
     return container;
 };
+
+export const restartTournamentButton = (): HTMLButtonElement => {
+    const { controller } = tournamentStore.get();
+    if (!controller) {
+        throw new Error("initialize_controller");
+    }
+    const restartButton = createButton("Start another Tournament", "mx-auto", () => {
+        controller.resetTournament();
+        navigateTo("setup");
+    });
+    return restartButton;
+};
+
