@@ -21,9 +21,8 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
 
     const title = createEl("h1", "", { children: [anchor] });
 
+    // Naviagtion List
     const navList = createEl("ul", "flex text-1xl space-x-4");
-
-    // Store references to nav links
     const navLinks: Record<string, HTMLElement> = {};
 
     const navKeys: [TranslationKey, string][] = [
