@@ -165,7 +165,7 @@ const localMode = (ctn: HTMLElement) => {
     const playBtn = createCtaBtn("setup_play", () => {
         const player1 = p1.value.trim();
         const player2 = p2.value.trim();
-        if (!player1 || !player2) {
+        if (!player1 || !player2 || player1 === player2) {
             return showErr("player_names_required");
         }
         hideErr();
@@ -208,19 +208,16 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     }
 
     const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
+        const players = new Set<string>();
         for (let i = 0; i < playerAmount; i++) {
-            const playerInput = playerInputs[i];
-            if (!playerInput.value.trim()) {
+            const player = playerInputs[i].value.trim();
+            if (!player || players.has(player)) {
                 return showErr("player_names_required");
             }
+            players.add(player);
         }
-
         hideErr();
-        window.log.debug(`Tournament Start Data: ${playerInputs}`);
-
-        //TODO: I don't like the way I am currently intializing tournament relevant data inside the SetupModal. Should this optimally on the create Tournament Page?
-        const players = playerInputs.map((p) => p.value.trim());
-        const controller = createTournamentController(players);
+        const controller = createTournamentController([...players]);
         controller.startTournament();
         navigateTo("tournament");
     });
