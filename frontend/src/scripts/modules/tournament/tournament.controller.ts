@@ -1,9 +1,17 @@
-import { updateTournamentTree } from "../../ui/layout/TournamentBracket";
-import { TournamentState, tournamentStore } from "./tournament.store";
-import { determineRound, generateRoundMatches } from "./tournament.utils";
+import { defaultGameConfig } from "@pong-core";
+import { PongState } from "@pong-core";
+import { buildTournamentTree } from "../../ui/layout/TournamentBracket";
+import { gameStore } from "../game/game.store";
+import { Round, TournamentState, tournamentStore } from "./tournament.store";
+import {
+    determineRound,
+    generateRoundMatches,
+    generateUniqueTournamentId,
+    roundCompleted,
+} from "./tournament.utils";
 
-export const createTournamentController = (allPlayers: string[], tree: HTMLElement) => {
-    let unsubscribeTreeUpdate: () => void;
+export const createTournamentController = (allPlayers: string[]) => {
+    // let unsubscribeTreeUpdate: () => void;
 
     const createNextRound = () => {
         const { activePlayers, matches } = tournamentStore.get();
@@ -14,24 +22,32 @@ export const createTournamentController = (allPlayers: string[], tree: HTMLEleme
         }
 
         const roundMatches = generateRoundMatches(activePlayers);
-        const round = determineRound(roundMatches);
+        const nextRound = determineRound(roundMatches);
+        window.log.debug("Next round determined: ", nextRound);
 
         // Safely create a new matches array
         const newMatches = [...(matches ?? []), roundMatches];
 
         const partialUpdate: Partial<TournamentState> = {
-            round,
+            round: nextRound,
             matches: newMatches,
+            activePlayers: [],
         };
 
         tournamentStore.update(partialUpdate);
         window.log.debug("Next Round created: ", tournamentStore.get());
     };
 
-    const subscribeTournamentTree = () => {
-        unsubscribeTreeUpdate = tournamentStore.subscribe(() => {
-            updateTournamentTree(tree);
+    const startTournament = () => {
+        tournamentStore.update({
+            tournamentId: generateUniqueTournamentId(),
+            activePlayers: allPlayers,
+            controller: controller,
         });
+
+        // subscribeTournamentTree();
+        createNextRound();
+        window.log.debug("Tournament started");
     };
 
     const cleanup = () => {
@@ -40,14 +56,17 @@ export const createTournamentController = (allPlayers: string[], tree: HTMLEleme
         }
     };
 
-    const startTournament = () => {
-        tournamentStore.set({
-            round: "Default",
-            matches: [],
-            current_match: null,
-            activePlayers: allPlayers,
-            controller,
+    const startMatch = () => {
+        const { controller } = gameStore.get();
+        if (!controller) {
+            throw new Error("initialize_controller");
+        }
+        window.log.debug("Starting match in tournament");
+        controller.startGame("tournament", {
+            ...defaultGameConfig,
+            playTo: 3,
         });
+    };
 
         subscribeTournamentTree();
         createNextRound();
@@ -57,11 +76,12 @@ export const createTournamentController = (allPlayers: string[], tree: HTMLEleme
 
     const stopTournament = () => {
         resetTournament();
-        cleanup();
+        // cleanup();
     };
 
     const resetTournament = () => {
         tournamentStore.set({
+            tournamentId: tournamentStore.get().tournamentId,
             round: "Default",
             matches: [],
             current_match: null,
@@ -71,15 +91,20 @@ export const createTournamentController = (allPlayers: string[], tree: HTMLEleme
     };
 
     const getTournamentTree = () => {
-        return tree;
+        const { matches, round } = tournamentStore.get();
+        if (!matches) throw new Error("No matches found in tournament store.");
+        return buildTournamentTree(matches, round);
     };
 
     const controller = {
+        startMatch,
+        handleEndMatch,
         createNextRound,
         startTournament,
         stopTournament,
         resetTournament,
         getTournamentTree,
+        getFinalWinner,
     };
 
     return controller;
