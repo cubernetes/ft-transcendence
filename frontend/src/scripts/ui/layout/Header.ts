@@ -32,9 +32,6 @@ export const createHeader = (header: HTMLElement): HTMLElement => {
         const navKeys: [keyof typeof translatableElements, string][] = [
             ["home", window.cfg.url.home],
             ["setup", window.cfg.url.home],
-            ["game", "localgame"],
-            ["online", "onlinegame"],
-            ["ai", "aigame"],
             ["leaderboard", "leaderboard"],
             ["profile", "profile"],
             ["TOTP", "totp"],
