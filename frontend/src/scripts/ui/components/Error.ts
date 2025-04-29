@@ -7,35 +7,25 @@ export const createError = (
     errorDiv: HTMLElement;
     showErr: (msgKey: TranslationKey) => void;
     hideErr: () => void;
-    updateErr: () => void;
 } => {
     const baseTw = "hidden p-2 bg-red-100 text-red-500 rounded text-sm mt-4";
     const fullTw = `${baseTw} ${tw}`;
 
     const errorDiv = createEl("div", fullTw);
-    let currentMsgKey: TranslationKey | null = null;
-
-    const updateErr = () => {
-        if (currentMsgKey) {
-            errorDiv.textContent = getText(currentMsgKey);
-        }
-    };
 
     languageStore.subscribe(() => {
-        updateErr();
+        errorDiv.textContent = getText(errorDiv.dataset.msgKey as TranslationKey);
     });
 
     return {
         errorDiv,
         showErr: (msgKey: TranslationKey) => {
-            currentMsgKey = msgKey;
-            updateErr();
+            errorDiv.dataset.msgKey = msgKey;
+            errorDiv.textContent = getText(msgKey);
             errorDiv.classList.remove("hidden");
         },
         hideErr: () => {
-            currentMsgKey = null;
             errorDiv.classList.add("hidden");
         },
-        updateErr,
     };
 };
