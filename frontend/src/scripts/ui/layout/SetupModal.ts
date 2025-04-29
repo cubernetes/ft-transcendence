@@ -41,16 +41,12 @@ const createCtaBtn = (textKey: TranslationKey, cb: () => void): HTMLButtonElemen
 };
 
 const createDifficultyGroup = () => {
-    const label = createBodyText(getText("difficulty"));
-    translatableElements["difficulty"] = label;
+    const label = createBodyText("difficulty");
 
     const difficultyKeys = ["easy", "medium", "hard"] as TranslationKey[];
     const btnLabels = difficultyKeys.map((key) => getText(key)); // Get button labels as strings
-    const btnCallbacks = difficultyKeys.map((key) => () => {
-        window.log.debug(`Selected difficulty: ${key}`);
-    });
 
-    const btnGroup = createButtonGroup(btnLabels, btnCallbacks);
+    const btnGroup = createButtonGroup(btnLabels, []);
 
     difficultyKeys.forEach((key, index) => {
         const btn = btnGroup.children[index] as HTMLElement;
@@ -63,15 +59,30 @@ const createDifficultyGroup = () => {
     return difficultyGrp;
 };
 
-const createInput = (placeholderKey: TranslationKey | string) =>
-    createEl("input", "w-full p-2 bg-gray-100 text-black rounded text-xl", {
-        attributes: { placeholder: getText(placeholderKey) },
+const createInput = (key: TranslationKey | string): HTMLInputElement => {
+    const input = createEl("input", "w-full p-2 bg-gray-100 text-black rounded text-xl", {
+        attributes: {
+            placeholder: getText(key),
+            "data-translation-key": key,
+        },
     });
+
+    // Subscribe to language changes and update the text dynamically
+    const unsubscribe = languageStore.subscribe(() => {
+        input.placeholder = getText(key);
+    });
+
+    input.addEventListener("destroy", () => {
+        window.log.debug(`Unsubscribing from languageStore for key: ${key}`);
+        unsubscribe(); // Unsubscribe from languageStore
+    });
+
+    return input;
+};
 
 const onlineMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("setup_online"));
-    translatableElements["setup_online"] = title;
+    const title = createTitleText("setup_online");
 
     const line = createSetupLine();
 
@@ -102,8 +113,7 @@ const onlineMode = (ctn: HTMLElement) => {
 
 const aiMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("play_ai"));
-    translatableElements["play_ai"] = title;
+    const title = createTitleText("play_ai");
 
     const line = createSetupLine();
     const difficultyGrp = createDifficultyGroup();
@@ -141,18 +151,16 @@ const aiMode = (ctn: HTMLElement) => {
 
 const localMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("setup_play_local"));
-    translatableElements["setup_play_local"] = title;
+    const title = createTitleText("setup_play_local");
 
     const line = createSetupLine();
 
-    const playerLabel = createBodyText(getText("enter_names"));
-    translatableElements["enter_names"] = playerLabel;
+    const playerLabel = createBodyText("enter_names");
 
     const p1 = createInput("name_player_1");
     const p2 = createInput("name_player_2");
-    translatableElements["name_player_1"] = p1;
-    translatableElements["name_player_2"] = p2;
+    // translatableElements["name_player_1"] = p1;
+    // translatableElements["name_player_2"] = p2;
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, p1, p2],
     });
@@ -187,8 +195,7 @@ const localMode = (ctn: HTMLElement) => {
 
 const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("start_tournament"));
-    translatableElements["start_tournament"] = title;
+    const title = createTitleText("start_tournament");
 
     const line = createSetupLine();
 
@@ -196,9 +203,9 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
     const playerInputs: HTMLInputElement[] = [];
     for (let i = 0; i < playerAmount; i++) {
-        const translationKey = `name_player_${i + 1}` as TranslationKey; // Dynamically generate the key
+        const translationKey = `name_player_${i + 1}`; // Dynamically generate the key
         const playerInput = createInput(translationKey); // Pass the dynamic key to createInput
-        translatableElements[translationKey] = playerInput; // Track the input for language updates
+        // translatableElements[translationKey] = playerInput; // Track the input for language updates
         playerInputs.push(playerInput);
     }
 
@@ -234,13 +241,11 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
 const tournamentMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("create_tournament"));
-    translatableElements["create_tournament"] = title;
+    const title = createTitleText("create_tournament");
 
     const line = createSetupLine();
 
-    const modeLabel = createBodyText(getText("player_number"));
-    translatableElements["player_number"] = modeLabel;
+    const modeLabel = createBodyText("player_number");
 
     const modeBtnGrp = createButtonGroup(["4P", "8P"], []);
     const modeSection = createEl("div", "flex flex-col w-full mt-6", {
@@ -274,8 +279,7 @@ const tournamentMode = (ctn: HTMLElement) => {
 };
 
 export const createSetupModal = (): HTMLElement => {
-    const title = createTitleText(getText("setup_choose_mode"));
-    translatableElements["setup_choose_mode"] = title;
+    const title = createTitleText("setup_choose_mode");
 
     const line = createSetupLine();
 
