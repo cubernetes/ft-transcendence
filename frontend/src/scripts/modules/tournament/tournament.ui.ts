@@ -88,3 +88,11 @@ export const restartTournamentButton = (): HTMLButtonElement => {
     return restartButton;
 };
 
+export const winnerVisualization = (winnerName: string): HTMLElement => {
+    const winnerContainer = createEl("div", "winner-container");
+    const winnerText = createEl("h1", "text-4xl font-bold text-center", {
+        text: `Winner: ${winnerName}`,
+    });
+    appendChildren(winnerContainer, [winnerText]);
+    return winnerContainer;
+};
