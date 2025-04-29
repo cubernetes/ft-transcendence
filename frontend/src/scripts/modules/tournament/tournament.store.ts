@@ -12,6 +12,7 @@ export type MatchState = {
 };
 
 export type TournamentState = {
+    tournamentId: number;
     round: Round;
     matches: MatchState[][] | null;
     current_match: MatchState | null;
@@ -20,6 +21,7 @@ export type TournamentState = {
 };
 
 export const defaultTournamentState: TournamentState = {
+    tournamentId: 0,
     round: "Default",
     matches: [],
     current_match: null,
