@@ -19,7 +19,7 @@ export const createEl = <T extends keyof HTMLElementTagNameMap>(
         text,
         attributes,
         props,
-        style,
+        // style,
         events,
         children,
     }: ElementParams & { style?: Partial<CSSStyleDeclaration> } = {}
@@ -43,13 +43,13 @@ export const createEl = <T extends keyof HTMLElementTagNameMap>(
         }
     }
 
-    if (style) {
-        for (const [key, value] of Object.entries(style)) {
-            if (value != null) {
-                (el.style as any)[key] = value;
-            }
-        }
-    }
+    // if (style) {
+    //     for (const [key, value] of Object.entries(style)) {
+    //         if (value != null) {
+    //             (el.style as any)[key] = value;
+    //         }
+    //     }
+    // }
 
     if (events) {
         for (const [event, handler] of Object.entries(events)) {
