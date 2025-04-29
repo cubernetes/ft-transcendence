@@ -86,34 +86,13 @@ See [vault/README.md](./vault/README.md)
 
 ### Translatable UI Components (through language Button)
 
-1. **Elements are stored in `translatableElements`**
+1. **Translation Keys are defined in the `texts` object `language.ts`**
 
-    - Each visible (translatable) element was added to the `translatableElements` object using a unique `TranslationKey`:
-
-    ```typescript
-    const link = createEl("a", "hover:underline", {
-        text: getText("home"),
-        events: {
-            click: (e) => {
-                e.preventDefault();
-                navigateTo("/home");
-            },
-        },
-    });
-    translatableElements["home"] = link;
-    ```
-
-2. **Translation Keys are defined in the `texts` object `language.ts`**
-
-3. **Subscribed to Language Changes with `languageStore.subscribe`:**
+2. **Subscribed to Language Changes with `languageStore.subscribe`:**
     ```typescript
     unsubscribeLanguage = languageStore.subscribe(() => {
-        (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
-            const el = translatableElements[key];
-            if (el) {
-                el.textContent = getText(key);
-            }
-        });
+        obj1.textContent = getText("used_key_1");
+        obj2.textContent = getText("used_key_2");
     });
     ```
 
