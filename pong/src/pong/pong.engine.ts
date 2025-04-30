@@ -37,9 +37,9 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         eventType: K,
         cb: EventCallback<K>
     ): void => {
-        listeners[eventType] ??= [];
+        listeners[eventType] ??= []; // TODO: initilize this
         if (!listeners[eventType].includes(cb)) {
-            listeners[eventType].push(cb);
+            listeners[eventType].push(cb); // TODO: make them sets?
         }
     };
 
@@ -170,26 +170,16 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         }
 
         const state = getState();
-        if (!state.isOk()) {
-            return err(new Error("Failed to get state after game ended"));
-        }
 
         if (scores.some((n) => n >= config.playTo)) {
             status = "ended";
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state: state.value });
+            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state });
         }
 
         return ok();
     };
 
-    const getState = (): Result<PongState, Error> => {
-        return ok({
-            status,
-            scores,
-            ball,
-            paddles,
-        });
-    };
+    const getState = (): PongState => ({ status, scores, ball, paddles });
 
     const tick = (): Result<void, Error> => {
         if (status !== "ongoing") {
@@ -203,9 +193,7 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         checkWins();
 
         const state = getState();
-        if (state.isOk()) {
-            emit("state-update", { state: state.value });
-        }
+        emit("state-update", { state });
 
         return ok();
     };
@@ -234,10 +222,7 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
                 interval = null;
             }
             const state = getState();
-            if (!state.isOk()) {
-                return err(new Error("Failed to get state after game ended"));
-            }
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state: state.value });
+            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state });
         }
     };
 
