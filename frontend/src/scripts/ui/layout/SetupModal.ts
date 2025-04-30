@@ -68,6 +68,114 @@ const createInput = (placeholderKey: TranslationKey | string) =>
         attributes: { placeholder: getText(placeholderKey) },
     });
 
+//TODO: Implement logic for when the friend enters the game ID
+const createLobby = (ctn: HTMLElement) => {
+    const returnBtn = createReturnButton(ctn, createSetupModal());
+    const title = createTitleText(getText("create_lobby"));
+    translatableElements["create_lobby"] = title;
+
+    const line = createSetupLine();
+
+    const username = authStore.get().username;
+    const creator = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
+        text: `Your Name: ${username || "Anonymous"}`,
+    });
+
+    // Game ID
+    const gameId = crypto.randomUUID().split("-")[0]; // Replace with backend ID when available
+    const gameIdLabel = createEl("span", "text-gray-600 mr-2");
+    gameIdLabel.textContent = "Game ID:";
+
+    const gameIdValue = createEl(
+        "code",
+        "text-blue-800 font-semibold text-md bg-white px-2 py-1 rounded shadow-sm"
+    );
+    gameIdValue.textContent = gameId;
+
+    const copyBtn = createButton(
+        "Copy",
+        "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
+        () => {
+            navigator.clipboard.writeText(gameId).then(() => {
+                copyBtn.textContent = "Copied!";
+                setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+            });
+        }
+    );
+
+    const gameIdContainer = createEl(
+        "div",
+        "flex items-center justify-center gap-2 mt-6 p-3 bg-gray-200 rounded-lg shadow-inner"
+    );
+    gameIdContainer.appendChild(gameIdLabel);
+    gameIdContainer.appendChild(gameIdValue);
+    gameIdContainer.appendChild(copyBtn);
+
+    const info = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
+        text: "Share this ID with your friends to join your game.",
+    });
+
+    const section = createSectionContainer(
+        "w-1/2 bg-gray-300 p-8 items-center shaded relative rounded-lg shadow-lg space-y-4",
+        [returnBtn, title, line, creator, gameIdContainer, info]
+    );
+
+    ctn.innerHTML = "";
+    ctn.appendChild(section);
+};
+
+const joinLobby = (ctn: HTMLElement) => {
+    const returnBtn = createReturnButton(ctn, createSetupModal());
+    const title = createTitleText(getText("join_lobby"));
+    translatableElements["join_lobby"] = title;
+
+    const line = createSetupLine();
+
+    const username = authStore.get().username;
+    const creator = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
+        text: `Your Name: ${username || "Anonymous"}`,
+    });
+
+    // Game ID
+
+    const gameIdInput = createEl("input", "p-2 bg-gray-100 text-black rounded text-xl", {
+        attributes: { placeholder: getText("game_id") },
+    });
+
+    const joinBtn = createButton(
+        "Join",
+        "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
+        () => {
+            const gameId = gameIdInput.value.trim();
+            if (!gameId) {
+                return window.log.error("Game ID is required.");
+            }
+            window.log.debug("Joining game with ID:", gameId);
+
+            //TODO: Implement the join lobby logic
+            // const { controller } = gameStore.get();
+            // if (!controller) {
+            //     return window.log.error("Controller not initialized.");
+            // }
+
+            // controller.joinLobby(gameId);
+            // sendGameStart(gameId);
+        }
+    );
+
+    const info = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
+        text: "Enter the Game ID to join your friend's game.",
+    });
+
+    const section = createSectionContainer(
+        "w-1/2 bg-gray-300 p-8 items-center shaded relative rounded-lg shadow-lg space-y-4",
+        [returnBtn, title, line, creator, gameIdInput, joinBtn, info]
+    );
+
+    ctn.innerHTML = "";
+    ctn.appendChild(section);
+};
+
 const onlineMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("setup_online"));
@@ -76,13 +184,13 @@ const onlineMode = (ctn: HTMLElement) => {
     const line = createSetupLine();
 
     const createLobbyBtn = createCtaBtn("create_lobby", () => {
-        window.log.info("Creating a new lobby...");
-        navigateTo("onlinegame");
+        createLobby(ctn);
+        // navigateTo("onlinegame");
     });
 
     const joinLobbyBtn = createCtaBtn("join_lobby", () => {
-        window.log.info("Joining a new lobby...");
-        navigateTo("onlinegame");
+        joinLobby(ctn);
+        // navigateTo("onlinegame");
     });
 
     const BtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
@@ -201,7 +309,6 @@ const localMode = (ctn: HTMLElement) => {
     ctn.appendChild(section);
 };
 
-//TODO: make sure each name is unique
 const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("start_tournament"));
