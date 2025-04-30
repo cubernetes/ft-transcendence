@@ -3,6 +3,7 @@ import { createGameController } from "./game.controller";
 
 // What other data should be stored? start time? duration? names?
 type GameState = {
+    players: string[] | null;
     isPlaying: boolean;
     isWaiting: boolean;
     gameId: string | null;
@@ -12,6 +13,7 @@ type GameState = {
 };
 
 export const defaultGameState: GameState = {
+    players: null,
     isPlaying: false,
     isWaiting: false,
     gameId: null,
