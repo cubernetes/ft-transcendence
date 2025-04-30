@@ -121,7 +121,7 @@ export const createTournamentController = (allPlayers: string[]) => {
     const resetTournament = () => {
         tournamentStore.set({
             tournamentId: tournamentStore.get().tournamentId,
-            round: "Default",
+            round: null,
             matches: [],
             current_match: null,
             activePlayers: [],

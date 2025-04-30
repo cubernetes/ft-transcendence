@@ -1,7 +1,7 @@
 import { createStore } from "../../global/store";
 import { createTournamentController } from "./tournament.controller";
 
-export type Round = "Quarter" | "Semi" | "Final" | "Default" | "End";
+export type Round = "Quarter" | "Semi" | "Final" | "End" | null;
 
 export type TournamentController = ReturnType<typeof createTournamentController>;
 
@@ -22,7 +22,7 @@ export type TournamentState = {
 
 export const defaultTournamentState: TournamentState = {
     tournamentId: 0,
-    round: "Default",
+    round: null,
     matches: [],
     current_match: null,
     activePlayers: [],

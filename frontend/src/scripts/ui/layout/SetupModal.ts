@@ -241,7 +241,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
 const tournamentMode = (ctn: HTMLElement) => {
     const { round } = tournamentStore.get();
-    if (round !== "Default") {
+    if (round !== null) {
         window.log.error("Tournament already started. Cannot create a new tournament.");
         navigateTo("tournament");
     } else {
