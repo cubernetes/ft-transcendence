@@ -169,9 +169,14 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
             return err(new Error("Game is not ongoing"));
         }
 
+        const state = getState();
+        if (!state.isOk()) {
+            return err(new Error("Failed to get state after game ended"));
+        }
+
         if (scores.some((n) => n >= config.playTo)) {
             status = "ended";
-            emit("game-end", { winner: scores[0] >= config.playTo ? 0 : 1, hits });
+            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state: state.value });
         }
 
         return ok();
@@ -228,7 +233,11 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
                 clearInterval(interval);
                 interval = null;
             }
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits });
+            const state = getState();
+            if (!state.isOk()) {
+                return err(new Error("Failed to get state after game ended"));
+            }
+            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state: state.value });
         }
     };
 

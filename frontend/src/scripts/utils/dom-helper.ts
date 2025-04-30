@@ -15,7 +15,13 @@ type ElementParams = {
 export const createEl = <T extends keyof HTMLElementTagNameMap>(
     tag: T,
     className: string = "",
-    { text, attributes, props, events, children }: ElementParams = {}
+    {
+        text,
+        attributes,
+        props,
+        events,
+        children,
+    }: ElementParams & { style?: Partial<CSSStyleDeclaration> } = {}
 ): HTMLElementTagNameMap[T] => {
     const el = document.createElement(tag);
     el.className = className;

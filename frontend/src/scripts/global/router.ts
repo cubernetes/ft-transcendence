@@ -9,6 +9,7 @@ import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createQuickPlayPage } from "../ui/pages/QuickPlayPage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
+import { createTournamentPage } from "../ui/pages/TournamentPage";
 
 const routes = {
     landing: createLandingPage,
@@ -21,6 +22,7 @@ const routes = {
     profile: createProfilePage,
     quickplay: createQuickPlayPage,
     leaderboard: createLeaderboardPage,
+    tournament: createTournamentPage,
     totp: createTotpSetupPage, // Refactor into modal later
 } satisfies Record<string, PageRenderer>;
 
