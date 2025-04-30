@@ -219,7 +219,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
             return;
         }
         //showGameOver(renderer.scene, renderer.camera, winner);
-        await controller.handleEndMatch(winner, state);
+        await controller.handleEndTournamentMatch(winner, state);
         navigateTo("tournament");
     };
 

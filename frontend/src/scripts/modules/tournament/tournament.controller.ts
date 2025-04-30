@@ -77,7 +77,7 @@ export const createTournamentController = (allPlayers: string[]) => {
         });
     };
 
-    const handleEndMatch = async (winnerName: string, finalState: PongState) => {
+    const handleEndTournamentMatch = async (winnerName: string, finalState: PongState) => {
         const { matches, activePlayers, round } = tournamentStore.get();
         if (!matches || matches.length === 0) {
             window.log.error("No matches found in tournament store.");
@@ -137,7 +137,7 @@ export const createTournamentController = (allPlayers: string[]) => {
 
     const controller = {
         startMatch,
-        handleEndMatch,
+        handleEndTournamentMatch,
         createNextRound,
         startTournament,
         stopTournament,
