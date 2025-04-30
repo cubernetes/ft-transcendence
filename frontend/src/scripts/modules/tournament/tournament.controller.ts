@@ -1,7 +1,7 @@
 import { PongState, defaultGameConfig } from "@darrenkuro/pong-core";
 import { buildTournamentTree } from "../../ui/layout/TournamentBracket";
 import { gameStore } from "../game/game.store";
-import { Round, TournamentState, tournamentStore } from "./tournament.store";
+import { TournamentState, tournamentStore } from "./tournament.store";
 import {
     determineRound,
     generateRoundMatches,
@@ -10,8 +10,6 @@ import {
 } from "./tournament.utils";
 
 export const createTournamentController = (allPlayers: string[]) => {
-    // let unsubscribeTreeUpdate: () => void;
-
     const createNextRound = () => {
         const { activePlayers, matches } = tournamentStore.get();
 
@@ -22,9 +20,6 @@ export const createTournamentController = (allPlayers: string[]) => {
 
         const roundMatches = generateRoundMatches(activePlayers);
         const nextRound = determineRound(roundMatches);
-        window.log.debug("Next round determined: ", nextRound);
-
-        // Safely create a new matches array
         const newMatches = [...(matches ?? []), roundMatches];
 
         const partialUpdate: Partial<TournamentState> = {
@@ -34,7 +29,6 @@ export const createTournamentController = (allPlayers: string[]) => {
         };
 
         tournamentStore.update(partialUpdate);
-        window.log.debug("Next Round created: ", tournamentStore.get());
     };
 
     const startTournament = () => {
@@ -42,10 +36,7 @@ export const createTournamentController = (allPlayers: string[]) => {
             tournamentId: generateUniqueTournamentId(),
             activePlayers: allPlayers,
         });
-
-        // subscribeTournamentTree();
         createNextRound();
-        window.log.debug("Tournament started");
     };
 
     const getFinalWinner = (): string | null => {
@@ -69,7 +60,6 @@ export const createTournamentController = (allPlayers: string[]) => {
         if (!controller) {
             throw new Error("initialize_controller");
         }
-        window.log.debug("Starting match in tournament");
         controller.startGame("tournament", {
             ...defaultGameConfig,
             playTo: 3,
@@ -85,7 +75,6 @@ export const createTournamentController = (allPlayers: string[]) => {
 
         const currentRoundMatches = matches[matches.length - 1];
 
-        // Find the match where winnerName is one of the two players and winner is still null
         const matchToUpdate = currentRoundMatches.find(
             (match) => match.players.includes(winnerName) && match.winner === null
         );
@@ -95,26 +84,17 @@ export const createTournamentController = (allPlayers: string[]) => {
             return;
         }
 
-        // Update match
         matchToUpdate.winner = winnerName;
         matchToUpdate.score = finalState.scores;
 
-        // Update the store (force store to update)
         tournamentStore.update({
             matches: [...matches],
             activePlayers: [...(activePlayers ?? []), winnerName],
         });
 
-        // Check if entire round is now completed
         if (roundCompleted(matches) && round !== "Final") {
-            window.log.debug("Round completed, creating next round.");
             createNextRound();
         }
-    };
-
-    const stopTournament = () => {
-        resetTournament();
-        // cleanup();
     };
 
     const resetTournament = () => {
@@ -139,7 +119,6 @@ export const createTournamentController = (allPlayers: string[]) => {
         handleEndTournamentMatch,
         createNextRound,
         startTournament,
-        stopTournament,
         resetTournament,
         getTournamentTree,
         getFinalWinner,

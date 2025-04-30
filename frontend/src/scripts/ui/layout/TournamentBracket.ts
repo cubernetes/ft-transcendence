@@ -5,7 +5,7 @@ import { createButton } from "../components/Button";
 export const buildTournamentTree = (matches: MatchState[][], round: Round): HTMLElement => {
     const bracketContainer = createEl("div", "relative w-full overflow-x-auto");
 
-    if (!matches || matches.length === 0) {
+    if (!matches || matches.length === 0 || !round) {
         const emptyMessage = createEl("p", "text-center text-gray-500", {
             text: "Tournament not started or no matches yet.",
         });
@@ -15,7 +15,7 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
 
     const treeWrapper = createEl("div", "flex flex-row gap-16 px-10 py-6 relative");
 
-    matches.forEach((roundMatches, roundIdx) => {
+    matches.forEach((roundMatches) => {
         const roundColumn = createEl("div", "flex flex-col items-center gap-12");
         window.log.debug("Round: ", round);
         const roundTitle = createEl("h3", "text-xl font-semibold", {

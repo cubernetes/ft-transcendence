@@ -27,18 +27,6 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
         }
     });
 
-    // const inputRead = createEl("input", "mx-2", {
-    //     props: { type: "text", placeholder: "Get GameID" },
-    //     attributes: { id: "value" },
-    //     style: { display: "none" },
-    // });
-
-    // const inputWrite = createEl("input", "mx-2", {
-    //     props: { type: "text", placeholder: "Write GameId" },
-    //     attributes: { id: "value", display: "none" },
-    //     style: { display: "none" },
-    // });
-
     const readButton = createButton("Get Tournament History", "", async () => {
         const gameId = BigInt(tournamentStore.get().tournamentId || "0");
         const result = await readLocalContract(publicClient, "getAllGameIds", [gameId]);

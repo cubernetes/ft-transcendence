@@ -20,7 +20,6 @@ export const generateRoundMatches = (players: string[]): MatchState[] => {
 
 export const determineRound = (matches: MatchState[]): Round => {
     const matchCount = matches.length;
-    window.log.debug("What is the length: ", matchCount);
     if (matchCount === 1) {
         return "Final";
     } else if (matchCount === 2) {
@@ -36,7 +35,6 @@ export const roundCompleted = (matches: MatchState[][] | null): boolean => {
         return false;
     }
 
-    // Get the matches for the current round (last added)
     const currentRoundMatches = matches[matches.length - 1];
 
     window.log.debug("Current Round Matches: ", currentRoundMatches);
@@ -45,7 +43,6 @@ export const roundCompleted = (matches: MatchState[][] | null): boolean => {
         return false;
     }
 
-    // A round is completed if every match has a winner
     return currentRoundMatches.every((match) => match.winner !== null);
 };
 
