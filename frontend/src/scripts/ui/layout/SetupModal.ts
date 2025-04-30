@@ -152,6 +152,8 @@ const joinLobby = (ctn: HTMLElement) => {
             }
             window.log.debug("Joining game with ID:", gameId);
 
+           navigateTo("onlinegame");
+
             //TODO: Implement the join lobby logic
             // const { controller } = gameStore.get();
             // if (!controller) {
