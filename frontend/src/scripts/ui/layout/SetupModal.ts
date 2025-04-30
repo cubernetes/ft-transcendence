@@ -218,6 +218,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
         }
         hideErr();
         const controller = createTournamentController([...players]);
+        tournamentStore.update({ controller });
         controller.startTournament();
         navigateTo("tournament");
     });

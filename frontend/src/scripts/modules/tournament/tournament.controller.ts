@@ -41,7 +41,6 @@ export const createTournamentController = (allPlayers: string[]) => {
         tournamentStore.update({
             tournamentId: generateUniqueTournamentId(),
             activePlayers: allPlayers,
-            controller: controller,
         });
 
         // subscribeTournamentTree();
