@@ -55,11 +55,22 @@ export const createTournamentController = (allPlayers: string[]) => {
         return finalMatch?.winner ?? null;
     };
 
-    const startMatch = () => {
+    const startMatch = (gameId: number) => {
         const { controller } = gameStore.get();
         if (!controller) {
             throw new Error("initialize_controller");
         }
+        const { matches } = tournamentStore.get();
+        if (!matches || matches.length === 0) {
+            window.log.error("No matches found in tournament store.");
+            return;
+        }
+        const players = matches[matches.length - 1][gameId].players;
+        if (!players || players.length < 2) {
+            window.log.error("Not enough players for the match.");
+            return;
+        }
+        gameStore.update({ players });
         controller.startGame("tournament", {
             ...defaultGameConfig,
             playTo: 3,
