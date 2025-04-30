@@ -3,34 +3,20 @@ import {
     registerOutgoingMessageHandler as registerHandler,
     safeJsonParse,
 } from "@darrenkuro/pong-core";
+import { authStore } from "../auth/auth.store";
 import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
-import { authStore } from "../auth/auth.store";
 
-export const registerGeneralHandlers = (conn: WebSocket) => {
-    if (!conn) {
-        window.log.warn("Socket is null when trying to register general handlers");
-        return;
-    }
+const registerGeneralHandlers = (conn: WebSocket) => {
+    conn.onopen = () => window.log.info("WebSocket connection established");
 
-    conn.onopen = () => {
-        window.log.info("WebSocket connection established");
-    };
+    conn.onclose = () => window.log.info("WebSocket connection closed");
 
-    conn.onerror = (error) => {
-        if (error instanceof ErrorEvent) {
-            window.log.debug(`Websocket error: ${error.message}`);
-        } else {
-            window.log.debug(`Websocket error: unknown`);
-        }
-    };
-
-    conn.onclose = () => {
-        window.log.info("WebSocket connection closed");
-    };
+    conn.onerror = (e) =>
+        window.log.info(`Socket error: ${e instanceof ErrorEvent ? e.message : "unknown"}`);
 };
 
-export const registerGameControllers = (conn: WebSocket) => {
+const registerGameControllers = (conn: WebSocket) => {
     const { handlers } = wsStore.get();
 
     registerHandler(
@@ -40,7 +26,7 @@ export const registerGameControllers = (conn: WebSocket) => {
             if (!displayName) return;
             const players = index === 0 ? [displayName, opponentName] : [opponentName, displayName];
             gameStore.update({
-                players: [displayName, opponentName],
+                players,
                 isPlaying: true,
                 isWaiting: false,
                 gameId,
@@ -63,26 +49,21 @@ export const registerGameControllers = (conn: WebSocket) => {
     // In game handlers will be registered by game controller at online game start time
 
     const handleMessage = (evt: MessageEvent<any>) => {
-        const result = safeJsonParse<OutgoingMessage<OutgoingMessageType>>(evt.data);
-        if (result.isErr()) {
-            window.log.error(`Fail to parse socket message: ${evt.data}`);
-            return;
-        }
+        // Try to parse socket message to json and guard against invalid format
+        const tryParseMessage = safeJsonParse<OutgoingMessage<OutgoingMessageType>>(evt.data);
+        if (tryParseMessage.isErr())
+            return window.log.error(`Fail to parse socket message: ${evt.data}`);
 
-        const { type } = result.value;
-        if (!type) {
-            window.log.error(`Fail to handle socket message without a type: ${result.value}`);
-            return;
-        }
+        // Try to get message type, payload, and guard against empty type
+        const { type, payload } = tryParseMessage.value;
+        if (!type) return window.log.error(`Fail to handle socket message: type is null`);
 
+        // Try to get the handler for message type and guard against handler doens't exist
         const handler = wsStore.get().handlers.get(type);
+        if (!handler) return window.log.error(`Unhandled message type: ${type}`);
 
-        if (!handler) {
-            window.log.error(`Unhandled message type: ${type}`);
-            return;
-        }
-
-        handler(result.value.payload);
+        // Execute handler for the message
+        handler(payload);
     };
 
     conn.onmessage = handleMessage;
