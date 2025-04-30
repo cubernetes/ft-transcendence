@@ -112,7 +112,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         detachAiControl();
     };
 
-    const attachLocalEngineEvents = () => {
+    const attachLocalEngineEvents = (mode: GameMode) => {
         engine.onEvent("wall-collision", handleWallCollision);
         engine.onEvent("paddle-collision", handlePaddleCollision);
         engine.onEvent("score-update", (evt) => handleScoreUpdate(evt.scores));
@@ -121,17 +121,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         // TODO: GET NAME
         // Don't hook this for now because game-end event will be called when going away from page
         // And that breaks the page (why navigation wasn't working)
-        // engine.onEvent("game-end", (_) => handleEndGame("winnerName"));
-    };
-
-    const attachTournamentEngineEvents = () => {
-        engine.onEvent("wall-collision", handleWallCollision);
-        engine.onEvent("paddle-collision", handlePaddleCollision);
-        engine.onEvent("score-update", (evt) => handleScoreUpdate(evt.scores));
-        engine.onEvent("state-update", (evt) => handleStateUpdate(evt.state));
-        engine.onEvent("ball-reset", handleBallReset);
-        // TODO: GET NAME, requires a tournament player with the name "default".
-        engine.onEvent("game-end", (evt) => handleEndRoundMatch("default", evt.state));
+        engine.onEvent("game-end", (evt) => handleEndGame(mode, evt.winner, evt.state));
     };
 
     const attachOnlineSocketEvents = () => {
@@ -147,7 +137,11 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         registerHandler("score-update", ({ scores }) => handleScoreUpdate(scores), handlers);
         registerHandler("ball-reset", handleBallReset, handlers);
         // TODO: Get name
-        registerHandler("game-end", (evt) => handleEndGame("winnerName"), handlers);
+        registerHandler(
+            "game-end",
+            (evt) => handleEndGame("online", evt.winner, evt.state),
+            handlers
+        );
     };
 
     const updateBall = (newBall: Ball) => {
@@ -205,22 +199,24 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         }
     };
 
-    const handleEndGame = (winner: string) => {
-        // Attach that in payload later
-        showGameOver(renderer.scene, renderer.camera, winner);
-
-        // Dispose stuff right away? Probably not..
-    };
-
-    const handleEndRoundMatch = async (winner: string, state: PongState) => {
-        const { controller } = tournamentStore.get();
-        if (!controller) {
-            window.log.error("Tournament controller not found");
+    const handleEndGame = async (mode: GameMode, winner: number, state: PongState) => {
+        //TODO: the below does not work for online mode.
+        const { players } = gameStore.get();
+        if (!players) {
+            window.log.error("Players not found in game store");
             return;
         }
-        //showGameOver(renderer.scene, renderer.camera, winner);
-        await controller.handleEndTournamentMatch(winner, state);
-        navigateTo("tournament");
+        const winnerName = players[winner];
+        showGameOver(renderer.scene, renderer.camera, winnerName);
+        if (mode === "tournament") {
+            const { controller } = tournamentStore.get();
+            if (!controller) {
+                window.log.error("Tournament controller not found");
+                return;
+            }
+            await controller.handleEndTournamentMatch(winnerName, state);
+        }
+        // Dispose stuff right away? Probably not..
     };
 
     const handleStateUpdate = (state: PongState) => {
@@ -264,10 +260,14 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         requestAnimationFrame(() => renderer.resize());
     };
 
-    const startLocalGame = (config: PongConfig) => {
+    const startLocalGame = (mode: GameMode, config: PongConfig) => {
         engine.reset(config);
-        attachLocalControl();
-        attachLocalEngineEvents();
+        if (mode === "ai") {
+            attachAiControl();
+        } else {
+            attachLocalControl();
+        }
+        attachLocalEngineEvents(mode);
         engine.start(); // get config
         startRenderer(config); // send config to renderer instead of using default
     };
@@ -279,47 +279,6 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         startRenderer(config); // move this to msg handler
     };
 
-    const startAiGame = (config: PongConfig) => {
-        engine.reset(config);
-        attachAiControl();
-        attachLocalEngineEvents();
-        engine.start();
-        startRenderer(config);
-    };
-
-    const startTournamentGame = (config: PongConfig) => {
-        engine.reset(config);
-        attachLocalControl();
-        attachTournamentEngineEvents();
-        engine.start();
-        startRenderer(config);
-
-        //Comment out the above and use below for easier testing:
-        // const paddle1: Paddle = {
-        //     pos: { x: 0, y: 0, z: 0 },
-        //     size: { width: 1, height: 1, depth: 1 },
-        //     speed: 1,
-        // };
-        // const paddle2: Paddle = {
-        //     pos: { x: 0, y: 0, z: 0 },
-        //     size: { width: 1, height: 1, depth: 1 },
-        //     speed: 1,
-        // };
-        // const ball: Ball = {
-        //     pos: { x: 0, y: 0, z: 0 },
-        //     vec: { x: 0, y: 0, z: 0 },
-        //     r: 1,
-        //     speed: 1,
-        // };
-        // const state: PongState = {
-        //     status: "ended",
-        //     scores: [4, 5],
-        //     ball: ball,
-        //     paddles: [paddle1, paddle2],
-        // };
-        // handleEndRoundMatch("default", state);
-    };
-
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
         hidePageElements();
         hideRouter();
@@ -327,16 +286,12 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
         switch (mode) {
             case "local":
-                startLocalGame(config);
+            case "tournament":
+            case "ai":
+                startLocalGame(mode, config);
                 break;
             case "online":
                 startOnlineGame(config);
-                break;
-            case "ai":
-                startAiGame(config);
-                break;
-            case "tournament":
-                startTournamentGame(config);
                 break;
             default:
         }

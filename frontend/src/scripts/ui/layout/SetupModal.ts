@@ -106,6 +106,11 @@ const aiMode = (ctn: HTMLElement) => {
     translatableElements["play_ai"] = title;
 
     const line = createSetupLine();
+    let p1 = createInput("name_player_1");
+    const username = authStore.get().username;
+    if (authStore.get().isAuthenticated && username) {
+        p1.value = username;
+    }
     const difficultyGrp = createDifficultyGroup();
     const { errorDiv, showErr, hideErr } = createError();
 
@@ -122,8 +127,10 @@ const aiMode = (ctn: HTMLElement) => {
         if (!controller) {
             return showErr("initialize_controller");
         }
+        gameStore.update({ players: [p1.value, "The AI"] });
         controller.startGame("ai", {
             ...defaultGameConfig,
+            playTo: 5,
             aiDifficulty: difficulty,
             aiMode: true,
         });
@@ -133,6 +140,7 @@ const aiMode = (ctn: HTMLElement) => {
         returnBtn,
         title,
         line,
+        p1,
         difficultyGrp,
         playBtn,
         errorDiv,
@@ -173,7 +181,11 @@ const localMode = (ctn: HTMLElement) => {
         if (!controller) {
             return showErr("initialize_controller");
         }
-        controller.startGame("local");
+        gameStore.update({ players: [player1, player2] });
+        controller.startGame("local", {
+            ...defaultGameConfig,
+            playTo: 5,
+        });
     });
 
     const section = createSectionContainer("w-1/2 bg-gray-300 p-8 items-center relative", [
