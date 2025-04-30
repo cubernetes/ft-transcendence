@@ -5,6 +5,7 @@ import {
 } from "@darrenkuro/pong-core";
 import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
+import { authStore } from "../auth/auth.store";
 
 export const registerGeneralHandlers = (conn: WebSocket) => {
     if (!conn) {
@@ -34,8 +35,12 @@ export const registerGameControllers = (conn: WebSocket) => {
 
     registerHandler(
         "game-start",
-        ({ gameId, opponentId, index }) => {
+        ({ gameId, opponentId, opponentName, index }) => {
+            const { displayName } = authStore.get();
+            if (!displayName) return;
+            const players = index === 0 ? [displayName, opponentName] : [opponentName, displayName];
             gameStore.update({
+                players: [displayName, opponentName],
                 isPlaying: true,
                 isWaiting: false,
                 gameId,
