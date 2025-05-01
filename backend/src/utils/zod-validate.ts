@@ -9,7 +9,7 @@ type InferSchemaMap<S extends SchemaMap> = {
     [K in keyof S]: S[K] extends ZodTypeAny ? z.infer<S[K]> : never;
 };
 
-type ZodHandler<S extends SchemaMap> = (
+export type ZodHandler<S extends SchemaMap> = (
     data: InferSchemaMap<S>,
     req: FastifyRequest,
     reply: FastifyReply
