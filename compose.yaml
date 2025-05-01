@@ -137,7 +137,7 @@ services:
             - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh"
             - ./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json
             - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh"
-        command: ["/bin/bash", "/usr/share/elasticsearch/config/startup.sh"]
+        command: ["/usr/share/elasticsearch/config/startup.sh"]
         user: root # Run as root to ensure we can set permissions
         ports:
             - "${ELASTICSEARCH_PORT:-9200}:${ELASTICSEARCH_PORT:-9200}"
