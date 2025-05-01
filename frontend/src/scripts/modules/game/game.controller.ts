@@ -200,13 +200,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const handleEndGame = async (mode: GameMode, winner: number, state: PongState) => {
-        //TODO: the below does not work for online mode.
-        const { players } = gameStore.get();
-        if (!players) {
-            window.log.error("Players not found in game store");
-            return;
-        }
-        const winnerName = players[winner];
+        const { playerNames } = gameStore.get();
+        const winnerName = playerNames[winner];
         showGameOver(renderer.scene, renderer.camera, winnerName);
         if (mode === "tournament") {
             const { controller } = tournamentStore.get();

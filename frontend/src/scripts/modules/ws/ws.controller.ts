@@ -21,16 +21,13 @@ const registerGameControllers = (conn: WebSocket) => {
 
     registerHandler(
         "game-start",
-        ({ gameId, opponentId, opponentName, index }) => {
-            const { displayName } = authStore.get();
-            if (!displayName) return;
-            const players = index === 0 ? [displayName, opponentName] : [opponentName, displayName];
+        ({ gameId, opponentId, playerNames, index }) => {
             gameStore.update({
-                players,
                 isPlaying: true,
                 isWaiting: false,
                 gameId,
                 opponentId,
+                playerNames,
                 index,
             });
         },

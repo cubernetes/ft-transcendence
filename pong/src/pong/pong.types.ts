@@ -1,4 +1,5 @@
 import type { AIDifficulty } from "../ai/ai.types";
+import { z } from "zod";
 import { createPongEngine } from "./pong.engine";
 
 export type Size3D = {
@@ -43,7 +44,8 @@ export type PongConfig = {
     aiDifficulty?: AIDifficulty;
 };
 
-export type UserInput = "up" | "down" | "stop";
+export type UserInput = z.infer<typeof UserInputSchema>;
+export const UserInputSchema = z.enum(["up", "down", "stop"]);
 
 export type GameMode = "local" | "online" | "ai" | "tournament";
 

@@ -3,7 +3,7 @@ import { PongConfig, PongEngineEventMap, UserInput } from "../pong/pong.types";
 export type IncomingMessageType =
     | "lobby-create"
     | "lobby-join"
-    | "lobby-update-config"
+    | "lobby-update"
     | "lobby-leave"
     | "game-start"
     | "game-action";
@@ -20,7 +20,7 @@ export type MessageType = IncomingMessageType | OutgoingMessageType;
 export type IncomingMessagePayloads = {
     "lobby-create": { config: PongConfig };
     "lobby-join": { lobbyId: string };
-    "lobby-update-config": { config: PongConfig };
+    "lobby-update": { config: PongConfig };
     "lobby-leave": null;
     "game-start": null;
     "game-action": { action: UserInput };
