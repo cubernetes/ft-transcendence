@@ -212,11 +212,7 @@ services:
             retries: 3
             start_period: 30s
         entrypoint:
-            [
-                "/bin/sh",
-                "-c",
-                "sh /usr/local/bin/import-logstash-ca.sh && /usr/local/bin/docker-entrypoint",
-            ]
+            ["sh", "-c", "/usr/local/bin/import-logstash-ca.sh && /usr/local/bin/docker-entrypoint"]
 
     kibana:
         profiles: [elk]
