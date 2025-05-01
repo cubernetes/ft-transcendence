@@ -29,9 +29,9 @@ export const createLobbyController = (app: FastifyInstance) => {
         });
     };
 
-    const updateConfig = (_: WebSocket, payload: Payloads["lobby-update-config"]): void => {};
+    const update = (_: WebSocket, payload: Payloads["lobby-update"]): void => {};
 
     const leave = (conn: WebSocket): void => {};
 
-    return { create, join, updateConfig, leave };
+    return { create, join, update, leave };
 };

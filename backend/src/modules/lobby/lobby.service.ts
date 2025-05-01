@@ -1,10 +1,10 @@
-import type { FastifyInstance, WebSocket } from "fastify";
+import type { WebSocket } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { v4 as uuidv4 } from "uuid";
 import { PongConfig, createPongEngine } from "@darrenkuro/pong-core";
-import { GameSession, LobbyId } from "../game/game.types.ts";
+import { GameSession, LobbyId } from "./lobby.types.ts";
 
-export const createLobbyService = (app: FastifyInstance) => {
+export const createLobbyService = () => {
     const gameSessions: Map<LobbyId, GameSession> = new Map();
 
     const generateUniqueId = (length: number = 6): string => {
@@ -52,7 +52,7 @@ export const createLobbyService = (app: FastifyInstance) => {
         return ok(session);
     };
 
-    const updateConfig = (id: string, config: PongConfig): Result<void, string> => {
+    const update = (id: string, config: PongConfig): Result<void, string> => {
         const session = gameSessions.get(id);
         if (!session) return err(`Couldn't find lobby ${id}`);
 
@@ -89,11 +89,5 @@ export const createLobbyService = (app: FastifyInstance) => {
         return ok(session);
     };
 
-    return {
-        create,
-        join,
-        updateConfig,
-        leave,
-        getSessionById,
-    };
+    return { create, join, update, leave, getSessionById };
 };

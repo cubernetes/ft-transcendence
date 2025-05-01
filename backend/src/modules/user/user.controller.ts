@@ -156,11 +156,4 @@ const getMe = async (req: FastifyRequest, reply: FastifyReply) => {
     return new ApiSuccess<GetMePayload>(data).send(reply);
 };
 
-export default {
-    register,
-    login,
-    logout,
-    getLeaderboard,
-    getInfo,
-    getMe,
-};
+export default { register, login, logout, getLeaderboard, getInfo, getMe };
