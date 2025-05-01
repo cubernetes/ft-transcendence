@@ -181,6 +181,8 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
 
     const getState = (): PongState => ({ status, scores, ball, paddles });
 
+    const getConfig = (): PongConfig => config;
+
     const tick = (): Result<void, Error> => {
         if (status !== "ongoing") {
             return err(new Error("Game is not ongoing"));
@@ -210,7 +212,6 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         }
 
         interval = setInterval(tick, tickRate);
-        emit("game-start", null);
         return ok();
     };
 
@@ -263,5 +264,5 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         return { listeners, userInputs, scores, paddles, ball, tickRate, interval, status };
     };
 
-    return { start, stop, onEvent, setInput, reset, getInternalState };
+    return { start, stop, onEvent, setInput, reset, getConfig, getInternalState };
 };

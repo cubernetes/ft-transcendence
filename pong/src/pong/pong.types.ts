@@ -56,7 +56,6 @@ export type PongEngineEventMap = {
     "state-update": { state: PongState };
     "score-update": { scores: [number, number] };
     "ball-reset": null;
-    "game-start": null;
     "game-end": {
         winner: 0 | 1;
         hits: [number, number];
