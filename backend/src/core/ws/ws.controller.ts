@@ -20,9 +20,9 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
 
         // Try to get handler for the message type
         const handler = app.wsService.getHandler(msg.value.type);
-        if (handler.isErr()) return app.log.error(`Unhandled message type: ${msg.value.type}`);
+        if (!handler) return app.log.error(`Unhandled message type: ${msg.value.type}`);
 
-        handler.value(conn, msg.value.payload);
+        handler(conn, msg.value.payload);
     });
 
     conn.on("close", () => {
