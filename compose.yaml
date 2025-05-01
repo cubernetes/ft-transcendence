@@ -251,14 +251,14 @@ services:
             start_period: 30s
 
         command: >
-            bash -c "
+            sh -ec '
               /usr/local/bin/kibana-docker &
-              KIBANA_PID=$!;
-              echo 'Kibana starting with PID $KIBANA_PID';
-              sleep 120;
+              KIBANA_PID=$!
+              echo "Kibana starting with PID $$KIBANA_PID"
+              sleep 120
               /usr/share/kibana/setup-dashboards.sh &
-              wait $KIBANA_PID
-            "
+              wait $$KIBANA_PID
+            '
 
     vault:
         build:
