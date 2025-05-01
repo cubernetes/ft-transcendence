@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -e
 
 : "${ELASTIC_PASSWORD:?Missing ELASTIC_PASSWORD}"
@@ -41,4 +42,4 @@ curl --insecure -X PUT "https://localhost:9200/_ilm/policy/logs" --header 'Conte
 # Wait for the original Elasticsearch process
 wait $ES_PID
 
-echo "\nElasticsearch setup complete!"
+echo -e "\nElasticsearch setup complete!"
