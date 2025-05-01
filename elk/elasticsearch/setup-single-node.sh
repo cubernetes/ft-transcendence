@@ -23,21 +23,21 @@ done
 echo "Setting up users and security..."
 
 # Create logstash user
-curl --insecure "https://localhost:9200/_security/user/${LOGSTASH_USER}" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data '{
+curl --insecure "https://localhost:${ELASTICSEARCH_PORT:-9200}/_security/user/${LOGSTASH_USER}" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data '{
   "password" : "'"${LOGSTASH_PASSWORD}"'",
   "roles" : [ "superuser" ],
   "full_name" : "Logstash User"
 }'
 
 # Create kibana user with both superuser and kibana_system roles
-curl --insecure "https://localhost:9200/_security/user/${KIBANA_USER}" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data '{
+curl --insecure "https://localhost:${ELASTICSEARCH_PORT:-9200}/_security/user/${KIBANA_USER}" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data '{
   "password" : "'"${KIBANA_PASSWORD}"'",
   "roles" : [ "superuser", "kibana_system" ],
   "full_name" : "Kibana System User"
 }'
 
 # Set up ILM policy
-curl --insecure -X PUT "https://localhost:9200/_ilm/policy/logs" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data "@/usr/share/elasticsearch/config/ilm-policy.json"
+curl --insecure -X PUT "https://localhost:${ELASTICSEARCH_PORT:-9200}/_ilm/policy/logs" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data "@/usr/share/elasticsearch/config/ilm-policy.json"
 
 # Wait for the original Elasticsearch process
 wait $ES_PID
