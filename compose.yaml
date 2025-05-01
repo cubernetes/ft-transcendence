@@ -160,7 +160,7 @@ services:
                     "curl",
                     "--insecure",
                     "--user",
-                    "elastic:${ELASTIC_PASSWORD:-changeme}",
+                    "elastic:${ELASTIC_PASSWORD}",
                     "--silent",
                     "--fail",
                     "https://localhost:${ELASTICSEARCH_PORT:-9200}/_cluster/health",
