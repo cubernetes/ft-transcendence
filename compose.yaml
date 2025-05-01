@@ -135,7 +135,7 @@ services:
             - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml"
             - "./elk/elasticsearch/config/generate-certs.sh:/usr/share/elasticsearch/config/generate-certs.sh"
             - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh"
-            - ./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json
+            - "./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json"
             - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh"
         command: ["/usr/share/elasticsearch/config/startup.sh"]
         user: root # Run as root to ensure we can set permissions
