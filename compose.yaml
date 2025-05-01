@@ -110,6 +110,7 @@ services:
         env_file: *env-files
 
     elasticsearch:
+        profiles: [elk]
         image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
         container_name: elasticsearch
         environment:
@@ -164,6 +165,7 @@ services:
             retries: 5
 
     logstash:
+        profiles: [elk]
         image: docker.elastic.co/logstash/logstash:8.17.3
         container_name: logstash
         volumes:
@@ -207,6 +209,7 @@ services:
             ]
 
     kibana:
+        profiles: [elk]
         image: docker.elastic.co/kibana/kibana:8.17.3
         container_name: kibana
         ports:
