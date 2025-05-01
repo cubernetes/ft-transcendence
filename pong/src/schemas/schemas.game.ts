@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export type PublicGame = z.infer<typeof publicGame>;
 const publicGame = z.object({
-    id: z.string(),
+    id: z.number(),
     player1Username: z.string(),
     player2Username: z.string(),
     winnerIndex: z.literal(0).or(z.literal(1)),

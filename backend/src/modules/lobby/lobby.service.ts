@@ -1,6 +1,5 @@
 import type { WebSocket } from "fastify";
 import { Result, err, ok } from "neverthrow";
-import { v4 as uuidv4 } from "uuid";
 import { PongConfig, createPongEngine } from "@darrenkuro/pong-core";
 import { GameSession, LobbyId } from "./lobby.types.ts";
 
@@ -26,12 +25,11 @@ export const createLobbyService = () => {
         if (lobbyId) return err(`Client is already in a lobby: ${lobbyId}`);
 
         const id = generateUniqueId();
-        const gameId = uuidv4();
         const engine = createPongEngine(config);
         const players = [conn];
         const playerNames = [conn.userDisplayName!];
 
-        gameSessions.set(id, { gameId, engine, players, playerNames, createdAt: getTime() });
+        gameSessions.set(id, { engine, players, playerNames, createdAt: getTime() });
         conn.lobbyId = id;
         return ok(id);
     };

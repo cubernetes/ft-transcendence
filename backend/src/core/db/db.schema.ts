@@ -20,7 +20,7 @@ export const users = sqliteTable("users", {
 export const games = sqliteTable(
     "games",
     {
-        id: text().unique().primaryKey().notNull(), // UUID
+        id: integer().primaryKey({ autoIncrement: true }),
         player1Id: integer("player1_id")
             .notNull()
             .references(() => users.id),

@@ -42,7 +42,6 @@ export const createGameService = (app: FastifyInstance) => {
 
     const toNewGame = (session: GameSession, payload: Payloads["game-end"]): NewGame => {
         return {
-            id: session.gameId,
             createdAt: session.createdAt,
             player1Id: session.players[0].userId!,
             player2Id: session.players[1].userId!,
@@ -71,9 +70,7 @@ export const createGameService = (app: FastifyInstance) => {
         username: string
     ): Promise<Result<PublicGame[], ApiError>> => {
         const tryGetUser = await app.userService.findByUsername(username);
-        if (tryGetUser.isErr()) {
-            return err(tryGetUser.error);
-        }
+        if (tryGetUser.isErr()) return err(tryGetUser.error);
 
         const user = tryGetUser.value;
         try {
@@ -87,11 +84,11 @@ export const createGameService = (app: FastifyInstance) => {
             const result: PublicGame[] = [];
             for (const game of userGames) {
                 const tryMapGame = await toPublicGame(game);
-                if (tryMapGame.isErr()) {
-                    return err(tryMapGame.error);
-                }
+                if (tryMapGame.isErr()) return err(tryMapGame.error);
+
                 result.push(tryMapGame.value);
             }
+
             return ok(result);
         } catch (error) {
             app.log.debug({ error }, "Failed to get games by username");
