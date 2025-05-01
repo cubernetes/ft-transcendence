@@ -21,6 +21,7 @@ if [ ! -f "$CERTS_DIR/elastic-certificates.p12" ]; then
         --silent
 
     # Generate certificates
+	elasticsearch_ip=$(hostname -I | grep -o '10\.42\.42\.[[:digit:]]\+' | head -n 1)
     /usr/share/elasticsearch/bin/elasticsearch-certutil cert \
         --ca "$CERTS_DIR/elastic-stack-ca.p12" \
         --ca-pass "$KEYSTORE_PASSWORD" \
@@ -30,7 +31,7 @@ if [ ! -f "$CERTS_DIR/elastic-certificates.p12" ]; then
 		--dns elasticsearch \
   		--dns localhost \
   		--ip 127.0.0.1 \
-		--ip 10.42.42.3
+		--ip "$elasticsearch_ip"
 
     echo "SSL certificates generated successfully"
 else
