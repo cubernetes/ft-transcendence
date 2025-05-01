@@ -200,7 +200,13 @@ services:
         restart: unless-stopped
         healthcheck:
             test:
-                ["CMD", "curl", "--fail", "http://localhost:${LOGSTASH_API_PORT:-9600}/_node/stats"]
+                [
+                    "CMD",
+                    "curl",
+                    "--silent",
+                    "--fail",
+                    "http://localhost:${LOGSTASH_API_PORT:-9600}/_node/stats",
+                ]
             interval: 10s
             timeout: 5s
             retries: 3
