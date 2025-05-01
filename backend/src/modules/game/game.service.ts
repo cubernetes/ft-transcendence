@@ -1,4 +1,5 @@
-import type { FastifyInstance, WebSocket } from "fastify";
+import type { GameInsert, GameRecord } from "../../core/db/db.types.ts";
+import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { desc, eq, or } from "drizzle-orm";
 import { PublicGame } from "@darrenkuro/pong-core";
@@ -6,7 +7,6 @@ import { OutgoingMessagePayloads as Payloads } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
 import { ApiError, ServerError } from "../../utils/api-response.ts";
 import { GameSession } from "../lobby/lobby.types.ts";
-import { Game, NewGame } from "./game.types.ts";
 
 export const createGameService = (app: FastifyInstance) => {
     const { db } = app;
@@ -40,7 +40,7 @@ export const createGameService = (app: FastifyInstance) => {
         });
     };
 
-    const toNewGame = (session: GameSession, payload: Payloads["game-end"]): NewGame => {
+    const toNewGame = (session: GameSession, payload: Payloads["game-end"]): GameInsert => {
         return {
             createdAt: session.createdAt,
             player1Id: session.players[0].userId!,
@@ -53,7 +53,7 @@ export const createGameService = (app: FastifyInstance) => {
         };
     };
 
-    const create = async (data: NewGame): Promise<Result<Game, string>> => {
+    const create = async (data: GameInsert): Promise<Result<GameRecord, string>> => {
         try {
             const inserted = await db.insert(games).values(data).returning();
             const game = inserted[0];
@@ -96,7 +96,7 @@ export const createGameService = (app: FastifyInstance) => {
         }
     };
 
-    const toPublicGame = async (game: Game): Promise<Result<PublicGame, ApiError>> => {
+    const toPublicGame = async (game: GameRecord): Promise<Result<PublicGame, ApiError>> => {
         const tryGetPlayer1Username = await app.userService.getUsernameById(game.player1Id);
         const tryGetPlayer2Username = await app.userService.getUsernameById(game.player2Id);
         if (tryGetPlayer1Username.isErr() || tryGetPlayer2Username.isErr()) {

@@ -1,16 +1,16 @@
+import type { UserInsert, UserRecord } from "../../core/db/db.types.ts";
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { count, desc, eq } from "drizzle-orm";
 import { PersonalUser, PublicUser } from "@darrenkuro/pong-core";
 import { users } from "../../core/db/db.schema.ts";
 import { ApiError, ServerError, errUniqueConstraintOn } from "../../utils/api-response.ts";
-import { NewUser, User } from "./user.types.ts";
 import { getDynamicFields, hideFieldsPersonal, hideFieldsPublic } from "./user.utils.ts";
 
 export const createUserService = (app: FastifyInstance) => {
     const { db } = app;
 
-    const create = async (data: NewUser): Promise<Result<User, ApiError>> => {
+    const create = async (data: UserInsert): Promise<Result<UserRecord, ApiError>> => {
         try {
             const inserted = await db.insert(users).values(data).returning();
             const user = inserted[0];
@@ -28,7 +28,7 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
-    const findById = async (id: number): Promise<Result<User, ApiError>> => {
+    const findById = async (id: number): Promise<Result<UserRecord, ApiError>> => {
         try {
             const result = await db.select().from(users).where(eq(users.id, id));
             const user = result[0];
@@ -42,7 +42,7 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
-    const findByUsername = async (username: string): Promise<Result<User, ApiError>> => {
+    const findByUsername = async (username: string): Promise<Result<UserRecord, ApiError>> => {
         try {
             const result = await db.select().from(users).where(eq(users.username, username));
             const user = result[0];
@@ -70,7 +70,7 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
-    const findAll = async (): Promise<Result<User[], ApiError>> => {
+    const findAll = async (): Promise<Result<UserRecord[], ApiError>> => {
         try {
             const result = await db.select().from(users);
             return ok(result);
@@ -80,7 +80,10 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
-    const update = async (id: number, data: Partial<User>): Promise<Result<User, ApiError>> => {
+    const update = async (
+        id: number,
+        data: Partial<UserRecord>
+    ): Promise<Result<UserRecord, ApiError>> => {
         try {
             const updated = await db.update(users).set(data).where(eq(users.id, id)).returning();
             const user = updated[0];
@@ -98,7 +101,7 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
-    const remove = async (id: number): Promise<Result<User, ApiError>> => {
+    const remove = async (id: number): Promise<Result<UserRecord, ApiError>> => {
         try {
             const deleted = await db.delete(users).where(eq(users.id, id)).returning();
             const user = deleted[0];
@@ -137,14 +140,14 @@ export const createUserService = (app: FastifyInstance) => {
         return ok(rank);
     };
 
-    const toPublicUser = async (user: User): Promise<Result<PublicUser, ApiError>> => {
+    const toPublicUser = async (user: UserRecord): Promise<Result<PublicUser, ApiError>> => {
         const tryGetDynamicFields = await getDynamicFields(user, app);
         if (tryGetDynamicFields.isErr()) return err(tryGetDynamicFields.error);
 
         return ok({ ...hideFieldsPublic(user), ...tryGetDynamicFields.value });
     };
 
-    const toPersonalUser = async (user: User): Promise<Result<PersonalUser, ApiError>> => {
+    const toPersonalUser = async (user: UserRecord): Promise<Result<PersonalUser, ApiError>> => {
         const tryGetDynamicFields = await getDynamicFields(user, app);
         if (tryGetDynamicFields.isErr()) return err(tryGetDynamicFields.error);
 

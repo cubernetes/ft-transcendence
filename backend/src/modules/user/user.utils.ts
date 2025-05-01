@@ -1,16 +1,16 @@
+import type { UserRecord } from "../../core/db/db.types.ts";
 import { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { faker } from "@faker-js/faker";
 import { PublicGame } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/api-response.ts";
-import { User } from "./user.types.ts";
 
 // Configure object fields to be hidden for personal response
 const hiddenFieldsPersonal = ["passwordHash", "totpSecret", "temporaryTotpSecret"] as const;
 type HiddenFieldsPersonal = (typeof hiddenFieldsPersonal)[number];
 
 /** Remove sensitive fields from user before sending response to users. */
-export const hideFieldsPersonal = (user: User): Omit<User, HiddenFieldsPersonal> => {
+export const hideFieldsPersonal = (user: UserRecord): Omit<UserRecord, HiddenFieldsPersonal> => {
     const safeUser = { ...user };
     for (const field of hiddenFieldsPersonal) {
         delete safeUser[field];
@@ -24,7 +24,7 @@ const hiddenFieldsPublic = [...hiddenFieldsPersonal, "totpEnabled"] as const;
 type HiddenFieldsPublic = (typeof hiddenFieldsPublic)[number];
 
 /** Remove sensitive fields from user before sending response to public. */
-export const hideFieldsPublic = (user: User): Omit<User, HiddenFieldsPublic> => {
+export const hideFieldsPublic = (user: UserRecord): Omit<UserRecord, HiddenFieldsPublic> => {
     const safeUser = { ...user };
     for (const field of hiddenFieldsPublic) {
         delete safeUser[field];
@@ -38,7 +38,7 @@ type DynamicFields = { rank: number; games: PublicGame[]; totalGames: number };
 
 /** Append dynamic user data. */
 export const getDynamicFields = async (
-    user: User,
+    user: UserRecord,
     app: FastifyInstance
 ): Promise<Result<DynamicFields, ApiError>> => {
     // Get game history
@@ -57,7 +57,7 @@ export const getDynamicFields = async (
     return ok({ rank, games, totalGames });
 };
 
-export const mockUser = (): User => {
+export const mockUser = (): UserRecord => {
     return {
         id: faker.number.int(),
         username: faker.internet.username(),

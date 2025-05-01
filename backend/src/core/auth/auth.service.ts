@@ -1,4 +1,3 @@
-import type { User } from "../../modules/user/user.types.ts";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import bcrypt from "bcrypt";
@@ -6,6 +5,7 @@ import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
 import { type JwtPayload, TotpSetupPayload, userSchemas } from "@darrenkuro/pong-core";
 import { ApiError } from "../../utils/api-response.ts";
+import { UserRecord } from "../db/db.types.ts";
 
 export const verifyCookie = async (req: FastifyRequest, _: FastifyReply) => {
     const { cookieName } = req.server.config;
@@ -31,7 +31,7 @@ export const createAuthService = (app: FastifyInstance) => {
 
     // TODO: exp to be defined in jwt plugin; also, maybe use access/refresh token?
     // With saving jwt to cookies, figure out how to handle expiration
-    const generateJwtToken = (user: User, exp: string = "1d"): string => {
+    const generateJwtToken = (user: UserRecord, exp: string = "1d"): string => {
         const { id, username, displayName } = user;
 
         const payload = { id: String(id), username, displayName } satisfies Omit<
