@@ -5,14 +5,11 @@ CA_CERT_PATH="/etc/logstash/config/certs/ca.crt"
 # Alias for the cert in the truststore
 CA_ALIAS="elasticsearch-ca"
 # Path to the JVM truststore (default for Logstash official images)
-TRUSTSTORE="/usr/share/logstash/jdk/lib/security/cacerts"
+TRUSTSTORE_PATH="/usr/share/logstash/jdk/lib/security/cacerts"
 
 KEYTOOL="/usr/share/logstash/jdk/bin/keytool"
 # Default truststore password
 STOREPASS="changeme"
-
-# Find the actual truststore path (handles java version wildcard)
-TRUSTSTORE_PATH=$(ls $TRUSTSTORE 2>/dev/null | head -n 1)
 
 if [ ! -f "$CA_CERT_PATH" ]; then
   echo "CA certificate not found at $CA_CERT_PATH"
