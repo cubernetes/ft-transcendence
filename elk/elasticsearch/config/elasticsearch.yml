@@ -22,6 +22,7 @@ xpack.security.transport.ssl.keystore.path: /usr/share/elasticsearch/config/cert
 xpack.security.transport.ssl.truststore.path: /usr/share/elasticsearch/config/certs/elastic-certificates.p12
 
 xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.verification_mode: certificate
 xpack.security.http.ssl.keystore.path: /usr/share/elasticsearch/config/certs/elastic-certificates.p12
 xpack.security.http.ssl.truststore.path: /usr/share/elasticsearch/config/certs/elastic-certificates.p12
 
