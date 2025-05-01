@@ -30,9 +30,7 @@ export type OutgoingMessagePayloads = PongEngineEventMap & {
     "lobby-created": { lobbyId: string };
     "lobby-joined": { config: PongConfig; playerNames: string[] };
     "lobby-updated": { config: PongConfig; playerNames: string[] };
-    "game-started": {
-        playerNames: [string, string];
-    };
+    "game-started": { playerNames: string[] };
 };
 
 export interface IncomingMessage<T extends IncomingMessageType> {

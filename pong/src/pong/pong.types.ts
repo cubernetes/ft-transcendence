@@ -57,7 +57,7 @@ export type PongEngineEventMap = {
     "paddle-collision": null;
     "state-update": { state: PongState };
     "score-update": { scores: [number, number] };
-    "ball-reset": null;
+    "ball-reset": null; // TODO: check if this is useful, not set up on the backend
     "game-end": {
         winner: 0 | 1;
         hits: [number, number];

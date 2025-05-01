@@ -1,70 +1,69 @@
 import type { FastifyInstance, WebSocket } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { desc, eq, or } from "drizzle-orm";
-import { PublicGame, UserInput } from "@darrenkuro/pong-core";
+import { PublicGame } from "@darrenkuro/pong-core";
+import { OutgoingMessagePayloads as Payloads } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
 import { ApiError, ServerError } from "../../utils/api-response.ts";
-import { Game, NewGame, PongEngine } from "./game.types.ts";
+import { GameSession } from "../lobby/lobby.types.ts";
+import { Game, NewGame } from "./game.types.ts";
 
 export const createGameService = (app: FastifyInstance) => {
     const { db } = app;
 
-    const registerCbHandlers = (engine: PongEngine, players: WebSocket[]): void => {
-        engine.onEvent("game-end", (evt) => {
-            app.wsService.broadcast(players, {
-                type: "game-end",
-                payload: evt,
-            });
-            // Save game data!!!
-        });
+    const registerCbHandlers = (session: GameSession): void => {
+        const { engine, players } = session;
 
-        engine.onEvent("score-update", (evt) => {
-            app.wsService.broadcast(players, {
-                type: "score-update",
-                payload: evt,
-            });
-        });
+        engine.onEvent("wall-collision", (payload) =>
+            app.wsService.broadcast(players, { type: "wall-collision", payload })
+        );
 
-        engine.onEvent("wall-collision", (_) => {
-            app.wsService.broadcast(players, {
-                type: "wall-collision",
-                payload: null,
-            });
-        });
+        engine.onEvent("paddle-collision", (payload) =>
+            app.wsService.broadcast(players, { type: "paddle-collision", payload })
+        );
 
-        engine.onEvent("paddle-collision", (_) => {
-            app.wsService.broadcast(players, {
-                type: "paddle-collision",
-                payload: null,
-            });
-        });
+        engine.onEvent("state-update", (payload) =>
+            app.wsService.broadcast(players, { type: "state-update", payload })
+        );
 
-        engine.onEvent("state-update", (evt) => {
-            app.wsService.broadcast(players, {
-                type: "state-update",
-                payload: evt,
-            });
+        engine.onEvent("score-update", (payload) =>
+            app.wsService.broadcast(players, { type: "score-update", payload })
+        );
+
+        engine.onEvent("game-end", async (payload) => {
+            app.wsService.broadcast(players, { type: "game-end", payload });
+
+            // Save game data to database
+            const gameData = toNewGame(session, payload);
+            const tryCreateGame = await create(gameData);
+            if (tryCreateGame.isErr()) return app.log.error(tryCreateGame.error);
         });
     };
 
-    const setUserInput = (engine: PongEngine, i: number, action: UserInput): void => {
-        engine.setInput(i, action);
+    const toNewGame = (session: GameSession, payload: Payloads["game-end"]): NewGame => {
+        return {
+            id: session.gameId,
+            createdAt: session.createdAt,
+            player1Id: session.players[0].userId!,
+            player2Id: session.players[1].userId!,
+            winnerId: session.players[payload.winner].userId!,
+            player1Hits: payload.hits[0],
+            player2Hits: payload.hits[1],
+            player1Score: payload.state.scores[0],
+            player2Score: payload.state.scores[1],
+        };
     };
 
-    // This won't be called as HTTP API endpoint, so Error instead of Api Error
-    const create = async (data: NewGame): Promise<Result<Game, Error>> => {
+    const create = async (data: NewGame): Promise<Result<Game, string>> => {
         try {
             const inserted = await db.insert(games).values(data).returning();
             const game = inserted[0];
-
-            if (!game) {
-                return err(new ServerError("Failed to create game"));
-            }
+            if (!game) return err("Failed to create game: dababase error");
 
             return ok(game);
         } catch (error) {
             app.log.debug({ error }, "Failed to create game");
-            return err(new ServerError("Failed to create game"));
+            return err("Failed to create game: unknown");
         }
     };
 
@@ -115,12 +114,8 @@ export const createGameService = (app: FastifyInstance) => {
     };
 
     return {
-        saveGameById,
         create,
-        tryGetOpponent,
-        registerGameSession,
         registerCbHandlers,
-        setUserInput,
         getGamesByUsername,
     };
 };
