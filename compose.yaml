@@ -156,9 +156,13 @@ services:
             test:
                 [
                     "CMD",
-                    "bash",
-                    "-c",
-                    "curl -k -u elastic:$${ELASTIC_PASSWORD:-changeme} --silent --fail https://localhost:9200/_cluster/health",
+                    "curl",
+                    "--insecure",
+                    "--user",
+                    "elastic:${ELASTIC_PASSWORD:-changeme}",
+                    "--silent",
+                    "--fail",
+                    "https://localhost:9200/_cluster/health",
                 ]
             interval: 30s
             timeout: 10s
