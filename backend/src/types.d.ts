@@ -4,9 +4,8 @@ import type { DbClient } from "./core/db/db.plugin.ts";
 import type { createPongService } from "./core/pong/pong.service.ts";
 import type { createWsService } from "./core/ws/ws.service.ts";
 import type { createGameService } from "./modules/game/game.service.ts";
-// import friendRoutes from "./friend/friend.routes";
+import type { createLobbyService } from "./modules/lobby/lobby.service.ts";
 // import type { createFriendService } from "./friend/friend.service";
-import type userRoutes from "./modules/user/user.routes.ts";
 import type { createUserService } from "./modules/user/user.service.ts";
 import type { WebSocket as WsWebSocket } from "ws";
 
@@ -19,9 +18,8 @@ declare module "fastify" {
         authService: ReturnType<typeof createAuthService>;
         userService: ReturnType<typeof createUserService>;
         gameService: ReturnType<typeof createGameService>;
+        lobbyService: ReturnType<typeof createLobbyService>;
         //friendService: ReturnType<typeof createFriendService>;
-        userRoutes: ReturnType<typeof userRoutes>;
-        //friendRoutes: ReturnType<typeof friendRoutes>;
         requireAuth: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
     }
 
@@ -35,5 +33,6 @@ declare module "fastify" {
         userId?: number;
         username?: string;
         userDisplayName?: string;
+        lobbyId?: string;
     }
 }
