@@ -131,7 +131,7 @@ services:
             ELASTIC_KEYSTORE_PASS: "changeme" # Password for the keystore
         volumes:
             - "elasticsearch-data:/usr/share/elasticsearch/data/"
-            - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/:ro"
+            - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/"
             - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
             - "./elk/elasticsearch/config/generate-certs.sh:/usr/share/elasticsearch/config/generate-certs.sh:ro"
             - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh:ro"
@@ -172,7 +172,7 @@ services:
             - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/:ro"
             - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
             - "logstash-data:/usr/share/logstash/data/"
-            - "elasticsearch-certs:/etc/logstash/config/certs/:ro"
+            - "elasticsearch-certs:/etc/logstash/config/certs/"
             - "./elk/logstash/scripts/import-logstash-ca.sh:/usr/local/bin/import-logstash-ca.sh:ro"
         ports:
             - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"

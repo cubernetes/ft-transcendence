@@ -1,10 +1,12 @@
 #!/bin/bash
+
 set -e
 
 # Set up permissions for certificates directory
-mkdir -p /usr/share/elasticsearch/config/certs
-chown -R elasticsearch:elasticsearch /usr/share/elasticsearch/config/certs
-chmod -R 770 /usr/share/elasticsearch/config/certs
+CERTS_DIR="/usr/share/elasticsearch/config/certs"
+
+chown -R elasticsearch:elasticsearch "$CERTS_DIR"
+chmod -R 770 "$CERTS_DIR"
 
 # Export all environment variables
 export ELASTIC_PASSWORD
