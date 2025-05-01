@@ -13,7 +13,7 @@ echo "Kibana is fully operational. Importing dashboards..."
 # Import dashboards
 for dashboard in /usr/share/kibana/dashboards/*.ndjson; do
   echo "Importing dashboard: $(basename $dashboard)"
-  curl -X POST "http://kibana:5601/api/saved_objects/_import" \
+  curl "http://kibana:5601/api/saved_objects/_import" \
     -u "${KIBANA_USER}:${KIBANA_PASSWORD}" \
     -H "kbn-xsrf: true" \
     --form file=@$dashboard \

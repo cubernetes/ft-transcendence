@@ -22,14 +22,14 @@ done
 echo "Setting up users and security..."
 
 # Create logstash user
-curl -k -X POST "https://localhost:9200/_security/user/${LOGSTASH_USER}" -H 'Content-Type: application/json' -u "elastic:${ELASTIC_PASSWORD}" --data '{
+curl -k "https://localhost:9200/_security/user/${LOGSTASH_USER}" -H 'Content-Type: application/json' -u "elastic:${ELASTIC_PASSWORD}" --data '{
   "password" : "'"${LOGSTASH_PASSWORD}"'",
   "roles" : [ "superuser" ],
   "full_name" : "Logstash User"
 }'
 
 # Create kibana user with both superuser and kibana_system roles
-curl -k -X POST "https://localhost:9200/_security/user/${KIBANA_USER}" -H 'Content-Type: application/json' -u "elastic:${ELASTIC_PASSWORD}" --data '{
+curl -k "https://localhost:9200/_security/user/${KIBANA_USER}" -H 'Content-Type: application/json' -u "elastic:${ELASTIC_PASSWORD}" --data '{
   "password" : "'"${KIBANA_PASSWORD}"'",
   "roles" : [ "superuser", "kibana_system" ],
   "full_name" : "Kibana System User"
