@@ -169,10 +169,10 @@ services:
         image: docker.elastic.co/logstash/logstash:8.17.3
         container_name: logstash
         volumes:
-            - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/:ro"
-            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
             - "logstash-data:/usr/share/logstash/data/"
             - "elasticsearch-certs:/etc/logstash/config/certs/"
+            - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/:ro"
+            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
             - "./elk/logstash/scripts/import-logstash-ca.sh:/usr/local/bin/import-logstash-ca.sh:ro"
         ports:
             - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"
@@ -226,10 +226,10 @@ services:
             SERVER_PORT: ${KIBANA_PORT:-5601}
             XPACK_SECURITY_ENABLED: "true"
         volumes:
+            - "kibana-data:/usr/share/kibana/data"
             - "./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
             - "./elk/kibana/dashboards:/usr/share/kibana/dashboards/:ro"
             - "./elk/kibana/setup-dashboards.sh:/usr/share/kibana/setup-dashboards.sh:ro"
-            - "kibana-data:/usr/share/kibana/data"
         networks:
             ft-transcendence-net:
                 ipv4_address: &kibana-ip 10.42.42.5
