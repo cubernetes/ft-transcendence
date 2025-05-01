@@ -1,6 +1,6 @@
 import type { createAuthService } from "./core/auth/auth.service.ts";
 import type { AppConfig } from "./core/config/config.types.ts";
-import type { DbClient } from "./core/db/db.plugin.ts";
+import type { DbClient } from "./core/db/db.types.ts";
 import type { createPongService } from "./core/pong/pong.service.ts";
 import type { createWsService } from "./core/ws/ws.service.ts";
 import type { createGameService } from "./modules/game/game.service.ts";
