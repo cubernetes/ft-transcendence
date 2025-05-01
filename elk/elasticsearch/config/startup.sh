@@ -2,6 +2,13 @@
 
 set -e
 
+: "${ELASTIC_PASSWORD:?Missing ELASTIC_PASSWORD}"
+: "${LOGSTASH_USER:?Missing LOGSTASH_USER}"
+: "${LOGSTASH_PASSWORD:?Missing LOGSTASH_PASSWORD}"
+: "${KIBANA_USER:?Missing KIBANA_USER}"
+: "${KIBANA_PASSWORD:?Missing KIBANA_PASSWORD}"
+: "${ELASTIC_KEYSTORE_PASS:?Missing ELASTIC_KEYSTORE_PASS}"
+
 # Set up permissions for certificates directory
 CERTS_DIR="/usr/share/elasticsearch/config/certs"
 
