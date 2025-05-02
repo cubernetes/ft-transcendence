@@ -43,6 +43,6 @@ export const createError = (
 
 // When API fetching failed
 export const createApiError = (ctn: HTMLElement, message: string): HTMLElement => {
-    ctn.appendChild(createBodyText(getText("failed_query"), "text-red-500 text-lg"));
+    ctn.appendChild(createBodyText("failed_query", "text-red-500 text-lg"));
     return ctn;
 };

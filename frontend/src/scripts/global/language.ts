@@ -1,31 +1,29 @@
 import { logout } from "../modules/auth/auth.service";
 import { createStore } from "./store";
 
-type LanguageState = {
-    language: "en" | "de" | "fr" | "es";
-};
+type LanguageOpts = "en" | "de" | "fr" | "es";
+type LanguageState = { lang: LanguageOpts };
 
-export const languageStore = createStore<LanguageState>({ language: "en" });
+export const languageStore = createStore<LanguageState>({
+    lang: (localStorage.getItem(window.cfg.label.lang) as LanguageOpts) ?? "en",
+});
 
-export const setLanguage = (lang: LanguageState["language"]) => {
-    if (!(lang in texts)) {
-        window.log.warn(`Language '${lang}' not supported. Falling back to 'en'.`);
-        lang = "en";
-    }
-    languageStore.set({ language: lang });
+export const setLanguage = (lang: LanguageOpts) => {
+    localStorage.setItem(window.cfg.label.lang, lang);
+    languageStore.set({ lang });
 };
 
 // Circle through available languages
 export const changeLanguage = () => {
-    const availableLanguages: LanguageState["language"][] = ["en", "de", "fr", "es"];
-    const currentLang = languageStore.get().language;
+    const availableLanguages: LanguageOpts[] = ["en", "de", "fr", "es"];
+    const currentLang = languageStore.get().lang;
     const nextLangIndex = (availableLanguages.indexOf(currentLang) + 1) % availableLanguages.length;
     const nextLang = availableLanguages[nextLangIndex];
     setLanguage(nextLang);
 };
 
 export const getText = (key: TranslationKey | string): string => {
-    const lang = languageStore.get().language;
+    const lang = languageStore.get().lang;
     const translation = texts[lang][key as TranslationKey];
     if (translation) {
         return translation;
@@ -42,67 +40,70 @@ export const getText = (key: TranslationKey | string): string => {
     return key; // Return the key itself as a last resort
 };
 
+const en = {
+    ai: "AI",
+    chooseMode: "Choose Game Mode",
+    confirm_password: "Confirm Password",
+    create_lobby: "Create Lobby",
+    create_tournament: "Create a tournament",
+    difficulty: "Difficulty",
+    display_name: "Display Name",
+    easy: "Easy",
+    enter_names: "Enter player names:",
+    failed_generate_chart: "Failed to generate chart.",
+    failed_query: "Failed to query user data.",
+    game: "Game",
+    game_id: "Game ID",
+    games_played: "Games Played",
+    hard: "Hard",
+    home: "Home",
+    initialize_controller: "Game controller not initialized.",
+    join_lobby: "Join Lobby",
+    lang: "Language: EN",
+    leaderboard: "Leaderboard",
+    local: "Local",
+    login: "Login",
+    login_failed: "Login failed. Please check your credentials.",
+    logout: "Logout",
+    medium: "Medium",
+    name_player: "Name Player ",
+    not_enough_data: "Not enough data to generate chart.",
+    online: "Online",
+    passw_not_match: "Passwords do not match.",
+    password: "Password",
+    player_names_required: "Please enter names for all players. No duplicates allowed.",
+    player_number: "Player Number",
+    please_enter_name: "Please enter a name for Player",
+    play_ai: "Play AI",
+    profile: "Profile",
+    profile_picture: "Player Profile Picture",
+    quickplay: "Quickplay",
+    rank: "Rank",
+    register: "Register",
+    register_failed: "Registration failed. Please try again.",
+    setup: "Setup",
+    setup_ai: "AI-Mode",
+    setup_choose_mode: "Choose Game Mode",
+    setup_local: "Local",
+    setup_online: "Play Online",
+    setup_play: "Play",
+    setup_play_local: "Play Local",
+    setup_tournament_mode: "Tournament Mode",
+    select_Difficulty: "Please select a difficulty.",
+    select_player_amount: "Please select an amount of players.",
+    start_tournament: "Start Tournament",
+    title: "ft-transcendence",
+    tournament_mode: "Tournament Mode",
+    TOTP: "TOTP",
+    username: "Username",
+    wins: "Wins",
+    your_profile: "Your Profile",
+    your_stats: "Your Stats:",
+} as const;
+export type TranslationKey = keyof typeof en;
+
 export const texts = {
-    en: {
-        ai: "AI",
-        chooseMode: "Choose Game Mode",
-        confirm_password: "Confirm Password",
-        create_lobby: "Create Lobby",
-        create_tournament: "Create a tournament",
-        difficulty: "Difficulty",
-        display_name: "Display Name",
-        easy: "Easy",
-        enter_names: "Enter player names:",
-        failed_generate_chart: "Failed to generate chart.",
-        failed_query: "Failed to query user data.",
-        game: "Game",
-        game_id: "Game ID",
-        games_played: "Games Played",
-        hard: "Hard",
-        home: "Home",
-        initialize_controller: "Game controller not initialized.",
-        join_lobby: "Join Lobby",
-        lang: "Language: EN",
-        leaderboard: "Leaderboard",
-        local: "Local",
-        login: "Login",
-        login_failed: "Login failed. Please check your credentials.",
-        logout: "Logout",
-        medium: "Medium",
-        name_player: "Name Player ",
-        not_enough_data: "Not enough data to generate chart.",
-        online: "Online",
-        passw_not_match: "Passwords do not match.",
-        password: "Password",
-        player_names_required: "Please enter names for all players. No duplicates allowed.",
-        player_number: "Player Number",
-        please_enter_name: "Please enter a name for Player",
-        play_ai: "Play AI",
-        profile: "Profile",
-        profile_picture: "Player Profile Picture",
-        quickplay: "Quickplay",
-        rank: "Rank",
-        register: "Register",
-        register_failed: "Registration failed. Please try again.",
-        setup: "Setup",
-        setup_ai: "AI-Mode",
-        setup_choose_mode: "Choose Game Mode",
-        setup_local: "Local",
-        setup_online: "Play Online",
-        setup_play: "Play",
-        setup_play_local: "Play Local",
-        setup_tournament_mode: "Tournament Mode",
-        select_Difficulty: "Please select a difficulty.",
-        select_player_amount: "Please select an amount of players.",
-        start_tournament: "Start Tournament",
-        title: "ft-transcendence",
-        tournament_mode: "Tournament Mode",
-        TOTP: "TOTP",
-        username: "Username",
-        wins: "Wins",
-        your_profile: "Your Profile",
-        your_stats: "Your Stats:",
-    },
+    en,
     de: {
         ai: "KI",
         chooseMode: "Spielmodus wählen",
@@ -163,7 +164,7 @@ export const texts = {
         wins: "Siege",
         your_profile: "Dein Profil",
         your_stats: "Deine Statistiken:",
-    },
+    } satisfies { [K in TranslationKey]: string },
     fr: {
         ai: "IA",
         chooseMode: "Choisir le mode de jeu",
@@ -223,7 +224,7 @@ export const texts = {
         wins: "Victoires",
         your_profile: "Votre profil",
         your_stats: "Vos statistiques :",
-    },
+    } satisfies { [K in TranslationKey]: string },
     es: {
         ai: "IA",
         chooseMode: "Elegir modo de juego",
@@ -284,7 +285,5 @@ export const texts = {
         wins: "Victorias",
         your_profile: "Tu perfil",
         your_stats: "Tus estadísticas:",
-    },
+    } satisfies { [K in TranslationKey]: string },
 } as const;
-
-export type TranslationKey = keyof typeof texts.en;

@@ -20,17 +20,12 @@ const routes = {
     totp: createTotpSetupPage, // Refactor into modal later
 } satisfies Record<string, PageRenderer>;
 
+export type Route = keyof typeof routes;
+
 // A type-safe list of protected routes, i.e. only available after logging in
 // Temporarily protect all routes so always start in landing page
 // TODO: Commented out localgame and aigame for quickplay.
-const protectedRoutes: (keyof typeof routes)[] = [
-    "setup",
-    "profile",
-    "leaderboard",
-    "totp",
-    // "localgame",
-    // "aigame",
-];
+const protectedRoutes: Route[] = ["setup", "profile", "leaderboard", "totp"];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route

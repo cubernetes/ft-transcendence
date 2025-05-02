@@ -5,7 +5,6 @@ import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
 import { createTournamentController } from "../../modules/tournament/tournament.controller";
 import { tournamentStore } from "../../modules/tournament/tournament.store";
-import { sendGameStart } from "../../modules/ws/ws.service";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
@@ -16,50 +15,23 @@ import { createBodyText, createTitleText } from "../components/Text";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
-const translatableElements: Partial<Record<string, HTMLElement>> = {};
-
-languageStore.subscribe(() => {
-    (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
-        const el = translatableElements[key];
-        if (el) {
-            if (el instanceof HTMLInputElement) {
-                el.placeholder = getText(key);
-            } else {
-                el.textContent = getText(key);
-            }
-        } else {
-            console.warn(`Element for key "${key}" not found in translatableElements.`);
-        }
-    });
-});
-
 const createCtaBtn = (textKey: TranslationKey, cb: () => void): HTMLButtonElement => {
     const btn = createButton(
         getText(textKey),
         "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
         cb
     );
-    translatableElements[textKey] = btn;
     return btn;
 };
 
 const createDifficultyGroup = () => {
-    const label = createBodyText(getText("difficulty"));
-    translatableElements["difficulty"] = label;
-
-    const difficultyKeys = ["easy", "medium", "hard"] as TranslationKey[];
-    const btnLabels = difficultyKeys.map((key) => getText(key)); // Get button labels as strings
-
-    const btnGroup = createButtonGroup(btnLabels, []);
-
-    difficultyKeys.forEach((key, index) => {
-        const btn = btnGroup.children[index] as HTMLElement;
-        translatableElements[key] = btn;
-    });
+    const label = createBodyText("difficulty");
+    const btns = createButtonGroup([getText("easy"), getText("medium"), getText("hard")], []);
 
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
-        children: [label, btnGroup],
+        children: [label, btns],
     });
+
     return difficultyGrp;
 };
 
@@ -72,7 +44,6 @@ const createInput = (placeholderKey: TranslationKey | string) =>
 const createLobby = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("create_lobby"));
-    translatableElements["create_lobby"] = title;
 
     const line = createSetupLine();
 
@@ -127,7 +98,6 @@ const createLobby = (ctn: HTMLElement) => {
 const joinLobby = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("join_lobby"));
-    translatableElements["join_lobby"] = title;
 
     const line = createSetupLine();
 
@@ -181,7 +151,6 @@ const joinLobby = (ctn: HTMLElement) => {
 const onlineMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("setup_online"));
-    translatableElements["setup_online"] = title;
 
     const line = createSetupLine();
 
@@ -213,7 +182,6 @@ const onlineMode = (ctn: HTMLElement) => {
 const aiMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("play_ai"));
-    translatableElements["play_ai"] = title;
 
     const line = createSetupLine();
     let p1 = createInput("name_player_1");
@@ -263,17 +231,13 @@ const aiMode = (ctn: HTMLElement) => {
 const localMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("setup_play_local"));
-    translatableElements["setup_play_local"] = title;
 
     const line = createSetupLine();
 
-    const playerLabel = createBodyText(getText("enter_names"));
-    translatableElements["enter_names"] = playerLabel;
+    const playerLabel = createBodyText("enter_names");
 
     const p1 = createInput("name_player_1");
     const p2 = createInput("name_player_2");
-    translatableElements["name_player_1"] = p1;
-    translatableElements["name_player_2"] = p2;
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, p1, p2],
     });
@@ -314,7 +278,6 @@ const localMode = (ctn: HTMLElement) => {
 const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("start_tournament"));
-    translatableElements["start_tournament"] = title;
 
     const line = createSetupLine();
 
@@ -324,7 +287,6 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     for (let i = 0; i < playerAmount; i++) {
         const translationKey = `name_player_${i + 1}` as TranslationKey; // Dynamically generate the key
         const playerInput = createInput(translationKey); // Pass the dynamic key to createInput
-        translatableElements[translationKey] = playerInput; // Track the input for language updates
         playerInputs.push(playerInput);
     }
 
@@ -371,12 +333,10 @@ const tournamentMode = (ctn: HTMLElement) => {
     }
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("create_tournament"));
-    translatableElements["create_tournament"] = title;
 
     const line = createSetupLine();
 
-    const modeLabel = createBodyText(getText("player_number"));
-    translatableElements["player_number"] = modeLabel;
+    const modeLabel = createBodyText("player_number");
 
     const modeBtnGrp = createButtonGroup(["4P", "8P"], []);
     const modeSection = createEl("div", "flex flex-col w-full mt-6", {
@@ -411,7 +371,6 @@ const tournamentMode = (ctn: HTMLElement) => {
 
 export const createSetupModal = (): HTMLElement => {
     const title = createTitleText(getText("setup_choose_mode"));
-    translatableElements["setup_choose_mode"] = title;
 
     const line = createSetupLine();
 
@@ -437,15 +396,14 @@ export const createSetupModal = (): HTMLElement => {
         "mt-4"
     );
 
-    btnLabels.forEach((key, index) => {
-        translatableElements[key] = gameBtnGrp.children[index] as HTMLElement;
-    });
+    // btnLabels.forEach((key, index) => {
+    //     translatableElements[key] = gameBtnGrp.children[index] as HTMLElement;
+    // });
 
     const children = [title, line, gameBtnGrp];
 
     if (authStore.get().isAuthenticated) {
         const tournamentBtn = createCtaBtn("setup_tournament_mode", tournamentCreateBtnCb);
-        translatableElements["setup_tournament_mode"] = tournamentBtn;
         children.push(tournamentBtn);
     }
 

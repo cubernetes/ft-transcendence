@@ -1,3 +1,5 @@
+import type { Route } from "./router";
+
 const API_URL = "/api";
 const ASSETS_DIR = "./assets";
 
@@ -20,12 +22,13 @@ const config = {
         game: `${API_URL}/game`,
         user: `${API_URL}/user`,
         totp: `${API_URL}/totp`,
-        home: `setup`, // Temporarily, should probably be profile?
-        default: `landing`, // For invalid route, de facto 404
+        home: `setup` as Route, // Temporarily, should probably be profile?
+        default: `landing` as Route, // For invalid route, de facto 404
     },
     label: {
         activeBtn: "activeBtn",
         token: "token", // JWT token name
+        lang: "lang", // Language preference saved in local storage
     },
     id: {
         loginForm: "login-form",

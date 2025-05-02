@@ -25,7 +25,7 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
     });
 
     const titleEl = createEl("h2", "text-2xl font-bold mb-4", { text: getText("your_profile") });
-    const usernameEl = createBodyText(`${getText("username")}: ${user.username}`);
+    const usernameEl = createBodyText("username");
 
     // totp on
     const totpUpdateCb = () => {};
@@ -50,7 +50,7 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
     //     return fieldElement;
     // });
 
-    const rankEl = createBodyText(`${getText("rank")}: ${user.rank}`);
+    const rankEl = createBodyText("rank");
 
     appendChildren(playerSection, [titleEl, avatarEl, usernameEl, totpSettingEl, rankEl]);
 

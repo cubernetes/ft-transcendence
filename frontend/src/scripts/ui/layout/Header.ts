@@ -1,5 +1,5 @@
 import { TranslationKey, changeLanguage, getText, languageStore } from "../../global/language";
-import { navigateTo } from "../../global/router";
+import { type Route, navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";
@@ -11,8 +11,9 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
         events: { click: () => navigateTo(window.cfg.url.home) },
     });
 
+    //
     const navList = createEl("ul", "flex text-1xl space-x-4");
-    const navKeys: [TranslationKey, string][] = [
+    const navKeys: [TranslationKey, Route][] = [
         ["home", window.cfg.url.home],
         ["setup", window.cfg.url.home],
         ["leaderboard", "leaderboard"],
@@ -60,7 +61,7 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
         });
     });
 
-    // Header is never destoryed so should not trigger
+    // Header is never destoryed but included for good practice
     headerEl.addEventListener("destory", () => {
         window.log.debug("Header unsubscribe to Login status");
         unsubscribeAuth();
