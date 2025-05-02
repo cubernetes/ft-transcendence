@@ -33,6 +33,35 @@ export type Paddle = {
     speed: number;
 };
 
+export type UserInput = z.infer<typeof UserInputSchema>;
+export const UserInputSchema = z.enum(["up", "down", "stop"]);
+
+export type GameMode = "local" | "online" | "ai" | "tournament";
+
+export type Status = "waiting" | "paused" | "ongoing" | "ended";
+
+export type EventMap = {
+    "wall-collision": null;
+    "paddle-collision": null;
+    "state-update": { state: State };
+    "score-update": { scores: [number, number] };
+    "ball-reset": null; // TODO: check if this is useful, not set up on the backend
+    "game-end": {
+        winner: 0 | 1;
+        hits: [number, number];
+        state: State;
+    };
+};
+
+export type EventCb<T extends keyof EventMap> = (evt: EventMap[T]) => void;
+
+export type State = {
+    status: Status;
+    scores: [number, number];
+    ball: Ball;
+    paddles: [Paddle, Paddle];
+};
+
 export type PongConfig = {
     board: { size: Size3D };
     paddles: [Paddle, Paddle];
@@ -42,37 +71,6 @@ export type PongConfig = {
     resetDelay: number;
     aiMode: boolean;
     aiDifficulty?: AIDifficulty;
-};
-
-export type UserInput = z.infer<typeof UserInputSchema>;
-export const UserInputSchema = z.enum(["up", "down", "stop"]);
-
-export type GameMode = "local" | "online" | "ai" | "tournament";
-
-export type PongStatus = "waiting" | "paused" | "ongoing" | "ended";
-
-export type PongEngineEventMap = {
-    "wall-collision": null;
-    "paddle-collision": null;
-    "state-update": { state: PongState };
-    "score-update": { scores: [number, number] };
-    "ball-reset": null; // TODO: check if this is useful, not set up on the backend
-    "game-end": {
-        winner: 0 | 1;
-        hits: [number, number];
-        state: PongState;
-    };
-};
-
-export type EventCallback<T extends keyof PongEngineEventMap> = (
-    event: PongEngineEventMap[T]
-) => void;
-
-export type PongState = {
-    status: PongStatus;
-    scores: [number, number];
-    ball: Ball;
-    paddles: [Paddle, Paddle];
 };
 
 export type PongEngine = ReturnType<typeof createPongEngine>;

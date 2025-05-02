@@ -8,11 +8,13 @@ import { z } from "zod";
 //         ball: z.object({ r: z.number() }),
 //     }),
 // });
+export type CreatePayload = z.infer<typeof createPayload>;
+const createPayload = z.object({ lobbyId: z.string().length(6) });
 
 export type JoinParams = z.infer<typeof joinParams>;
-export const joinParams = z.object({ lobbyId: z.string().length(6) });
+const joinParams = z.object({ lobbyId: z.string().length(6) });
 
 export type UpdateBody = z.infer<typeof updateBody>;
-export const updateBody = z.object({ config: z.object({ playTo: z.number() }) });
+const updateBody = z.object({ config: z.object({ playTo: z.number() }) });
 
-export const lobbySchemas = { joinParams, updateBody };
+export const lobbySchemas = { createPayload, joinParams, updateBody };

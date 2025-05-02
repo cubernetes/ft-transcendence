@@ -1,4 +1,4 @@
-import { PongEngineEventMap as EventMap, PongConfig, UserInput } from "../pong/pong.types";
+import { EventMap, PongConfig, UserInput } from "../pong/pong.types";
 
 export type IncomingMessageType = "game-start" | "game-action";
 

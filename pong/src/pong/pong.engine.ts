@@ -5,18 +5,18 @@ import { deepAssign } from "../utils";
 import { defaultGameConfig } from "./pong.config";
 import {
     Ball,
-    EventCallback,
-    PongEngineEventMap as EventMap,
+    EventCb,
+    EventMap,
     Paddle,
     PongConfig,
-    PongState,
-    PongStatus,
+    State,
+    Status,
     UserInput,
 } from "./pong.types";
 
 export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
     const config: PongConfig = cfg;
-    const listeners: { [K in keyof EventMap]: Set<EventCallback<K>> } = {
+    const listeners: { [K in keyof EventMap]: Set<EventCb<K>> } = {
         "wall-collision": new Set(),
         "paddle-collision": new Set(),
         "score-update": new Set(),
@@ -31,13 +31,13 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
     const ball: Ball = { ...config.ball }; // Use value instead of ref
     let tickRate = 1000 / config.fps;
     let interval: ReturnType<typeof setInterval> | null = null;
-    let status: PongStatus = "waiting";
+    let status: Status = "waiting";
 
     const emit = <K extends keyof EventMap>(type: K, payload: EventMap[K]) => {
         listeners[type]?.forEach((cb) => cb(payload));
     };
 
-    const onEvent = <K extends keyof EventMap>(type: K, cb: EventCallback<K>) => {
+    const onEvent = <K extends keyof EventMap>(type: K, cb: EventCb<K>) => {
         listeners[type].add(cb);
     };
 
@@ -165,7 +165,7 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    const getState = (): PongState => ({ status, scores, ball, paddles });
+    const getState = (): State => ({ status, scores, ball, paddles });
 
     const getConfig = (): PongConfig => config;
 
