@@ -4,106 +4,68 @@ import { authStore } from "../../modules/auth/auth.store";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";
 
-export const createHeader = (header: HTMLElement): HTMLElement => {
-    let unsubscribeAuth: () => void;
-    let unsubscribeLanguage: () => void;
+export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
+    // Title
+    const titleEl = createEl("h1", "text-3xl font-bold cursor-pointer", {
+        text: getText("title"),
+        events: { click: () => navigateTo(window.cfg.url.home) },
+    });
 
-    const translatableElements: Partial<Record<TranslationKey, HTMLElement>> = {};
+    const navList = createEl("ul", "flex text-1xl space-x-4");
+    const navKeys: [TranslationKey, string][] = [
+        ["home", window.cfg.url.home],
+        ["setup", window.cfg.url.home],
+        ["leaderboard", "leaderboard"],
+        ["profile", "profile"],
+        ["TOTP", "totp"],
+    ];
 
-    const build = () => {
-        header.innerHTML = "";
-
-        // Title
-        const anchor = createEl("a", "text-3xl font-bold", {
-            text: getText("title"),
-            events: {
-                click: (e) => {
-                    e.preventDefault();
-                    navigateTo(window.cfg.url.home);
-                },
-            },
+    for (const [key, route] of navKeys) {
+        const link = createEl("a", "hover:underline cursor-pointer", {
+            text: getText(key),
+            events: { click: (e) => navigateTo(route) },
         });
-        translatableElements["title"] = anchor;
+        const li = createEl("li", "", { children: [link] });
+        navList.appendChild(li);
+    }
 
-        const title = createEl("h1", "", { children: [anchor] });
+    // User login status
+    const loginStatus = createEl("li");
+    navList.appendChild(loginStatus);
 
-        const navList = createEl("ul", "flex text-1xl space-x-4");
-
-        const navKeys: [keyof typeof translatableElements, string][] = [
-            ["home", window.cfg.url.home],
-            ["setup", window.cfg.url.home],
-            ["leaderboard", "leaderboard"],
-            ["profile", "profile"],
-            ["TOTP", "totp"],
-        ];
-
-        for (const [key, route] of navKeys) {
-            const link = createEl("a", "hover:underline", {
-                text: getText(key),
-                events: {
-                    click: (e) => {
-                        e.preventDefault();
-                        navigateTo(route);
-                    },
-                },
-            });
-            translatableElements[key] = link;
-            const li = createEl("li", "", { children: [link] });
-            navList.appendChild(li);
+    const unsubscribeAuth = authStore.subscribe((state) => {
+        window.log.debug("AuthStore triggered in header");
+        if (state.isAuthenticated && state.username) {
+            appendUserStatus(loginStatus, state.username);
         }
+    });
 
-        // User login status
-        const loginStatus = createEl("li");
-        navList.appendChild(loginStatus);
+    // Language toggle
+    const languageBtn = createEl("button", "hover:underline", {
+        text: getText("lang"),
+        events: { click: changeLanguage },
+    });
 
-        const currentAuthState = authStore.get();
-        if (currentAuthState.isAuthenticated && currentAuthState.username) {
-            appendUserStatus(loginStatus, currentAuthState.username);
-        }
+    const navEl = createEl("nav", "flex items-center space-x-6", {
+        children: [navList, languageBtn],
+    });
 
-        if (unsubscribeAuth) unsubscribeAuth();
-        unsubscribeAuth = authStore.subscribe((state) => {
-            window.log.debug("AuthStore triggered in header");
-            loginStatus.innerHTML = "";
-            if (state.isAuthenticated && state.username) {
-                appendUserStatus(loginStatus, state.username);
-            }
-        });
+    appendChildren(headerEl, [titleEl, navEl]);
 
-        // Language toggle
-        const languageButton = createEl("button", "hover:underline", {
-            text: getText("lang"),
-            events: {
-                click: (e) => {
-                    changeLanguage();
-                },
-            },
-        });
-        translatableElements["lang"] = languageButton;
-
-        const nav = createEl("nav", "flex items-center space-x-6", {
-            children: [navList, languageButton],
-        });
-
-        appendChildren(header, [title, nav]);
-    };
-
-    build();
-
-    unsubscribeLanguage = languageStore.subscribe(() => {
-        (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
-            const el = translatableElements[key];
-            if (el) {
-                el.textContent = getText(key);
-            }
+    const unsubscribeLanguage = languageStore.subscribe(() => {
+        titleEl.textContent = getText("title");
+        languageBtn.textContent = getText("lang");
+        Array.from(navList.querySelectorAll<HTMLAnchorElement>("a")).forEach((a, i) => {
+            a.textContent = getText(navKeys[i][0]);
         });
     });
 
-    header.addEventListener("destroy", () => {
-        window.log.debug("Header unsubscribe to Login status and LanguageStore");
-        if (unsubscribeAuth) unsubscribeAuth();
-        if (unsubscribeLanguage) unsubscribeLanguage();
+    // Header is never destoryed so should not trigger
+    headerEl.addEventListener("destory", () => {
+        window.log.debug("Header unsubscribe to Login status");
+        unsubscribeAuth();
+        unsubscribeLanguage();
     });
 
-    return header;
+    return headerEl;
 };

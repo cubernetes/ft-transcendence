@@ -1,6 +1,6 @@
 import { handlePopState, navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
-import { createHeader } from "../../ui/layout/Header";
+import { hydrateHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 
 type LayoutState = {
@@ -44,8 +44,8 @@ layoutStore.subscribe((state) => {
         // Attach elements to root
         appendChildren(root, [header, canvas, router, footer]);
 
-        // Create needed states for persisted elements
-        createHeader(header);
+        // Hydrate needed states for persisted elements
+        hydrateHeader(header);
 
         // Attach pop state handler
         window.addEventListener("popstate", handlePopState);

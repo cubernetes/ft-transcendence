@@ -9,7 +9,7 @@ export const languageStore = createStore<LanguageState>({ language: "en" });
 
 export const setLanguage = (lang: LanguageState["language"]) => {
     if (!(lang in texts)) {
-        console.warn(`Language '${lang}' not supported. Falling back to 'en'.`);
+        window.log.warn(`Language '${lang}' not supported. Falling back to 'en'.`);
         lang = "en";
     }
     languageStore.set({ language: lang });
@@ -38,7 +38,7 @@ export const getText = (key: TranslationKey | string): string => {
         return baseTranslation ? `${baseTranslation} ${playerNumber}` : `Player ${playerNumber}`;
     }
 
-    console.warn(`Missing translation for key: ${key}`);
+    window.log.warn(`Missing translation for key: ${key}`);
     return key; // Return the key itself as a last resort
 };
 
