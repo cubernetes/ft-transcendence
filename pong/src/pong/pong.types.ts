@@ -61,6 +61,7 @@ export type State = {
     ball: Ball;
     paddles: [Paddle, Paddle];
 };
+export type PongState = State; // Deprecrated
 
 export type PongConfig = {
     board: { size: Size3D };
