@@ -7,6 +7,7 @@ import type { createGameService } from "./modules/game/game.service.ts";
 import type { createLobbyService } from "./modules/lobby/lobby.service.ts";
 // import type { createFriendService } from "./friend/friend.service";
 import type { createUserService } from "./modules/user/user.service.ts";
+import type { ErrorCode } from "@darrenkuro/pong-core";
 import type { WebSocket as WsWebSocket } from "ws";
 
 // Global plugin types decorations for fastify
@@ -27,6 +28,11 @@ declare module "fastify" {
         userId: number;
         username: string;
         userDisplayName: string;
+    }
+
+    interface FastifyReply {
+        ok: (data: unknown, statusCode?: number, cookies?: { token: string }) => void;
+        err: (code: ErrorCode) => void;
     }
 
     interface WebSocket extends WsWebSocket {
