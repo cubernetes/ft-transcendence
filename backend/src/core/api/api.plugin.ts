@@ -11,6 +11,11 @@ const STATUS = {
     INVALID_TOTP_TOKEN: 401,
     NOT_FOUND: 404,
     USERNAME_TAKEN: 409,
+    LOBBY_FULL: 409,
+    ALREADY_IN_LOBBY: 400,
+    NOT_IN_LOBBY: 400,
+    GAME_STATUS_ERROR: 400,
+    CORRUPTED_DATA: 500,
     SERVER_ERROR: 500,
 } as const satisfies Record<ErrorCode, number>;
 
