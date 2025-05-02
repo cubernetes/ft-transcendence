@@ -2,7 +2,6 @@ import { authStore } from "../modules/auth/auth.store";
 import { gameStore } from "../modules/game/game.store";
 import { hidePageElements, showPageElements, showRouter } from "../modules/layout/layout.service";
 import { layoutStore } from "../modules/layout/layout.store";
-import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
@@ -14,11 +13,6 @@ import { createTournamentPage } from "../ui/pages/TournamentPage";
 const routes = {
     landing: createLandingPage,
     setup: createSetupPage,
-    // Game routes are for dev, will be deleted later
-    // Games will be directly strated through setup interaction
-    onlinegame: createGamePage("online"),
-    localgame: createGamePage("local"),
-    aigame: createGamePage("ai"),
     profile: createProfilePage,
     quickplay: createQuickPlayPage,
     leaderboard: createLeaderboardPage,
@@ -31,7 +25,6 @@ const routes = {
 // TODO: Commented out localgame and aigame for quickplay.
 const protectedRoutes: (keyof typeof routes)[] = [
     "setup",
-    "onlinegame",
     "profile",
     "leaderboard",
     "totp",
@@ -82,13 +75,7 @@ const renderRoute = async (dest: string) => {
     router.appendChild(fragment);
 
     // TODO: Clean up later
-    if (
-        route === "landing" ||
-        route === "onlinegame" ||
-        route === "localgame" ||
-        route === "aigame" ||
-        route === "quickplay"
-    ) {
+    if (route === "landing" || route === "quickplay") {
         hidePageElements();
     } else {
         showPageElements();

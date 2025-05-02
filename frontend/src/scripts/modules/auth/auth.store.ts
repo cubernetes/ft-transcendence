@@ -23,10 +23,7 @@ export const emptyAuthState = {
 
 export const initAuthState = async (): Promise<AuthState> => {
     const result = await sendApiRequest.get<GetMeResponse>(`${window.cfg.url.user}/me`);
-
-    if (result.isErr() || !result.value.success) {
-        return emptyAuthState;
-    }
+    if (result.isErr() || !result.value.success) return emptyAuthState;
 
     const { username, displayName } = result.value.data;
     return {

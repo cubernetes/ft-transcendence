@@ -49,11 +49,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
         initAuthState().then(async (state) => {
             authStore.set(state);
-            if (state.isAuthenticated) {
-                window.log.debug("User is authenticated, navigate to home");
-                navigateTo(window.cfg.url.home);
-                return;
-            }
+            if (state.isAuthenticated) return navigateTo(window.cfg.url.home);
 
             const loginForm = await createLoginForm(ctaButton);
             ctaButton.replaceWith(loginForm);
