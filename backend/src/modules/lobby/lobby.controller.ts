@@ -5,8 +5,8 @@ import { ZodHandler } from "../../utils/zod-validate";
 
 export const createLobbyController = (app: FastifyInstance) => {
     const create: RouteHandlerMethod = (req, reply) => {
-        const { userId } = req;
-        const tryCreateLobby = app.lobbyService.create(userId, defaultGameConfig);
+        const { userId, userDisplayName } = req;
+        const tryCreateLobby = app.lobbyService.create(userId, userDisplayName, defaultGameConfig);
         if (tryCreateLobby.isErr()) return reply.err(tryCreateLobby.error);
 
         const lobbyId = tryCreateLobby.value;
@@ -15,13 +15,15 @@ export const createLobbyController = (app: FastifyInstance) => {
 
     type joinCb = ZodHandler<{ params: typeof lobbySchemas.joinParams }>;
     const join: joinCb = ({ params }, req, reply) => {
-        const { userId } = req;
+        const { userId, userDisplayName } = req;
         const { lobbyId } = params;
-        const tryJoinLobby = app.lobbyService.join(userId, lobbyId);
+        const tryJoinLobby = app.lobbyService.join(userId, userDisplayName, lobbyId);
         if (tryJoinLobby.isErr()) return reply.err(tryJoinLobby.error);
 
-        app.lobbyService.sendUpdate(lobbyId);
-        reply.ok({});
+        const tryUpdate = app.lobbyService.sendUpdate(lobbyId);
+        if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
+
+        return reply.ok({});
     };
 
     type updateCb = ZodHandler<{ body: typeof lobbySchemas.updateBody }>;
@@ -32,7 +34,7 @@ export const createLobbyController = (app: FastifyInstance) => {
 
         const lobbyId = tryUpdateLobby.value;
         app.lobbyService.sendUpdate(lobbyId);
-        reply.ok({});
+        return reply.ok({});
     };
 
     const leave: RouteHandlerMethod = (req, reply) => {
@@ -40,7 +42,7 @@ export const createLobbyController = (app: FastifyInstance) => {
         const tryLeaveLobby = app.lobbyService.leave(userId);
         if (tryLeaveLobby.isErr()) return reply.err(tryLeaveLobby.error);
 
-        reply.ok({});
+        return reply.ok({});
     };
 
     return { create, join, update, leave };

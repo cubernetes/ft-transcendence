@@ -7,7 +7,7 @@ import type {
 import type { FastifyInstance, WebSocket } from "fastify";
 import { Result, err, ok } from "neverthrow";
 
-export const createWsService = (_: FastifyInstance) => {
+export const createWsService = (app: FastifyInstance) => {
     const conns = new Map<number, WebSocket>();
 
     type MessageHandler<T extends InType> = (conn: WebSocket, payload: Payloads[T]) => void;
@@ -25,6 +25,7 @@ export const createWsService = (_: FastifyInstance) => {
         const conn = conns.get(id);
         if (!conn) return err("Can't find socket by id");
 
+        app.log.debug(`Send socket message to user ${id}: ${JSON.stringify(message)}`);
         conn.send(JSON.stringify(message));
         return ok();
     };

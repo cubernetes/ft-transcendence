@@ -152,7 +152,7 @@ const joinLobby = (ctn: HTMLElement) => {
             }
             window.log.debug("Joining game with ID:", gameId);
 
-           navigateTo("onlinegame");
+            navigateTo("onlinegame");
 
             //TODO: Implement the join lobby logic
             // const { controller } = gameStore.get();
@@ -237,7 +237,7 @@ const aiMode = (ctn: HTMLElement) => {
         if (!controller) {
             return showErr("initialize_controller");
         }
-        gameStore.update({ players: [p1.value, "The AI"] });
+        gameStore.update({ playerNames: [p1.value, "The AI"] });
         controller.startGame("ai", {
             ...defaultGameConfig,
             playTo: 5,
@@ -291,7 +291,7 @@ const localMode = (ctn: HTMLElement) => {
         if (!controller) {
             return showErr("initialize_controller");
         }
-        gameStore.update({ players: [player1, player2] });
+        gameStore.update({ playerNames: [player1, player2] });
         controller.startGame("local", {
             ...defaultGameConfig,
             playTo: 5,

@@ -8,11 +8,11 @@ import {
     PongState,
     Position3D,
     defaultGameConfig,
-    registerOutgoingMessageHandler as registerHandler,
 } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";
+import { registerHandler } from "../ws/ws.controller";
 import { sendGameAction, sendGameStart } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";

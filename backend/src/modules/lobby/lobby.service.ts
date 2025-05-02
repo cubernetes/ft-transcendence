@@ -21,29 +21,34 @@ export const createLobbyService = (app: FastifyInstance) => {
 
     const getTime = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
-    const create = (userId: number, config: PongConfig): Result<LobbyId, ErrorCode> => {
+    const create = (userId: number, name: string, cfg: PongConfig): Result<LobbyId, ErrorCode> => {
         if (lobbyMap.has(userId)) return err("ALREADY_IN_LOBBY");
 
         const lobbyId = generateUniqueId();
         const createdAt = getTime();
-        const engine = createPongEngine(config);
+        const engine = createPongEngine(cfg);
         const players = [userId];
+        const playerNames = [name];
 
-        sessionMap.set(lobbyId, { createdAt, engine, players });
+        sessionMap.set(lobbyId, { createdAt, engine, players, playerNames });
+        lobbyMap.set(userId, lobbyId);
+
         return ok(lobbyId);
     };
 
-    const join = (userId: number, lobbyId: string): Result<LobbyId, ErrorCode> => {
+    const join = (userId: number, name: string, lobbyId: string): Result<LobbyId, ErrorCode> => {
         if (lobbyMap.has(userId)) return err("ALREADY_IN_LOBBY");
 
         const session = sessionMap.get(lobbyId);
         if (!session) return err("NOT_FOUND");
 
-        const { players } = session;
+        const { players, playerNames } = session;
         if (players.length >= 2) return err("LOBBY_FULL");
 
         players.push(userId);
-        //session.playerNames = players.map((conn) => conn.userDisplayName!);
+        playerNames.push(name);
+        lobbyMap.set(userId, lobbyId);
+
         return ok(lobbyId);
     };
 
@@ -70,16 +75,18 @@ export const createLobbyService = (app: FastifyInstance) => {
         const session = sessionMap.get(lobbyId);
         if (!session) return err("CORRUPTED_DATA");
 
-        const { players } = session;
+        const { players, playerNames } = session;
         const index = players.findIndex((p) => p === userId);
         if (index !== 0 && index !== 1) return err("CORRUPTED_DATA");
 
         players.splice(index, 1);
+        playerNames.splice(index, 1);
         if (players.length === 0) {
             sessionMap.delete(lobbyId);
         }
 
         lobbyMap.delete(userId);
+
         return ok(lobbyId);
     };
 

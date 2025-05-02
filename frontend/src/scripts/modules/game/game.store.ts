@@ -5,7 +5,7 @@ import { createGameController } from "./game.controller";
 type GameState = {
     isPlaying: boolean;
     isWaiting: boolean;
-    playerNames: [string, string];
+    playerNames: string[];
     controller: ReturnType<typeof createGameController> | null;
 };
 

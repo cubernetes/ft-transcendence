@@ -30,14 +30,11 @@ const registerGameControllers = (conn: WebSocket) => {
 
     registerHandler(
         "game-start",
-        ({ gameId, opponentId, playerNames, index }) => {
+        ({ playerNames }) => {
             gameStore.update({
                 isPlaying: true,
                 isWaiting: false,
-                gameId,
-                opponentId,
                 playerNames,
-                index,
             });
         },
         handlers
