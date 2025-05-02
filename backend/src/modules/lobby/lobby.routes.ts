@@ -2,8 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { lobbySchemas as schemas } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
 import { createLobbyController } from "./lobby.controller.ts";
-
-// import route from "./lobby.schema.ts";
+import route from "./lobby.schema.ts";
 
 export const lobbyRoutes = async (app: FastifyInstance) => {
     const controller = createLobbyController(app);
@@ -13,19 +12,19 @@ export const lobbyRoutes = async (app: FastifyInstance) => {
     const { create, join, update, leave } = controller;
 
     // Create
-    const createOpts = { preHandler: [app.requireAuth] };
+    const createOpts = { preHandler: [app.requireAuth], schema: route.create };
     const createHandler = create;
 
     // Join
-    const joinOpts = { preHandler: [app.requireAuth] };
+    const joinOpts = { preHandler: [app.requireAuth], schema: route.join };
     const joinHandler = withZod({ params: joinParams }, join);
 
     // Update
-    const updateOpts = { preHandler: [app.requireAuth] };
+    const updateOpts = { preHandler: [app.requireAuth], schema: route.update };
     const updateHandler = withZod({ body: updateBody }, update);
 
     // Leave
-    const leaveOpts = { preHandler: [app.requireAuth] };
+    const leaveOpts = { preHandler: [app.requireAuth], schema: route.leave };
     const leaveHandler = leave;
 
     // Register routes
