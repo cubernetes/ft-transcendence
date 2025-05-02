@@ -39,6 +39,5 @@ declare module "fastify" {
         userId?: number;
         username?: string;
         userDisplayName?: string;
-        lobbyId?: string;
     }
 }

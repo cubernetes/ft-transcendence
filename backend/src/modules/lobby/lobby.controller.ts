@@ -1,56 +1,47 @@
-import type { FastifyInstance, WebSocket } from "fastify";
-import { IncomingMessagePayloads as Payloads } from "@darrenkuro/pong-core";
+import type { FastifyInstance, RouteHandlerMethod } from "fastify";
+import { defaultGameConfig } from "@darrenkuro/pong-core";
+import { ZodHandler } from "../../utils/zod-validate";
+import { joinParams, updateBody } from "./lobby.routes";
 
 export const createLobbyController = (app: FastifyInstance) => {
-    const create = (conn: WebSocket, payload: Payloads["lobby-create"]): void => {
-        const { config } = payload; // TODO: where are they checking integrity of the payload??
-        const tryCreateLobby = app.lobbyService.create(conn, config);
-        if (tryCreateLobby.isErr()) return app.log.error(tryCreateLobby.error);
+    const create: RouteHandlerMethod = (req, reply): void => {
+        const { userId } = req;
+        const tryCreateLobby = app.lobbyService.create(userId, defaultGameConfig);
+        if (tryCreateLobby.isErr()) return reply.err(tryCreateLobby.error);
 
         const lobbyId = tryCreateLobby.value;
-        app.wsService.send(conn, { type: "lobby-created", payload: { lobbyId } });
+        reply.ok({ lobbyId });
     };
 
-    const join = (conn: WebSocket, payload: Payloads["lobby-join"]): void => {
-        const { lobbyId } = payload; // TODO: where are they checking integrity of the payload??
-        const tryJoinLobby = app.lobbyService.join(conn, lobbyId);
-        if (tryJoinLobby.isErr()) return app.log.error(tryJoinLobby.error);
+    type joinCb = ZodHandler<{ params: typeof joinParams }>;
+    const join: joinCb = ({ params }, req, reply) => {
+        const { userId } = req;
+        const { lobbyId } = params;
+        const tryJoinLobby = app.lobbyService.join(userId, lobbyId);
+        if (tryJoinLobby.isErr()) return reply.err(tryJoinLobby.error);
 
-        const { engine, playerNames, players } = tryJoinLobby.value;
-        const config = engine.getConfig();
-
-        app.wsService.broadcast(players, {
-            type: "lobby-updated",
-            payload: { config, playerNames },
-        });
+        app.lobbyService.sendUpdate(lobbyId);
+        reply.ok({});
     };
 
-    const update = (conn: WebSocket, payload: Payloads["lobby-update"]): void => {
-        // Try to get lobby ID from socket
-        const { lobbyId } = conn;
-        if (!lobbyId) return app.log.error("Tried to update lobby but not in a lobby");
+    type updateCb = ZodHandler<{ body: typeof updateBody }>;
+    const update: updateCb = ({ body }, req, reply) => {
+        const { userId } = req;
+        const tryUpdateLobby = app.lobbyService.update(userId, body.config);
+        if (tryUpdateLobby.isErr()) return reply.err(tryUpdateLobby.error);
 
-        // Try to get game session from lobby ID
-        const tryGetSession = app.lobbyService.getSessionById(lobbyId);
-        if (tryGetSession.isErr()) return app.log.error(tryGetSession.error);
-
-        const session = tryGetSession.value;
-        const { engine, players, playerNames } = session;
-
-        // Check if user has access (only host who created the room can update)
-        const isHost = players[0] === conn;
-        if (!isHost) return app.log.warn("Tried to update lobby but not the host");
-
-        engine.reset(payload.config);
-
-        const config = engine.getConfig();
-        app.wsService.broadcast(players, {
-            type: "lobby-updated",
-            payload: { config, playerNames },
-        });
+        const lobbyId = tryUpdateLobby.value;
+        app.lobbyService.sendUpdate(lobbyId);
+        reply.ok({});
     };
 
-    const leave = (conn: WebSocket): void => {};
+    const leave: RouteHandlerMethod = (req, reply) => {
+        const { userId } = req;
+        const tryLeaveLobby = app.lobbyService.leave(userId);
+        if (tryLeaveLobby.isErr()) return reply.err(tryLeaveLobby.error);
+
+        reply.ok({});
+    };
 
     return { create, join, update, leave };
 };

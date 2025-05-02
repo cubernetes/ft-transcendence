@@ -1,10 +1,11 @@
-import type { FastifyInstance, WebSocket } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
-import { PongConfig, createPongEngine } from "@darrenkuro/pong-core";
+import { ErrorCode, PongConfig, createPongEngine } from "@darrenkuro/pong-core";
 import { GameSession, LobbyId } from "./lobby.types.ts";
 
 export const createLobbyService = (app: FastifyInstance) => {
-    const lobbyMap: Map<LobbyId, GameSession> = new Map();
+    const lobbyMap: Map<number, LobbyId> = new Map();
+    const sessionMap: Map<LobbyId, GameSession> = new Map();
 
     const generateUniqueId = (length: number = 6): string => {
         const CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // Exclude O 0 I 1
@@ -14,75 +15,104 @@ export const createLobbyService = (app: FastifyInstance) => {
         // Manually exclude collision
         while (true) {
             const id = generateId();
-            if (!lobbyMap.has(id)) return id;
+            if (!sessionMap.has(id)) return id;
         }
     };
 
     const getTime = () => new Date().toISOString().slice(0, 19).replace("T", " ");
 
-    const create = (conn: WebSocket, config: PongConfig): Result<LobbyId, string> => {
-        const { lobbyId } = conn;
-        if (lobbyId) return err(`Client is already in a lobby: ${lobbyId}`);
+    const create = (userId: number, config: PongConfig): Result<LobbyId, ErrorCode> => {
+        if (lobbyMap.has(userId)) return err("ALREADY_IN_LOBBY");
 
-        const id = generateUniqueId();
-        const engine = createPongEngine(config);
-        const players = [conn];
-        const playerNames = [conn.userDisplayName!];
+        const lobbyId = generateUniqueId();
         const createdAt = getTime();
+        const engine = createPongEngine(config);
+        const players = [userId];
 
-        lobbyMap.set(id, { createdAt, engine, players, playerNames });
-        conn.lobbyId = id;
-        return ok(id);
+        sessionMap.set(lobbyId, { createdAt, engine, players });
+        return ok(lobbyId);
     };
 
-    const join = (conn: WebSocket, id: string): Result<GameSession, string> => {
-        const { lobbyId } = conn;
-        if (lobbyId) return err(`Client is already in a lobby: ${lobbyId}`);
+    const join = (userId: number, lobbyId: string): Result<LobbyId, ErrorCode> => {
+        if (lobbyMap.has(userId)) return err("ALREADY_IN_LOBBY");
 
-        const session = lobbyMap.get(id);
-        if (!session) return err(`Couldn't find lobby ${id}`);
+        const session = sessionMap.get(lobbyId);
+        if (!session) return err("NOT_FOUND");
 
         const { players } = session;
+        if (players.length >= 2) return err("LOBBY_FULL");
 
-        if (players.length >= 2) {
-            app.wsService.send(conn, { type: "lobby-full", payload: null });
-            return err(`Lobby ${id} is full`);
-        }
-
-        players.push(conn);
-        session.playerNames = players.map((conn) => conn.userDisplayName!);
-        return ok(session);
+        players.push(userId);
+        //session.playerNames = players.map((conn) => conn.userDisplayName!);
+        return ok(lobbyId);
     };
 
-    const leave = (conn: WebSocket): Result<void, string> => {
-        const { lobbyId } = conn;
-        if (!lobbyId) return err(`Client is not in any lobby`);
+    const update = (userId: number, config: Partial<PongConfig>): Result<LobbyId, ErrorCode> => {
+        const lobbyId = lobbyMap.get(userId);
+        if (!lobbyId) return err("NOT_IN_LOBBY");
 
-        const session = lobbyMap.get(lobbyId);
-        if (!session) return err(`Couldn't find lobby ${lobbyId}`);
+        const session = sessionMap.get(lobbyId);
+        if (!session) return err("CORRUPTED_DATA");
+
+        const { engine, players } = session;
+        if (userId !== players[0]) return err("UNAUTHORIZED");
+
+        const tryResetEngine = engine.reset(config);
+        if (tryResetEngine.isErr()) return err(tryResetEngine.error);
+
+        return ok(lobbyId);
+    };
+
+    const leave = (userId: number): Result<LobbyId, ErrorCode> => {
+        const lobbyId = lobbyMap.get(userId);
+        if (!lobbyId) return err("NOT_IN_LOBBY");
+
+        const session = sessionMap.get(lobbyId);
+        if (!session) return err("CORRUPTED_DATA");
 
         const { players } = session;
-        const index = players.findIndex((player) => player === conn);
-        const isHost = index === 0;
-        if (isHost) {
-            if (players) lobbyMap.delete(lobbyId);
-            delete conn["lobbyId"];
+        const index = players.findIndex((p) => p === userId);
+        if (index !== 0 && index !== 1) return err("CORRUPTED_DATA");
+
+        players.splice(index, 1);
+        if (players.length === 0) {
+            sessionMap.delete(lobbyId);
         }
 
-        //if (index !== -1) players.splice(index, 1);
-        delete conn["lobbyId"];
+        lobbyMap.delete(userId);
+        return ok(lobbyId);
+    };
 
-        // TODO: update names, remove from map if empty,
-        // session.playerNames = players.map((conn) => conn.userDisplayName!);
+    // const getSessionById = (id: string): Result<GameSession, ErrorCode> => {
+    //     const session = sessionMap.get(id);
+    //     if (!session) return err("NOT_FOUND");
+
+    //     return ok(session);
+    // };
+
+    const sendUpdate = (lobbyId: string): Result<void, ErrorCode> => {
+        const session = sessionMap.get(lobbyId);
+        if (!session) return err("NOT_FOUND");
+
+        const { engine, players, playerNames } = session;
+        const config = engine.getConfig();
+
+        if (players[0]) {
+            app.wsService.send(players[0], {
+                type: "lobby-update",
+                payload: { config, playerNames, host: true },
+            });
+        }
+
+        if (players[1]) {
+            app.wsService.send(players[1], {
+                type: "lobby-update",
+                payload: { config, playerNames, host: false },
+            });
+        }
+
         return ok();
     };
 
-    const getSessionById = (id: string): Result<GameSession, string> => {
-        const session = lobbyMap.get(id);
-        if (!session) return err(`Couldn't find lobby ${id}`);
-
-        return ok(session);
-    };
-
-    return { create, join, leave, getSessionById };
+    return { create, join, update, leave, sendUpdate };
 };

@@ -1,43 +1,34 @@
 import type { FastifyInstance } from "fastify";
+import { z } from "zod";
 import { withZod } from "../../utils/zod-validate.ts";
-import controller from "./lobby.controller.ts";
-import route from "./lobby.schema.ts";
+import { createLobbyController } from "./lobby.controller.ts";
 
-const userRoutes = async (app: FastifyInstance) => {
+// import route from "./lobby.schema.ts";
+export const joinParams = z.object({ lobbyId: z.string().length(6) });
+export const updateBody = z.object({ config: z.object({ playTo: z.number() }) });
+
+export const lobbyRoutes = async (app: FastifyInstance) => {
+    const controller = createLobbyController(app);
+
     // Create
-    const createOpts = { schema: route.register }; // Schema for swagger UI
-    const createHandler = withZod({ body: userSchemas.registerBody }, controller.register);
+    const createOpts = { preHandler: [app.requireAuth] };
+    const createHandler = controller.create;
 
-    // Login
-    const loginOpts = { schema: route.login };
-    const loginHandler = withZod({ body: userSchemas.loginBody }, controller.login);
+    // Join
+    const joinOpts = { preHandler: [app.requireAuth] };
+    const joinHandler = withZod({ params: joinParams }, controller.join);
 
-    // Logout
-    const logoutOpts = { preHandler: [app.requireAuth], schema: route.logout };
-    const logoutHandler = controller.logout;
+    // Update
+    const updateOpts = { preHandler: [app.requireAuth] };
+    const updateHandler = withZod({ body: updateBody }, controller.update);
 
-    // Leaderboard
-    const leaderboardOpts = { schema: route.getLeaderboard };
-    const leaderboardHandler = withZod(
-        { params: userSchemas.leaderboardParams },
-        controller.getLeaderboard
-    );
-
-    // Info
-    const infoOpts = { schema: route.getInfo };
-    const infoHandler = withZod({ params: userSchemas.infoParams }, controller.getInfo);
-
-    // Me
-    const meOpts = { preHandler: [app.requireAuth], schema: route.getMe };
-    const meHandler = controller.getMe;
+    // Leave
+    const leaveOpts = { preHandler: [app.requireAuth] };
+    const leaveHandler = controller.leave;
 
     // Register routes
-    app.post("/register", registerOpts, registerHandler);
-    app.post("/login", loginOpts, loginHandler);
-    app.post("/logout", logoutOpts, logoutHandler);
-    app.get("/leaderboard/:n", leaderboardOpts, leaderboardHandler);
-    app.get("/info/:username", infoOpts, infoHandler);
-    app.get("/me", meOpts, meHandler);
+    app.post("/create", createOpts, createHandler);
+    app.post("/join/:id", joinOpts, joinHandler);
+    app.post("/update", updateOpts, updateHandler);
+    app.post("/leave", leaveOpts, leaveHandler);
 };
-
-export default userRoutes;

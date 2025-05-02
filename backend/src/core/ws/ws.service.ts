@@ -5,6 +5,7 @@ import type {
     IncomingMessagePayloads as Payloads,
 } from "@darrenkuro/pong-core";
 import type { FastifyInstance, WebSocket } from "fastify";
+import { Result, err, ok } from "neverthrow";
 
 export const createWsService = (_: FastifyInstance) => {
     const conns = new Map<number, WebSocket>();
@@ -20,12 +21,16 @@ export const createWsService = (_: FastifyInstance) => {
         return handlers.get(type);
     };
 
-    const send = (conn: WebSocket, message: OutgoingMessage<OutType>) => {
+    const send = (id: number, message: OutgoingMessage<OutType>): Result<void, string> => {
+        const conn = conns.get(id);
+        if (!conn) return err("Can't find socket by id");
+
         conn.send(JSON.stringify(message));
+        return ok();
     };
 
-    const broadcast = (conns: WebSocket[], message: OutgoingMessage<OutType>) => {
-        conns.forEach((conn) => send(conn, message));
+    const broadcast = (ids: number[], message: OutgoingMessage<OutType>) => {
+        ids.forEach((id) => send(id, message));
     };
 
     const addConnection = (conn: WebSocket) => {
@@ -36,5 +41,12 @@ export const createWsService = (_: FastifyInstance) => {
         conns.delete(conn.userId!);
     };
 
-    return { registerHandler, getHandler, send, broadcast, addConnection, removeConnection };
+    return {
+        registerHandler,
+        getHandler,
+        send,
+        broadcast,
+        addConnection,
+        removeConnection,
+    };
 };
