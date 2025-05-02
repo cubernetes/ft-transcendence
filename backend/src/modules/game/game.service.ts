@@ -42,9 +42,9 @@ export const createGameService = (app: FastifyInstance) => {
     const toNewGame = (session: GameSession, payload: Payloads["game-end"]): GameInsert => {
         return {
             createdAt: session.createdAt,
-            player1Id: session.players[0].userId!,
-            player2Id: session.players[1].userId!,
-            winnerId: session.players[payload.winner].userId!,
+            player1Id: session.players[0],
+            player2Id: session.players[1],
+            winnerId: session.players[payload.winner],
             player1Hits: payload.hits[0],
             player2Hits: payload.hits[1],
             player1Score: payload.state.scores[0],
@@ -60,7 +60,7 @@ export const createGameService = (app: FastifyInstance) => {
 
             return ok(game);
         } catch (error) {
-            app.log.debug({ error }, "Failed to create game");
+            app.log.debug({ error }, "Fail to create game");
             return err("SERVER_ERROR");
         }
     };
@@ -90,7 +90,7 @@ export const createGameService = (app: FastifyInstance) => {
 
             return ok(result);
         } catch (error) {
-            app.log.debug({ error }, "Failed to get games by username");
+            app.log.debug({ error }, "Fail to get games by username");
             return err("SERVER_ERROR");
         }
     };

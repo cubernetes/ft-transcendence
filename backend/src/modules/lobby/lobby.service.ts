@@ -83,12 +83,15 @@ export const createLobbyService = (app: FastifyInstance) => {
         return ok(lobbyId);
     };
 
-    // const getSessionById = (id: string): Result<GameSession, ErrorCode> => {
-    //     const session = sessionMap.get(id);
-    //     if (!session) return err("NOT_FOUND");
+    const getSessionByUserId = (userId: number): Result<GameSession, ErrorCode> => {
+        const lobbyId = lobbyMap.get(userId);
+        if (!lobbyId) return err("NOT_IN_LOBBY");
 
-    //     return ok(session);
-    // };
+        const session = sessionMap.get(lobbyId);
+        if (!session) return err("CORRUPTED_DATA");
+
+        return ok(session);
+    };
 
     const sendUpdate = (lobbyId: string): Result<void, ErrorCode> => {
         const session = sessionMap.get(lobbyId);
@@ -114,5 +117,5 @@ export const createLobbyService = (app: FastifyInstance) => {
         return ok();
     };
 
-    return { create, join, update, leave, sendUpdate };
+    return { create, join, update, leave, getSessionByUserId, sendUpdate };
 };
