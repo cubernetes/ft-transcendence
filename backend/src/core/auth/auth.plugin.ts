@@ -6,7 +6,7 @@ const authPlugin = async (app: FastifyInstance) => {
     app.decorate("authService", createAuthService(app));
 
     // Always verify cookie and attach userId on Request
-    app.addHook("onRequest", (req, _) => {
+    app.addHook("onRequest", async (req, _) => {
         const { cookieName } = req.server.config;
         const token = req.cookies?.[cookieName];
         if (!token) return;
@@ -19,7 +19,7 @@ const authPlugin = async (app: FastifyInstance) => {
         }
     });
 
-    app.decorate("requireAuth", (req, reply) => {
+    app.decorate("requireAuth", async (req, reply) => {
         if (!req.userId) reply.err("UNAUTHORIZED");
     });
 };

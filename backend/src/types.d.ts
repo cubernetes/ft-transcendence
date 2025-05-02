@@ -21,7 +21,7 @@ declare module "fastify" {
         gameService: ReturnType<typeof createGameService>;
         lobbyService: ReturnType<typeof createLobbyService>;
         //friendService: ReturnType<typeof createFriendService>;
-        requireAuth: (req: FastifyRequest, reply: FastifyReply) => void;
+        requireAuth: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
     }
 
     interface FastifyRequest {
