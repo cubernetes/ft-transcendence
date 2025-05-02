@@ -1,8 +1,9 @@
-import type { OutgoingMessage, OutgoingMessageType } from "@darrenkuro/pong-core";
-import {
-    registerOutgoingMessageHandler as registerHandler,
-    safeJsonParse,
+import type {
+    OutgoingMessageHandler as Handler,
+    OutgoingMessage as Message,
+    OutgoingMessageType as Type,
 } from "@darrenkuro/pong-core";
+import { safeJsonParse } from "@darrenkuro/pong-core";
 import { authStore } from "../auth/auth.store";
 import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
@@ -14,6 +15,14 @@ const registerGeneralHandlers = (conn: WebSocket) => {
 
     conn.onerror = (e) =>
         window.log.info(`Socket error: ${e instanceof ErrorEvent ? e.message : "unknown"}`);
+};
+
+export const registerHandler = <T extends Type>(
+    type: T,
+    handler: Handler<T>,
+    handlers: Map<Type, Handler<Type>>
+): void => {
+    handlers.set(type, handler as Handler<Type>);
 };
 
 const registerGameControllers = (conn: WebSocket) => {
@@ -34,20 +43,12 @@ const registerGameControllers = (conn: WebSocket) => {
         handlers
     );
 
-    registerHandler(
-        "waiting-for-opponent",
-        () => {
-            window.log.info(`Waiting for opponent...`);
-            // Animation or something? Lobby?
-        },
-        handlers
-    );
-
     // In game handlers will be registered by game controller at online game start time
+    // Because the those function exist in game controller that does not exist at this time potentially
 
     const handleMessage = (evt: MessageEvent<any>) => {
         // Try to parse socket message to json and guard against invalid format
-        const tryParseMessage = safeJsonParse<OutgoingMessage<OutgoingMessageType>>(evt.data);
+        const tryParseMessage = safeJsonParse<Message<Type>>(evt.data);
         if (tryParseMessage.isErr())
             return window.log.error(`Fail to parse socket message: ${evt.data}`);
 

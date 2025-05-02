@@ -2,10 +2,9 @@ import type { GameInsert, GameRecord } from "../../core/db/db.types.ts";
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { desc, eq, or } from "drizzle-orm";
-import { PublicGame } from "@darrenkuro/pong-core";
+import { ErrorCode, PublicGame } from "@darrenkuro/pong-core";
 import { OutgoingMessagePayloads as Payloads } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
-import { ApiError, ServerError } from "../../utils/api-response.ts";
 import { GameSession } from "../lobby/lobby.types.ts";
 
 export const createGameService = (app: FastifyInstance) => {
@@ -53,22 +52,22 @@ export const createGameService = (app: FastifyInstance) => {
         };
     };
 
-    const create = async (data: GameInsert): Promise<Result<GameRecord, string>> => {
+    const create = async (data: GameInsert): Promise<Result<GameRecord, ErrorCode>> => {
         try {
             const inserted = await db.insert(games).values(data).returning();
             const game = inserted[0];
-            if (!game) return err("Failed to create game: dababase error");
+            if (!game) throw new Error("Game returned is empty");
 
             return ok(game);
         } catch (error) {
             app.log.debug({ error }, "Failed to create game");
-            return err("Failed to create game: unknown");
+            return err("SERVER_ERROR");
         }
     };
 
     const getGamesByUsername = async (
         username: string
-    ): Promise<Result<PublicGame[], ApiError>> => {
+    ): Promise<Result<PublicGame[], ErrorCode>> => {
         const tryGetUser = await app.userService.findByUsername(username);
         if (tryGetUser.isErr()) return err(tryGetUser.error);
 
@@ -92,19 +91,18 @@ export const createGameService = (app: FastifyInstance) => {
             return ok(result);
         } catch (error) {
             app.log.debug({ error }, "Failed to get games by username");
-            return err(new ServerError("Failed to get games by username"));
+            return err("SERVER_ERROR");
         }
     };
 
-    const toPublicGame = async (game: GameRecord): Promise<Result<PublicGame, ApiError>> => {
-        const tryGetPlayer1Username = await app.userService.getUsernameById(game.player1Id);
-        const tryGetPlayer2Username = await app.userService.getUsernameById(game.player2Id);
-        if (tryGetPlayer1Username.isErr() || tryGetPlayer2Username.isErr()) {
-            return err(new ServerError("Failed to map to public game: can't find username"));
-        }
+    const toPublicGame = async (game: GameRecord): Promise<Result<PublicGame, ErrorCode>> => {
+        const tryGetUsername1 = await app.userService.getUsernameById(game.player1Id);
+        const tryGetUsername2 = await app.userService.getUsernameById(game.player2Id);
+        // Should never happen if data handled correctly
+        if (tryGetUsername1.isErr() || tryGetUsername2.isErr()) return err("SERVER_ERROR");
 
-        const player1Username = tryGetPlayer1Username.value;
-        const player2Username = tryGetPlayer2Username.value;
+        const player1Username = tryGetUsername1.value;
+        const player2Username = tryGetUsername2.value;
         const winnerIndex = game.winnerId === game.player1Id ? 0 : 1;
         const { player1Id, player2Id, winnerId, ...publicGame } = game;
         return ok({ ...publicGame, player1Username, player2Username, winnerIndex });

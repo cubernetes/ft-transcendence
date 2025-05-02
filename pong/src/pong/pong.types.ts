@@ -49,8 +49,7 @@ export const UserInputSchema = z.enum(["up", "down", "stop"]);
 
 export type GameMode = "local" | "online" | "ai" | "tournament";
 
-// Maybe add waiting, paused
-export type PongStatus = "waiting" | "ongoing" | "ended";
+export type PongStatus = "waiting" | "paused" | "ongoing" | "ended";
 
 export type PongEngineEventMap = {
     "wall-collision": null;

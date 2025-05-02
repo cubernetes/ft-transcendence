@@ -30,7 +30,7 @@ const DIFFICULTY_LEVELS: Record<AIDifficulty, AIConfig> = {
 export const createAIPlayer = (
     engine: Pick<PongEngine, "onEvent" | "setInput">,
     difficulty: AIDifficulty,
-    playerIndex: number = 1
+    playerIndex: 0 | 1 = 1
 ) => {
     const aiPlayer: AIPlayer = {
         playerIndex,

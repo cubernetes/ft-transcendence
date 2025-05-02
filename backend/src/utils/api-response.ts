@@ -1,5 +1,5 @@
 import type { ErrorCode } from "@darrenkuro/pong-core";
-import type { FastifyInstance, FastifyReply } from "fastify";
+import type { FastifyReply } from "fastify";
 
 export class ApiSuccess<T> {
     constructor(
@@ -14,8 +14,8 @@ export class ApiSuccess<T> {
         });
     }
 
-    sendWithCookie(reply: FastifyReply, token: string, app: FastifyInstance) {
-        const { cookieName, cookieConfig } = app.config;
+    sendWithCookie(reply: FastifyReply, token: string) {
+        const { cookieName, cookieConfig } = reply.server.config;
         reply.setCookie(cookieName, token, cookieConfig).send({ success: true, data: this.data });
     }
 }
@@ -40,7 +40,7 @@ export class ApiError extends Error {
 
 export class ServerError extends ApiError {
     constructor(message = "Unknown error") {
-        super("INTERNAL_SERVER_ERROR", 500, message);
+        super("SERVER_ERROR", 500, message);
     }
 }
 

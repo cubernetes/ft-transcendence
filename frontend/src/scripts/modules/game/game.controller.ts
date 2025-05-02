@@ -115,8 +115,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const attachLocalEngineEvents = (mode: GameMode) => {
         engine.onEvent("wall-collision", handleWallCollision);
         engine.onEvent("paddle-collision", handlePaddleCollision);
-        engine.onEvent("score-update", (evt) => handleScoreUpdate(evt.scores));
-        engine.onEvent("state-update", (evt) => handleStateUpdate(evt.state));
+        engine.onEvent("score-update", ({ scores }) => handleScoreUpdate(scores));
+        engine.onEvent("state-update", ({ state }) => handleStateUpdate(state));
         engine.onEvent("ball-reset", handleBallReset);
         // TODO: GET NAME
         // Don't hook this for now because game-end event will be called when going away from page
@@ -126,10 +126,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const attachOnlineSocketEvents = () => {
         const { isConnected, handlers } = wsStore.get();
-        if (!isConnected) {
-            window.log.error("Online game ongoing but socket is not connected");
-            return;
-        }
+        if (!isConnected) return window.log.error("Socket is not connected when attaching events");
 
         registerHandler("wall-collision", handleWallCollision, handlers);
         registerHandler("paddle-collision", handlePaddleCollision, handlers);
@@ -162,13 +159,10 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         renderer.ball.rotationQuaternion = q.multiply(renderer.ball.rotationQuaternion!);
     };
 
-    const updateLeftPaddle = (pos: Position3D) => {
-        renderer.leftPaddle.position.set(pos.x, pos.y, pos.z);
-    };
+    const updateLeftPaddle = ({ x, y, z }: Position3D) => renderer.leftPaddle.position.set(x, y, z);
 
-    const updateRightPaddle = (pos: Position3D) => {
-        renderer.rightPaddle.position.set(pos.x, pos.y, pos.z);
-    };
+    const updateRightPaddle = ({ x, y, z }: Position3D) =>
+        renderer.rightPaddle.position.set(x, y, z);
 
     const handleScoreUpdate = (scores: [number, number]) => {
         // TODO: duplicate code
@@ -223,6 +217,17 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const resizeListener = () => renderer.resize();
 
+    const startRenderer = (config: PongConfig) => {
+        renderer.scene = createScene(renderer, config);
+
+        renderer.runRenderLoop(() => renderer.scene.render());
+
+        window.addEventListener("resize", resizeListener);
+
+        // Initial scale
+        requestAnimationFrame(() => renderer.resize());
+    };
+
     /** Destroy the current game session */
     const destroy = () => {
         window.log.debug("Game controller destroy triggered");
@@ -240,19 +245,6 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         // Remove event listeners
         window.removeEventListener("resize", resizeListener);
         detachAllControls();
-    };
-
-    const startRenderer = (config: PongConfig) => {
-        renderer.scene = createScene(renderer, config);
-
-        renderer.runRenderLoop(() => {
-            renderer.scene.render();
-        });
-
-        window.addEventListener("resize", resizeListener);
-
-        // Initial scale
-        requestAnimationFrame(() => renderer.resize());
     };
 
     const startLocalGame = (mode: GameMode, config: PongConfig) => {

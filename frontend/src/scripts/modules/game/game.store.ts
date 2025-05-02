@@ -5,9 +5,6 @@ import { createGameController } from "./game.controller";
 type GameState = {
     isPlaying: boolean;
     isWaiting: boolean;
-    gameId: string;
-    opponentId: number;
-    index: 0 | 1;
     playerNames: [string, string];
     controller: ReturnType<typeof createGameController> | null;
 };
@@ -15,9 +12,6 @@ type GameState = {
 export const defaultGameState: GameState = {
     isPlaying: false,
     isWaiting: false,
-    gameId: "",
-    opponentId: 0,
-    index: 0,
     playerNames: ["", ""],
     controller: null,
 };

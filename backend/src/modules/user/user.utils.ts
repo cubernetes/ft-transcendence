@@ -2,8 +2,7 @@ import type { UserRecord } from "../../core/db/db.types.ts";
 import { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { faker } from "@faker-js/faker";
-import { PublicGame } from "@darrenkuro/pong-core";
-import { ApiError } from "../../utils/api-response.ts";
+import { ErrorCode, PublicGame } from "@darrenkuro/pong-core";
 
 // Configure object fields to be hidden for personal response
 const hiddenFieldsPersonal = ["passwordHash", "totpSecret", "temporaryTotpSecret"] as const;
@@ -40,7 +39,7 @@ type DynamicFields = { rank: number; games: PublicGame[]; totalGames: number };
 export const getDynamicFields = async (
     user: UserRecord,
     app: FastifyInstance
-): Promise<Result<DynamicFields, ApiError>> => {
+): Promise<Result<DynamicFields, ErrorCode>> => {
     // Get game history
     const tryGetGames = await app.gameService.getGamesByUsername(user.username);
     if (tryGetGames.isErr()) return err(tryGetGames.error);

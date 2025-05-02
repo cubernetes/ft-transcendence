@@ -1,13 +1,6 @@
-import type {
-    GetInfoPayload,
-    GetMePayload,
-    LeaderboardPayload,
-    LoginPayload,
-    PublicUser,
-} from "@darrenkuro/pong-core";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import type { PublicUser } from "@darrenkuro/pong-core";
+import type { FastifyInstance, RouteHandlerMethod } from "fastify";
 import { userSchemas } from "@darrenkuro/pong-core";
-import { ApiSuccess, ServerError, UnauthorizedError } from "../../utils/api-response.ts";
 import { ZodHandler } from "../../utils/zod-validate.ts";
 
 export const createUserController = (app: FastifyInstance) => {
@@ -22,15 +15,14 @@ export const createUserController = (app: FastifyInstance) => {
 
         // Try create user in database, send back error if failed
         const tryCreateUser = await app.userService.create(userWithHash);
-        if (tryCreateUser.isErr()) return tryCreateUser.error.send(reply);
+        if (tryCreateUser.isErr()) return reply.err(tryCreateUser.error);
 
         // Generate JWT token and send back as cookies
         const user = tryCreateUser.value;
         const token = app.authService.generateJwtToken(user);
         const { username, displayName } = user;
-        const data = { username, displayName };
 
-        return new ApiSuccess<LoginPayload>(data, 201).sendWithCookie(reply, token, app);
+        reply.ok({ username, displayName }, 201, { token });
     };
 
     type LoginCb = ZodHandler<{ body: typeof userSchemas.loginBody }>;
@@ -39,41 +31,39 @@ export const createUserController = (app: FastifyInstance) => {
 
         // Try to find user with username provided, send back error if failed
         const tryGetUser = await app.userService.findByUsername(username);
-        if (tryGetUser.isErr()) return tryGetUser.error.send(reply);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
 
         const user = tryGetUser.value;
         const { displayName, totpEnabled, totpSecret, passwordHash } = user;
 
         // Validate password, send back 401 error if failed
         const verifyPassword = await app.authService.comparePassword(password, passwordHash);
-        if (!verifyPassword) return new UnauthorizedError("Invalid password").send(reply);
+        if (!verifyPassword) return reply.err("INVALID_PASSWORD");
 
         // Check 2FA
         if (totpEnabled) {
             // 2FA enabled but have yet to receive token, send back totp request
-            if (!totpToken) return new ApiSuccess<LoginPayload>({ totpEnabled }).send(reply);
+            if (!totpToken) return reply.ok({ totpEnabled });
 
             // 2FA enabled but no TOTP secret in database, should never happen in theory
-            if (!totpSecret) return new ServerError("TOTP setup incomplete").send(reply);
+            if (!totpSecret) return reply.err("SERVER_ERROR");
 
             // Verify TOTP token
             const verifyToken = app.authService.verifyTotpToken(totpSecret, totpToken);
-            if (!verifyToken) return new UnauthorizedError("Invalid TOTP token").send(reply);
+            if (!verifyToken) return reply.err("INVALID_TOTP_TOKEN");
         }
 
         // Password and 2FA have been verified, send cookies
         const token = app.authService.generateJwtToken(user);
-        const data = { username, displayName };
-        return new ApiSuccess<LoginPayload>(data).sendWithCookie(reply, token, app);
+
+        reply.ok({ username, displayName }, 200, { token });
     };
 
-    // TODO: Generic
-    type GeneralCb = (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
-    const logout: GeneralCb = async (_, reply) => {
+    const logout: RouteHandlerMethod = async (_, reply) => {
         const { cookieName } = app.config;
         reply.clearCookie(cookieName);
 
-        return new ApiSuccess({}).send(reply);
+        reply.ok({});
     };
 
     type LeaderboardCb = ZodHandler<{ params: typeof userSchemas.leaderboardParams }>;
@@ -83,7 +73,7 @@ export const createUserController = (app: FastifyInstance) => {
 
         // Fetch all users from database, send back error if failed
         const tryGetUsers = await app.userService.findAll();
-        if (tryGetUsers.isErr()) return tryGetUsers.error.send(reply);
+        if (tryGetUsers.isErr()) return reply.err(tryGetUsers.error);
 
         // Map each user to public user data
         const publicUsers: PublicUser[] = [];
@@ -91,14 +81,14 @@ export const createUserController = (app: FastifyInstance) => {
             const tryMapUser = await app.userService.toPublicUser(user);
 
             // If any user is failing for whatever reason, stop and send back error
-            if (tryMapUser.isErr()) return tryMapUser.error.send(reply);
+            if (tryMapUser.isErr()) return reply.err(tryMapUser.error);
 
             publicUsers.push(tryMapUser.value);
         }
 
         // Sort by rank, then get the first n users
         const data = publicUsers.sort((a, b) => a.rank - b.rank).slice(0, n);
-        return new ApiSuccess<LeaderboardPayload>(data).send(reply);
+        reply.ok(data);
     };
 
     type InfoCb = ZodHandler<{ params: typeof userSchemas.infoParams }>;
@@ -107,29 +97,27 @@ export const createUserController = (app: FastifyInstance) => {
 
         // Try to find user with username provided, send back error if failed
         const tryGetUser = await app.userService.findByUsername(username);
-        if (tryGetUser.isErr()) return tryGetUser.error.send(reply);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
 
         // Try to map user to public user data, send back error if failed
         const tryMapUser = await app.userService.toPublicUser(tryGetUser.value);
-        if (tryMapUser.isErr()) return tryMapUser.error.send(reply);
+        if (tryMapUser.isErr()) return reply.err(tryMapUser.error);
 
-        const data = tryMapUser.value;
-        return new ApiSuccess<GetInfoPayload>(data).send(reply);
+        reply.ok(tryMapUser.value);
     };
 
-    const me: GeneralCb = async (req, reply) => {
+    const me: RouteHandlerMethod = async (req, reply) => {
         const { username } = req;
 
         // Try to find user with username provided, send back error if failed
         const tryGetUser = await app.userService.findByUsername(username);
-        if (tryGetUser.isErr()) return tryGetUser.error.send(reply);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
 
         // Try to map user to personal user data, send back error if failed
         const tryMapUser = await app.userService.toPersonalUser(tryGetUser.value);
-        if (tryMapUser.isErr()) return tryMapUser.error.send(reply);
+        if (tryMapUser.isErr()) return reply.err(tryMapUser.error);
 
-        const data = tryMapUser.value;
-        return new ApiSuccess<GetMePayload>(data).send(reply);
+        reply.ok(tryMapUser.value);
     };
 
     return { register, login, logout, leaderboard, info, me };

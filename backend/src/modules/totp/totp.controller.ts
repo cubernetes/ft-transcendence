@@ -1,31 +1,25 @@
+import type { ErrorCode, TotpBody, TotpUpdateBody } from "@darrenkuro/pong-core";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { Result, err, ok } from "neverthrow";
-import { TotpBody, TotpUpdateBody } from "@darrenkuro/pong-core";
-import { ApiError } from "../../utils/api-response";
-import { User } from "../user/user.types";
+import { UserRecord } from "../../core/db/db.types";
 
 const verifyTotp = async (
     app: FastifyInstance,
     userId: number,
     token: string,
     useTempSecret: boolean
-): Promise<Result<User, ApiError>> => {
-    const user = await app.userService.findById(userId);
-    if (user.isErr()) {
-        return err(user.error);
-    }
+): Promise<Result<UserRecord, ErrorCode>> => {
+    const tryGetUser = await app.userService.findById(userId);
+    if (tryGetUser.isErr()) return err(tryGetUser.error);
 
-    const secret = useTempSecret ? user.value.temporaryTotpSecret : user.value.totpSecret;
-    if (!secret) {
-        return err(new ApiError("BAD_REQUEST", 400, "User does not have TOTP enabled"));
-    }
+    const user = tryGetUser.value;
+    const secret = useTempSecret ? user.temporaryTotpSecret : user.totpSecret;
+    if (!secret) return err("SERVER_ERROR"); // Never
 
     const verified = app.authService.verifyTotpToken(secret, token);
-    if (!verified) {
-        return err(new ApiError("UNAUTHORIZED", 401, "Invalid TOTP token"));
-    }
+    if (!verified) return err("INVALID_TOTP_TOKEN");
 
-    return ok(user.value);
+    return ok(user);
 };
 
 const setup = async (req: FastifyRequest, reply: FastifyReply): Promise<void> => {
@@ -33,11 +27,9 @@ const setup = async (req: FastifyRequest, reply: FastifyReply): Promise<void> =>
     const { secret, qrCode } = await server.authService.generateTotpSecret();
 
     const tryUpdate = await server.userService.update(req.userId, { temporaryTotpSecret: secret });
-    if (tryUpdate.isErr()) {
-        return tryUpdate.error.send(reply);
-    }
+    if (tryUpdate.isErr()) return reply.send(tryUpdate.error);
 
-    return reply.send({ success: true, data: { qrCode, secret } });
+    reply.ok({ qrCode, secret });
 };
 
 const verify = async (
@@ -49,9 +41,7 @@ const verify = async (
     const { token } = body;
 
     const tryVerify = await verifyTotp(server, userId, token, true);
-    if (tryVerify.isErr()) {
-        return tryVerify.error.send(reply);
-    }
+    if (tryVerify.isErr()) return reply.err(tryVerify.error);
 
     const user = tryVerify.value;
     const tryUpdate = await server.userService.update(user.id, {
@@ -59,11 +49,9 @@ const verify = async (
         totpSecret: user.temporaryTotpSecret,
         temporaryTotpSecret: null,
     });
-    if (tryUpdate.isErr()) {
-        return tryUpdate.error.send(reply);
-    }
+    if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
 
-    return reply.send({ success: true, data: {} });
+    reply.send({});
 };
 
 const update = async (
@@ -76,15 +64,11 @@ const update = async (
 
     // Verify original token
     const tryVerifyOriginal = await verifyTotp(server, userId, token, false);
-    if (tryVerifyOriginal.isErr()) {
-        return tryVerifyOriginal.error.send(reply);
-    }
+    if (tryVerifyOriginal.isErr()) return reply.err(tryVerifyOriginal.error);
 
     // Verfiy new token
     const tryVerifyNew = await verifyTotp(server, userId, newToken, true);
-    if (tryVerifyNew.isErr()) {
-        return tryVerifyNew.error.send(reply);
-    }
+    if (tryVerifyNew.isErr()) return reply.err(tryVerifyNew.error);
 
     const user = tryVerifyNew.value;
     // Update to new sercret
@@ -92,11 +76,9 @@ const update = async (
         totpSecret: user.temporaryTotpSecret,
         temporaryTotpSecret: null,
     });
-    if (tryUpdate.isErr()) {
-        return tryUpdate.error.send(reply);
-    }
+    if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
 
-    return reply.send({ success: true, data: {} });
+    reply.ok({});
 };
 
 const disable = async (
@@ -108,19 +90,15 @@ const disable = async (
     const { token } = body;
 
     const user = await verifyTotp(server, userId, token, false);
-    if (user.isErr()) {
-        return user.error.send(reply);
-    }
+    if (user.isErr()) return reply.err(user.error);
 
     const tryUpdate = await server.userService.update(user.value.id, {
         totpEnabled: 0,
         totpSecret: null,
     });
-    if (tryUpdate.isErr()) {
-        return tryUpdate.error.send(reply);
-    }
+    if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
 
-    return reply.send({ success: true, data: {} });
+    reply.ok({});
 };
 
 export default {

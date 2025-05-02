@@ -3,10 +3,17 @@ import { z } from "zod";
 export const errorCodeEnum = z.enum([
     "BAD_REQUEST",
     "VALIDATION_ERROR",
-    "USERNAME_TAKEN",
-    "NOT_FOUND",
     "UNAUTHORIZED",
-    "INTERNAL_SERVER_ERROR",
+    "INVALID_PASSWORD",
+    "INVALID_TOTP_TOKEN",
+    "NOT_FOUND",
+    "USERNAME_TAKEN",
+    "LOBBY_FULL",
+    "ALREADY_IN_LOBBY",
+    "NOT_IN_LOBBY",
+    "GAME_STATUS_ERROR",
+    "CORRUPTED_DATA",
+    "SERVER_ERROR",
 ]);
 
 export type ErrorCode = z.infer<typeof errorCodeEnum>;

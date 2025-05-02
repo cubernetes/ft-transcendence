@@ -1,20 +1,16 @@
-import type { IncomingMessage, IncomingMessageType, UserInput } from "@darrenkuro/pong-core";
-import { authStore } from "../auth/auth.store";
-import { gameStore } from "../game/game.store";
+import type {
+    IncomingMessage as Message,
+    IncomingMessageType as Type,
+    UserInput,
+} from "@darrenkuro/pong-core";
 import { registerControllers } from "./ws.controller";
 import { wsStore } from "./ws.store";
 
-const send = (conn: WebSocket, message: IncomingMessage<IncomingMessageType>) => {
-    conn.send(JSON.stringify(message));
-};
+const send = (conn: WebSocket, message: Message<Type>) => conn.send(JSON.stringify(message));
 
 export const establishSocketConn = () => {
-    // Maybe use token to do auth over socket here
     const { isConnected } = wsStore.get();
-    if (isConnected) {
-        window.log.debug("Socket is already connected");
-        return;
-    }
+    if (isConnected) return window.log.debug("Fail to open socket: already connected");
 
     const conn = new WebSocket("ws");
     registerControllers(conn);
@@ -23,10 +19,7 @@ export const establishSocketConn = () => {
 
 export const closeSocketConn = () => {
     const { isConnected, conn } = wsStore.get();
-    if (!isConnected || !conn) {
-        window.log.debug("Socket is already not connected");
-        return;
-    }
+    if (!isConnected || !conn) return window.log.debug("Fail to close socket: no open socket");
 
     conn.close();
     wsStore.update({ isConnected: false, conn: null });
@@ -34,10 +27,8 @@ export const closeSocketConn = () => {
 
 export const sendGameStart = () => {
     const { isConnected, conn } = wsStore.get();
-    if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN) {
-        window.log.error("SendGameStart but socket is not connected");
-        return;
-    }
+    if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN)
+        return window.log.error("Fail to send game-start: socket error");
 
     window.log.debug(`Sending game-start`);
     send(conn, { type: "game-start", payload: null });
@@ -45,17 +36,9 @@ export const sendGameStart = () => {
 
 export const sendGameAction = (action: UserInput) => {
     const { isConnected, conn } = wsStore.get();
-    if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN) {
-        window.log.error("SendGameStart but socket is not connected");
-        return;
-    }
+    if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN)
+        return window.log.error("Fail to send game-action: socket error");
 
-    const { gameId, index } = gameStore.get();
-    if (!gameId || index === null) {
-        window.log.error("Game id or index is null when trying to send game action");
-        return;
-    }
-
-    window.log.debug(`Sending game-action game ${gameId}, player ${index}: ${action}`);
-    send(conn, { type: "game-action", payload: { gameId, index, action } });
+    window.log.debug(`Sending game-action: ${action}`);
+    send(conn, { type: "game-action", payload: { action } });
 };
