@@ -8,10 +8,7 @@ export const createLobbyController = (app: FastifyInstance) => {
         if (tryCreateLobby.isErr()) return app.log.error(tryCreateLobby.error);
 
         const lobbyId = tryCreateLobby.value;
-        return app.wsService.send(conn, {
-            type: "lobby-created",
-            payload: { lobbyId },
-        });
+        app.wsService.send(conn, { type: "lobby-created", payload: { lobbyId } });
     };
 
     const join = (conn: WebSocket, payload: Payloads["lobby-join"]): void => {
@@ -19,17 +16,39 @@ export const createLobbyController = (app: FastifyInstance) => {
         const tryJoinLobby = app.lobbyService.join(conn, lobbyId);
         if (tryJoinLobby.isErr()) return app.log.error(tryJoinLobby.error);
 
-        const { engine, playerNames } = tryJoinLobby.value;
+        const { engine, playerNames, players } = tryJoinLobby.value;
         const config = engine.getConfig();
 
-        // TODO: send back info for the other person??
-        return app.wsService.send(conn, {
-            type: "lobby-joined",
+        app.wsService.broadcast(players, {
+            type: "lobby-updated",
             payload: { config, playerNames },
         });
     };
 
-    const update = (_: WebSocket, payload: Payloads["lobby-update"]): void => {};
+    const update = (conn: WebSocket, payload: Payloads["lobby-update"]): void => {
+        // Try to get lobby ID from socket
+        const { lobbyId } = conn;
+        if (!lobbyId) return app.log.error("Tried to update lobby but not in a lobby");
+
+        // Try to get game session from lobby ID
+        const tryGetSession = app.lobbyService.getSessionById(lobbyId);
+        if (tryGetSession.isErr()) return app.log.error(tryGetSession.error);
+
+        const session = tryGetSession.value;
+        const { engine, players, playerNames } = session;
+
+        // Check if user has access (only host who created the room can update)
+        const isHost = players[0] === conn;
+        if (!isHost) return app.log.warn("Tried to update lobby but not the host");
+
+        engine.reset(payload.config);
+
+        const config = engine.getConfig();
+        app.wsService.broadcast(players, {
+            type: "lobby-updated",
+            payload: { config, playerNames },
+        });
+    };
 
     const leave = (conn: WebSocket): void => {};
 

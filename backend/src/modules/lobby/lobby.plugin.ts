@@ -4,7 +4,7 @@ import { createLobbyController } from "./lobby.controller.ts";
 import { createLobbyService } from "./lobby.service.ts";
 
 const lobbyPlugin = async (app: FastifyInstance) => {
-    app.decorate("lobbyService", createLobbyService());
+    app.decorate("lobbyService", createLobbyService(app));
 
     // Register websocket handlers for lobby type
     const controller = createLobbyController(app);
