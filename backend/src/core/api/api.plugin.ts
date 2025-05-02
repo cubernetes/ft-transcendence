@@ -15,6 +15,12 @@ const STATUS = {
 } as const satisfies Record<ErrorCode, number>;
 
 const apiPlugin = async (app: FastifyInstance) => {
+    // Set up default falsy values for request
+    app.decorateRequest("userId", 0);
+    app.decorateRequest("username", "");
+    app.decorateRequest("userDisplayName", "");
+
+    // Decorate api functions on reply
     app.decorateReply(
         "ok",
         function (data: unknown, statusCode = 200, cookies?: { token: string }) {
