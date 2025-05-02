@@ -13,7 +13,7 @@ export type ZodHandler<S extends SchemaMap> = (
     data: InferSchemaMap<S>,
     req: FastifyRequest,
     reply: FastifyReply
-) => Promise<void>;
+) => void | Promise<void>;
 
 /**
  * Middleware to validate data for the request (params, body, query, headers) using Zod.
