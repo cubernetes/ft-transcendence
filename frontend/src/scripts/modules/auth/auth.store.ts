@@ -3,6 +3,7 @@ import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createTotpModal } from "../../ui/layout/TotpModal";
 import { sendApiRequest } from "../../utils/api";
+import { replaceChildren } from "../../utils/dom-helper";
 import { closeSocketConn, establishSocketConn } from "../ws/ws.service";
 
 type AuthState = {
@@ -43,11 +44,10 @@ authStore.subscribe(async (state) => {
     // Replace login form with totp modal if totp is being required
     if (state.totpRequired) {
         const el = document.getElementById(CONST.ID.LOGIN_FORM);
-        if (!el) return log.error("Unable to find login form when totp is required");
+        if (!el) return log.error("Fail to find login form: auth store, totpRequired");
 
         const modalEl = await createTotpModal();
-        el.innerHTML = "";
-        el.appendChild(modalEl);
+        replaceChildren(el, [modalEl]);
         return;
     }
 

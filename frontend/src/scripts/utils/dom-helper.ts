@@ -60,3 +60,27 @@ export const createEl = <T extends keyof HTMLElementTagNameMap>(
 export const appendChildren = (ctn: HTMLElement, children: HTMLElement[]) => {
     children.forEach((el) => ctn.appendChild(el));
 };
+
+/** Functionally dispatch the event bubbling down to all children elements */
+export const dispatchEventDown = (parent: HTMLElement, evt: Event) => {
+    // Dispatch the event to the parent first
+    parent.dispatchEvent(evt);
+
+    // Dispatch the event to all child elements
+    parent.querySelectorAll("*").forEach((child) => {
+        child.dispatchEvent(evt);
+    });
+};
+
+/** Safely replace children in a container */
+export const replaceChildren = (ctn: HTMLElement, target: HTMLElement[]) => {
+    // Create fragment as cache for target elements to append at once
+    const fragment = document.createDocumentFragment();
+    target.forEach((el) => fragment.appendChild(el));
+
+    // Send destroy event to all children elements
+    dispatchEventDown(ctn, new Event("destory"));
+    ctn.innerHTML = "";
+
+    ctn.appendChild(fragment);
+};

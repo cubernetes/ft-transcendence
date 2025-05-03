@@ -3,7 +3,7 @@ import { getText, isValidKey } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 
 // Structure of the options to be passed in, esay to extend
-type ButtonOpts = { text: string; tw?: string; click?: () => void };
+type ButtonOpts = { text: string; tw?: string; click?: () => void; noDefaultTw?: boolean };
 
 /**
  * Create a custom button element with native life cycle support. Params passed in as object.
@@ -11,13 +11,22 @@ type ButtonOpts = { text: string; tw?: string; click?: () => void };
  * @param tw optional tailwind classes, overriding (merge) with default defined in component
  * @param click optional onclick event
  */
-export const createButton = ({ text, tw = "", click }: ButtonOpts): HTMLButtonElement => {
+export const createButton = ({
+    text,
+    tw = "",
+    click,
+    noDefaultTw = false,
+}: ButtonOpts): HTMLButtonElement => {
     // Default tailwind style to be applied to all button elements, additional styles will be merged
-    const BASE_TW = "rounded text-xl text-black p-2 bg-gray-100 hover:bg-gray-400";
+    const BASE_TW = "rounded text-center p-2";
+
+    // bg-gray-100 hover:bg-gray-400
+    // maybe select-none? dones't seem to be needed, disabled:opacity-50 font-medium transition
+    // inline-block
 
     const resolvedText = isValidKey(text) ? getText(text) : text;
     const attributes = isValidKey(text) ? { [CONST.ATTR.I18N_TEXT]: text } : undefined;
-    const twStyle = twMerge(BASE_TW, tw);
+    const twStyle = noDefaultTw ? tw : twMerge(BASE_TW, tw);
     const events = click ? { click } : undefined;
 
     const button = createEl("button", twStyle, { text: resolvedText, attributes, events });

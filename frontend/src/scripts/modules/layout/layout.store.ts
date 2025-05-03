@@ -33,9 +33,8 @@ export const initLayoutState = {
 
 export const layoutStore = createStore<LayoutState>(initLayoutState);
 
+// Entry point of the app
 layoutStore.subscribe((state) => {
-    log.debug("LayoutStore subscriber triggered");
-
     const { root, header, canvas, router, footer } = state;
 
     if (!state.initialized) {
@@ -51,6 +50,7 @@ layoutStore.subscribe((state) => {
         window.addEventListener("popstate", handlePopState);
 
         // Navigate To default page
+        // Should try to get the location.pathname, i.e quicplay
         navigateTo(CONST.ROUTE.DEFAULT, true);
     }
 });

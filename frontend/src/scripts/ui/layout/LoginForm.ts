@@ -6,7 +6,7 @@ import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 
 // TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
-export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
+export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTMLElement[]> => {
     const wrapper = createEl("div", "relative max-w-md mx-auto p-6 rounded-lg top-1/3", {
         attributes: { id: CONST.ID.LOGIN_FORM },
     });
@@ -187,5 +187,5 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
 
     appendChildren(wrapper, [exitButton, toggleContainer, authForm, quickplayButton]);
 
-    return wrapper;
+    return [wrapper];
 };

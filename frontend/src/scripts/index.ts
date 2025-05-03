@@ -23,6 +23,6 @@ import("./modules/layout/layout.store").then(({ layoutStore }) => {
     const root = document.getElementById(CONST.ID.ROOT);
     if (!root) return log.error(`Fail to find HTMLElement #${CONST.ID.ROOT}`);
 
-    // Entry point of the entire app at layoutStore
+    // Entry point of the entire app at layoutStore so only need one dynamic import
     layoutStore.update({ root });
 });

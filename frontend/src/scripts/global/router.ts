@@ -9,6 +9,7 @@ import { createQuickPlayPage } from "../ui/pages/QuickPlayPage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
+import { replaceChildren } from "../utils/dom-helper";
 
 const ROUTES = {
     landing: createLandingPage,
@@ -43,31 +44,12 @@ const renderRoute = async (dest: string) => {
     // Clean up game session when route changes, this probably belongs somewhere else
     gameStore.update({ isPlaying: false });
 
-    const { router } = layoutStore.get();
-
-    // Functionally dispatch the event bubbling down to all children elements
-    const dispatchEventDown = (parent: HTMLElement, evt: Event) => {
-        // Dispatch the event to the parent first
-        parent.dispatchEvent(evt);
-
-        // Dispatch the event to all child elements
-        parent.querySelectorAll("*").forEach((child) => {
-            child.dispatchEvent(evt);
-        });
-    };
-
-    dispatchEventDown(router, new Event("destroy"));
-
-    // Render the appropriate page
+    // Create the appropriate page as an array of HTMLElement
     const createPage = ROUTES[route];
-
     const pageElements = await createPage();
 
-    const fragment = document.createDocumentFragment();
-    pageElements.forEach((el) => fragment.appendChild(el));
-
-    router.innerHTML = "";
-    router.appendChild(fragment);
+    const { router } = layoutStore.get();
+    replaceChildren(router, pageElements);
 
     // TODO: Clean up later
     if (route === "landing" || route === "quickplay") {
