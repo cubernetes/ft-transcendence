@@ -1,4 +1,4 @@
-import { TranslationKey, languageStore, texts } from "../../global/language";
+import { TextKey, getText, languageStore } from "../../global/language";
 import { createEl } from "../../utils/dom-helper";
 
 /**
@@ -29,15 +29,12 @@ export const createTitleText = (
  *           default "text-6xl font-bold mb-4 text-center text-black",
  *           extendable and replacable by this param adding to it
  */
-export const createBodyText = (text: TranslationKey, tw: string = ""): HTMLElement => {
+export const createBodyText = (text: TextKey, tw: string = ""): HTMLElement => {
     const baseTw = "text-xl text-black";
     const fullTw = `${baseTw} ${tw}`;
     const bodyEl = createEl("p", fullTw, { text });
 
-    const unsubscribeLang = languageStore.subscribe(
-        ({ lang }) => (bodyEl.textContent = texts[lang][text])
-    );
-
+    const unsubscribeLang = languageStore.subscribe(() => (bodyEl.textContent = getText(text)));
     bodyEl.addEventListener("destroy", unsubscribeLang);
 
     return bodyEl;

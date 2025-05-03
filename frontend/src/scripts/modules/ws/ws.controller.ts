@@ -4,7 +4,6 @@ import type {
     OutgoingMessageType as Type,
 } from "@darrenkuro/pong-core";
 import { safeJsonParse } from "@darrenkuro/pong-core";
-import { authStore } from "../auth/auth.store";
 import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
 
@@ -15,14 +14,6 @@ const registerGeneralHandlers = (conn: WebSocket) => {
 
     conn.onerror = (e) =>
         window.log.info(`Socket error: ${e instanceof ErrorEvent ? e.message : "unknown"}`);
-};
-
-export const registerHandler = <T extends Type>(
-    type: T,
-    handler: Handler<T>,
-    handlers: Map<Type, Handler<Type>>
-): void => {
-    handlers.set(type, handler as Handler<Type>);
 };
 
 const registerGameControllers = (conn: WebSocket) => {
@@ -62,6 +53,14 @@ const registerGameControllers = (conn: WebSocket) => {
     };
 
     conn.onmessage = handleMessage;
+};
+
+export const registerHandler = <T extends Type>(
+    type: T,
+    handler: Handler<T>,
+    handlers: Map<Type, Handler<Type>>
+): void => {
+    handlers.set(type, handler as Handler<Type>);
 };
 
 export const registerControllers = (conn: WebSocket) => {

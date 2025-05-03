@@ -6,7 +6,10 @@ import type {
 import { registerControllers } from "./ws.controller";
 import { wsStore } from "./ws.store";
 
-const send = (conn: WebSocket, message: Message<Type>) => conn.send(JSON.stringify(message));
+const send = (conn: WebSocket, message: Message<Type>) => {
+    // TODO: run time schema validation
+    conn.send(JSON.stringify(message));
+};
 
 export const establishSocketConn = () => {
     const { isConnected } = wsStore.get();

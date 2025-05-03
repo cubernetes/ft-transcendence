@@ -29,14 +29,14 @@ const protectedRoutes: Route[] = ["setup", "profile", "leaderboard", "totp"];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
-    let route = (dest in routes ? dest : window.cfg.url.default) as keyof typeof routes;
+    let route = (dest in routes ? dest : window.cfg.url.default) as Route;
 
     // Check auth state for protected routes
     if (protectedRoutes.includes(route)) {
         const authState = authStore.get();
         // Go to default page if not logged in
         if (!authState.isAuthenticated) {
-            route = window.cfg.url.default as keyof typeof routes;
+            route = window.cfg.url.default as Route;
         }
     }
 

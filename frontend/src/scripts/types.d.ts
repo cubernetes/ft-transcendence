@@ -1,4 +1,5 @@
 import type config from "./global/config";
+import type { FtButton } from "./ui/components/Button";
 import type { logger } from "./utils/logger";
 import type {
     ArcRotateCamera,
@@ -27,6 +28,16 @@ declare global {
         earcut: earcut; // TODO: Check if correct for earcut type
         cfg: typeof config;
         log: typeof logger;
+    }
+
+    // Custom Elements
+    interface HTMLElementTagNameMap {
+        "ft-button": FtButton;
+    }
+
+    // 2) Customized built-in <button is="pong-cta-button">
+    interface Document {
+        createElement(tagName: "button", options: { is: "ft-button" }): FtButton;
     }
 
     // Globally defined types so no need to import

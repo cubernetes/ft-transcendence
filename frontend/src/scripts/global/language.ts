@@ -1,44 +1,69 @@
-import { logout } from "../modules/auth/auth.service";
 import { createStore } from "./store";
 
-type LanguageOpts = "en" | "de" | "fr" | "es";
-type LanguageState = { lang: LanguageOpts };
+const SUPPORTED_LANGS = ["en", "de", "fr", "es"] as const;
+export type Languages = (typeof SUPPORTED_LANGS)[number];
 
-export const languageStore = createStore<LanguageState>({
-    lang: (localStorage.getItem(window.cfg.label.lang) as LanguageOpts) ?? "en",
-});
+const isLangSupported = (x: unknown): x is Languages => {
+    return typeof x === "string" && SUPPORTED_LANGS.includes(x as Languages);
+};
 
-export const setLanguage = (lang: LanguageOpts) => {
+type LanguageState = { lang: Languages };
+
+const getInitLang = (): Languages => {
+    // Check local storage for stored language preference
+    const key = window.cfg.label.lang;
+    const stored = localStorage.getItem(key);
+    if (stored && isLangSupported(stored)) return stored;
+
+    // Loop through browser language preference and see if any is available
+    for (const tag of navigator.languages) {
+        const locale = new Intl.Locale(tag);
+        const langCode = locale.language;
+        if (isLangSupported(langCode)) return langCode;
+    }
+
+    // Default to English if all else fails
+    return "en";
+};
+
+export const languageStore = createStore<LanguageState>({ lang: getInitLang() });
+
+export const setLanguage = (lang: Languages) => {
     localStorage.setItem(window.cfg.label.lang, lang);
     languageStore.set({ lang });
 };
 
 // Circle through available languages
 export const changeLanguage = () => {
-    const availableLanguages: LanguageOpts[] = ["en", "de", "fr", "es"];
+    const availableLanguages: Languages[] = ["en", "de", "fr", "es"];
     const currentLang = languageStore.get().lang;
     const nextLangIndex = (availableLanguages.indexOf(currentLang) + 1) % availableLanguages.length;
     const nextLang = availableLanguages[nextLangIndex];
     setLanguage(nextLang);
 };
 
-export const getText = (key: TranslationKey | string): string => {
-    const lang = languageStore.get().lang;
-    const translation = texts[lang][key as TranslationKey];
-    if (translation) {
-        return translation;
-    }
-
-    // Fallback logic for dynamic keys like name_player_X
-    if (key.startsWith("name_player_")) {
-        const playerNumber = key.split("_").pop(); // Extract the number after "name_player_"
-        const baseTranslation = texts[lang]["name_player"];
-        return baseTranslation ? `${baseTranslation} ${playerNumber}` : `Player ${playerNumber}`;
-    }
-
-    window.log.warn(`Missing translation for key: ${key}`);
-    return key; // Return the key itself as a last resort
+export const getText = (key: TextKey): string => {
+    const { lang } = languageStore.get();
+    return texts[lang][key];
 };
+
+// export const getText = (key: TranslationKey | string): string => {
+//     const lang = languageStore.get().lang;
+//     const translation = texts[lang][key as TranslationKey];
+//     if (translation) {
+//         return translation;
+//     }
+
+//     // Fallback logic for dynamic keys like name_player_X
+//     if (key.startsWith("name_player_")) {
+//         const playerNumber = key.split("_").pop(); // Extract the number after "name_player_"
+//         const baseTranslation = texts[lang]["name_player"];
+//         return baseTranslation ? `${baseTranslation} ${playerNumber}` : `Player ${playerNumber}`;
+//     }
+
+//     window.log.warn(`Missing translation for key: ${key}`);
+//     return key; // Return the key itself as a last resort
+// };
 
 const en = {
     ai: "AI",
@@ -99,8 +124,9 @@ const en = {
     wins: "Wins",
     your_profile: "Your Profile",
     your_stats: "Your Stats:",
+    code_default: "Translation Needed", // Needs attention to replace, for type reasons
 } as const;
-export type TranslationKey = keyof typeof en;
+export type TextKey = keyof typeof en;
 
 export const texts = {
     en,
@@ -164,7 +190,8 @@ export const texts = {
         wins: "Siege",
         your_profile: "Dein Profil",
         your_stats: "Deine Statistiken:",
-    } satisfies { [K in TranslationKey]: string },
+        code_default: "Translation Needed", // Needs attention to replace, for type reasons
+    } satisfies { [K in TextKey]: string },
     fr: {
         ai: "IA",
         chooseMode: "Choisir le mode de jeu",
@@ -224,7 +251,8 @@ export const texts = {
         wins: "Victoires",
         your_profile: "Votre profil",
         your_stats: "Vos statistiques :",
-    } satisfies { [K in TranslationKey]: string },
+        code_default: "Translation Needed", // Needs attention to replace, for type reasons
+    } satisfies { [K in TextKey]: string },
     es: {
         ai: "IA",
         chooseMode: "Elegir modo de juego",
@@ -285,5 +313,6 @@ export const texts = {
         wins: "Victorias",
         your_profile: "Tu perfil",
         your_stats: "Tus estadísticas:",
-    } satisfies { [K in TranslationKey]: string },
+        code_default: "Translation Needed", // Needs attention to replace, for type reasons
+    } satisfies { [K in TextKey]: string },
 } as const;

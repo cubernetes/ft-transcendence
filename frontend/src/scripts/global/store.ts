@@ -19,9 +19,7 @@ export const createStore = <T extends object>(initialState: T) => {
      */
     const subscribe = (subscriber: (newState: T) => void) => {
         subscribers.add(subscriber);
-        return () => {
-            subscribers.delete(subscriber);
-        };
+        return () => subscribers.delete(subscriber);
     };
 
     /** Function to update partial state. */

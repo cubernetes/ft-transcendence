@@ -8,6 +8,7 @@ const L_DOWN = ["s"];
 const R_UP = ["ArrowUp"];
 const R_DOWN = ["ArrowDown"];
 
+// TODO: These are constants, maybe all capital letters instead
 /** This variable will be attached globally, can be accessed via `window.cfg` */
 const config = {
     dir: {
@@ -29,6 +30,7 @@ const config = {
         activeBtn: "activeBtn",
         token: "token", // JWT token name
         lang: "lang", // Language preference saved in local storage
+        textKey: "key", // Language key in props in custom element
     },
     id: {
         loginForm: "login-form",
@@ -51,6 +53,11 @@ const config = {
         left: [...L_UP, ...L_DOWN], // Left player keys
         right: [...R_UP, ...R_DOWN], // Right player keys
         paddle: [...L_UP, ...L_DOWN, ...R_UP, ...R_DOWN], // All paddle control keys
+    },
+    TW: {
+        // The default base tailwind for different elements
+        BTN: "rounded text-xl text-black p-2 bg-gray-100 hover:bg-gray-400",
+        INPUT: "w-full p-2 border border-gray-300 rounded",
     },
 };
 
