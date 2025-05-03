@@ -1,5 +1,6 @@
 import { twMerge } from "tailwind-merge";
-import { TextKey, getText, languageStore } from "../../global/language";
+import { I18nKey } from "../../modules/locale/locale.en";
+import { getText, isValidKey } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 
 // TODO: Deprecating this, just need to ensure more everything translation related is set up ok
@@ -13,43 +14,41 @@ export const createButton = (text: string, tw = "", click?: () => void): HTMLBut
 
 /**
  * Create a custom button element with native life cycle support.
- * @param key the translatable key for text content
+ * @param t the translatable key for text content or literal string (no translation needed)
  * @param tw optional tailwind classes, overriding (merge) with default defined in config
  * @param click optional onclick event
  */
-export const createBtnEl = (key: TextKey, tw = "", click?: () => void) => {
-    const text = getText(key);
+export const createBtnEl = (text: string, tw = "", click?: () => void) => {
+    text = isValidKey(text) ? getText(text) : text;
+    const attributes = isValidKey(text) ? { [window.cfg.label.textKey]: text } : undefined;
+
     const twStyle = twMerge(window.cfg.TW.BTN, tw);
-    const attributes = { [window.cfg.label.textKey]: key };
     const events = click ? { click } : undefined;
 
-    const button = createEl("ft-button", twStyle, { text, attributes, events });
-
-    // const unsubscribeLang = languageStore.subscribe(() => (btnEl.textContent = getText(key)));
-    // btnEl.addEventListener("destroy", unsubscribeLang);
+    const button = createEl("button", twStyle, { text, attributes, events });
 
     return button;
 };
 
-export class FtButton extends HTMLButtonElement {
-    private unsubscribeLang!: () => void;
+// export class FtButton extends HTMLButtonElement {
+//     private unsubscribeLang!: () => void;
 
-    constructor() {
-        super();
-    }
+//     constructor() {
+//         super();
+//     }
 
-    connectedCallback() {
-        window.log.debug(`Button connected cb triggered`);
-        this.unsubscribeLang = languageStore.subscribe(() => {
-            const key = window.cfg.label.textKey;
-            this.textContent = getText(this.getAttribute(key) as TextKey);
-        });
-    }
+//     connectedCallback() {
+//         window.log.debug(`Button connected cb triggered`);
+//         this.unsubscribeLang = languageStore.subscribe(() => {
+//             const key = window.cfg.label.textKey;
+//             this.textContent = getText(this.getAttribute(key) as TextKey);
+//         });
+//     }
 
-    disconnectedCallback() {
-        window.log.debug(`Button disconnected cb triggered`);
-        this.unsubscribeLang();
-    }
-}
+//     disconnectedCallback() {
+//         window.log.debug(`Button disconnected cb triggered`);
+//         this.unsubscribeLang();
+//     }
+// }
 
-customElements.define("ft-button", FtButton, { extends: "button" });
+// customElements.define("ft-button", FtButton, { extends: "button" });

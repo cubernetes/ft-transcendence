@@ -1,17 +1,15 @@
 import type { LoginBody, RegisterBody } from "@darrenkuro/pong-core";
-import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
+import { getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
-import { createButton } from "../components/Button";
+import { createBtnEl, createButton } from "../components/Button";
 
 // TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = createEl("div", "relative max-w-md mx-auto p-6 rounded-lg top-1/3", {
         attributes: { id: window.cfg.id.loginForm },
     });
-
-    const translatableElements: Partial<Record<TranslationKey, HTMLElement>> = {};
 
     const usernameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
         props: {
@@ -20,8 +18,8 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "username",
             required: true,
         },
+        attributes: { [window.cfg.label.placeholderKey]: "username" },
     });
-    translatableElements["username"] = usernameInput;
 
     const displayNameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
         props: {
@@ -30,8 +28,8 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "given-name",
             required: true,
         },
+        attributes: { [window.cfg.label.placeholderKey]: "display_name" },
     });
-    translatableElements["display_name"] = displayNameInput;
 
     const passwordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
         props: {
@@ -40,8 +38,8 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "current-password",
             required: true,
         },
+        attributes: { [window.cfg.label.placeholderKey]: "password" },
     });
-    translatableElements["password"] = passwordInput;
 
     const confirmPasswordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
         props: {
@@ -50,8 +48,8 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "current-password", // or new-password if updated
             required: true,
         },
+        attributes: { [window.cfg.label.placeholderKey]: "confirm_password" },
     });
-    translatableElements["confirm_password"] = confirmPasswordInput;
 
     const errorMessage = createEl("div", "hidden p-2 bg-red-100 text-red-500 rounded text-sm", {
         attributes: { id: "formError" },
@@ -63,19 +61,18 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         props: {
             type: "submit",
         },
+        attributes: { [window.cfg.label.textKey]: "login" },
     });
-    translatableElements["login"] = submitBtn;
 
     const authForm = createEl("form", "space-y-4", {
         props: { noValidate: true },
     });
 
     const quickplayButton = createButton(
-        getText("quickplay"),
+        "quickplay",
         "!px-4 py-2 bg-blue-500 text-white rounded-l-md mt-4 w-full",
         () => navigateTo("quickplay")
     );
-    translatableElements["quickplay"] = quickplayButton;
 
     const showError = (message: string) => {
         errorMessage.textContent = message;
@@ -138,7 +135,6 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             },
         },
     });
-    translatableElements["login"] = loginBtn;
 
     const registerBtn = createEl("button", "px-4 py-2 bg-gray-300 rounded-r-md", {
         text: getText("register"),
@@ -150,7 +146,6 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             },
         },
     });
-    translatableElements["register"] = registerBtn;
 
     const toggleContainer = createEl("div", "flex justify-center mb-4", {
         children: [loginBtn, registerBtn],
@@ -191,26 +186,6 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
     });
 
     appendChildren(wrapper, [exitButton, toggleContainer, authForm, quickplayButton]);
-
-    // Subscribe to language changes
-    const updateTexts = () => {
-        usernameInput.placeholder = getText("username");
-        displayNameInput.placeholder = getText("display_name");
-        passwordInput.placeholder = getText("password");
-        confirmPasswordInput.placeholder = getText("confirm_password");
-        submitBtn.textContent = mode === "login" ? getText("login") : getText("register");
-        loginBtn.textContent = getText("login");
-        registerBtn.textContent = getText("register");
-        quickplayButton.textContent = getText("quickplay");
-    };
-
-    const unsubscribe = languageStore.subscribe(() => {
-        updateTexts();
-    });
-
-    wrapper.addEventListener("destroy", () => {
-        unsubscribe();
-    });
 
     return wrapper;
 };

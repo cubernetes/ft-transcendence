@@ -1,6 +1,6 @@
 import { Result } from "neverthrow";
 import { PersonalUser, PublicUser } from "@darrenkuro/pong-core";
-import { TranslationKey, getText, languageStore } from "../../global/language";
+import { getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
@@ -21,10 +21,14 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
         attributes: {
             src: user.avatarUrl,
             alt: getText("profile_picture"),
+            [window.cfg.label.altKey]: "profile_picture",
         },
     });
 
-    const titleEl = createEl("h2", "text-2xl font-bold mb-4", { text: getText("your_profile") });
+    const titleEl = createEl("h2", "text-2xl font-bold mb-4", {
+        text: getText("your_profile"),
+        attributes: { [window.cfg.label.textKey]: "your_profile" },
+    });
     const usernameEl = createBodyText("username");
 
     // totp on
@@ -32,9 +36,9 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
     const totpEnableCb = () => {};
     const totpDisableCb = () => {};
 
-    const totpOnSettings = createButtonGroup(["update", "disable"], [totpUpdateCb, totpDisableCb]);
+    // const totpOnSettings = createButtonGroup(["update", "disable"], [totpUpdateCb, totpDisableCb]);
     const totpOffSetting = createButton("enable", "", totpEnableCb);
-    const totpSettingEl = user.totpEnabled ? totpOnSettings : totpOffSetting;
+    //const totpSettingEl = user.totpEnabled ? totpOnSettings : totpOffSetting;
     // const fields = [
     //     { label: "username", key: "username" },
     //     { label: "games_played", key: "games" },
@@ -52,22 +56,7 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
 
     const rankEl = createBodyText("rank");
 
-    appendChildren(playerSection, [titleEl, avatarEl, usernameEl, totpSettingEl, rankEl]);
-
-    // Subscribe to language changes
-    const unsubscribeLanguageStore = languageStore.subscribe(() => {
-        titleEl.textContent = getText("your_profile");
-        avatarEl.setAttribute("alt", getText("profile_picture"));
-        // fields.forEach(({ label, key }) => {
-        //     const el = translatableElements[label as TranslationKey];
-        //     if (el) {
-        //         el.textContent = `${getText(label as TranslationKey)}: ${data[key]}`;
-        //     }
-        // });
-        rankEl.textContent = `${getText("rank")}: ${user.rank}`;
-    });
-
-    playerSection.addEventListener("destroy", unsubscribeLanguageStore);
+    //appendChildren(playerSection, [titleEl, avatarEl, usernameEl, totpSettingEl, rankEl]);
 
     return playerSection;
 };
@@ -79,13 +68,10 @@ export const createStatsDataSection = (
         text: getText("your_stats"),
     });
 
-    const translatableElements: Partial<Record<TranslationKey, HTMLElement>> = {};
-
     if (dataResult.isErr()) {
         const errorElement = createEl("p", "text-1xl text-red-500", {
             text: getText("failed_generate_chart"),
         });
-        translatableElements["failed_generate_chart"] = errorElement;
         statSection.appendChild(errorElement);
         return statSection;
     }
@@ -96,7 +82,6 @@ export const createStatsDataSection = (
         const notEnoughDataElement = createEl("p", "text-1xl text-red-500", {
             text: getText("not_enough_data"),
         });
-        translatableElements["not_enough_data"] = notEnoughDataElement;
         statSection.appendChild(notEnoughDataElement);
         return statSection;
     }
@@ -133,30 +118,8 @@ export const createStatsDataSection = (
         const failedChartElement = createEl("p", "text-1xl text-red-500", {
             text: getText("failed_generate_chart"),
         });
-        translatableElements["failed_generate_chart"] = failedChartElement;
         statSection.appendChild(failedChartElement);
     }
-
-    // Subscribe to language changes
-    const updateTexts = () => {
-        statSection.firstChild!.textContent = getText("your_stats");
-        const failedChartEl = translatableElements["failed_generate_chart"];
-        if (failedChartEl) {
-            failedChartEl.textContent = getText("failed_generate_chart");
-        }
-        const notEnoughDataEl = translatableElements["not_enough_data"];
-        if (notEnoughDataEl) {
-            notEnoughDataEl.textContent = getText("not_enough_data");
-        }
-    };
-
-    const unsubscribe = languageStore.subscribe(() => {
-        updateTexts();
-    });
-
-    statSection.addEventListener("destroy", () => {
-        unsubscribe();
-    });
 
     return statSection;
 };

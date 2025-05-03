@@ -1,8 +1,9 @@
 import { AIDifficulty, defaultGameConfig } from "@darrenkuro/pong-core";
-import { TranslationKey, getText, languageStore } from "../../global/language";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
+import { I18nKey } from "../../modules/locale/locale.en";
+import { getText } from "../../modules/locale/locale.utils";
 import { createTournamentController } from "../../modules/tournament/tournament.controller";
 import { tournamentStore } from "../../modules/tournament/tournament.store";
 import { createEl } from "../../utils/dom-helper";
@@ -15,9 +16,9 @@ import { createBodyText, createTitleText } from "../components/Text";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
-const createCtaBtn = (textKey: TranslationKey, cb: () => void): HTMLButtonElement => {
+const createCtaBtn = (textKey: I18nKey, cb: () => void): HTMLButtonElement => {
     const btn = createButton(
-        getText(textKey),
+        textKey,
         "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
         cb
     );
@@ -26,7 +27,7 @@ const createCtaBtn = (textKey: TranslationKey, cb: () => void): HTMLButtonElemen
 
 const createDifficultyGroup = () => {
     const label = createBodyText("difficulty");
-    const btns = createButtonGroup([getText("easy"), getText("medium"), getText("hard")], []);
+    const btns = createButtonGroup(["easy", "medium", "hard"], []);
 
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
         children: [label, btns],
@@ -35,9 +36,12 @@ const createDifficultyGroup = () => {
     return difficultyGrp;
 };
 
-const createInput = (placeholderKey: TranslationKey | string) =>
+const createInput = (placeholderKey: I18nKey) =>
     createEl("input", "w-full p-2 bg-gray-100 text-black rounded text-xl", {
-        attributes: { placeholder: getText(placeholderKey) },
+        attributes: {
+            placeholder: getText(placeholderKey),
+            [window.cfg.label.placeholderKey]: placeholderKey,
+        },
     });
 
 //TODO: Implement logic for when the friend enters the game ID
@@ -184,7 +188,7 @@ const aiMode = (ctn: HTMLElement) => {
     const title = createTitleText(getText("play_ai"));
 
     const line = createSetupLine();
-    let p1 = createInput("name_player_1");
+    let p1 = createInput("name_player");
     const username = authStore.get().username;
     if (authStore.get().isAuthenticated && username) {
         p1.value = username;
@@ -236,8 +240,8 @@ const localMode = (ctn: HTMLElement) => {
 
     const playerLabel = createBodyText("enter_names");
 
-    const p1 = createInput("name_player_1");
-    const p2 = createInput("name_player_2");
+    const p1 = createInput("name_player");
+    const p2 = createInput("name_player");
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, p1, p2],
     });
@@ -285,7 +289,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
     const playerInputs: HTMLInputElement[] = [];
     for (let i = 0; i < playerAmount; i++) {
-        const translationKey = `name_player_${i + 1}` as TranslationKey; // Dynamically generate the key
+        const translationKey = `name_player` as I18nKey; // Dynamically generate the key
         const playerInput = createInput(translationKey); // Pass the dynamic key to createInput
         playerInputs.push(playerInput);
     }
@@ -390,7 +394,7 @@ export const createSetupModal = (): HTMLElement => {
     }
 
     const gameBtnGrp = createButtonGroup(
-        (btnLabels as TranslationKey[]).map((key) => getText(key)),
+        (btnLabels as I18nKey[]).map((key) => getText(key)),
         btnCallbacks,
         "flex-1",
         "mt-4"

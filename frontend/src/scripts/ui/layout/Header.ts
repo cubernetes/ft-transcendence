@@ -1,6 +1,7 @@
-import { TranslationKey, changeLanguage, getText, languageStore } from "../../global/language";
 import { type Route, navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
+import { I18nKey } from "../../modules/locale/locale.en";
+import { changeLanguage, getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";
 
@@ -9,11 +10,12 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     const titleEl = createEl("h1", "text-3xl font-bold cursor-pointer", {
         text: getText("title"),
         events: { click: () => navigateTo(window.cfg.url.home) },
+        attributes: { [window.cfg.label.textKey]: "title" },
     });
 
     //
     const navList = createEl("ul", "flex text-1xl space-x-4");
-    const navKeys: [TranslationKey, Route][] = [
+    const navKeys: [I18nKey, Route][] = [
         ["home", window.cfg.url.home],
         ["setup", window.cfg.url.home],
         ["leaderboard", "leaderboard"],
@@ -24,7 +26,8 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     for (const [key, route] of navKeys) {
         const link = createEl("a", "hover:underline cursor-pointer", {
             text: getText(key),
-            events: { click: (e) => navigateTo(route) },
+            events: { click: () => navigateTo(route) },
+            attributes: { [window.cfg.label.textKey]: key },
         });
         const li = createEl("li", "", { children: [link] });
         navList.appendChild(li);
@@ -53,19 +56,10 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
 
     appendChildren(headerEl, [titleEl, navEl]);
 
-    const unsubscribeLanguage = languageStore.subscribe(() => {
-        titleEl.textContent = getText("title");
-        languageBtn.textContent = getText("lang");
-        Array.from(navList.querySelectorAll<HTMLAnchorElement>("a")).forEach((a, i) => {
-            a.textContent = getText(navKeys[i][0]);
-        });
-    });
-
     // Header is never destoryed but included for good practice
     headerEl.addEventListener("destory", () => {
         window.log.debug("Header unsubscribe to Login status");
         unsubscribeAuth();
-        unsubscribeLanguage();
     });
 
     return headerEl;

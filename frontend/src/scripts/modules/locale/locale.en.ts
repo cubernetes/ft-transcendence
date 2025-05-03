@@ -41,8 +41,8 @@ export const TEXT_EN = {
     register_failed: "Registration failed. Please try again.",
     setup: "Setup",
     setup_ai: "AI-Mode",
-    setup_choose_mode: "Choose Game Mode",
-    setup_local: "Local",
+    setup_choose_mode: "Choose Game Mode", // duplicate
+    setup_local: "Local", // duplicate
     setup_online: "Play Online",
     setup_play: "Play",
     setup_play_local: "Play Local",

@@ -40,4 +40,13 @@ export const translate = <E extends HTMLElement>(
         if (!key || !isValidKey(key)) return window.log.warn(`Invalid i18n key ${key}`);
         cb(el, key);
     });
+    // Add extrapolate template
+};
+
+// Circle through available languages
+export const changeLanguage = () => {
+    const currentLang = localeStore.get().lang;
+    const nextLangIndex = (SUPPORTED_LANGS.indexOf(currentLang) + 1) % SUPPORTED_LANGS.length;
+    const nextLang = SUPPORTED_LANGS[nextLangIndex];
+    setLanguage(nextLang);
 };
