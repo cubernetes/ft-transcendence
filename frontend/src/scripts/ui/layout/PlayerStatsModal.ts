@@ -37,7 +37,7 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
     const totpDisableCb = () => {};
 
     // const totpOnSettings = createButtonGroup(["update", "disable"], [totpUpdateCb, totpDisableCb]);
-    const totpOffSetting = createButton("enable", "", totpEnableCb);
+    const totpOffSetting = createButton({ text: "enable", click: totpEnableCb });
     //const totpSettingEl = user.totpEnabled ? totpOnSettings : totpOffSetting;
     // const fields = [
     //     { label: "username", key: "username" },

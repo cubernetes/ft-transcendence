@@ -3,7 +3,7 @@ import { navigateTo } from "../../global/router";
 import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
 import { getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
-import { createBtnEl, createButton } from "../components/Button";
+import { createButton } from "../components/Button";
 
 // TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
@@ -68,11 +68,11 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         props: { noValidate: true },
     });
 
-    const quickplayButton = createButton(
-        "quickplay",
-        "!px-4 py-2 bg-blue-500 text-white rounded-l-md mt-4 w-full",
-        () => navigateTo("quickplay")
-    );
+    const quickplayButton = createButton({
+        text: "quickplay",
+        tw: "px-4 py-2 bg-blue-500 text-white rounded-l-md mt-4 w-full",
+        click: () => navigateTo("quickplay"),
+    });
 
     const showError = (message: string) => {
         errorMessage.textContent = message;

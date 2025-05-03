@@ -36,13 +36,14 @@ export const createButtonGroup = (
     };
 
     texts.forEach((text, i) => {
-        const btn = createButton(text, twBtn);
+        const btn = createButton({ text, tw: twBtn });
         container.appendChild(btn);
 
         // Default onclick
         btn.onclick = () => setActive(btn);
 
         // Attach callbacks, based on the index mapping
+        // When is this needed actually? TODO: CHECK
         if (cbs && cbs[i]) {
             btn.onclick = cbs[i];
         }

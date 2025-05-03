@@ -16,12 +16,12 @@ import { createBodyText, createTitleText } from "../components/Text";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
-const createCtaBtn = (textKey: I18nKey, cb: () => void): HTMLButtonElement => {
-    const btn = createButton(
-        textKey,
-        "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
-        cb
-    );
+const createCtaBtn = (text: I18nKey, click: () => void): HTMLButtonElement => {
+    const btn = createButton({
+        text,
+        tw: "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
+        click,
+    });
     return btn;
 };
 
@@ -67,16 +67,16 @@ const createLobby = (ctn: HTMLElement) => {
     );
     gameIdValue.textContent = gameId;
 
-    const copyBtn = createButton(
-        "Copy",
-        "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
-        () => {
+    const copyBtn = createButton({
+        text: "Copy",
+        tw: "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
+        click: () => {
             navigator.clipboard.writeText(gameId).then(() => {
                 copyBtn.textContent = "Copied!";
                 setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
             });
-        }
-    );
+        },
+    });
 
     const gameIdContainer = createEl(
         "div",
@@ -116,10 +116,10 @@ const joinLobby = (ctn: HTMLElement) => {
         attributes: { placeholder: getText("game_id") },
     });
 
-    const joinBtn = createButton(
-        "Join",
-        "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
-        () => {
+    const joinBtn = createButton({
+        text: "Join",
+        tw: "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
+        click: () => {
             const gameId = gameIdInput.value.trim();
             if (!gameId) {
                 return log.error("Game ID is required.");
@@ -136,8 +136,8 @@ const joinLobby = (ctn: HTMLElement) => {
 
             // controller.joinLobby(gameId);
             // sendGameStart(gameId);
-        }
-    );
+        },
+    });
 
     const info = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
         text: "Enter the Game ID to join your friend's game.",
@@ -197,7 +197,7 @@ const aiMode = (ctn: HTMLElement) => {
     const { errorDiv, showErr, hideErr } = createError();
 
     const playBtn = createCtaBtn("setup_play", () => {
-        const selected = difficultyGrp.querySelector(`.${CONST.ATTR.ACTIVE_BTN}`);
+        const selected = difficultyGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
         if (!selected) {
             return showErr("select_Difficulty");
         }
@@ -350,7 +350,7 @@ const tournamentMode = (ctn: HTMLElement) => {
     const { errorDiv, showErr, hideErr } = createError();
 
     const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
-        const mode = modeBtnGrp.querySelector(`.${CONST.ATTR.ACTIVE_BTN}`);
+        const mode = modeBtnGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
         if (!mode) {
             return showErr("select_player_amount");
         }

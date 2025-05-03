@@ -20,43 +20,53 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
 
     let account: `0x${string}` | undefined;
 
-    const connectButton = createButton("Connect Wallet", "mx-auto", async () => {
-        account = await connectWallet(walletClient);
-        if (account) {
-            connectButton.style.display = "none";
-            readButton.style.display = "block";
-            writeButton.style.display = "block";
-        }
+    const connectButton = createButton({
+        text: "Connect Wallet",
+        tw: "mx-auto",
+        click: async () => {
+            account = await connectWallet(walletClient);
+            if (account) {
+                connectButton.style.display = "none";
+                readButton.style.display = "block";
+                writeButton.style.display = "block";
+            }
+        },
     });
 
-    const readButton = createButton("Get Tournament History", "", async () => {
-        const gameId = BigInt(tournamentStore.get().tournamentId || "0");
-        const result = await readLocalContract(publicClient, "getAllGameIds", [gameId]);
-        log.info("Game Got:", result);
+    const readButton = createButton({
+        text: "Get Tournament History",
+        click: async () => {
+            const gameId = BigInt(tournamentStore.get().tournamentId || "0");
+            const result = await readLocalContract(publicClient, "getAllGameIds", [gameId]);
+            log.info("Game Got:", result);
+        },
     });
     readButton.style.display = "none";
 
-    const writeButton = createButton("Record Game", "", async () => {
-        if (!account || !walletClient) {
-            log.info("No account connected");
-            return;
-        }
+    const writeButton = createButton({
+        text: "Record Game",
+        click: async () => {
+            if (!account || !walletClient) {
+                log.info("No account connected");
+                return;
+            }
 
-        const tournamentData = tournamentStore.get();
-        const gameId = BigInt(tournamentStore.get().tournamentId || "0");
-        try {
-            const tx = await writeLocalContract(
-                publicClient,
-                walletClient,
-                "addTournamentHistory",
-                account,
-                gameId,
-                tournamentData.matches
-            );
-            log.info("Transaction hash:", tx);
-        } catch (err) {
-            log.error("Failed to record game:", err);
-        }
+            const tournamentData = tournamentStore.get();
+            const gameId = BigInt(tournamentStore.get().tournamentId || "0");
+            try {
+                const tx = await writeLocalContract(
+                    publicClient,
+                    walletClient,
+                    "addTournamentHistory",
+                    account,
+                    gameId,
+                    tournamentData.matches
+                );
+                log.info("Transaction hash:", tx);
+            } catch (err) {
+                log.error("Failed to record game:", err);
+            }
+        },
     });
     writeButton.style.display = "none";
 
@@ -71,9 +81,13 @@ export const restartTournamentButton = (): HTMLButtonElement => {
     if (!controller) {
         throw new Error("initialize_controller");
     }
-    const restartButton = createButton("Start another Tournament", "mx-auto", () => {
-        controller.resetTournament();
-        navigateTo("setup");
+    const restartButton = createButton({
+        text: "Start another Tournament",
+        tw: "mx-auto",
+        click: () => {
+            controller.resetTournament();
+            navigateTo("setup");
+        },
     });
     return restartButton;
 };
