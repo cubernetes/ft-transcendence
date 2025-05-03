@@ -30,16 +30,6 @@ declare global {
         log: typeof logger;
     }
 
-    // Custom Elements
-    interface HTMLElementTagNameMap {
-        "ft-button": FtButton;
-    }
-
-    // 2) Customized built-in <button is="pong-cta-button">
-    interface Document {
-        createElement(tagName: "button", options: { is: "ft-button" }): FtButton;
-    }
-
     // Globally defined types so no need to import
     // Probably not good practice esp as things grow...
     type PageRenderer = () => Promise<HTMLElement[]>;

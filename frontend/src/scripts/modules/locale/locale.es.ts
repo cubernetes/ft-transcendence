@@ -1,4 +1,4 @@
-import { TextKey } from "./locale.en";
+import { I18nKey } from "./locale.en";
 
 export const TEXT_ES = {
     ai: "IA",
@@ -61,4 +61,4 @@ export const TEXT_ES = {
     your_profile: "Tu perfil",
     your_stats: "Tus estadísticas:",
     code_default: "Translation Needed", // Needs attention to replace, for type reasons
-} satisfies Record<TextKey, string>;
+} satisfies Record<I18nKey, string>;

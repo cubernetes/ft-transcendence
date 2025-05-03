@@ -61,5 +61,5 @@ export const TEXT_EN = {
 } as const;
 
 // English translation will be the only source of truth, all other languages must have same keys
-export type TextKey = keyof typeof TEXT_EN;
-export const TEXT_KEYS = Object.keys(TEXT_EN) as TextKey[];
+export type I18nKey = keyof typeof TEXT_EN;
+export const TEXT_KEYS = Object.keys(TEXT_EN) as I18nKey[];

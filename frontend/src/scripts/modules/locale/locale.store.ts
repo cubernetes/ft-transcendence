@@ -1,5 +1,5 @@
 import { createStore } from "../../global/store";
-import { getText, isLangSupported, isValidKey } from "./locale.utils";
+import { getText, isLangSupported, translate } from "./locale.utils";
 
 export const SUPPORTED_LANGS = ["en", "de", "fr", "es"] as const;
 export type LanguageOpts = (typeof SUPPORTED_LANGS)[number];
@@ -31,27 +31,20 @@ export const localeStore = createStore<LocaleState>(initLocaleState());
 
 // Centralized translation subscriber
 localeStore.subscribe(() => {
-    // Translate textContent
-    document.querySelectorAll<HTMLElement>("[data-i18n-key]").forEach((el) => {
-        const key = el.dataset.i18nKey!;
-        if (!isValidKey(key)) return window.log.warn(`Invalid i18n key ${key}`);
+    const { textKey, placeholderKey, altKey } = window.cfg.label;
 
+    // Translate textContent
+    translate<HTMLElement>(textKey, (el, key) => {
         el.textContent = getText(key);
     });
 
     // Translate placeholders
-    document.querySelectorAll<HTMLInputElement>("[data-i18n-placeholder]").forEach((el) => {
-        const key = el.dataset.i18nPlaceholder!;
-        if (!isValidKey(key)) return window.log.warn(`Invalid i18n key ${key}`);
-
+    translate<HTMLInputElement>(placeholderKey, (el, key) => {
         el.placeholder = getText(key);
     });
 
-    // Translate image alts
-    document.querySelectorAll<HTMLElement>("[data-i18n-attr-alt]").forEach((el) => {
-        const key = el.dataset.i18nAttrAlt!;
-        if (!isValidKey(key)) return window.log.warn(`Invalid i18n key ${key}`);
-
+    // Translate alt attributes
+    translate<HTMLElement>(altKey, (el, key) => {
         el.setAttribute("alt", getText(key));
     });
 });

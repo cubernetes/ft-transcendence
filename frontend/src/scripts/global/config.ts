@@ -30,7 +30,9 @@ const config = {
         activeBtn: "activeBtn",
         token: "token", // JWT token name
         lang: "lang", // Language preference saved in local storage
-        textKey: "key", // Language key in props in custom element
+        textKey: "data-i18n-key", // Language key in props in custom element
+        placeholderKey: "data-i18n-placeholder",
+        altKey: "data-i18n-attr-alt",
     },
     id: {
         loginForm: "login-form",

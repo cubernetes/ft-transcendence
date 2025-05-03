@@ -1,5 +1,5 @@
 import { TEXT_DE } from "./locale.de";
-import { TEXT_EN, TEXT_KEYS, TextKey } from "./locale.en";
+import { I18nKey, TEXT_EN, TEXT_KEYS } from "./locale.en";
 import { TEXT_ES } from "./locale.es";
 import { TEXT_FR } from "./locale.fr";
 import { LanguageOpts, SUPPORTED_LANGS, localeStore } from "./locale.store";
@@ -8,8 +8,8 @@ export const isLangSupported = (x: unknown): x is LanguageOpts => {
     return typeof x === "string" && SUPPORTED_LANGS.includes(x as LanguageOpts);
 };
 
-export const isValidKey = (x: unknown): x is TextKey => {
-    return typeof x === "string" && TEXT_KEYS.includes(x as TextKey);
+export const isValidKey = (x: unknown): x is I18nKey => {
+    return typeof x === "string" && TEXT_KEYS.includes(x as I18nKey);
 };
 
 export const setLanguage = (lang: LanguageOpts) => {
@@ -17,7 +17,7 @@ export const setLanguage = (lang: LanguageOpts) => {
     localeStore.update({ lang });
 };
 
-export const getText = (key: TextKey): string => {
+export const getText = (key: I18nKey): string => {
     const { lang } = localeStore.get();
     switch (lang) {
         case "de":
@@ -29,4 +29,15 @@ export const getText = (key: TextKey): string => {
         case "en":
             return TEXT_EN[key];
     }
+};
+
+export const translate = <E extends HTMLElement>(
+    attrName: string,
+    cb: (el: E, key: I18nKey) => void
+) => {
+    document.querySelectorAll<E>(`[${attrName}]`).forEach((el) => {
+        const key = el.getAttribute(attrName);
+        if (!key || !isValidKey(key)) return window.log.warn(`Invalid i18n key ${key}`);
+        cb(el, key);
+    });
 };
