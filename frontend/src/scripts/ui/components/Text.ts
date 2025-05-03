@@ -1,4 +1,4 @@
-import { TextKey, getText, languageStore } from "../../global/language";
+import { getText, isValidKey } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 
 /**
@@ -29,13 +29,12 @@ export const createTitleText = (
  *           default "text-6xl font-bold mb-4 text-center text-black",
  *           extendable and replacable by this param adding to it
  */
-export const createBodyText = (text: TextKey, tw: string = ""): HTMLElement => {
+export const createBodyText = (text: string, tw: string = ""): HTMLElement => {
+    text = isValidKey(text) ? getText(text) : text;
+    const attributes = isValidKey(text) ? { [window.cfg.label.textKey]: text } : undefined;
     const baseTw = "text-xl text-black";
     const fullTw = `${baseTw} ${tw}`;
-    const bodyEl = createEl("p", fullTw, { text });
-
-    const unsubscribeLang = languageStore.subscribe(() => (bodyEl.textContent = getText(text)));
-    bodyEl.addEventListener("destroy", unsubscribeLang);
+    const bodyEl = createEl("p", fullTw, { text, attributes });
 
     return bodyEl;
 };

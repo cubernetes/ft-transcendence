@@ -29,10 +29,4 @@ import("./modules/layout/layout.store").then(({ layoutStore }) => {
     }
 
     layoutStore.update({ root });
-
-    // document.addEventListener("DOMContentLoaded", launchSite);
-    // Maybe register cleanup logic, should close sockets?
-    // document.addEventListener("beforeunload", );
-    // re-open socket?
-    // document.addEventListener("pageshow", );
 });

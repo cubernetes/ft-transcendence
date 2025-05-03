@@ -13,7 +13,9 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
     const { publicClient, walletClient } = await setupWallet();
     if (!publicClient || !walletClient) {
         window.log.error("Failed to initialize public or wallet client");
-        return createEl("div", "text-red-500", { text: "Failed to initialize wallet client. Please install a wallet." });
+        return createEl("div", "text-red-500", {
+            text: "Failed to initialize wallet client. Please install a wallet.",
+        });
     }
 
     let account: `0x${string}` | undefined;

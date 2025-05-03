@@ -1,6 +1,3 @@
-import { twMerge } from "tailwind-merge";
-import { TextKey, getText } from "../../global/language";
-
 /**
  * Create a HTML Input element.
  * @param key the translatable key for place holder

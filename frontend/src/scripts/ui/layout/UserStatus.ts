@@ -1,5 +1,5 @@
-import { getText, languageStore } from "../../global/language";
 import { logout } from "../../modules/auth/auth.service";
+import { getText } from "../../modules/locale/locale.utils";
 
 export const appendUserStatus = (container: HTMLElement, username: string) => {
     // Create status wrapper
@@ -27,18 +27,4 @@ export const appendUserStatus = (container: HTMLElement, username: string) => {
     statusWrapper.appendChild(userNameEl);
     statusWrapper.appendChild(logoutBtn);
     container.append(statusWrapper);
-
-    // Subscribe to language changes
-    const updateTexts = () => {
-        logoutBtn.textContent = getText("logout");
-    };
-
-    const unsubscribe = languageStore.subscribe(() => {
-        updateTexts();
-    });
-
-    // Clean up subscription when the container is removed
-    container.addEventListener("destroy", () => {
-        unsubscribe();
-    });
 };
