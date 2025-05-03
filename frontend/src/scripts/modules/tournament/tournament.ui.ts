@@ -12,7 +12,7 @@ import { appendChildren, createEl } from "../../utils/dom-helper";
 export const connectBlockchain = async (): Promise<HTMLElement> => {
     const { publicClient, walletClient } = await setupWallet();
     if (!publicClient || !walletClient) {
-        window.log.error("Failed to initialize public or wallet client");
+        log.error("Failed to initialize public or wallet client");
         return createEl("div", "text-red-500", {
             text: "Failed to initialize wallet client. Please install a wallet.",
         });
@@ -32,13 +32,13 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
     const readButton = createButton("Get Tournament History", "", async () => {
         const gameId = BigInt(tournamentStore.get().tournamentId || "0");
         const result = await readLocalContract(publicClient, "getAllGameIds", [gameId]);
-        window.log.info("Game Got:", result);
+        log.info("Game Got:", result);
     });
     readButton.style.display = "none";
 
     const writeButton = createButton("Record Game", "", async () => {
         if (!account || !walletClient) {
-            window.log.info("No account connected");
+            log.info("No account connected");
             return;
         }
 
@@ -53,9 +53,9 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
                 gameId,
                 tournamentData.matches
             );
-            window.log.info("Transaction hash:", tx);
+            log.info("Transaction hash:", tx);
         } catch (err) {
-            window.log.error("Failed to record game:", err);
+            log.error("Failed to record game:", err);
         }
     });
     writeButton.style.display = "none";

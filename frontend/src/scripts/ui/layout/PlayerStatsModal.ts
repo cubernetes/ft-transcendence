@@ -15,19 +15,19 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
 
     const user = data.value;
 
-    window.log.debug(user);
+    log.debug(user);
     // TODO: Click, upload
     const avatarEl = createEl("img", "w-20 h-20 rounded-full mb-4", {
         attributes: {
             src: user.avatarUrl,
             alt: getText("profile_picture"),
-            [window.cfg.label.altKey]: "profile_picture",
+            [CONST.ATTR.I18N_ALT]: "profile_picture",
         },
     });
 
     const titleEl = createEl("h2", "text-2xl font-bold mb-4", {
         text: getText("your_profile"),
-        attributes: { [window.cfg.label.textKey]: "your_profile" },
+        attributes: { [CONST.ATTR.I18N_TEXT]: "your_profile" },
     });
     const usernameEl = createBodyText("username");
 

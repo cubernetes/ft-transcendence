@@ -13,7 +13,7 @@ type ScoreConfig = {
 
 const scoreConfig = async (): Promise<Result<ScoreConfig, Error>> => {
     // TODO: change this
-    const font = await (await fetch(`${window.cfg.dir.asset}/Montserrat_Regular.json`)).json();
+    const font = await (await fetch(`${CONST.DIR.ASSET}/Montserrat_Regular.json`)).json();
     if (!font) {
         return err(new Error("Failed to load font data"));
     }
@@ -34,7 +34,7 @@ export const createScore = async (engine: Engine, scores: [number, number], pos:
     const config = await scoreConfig();
 
     if (config.isErr()) {
-        return window.log.error(config.error.message);
+        return log.error(config.error.message);
     }
 
     const { name, font, options } = config.value;
@@ -48,7 +48,7 @@ export const createScore = async (engine: Engine, scores: [number, number], pos:
     );
 
     if (!scorePrint) {
-        return window.log.error("Score print failed");
+        return log.error("Score print failed");
     }
 
     scorePrint.position = pos;

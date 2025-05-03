@@ -10,7 +10,7 @@ import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
 
-const routes = {
+const ROUTES = {
     landing: createLandingPage,
     setup: createSetupPage,
     profile: createProfilePage,
@@ -20,23 +20,23 @@ const routes = {
     totp: createTotpSetupPage, // Refactor into modal later
 } satisfies Record<string, PageRenderer>;
 
-export type Route = keyof typeof routes;
+export type Route = keyof typeof ROUTES;
 
 // A type-safe list of protected routes, i.e. only available after logging in
 // Temporarily protect all routes so always start in landing page
 // TODO: Commented out localgame and aigame for quickplay.
-const protectedRoutes: Route[] = ["setup", "profile", "leaderboard", "totp"];
+const PROTECTED_ROUTES: Route[] = ["setup", "profile", "leaderboard", "totp"];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
-    let route = (dest in routes ? dest : window.cfg.url.default) as Route;
+    let route = (dest in ROUTES ? dest : CONST.ROUTE.DEFAULT) as Route;
 
     // Check auth state for protected routes
-    if (protectedRoutes.includes(route)) {
+    if (PROTECTED_ROUTES.includes(route)) {
         const authState = authStore.get();
         // Go to default page if not logged in
         if (!authState.isAuthenticated) {
-            route = window.cfg.url.default as Route;
+            route = CONST.ROUTE.DEFAULT;
         }
     }
 
@@ -59,7 +59,7 @@ const renderRoute = async (dest: string) => {
     dispatchEventDown(router, new Event("destroy"));
 
     // Render the appropriate page
-    const createPage = routes[route];
+    const createPage = ROUTES[route];
 
     const pageElements = await createPage();
 
@@ -83,9 +83,8 @@ const renderRoute = async (dest: string) => {
 export const navigateTo = (dest: string, init: boolean = false) => {
     const path = `/${dest}`;
 
-    if (window.location.pathname === path && !init) {
-        return; // Already in this page
-    }
+    // Alread in the page, do nothing
+    if (location.pathname === path && !init) return log.warn(`Already in ${dest}`);
 
     history.pushState({}, "", path);
     renderRoute(dest);
@@ -93,8 +92,8 @@ export const navigateTo = (dest: string, init: boolean = false) => {
 
 export const handlePopState = () => {
     // Remove slash
-    const dest = window.location.pathname.slice(1);
+    const dest = location.pathname.slice(1);
 
-    window.log.debug(`HandlePopState triggered, dest: ${dest}`);
+    log.debug(`HandlePopState triggered, dest: ${dest}`);
     renderRoute(dest);
 };

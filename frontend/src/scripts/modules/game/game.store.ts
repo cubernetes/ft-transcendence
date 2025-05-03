@@ -19,7 +19,7 @@ export const defaultGameState: GameState = {
 export const gameStore = createStore<GameState>(defaultGameState);
 
 gameStore.subscribe((state) => {
-    window.log.debug("GameStore subscriber triggered");
+    log.debug("GameStore subscriber triggered");
 
     const { isPlaying, controller } = state;
 

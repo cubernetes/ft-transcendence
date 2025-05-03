@@ -13,7 +13,7 @@ export const isValidKey = (x: unknown): x is I18nKey => {
 };
 
 export const setLanguage = (lang: LanguageOpts) => {
-    localStorage.setItem(window.cfg.label.lang, lang);
+    localStorage.setItem(CONST.KEY.LANG, lang);
     localeStore.update({ lang });
 };
 
@@ -37,7 +37,7 @@ export const translate = <E extends HTMLElement>(
 ) => {
     document.querySelectorAll<E>(`[${attrName}]`).forEach((el) => {
         const key = el.getAttribute(attrName);
-        if (!key || !isValidKey(key)) return window.log.warn(`Invalid i18n key ${key}`);
+        if (!key || !isValidKey(key)) return log.warn(`Invalid i18n key ${key}`);
         cb(el, key);
     });
     // Add extrapolate template
@@ -58,10 +58,8 @@ type LocaleState = { locale: Intl.Locale; lang: LanguageOpts };
 
 const initLocaleState = (): LocaleState => {
     // Check local storage for stored language preference
-    const key = window.cfg.label.lang;
-    const stored = localStorage.getItem(key);
-    // window.log.debug(stored);
-    // window.log.debug("isLangSupported →", isLangSupported);
+    const stored = localStorage.getItem(CONST.KEY.LANG);
+
     if (stored && isLangSupported(stored)) {
         const locale = new Intl.Locale(navigator.language);
         return { locale, lang: stored };
@@ -82,20 +80,20 @@ export const localeStore = createStore<LocaleState>(initLocaleState());
 
 // Centralized translation subscriber
 localeStore.subscribe(() => {
-    const { textKey, placeholderKey, altKey } = window.cfg.label;
+    const { I18N_TEXT, I18N_INPUT, I18N_ALT } = CONST.ATTR;
 
     // Translate textContent
-    translate<HTMLElement>(textKey, (el, key) => {
+    translate<HTMLElement>(I18N_TEXT, (el, key) => {
         el.textContent = getText(key);
     });
 
     // Translate placeholders
-    translate<HTMLInputElement>(placeholderKey, (el, key) => {
+    translate<HTMLInputElement>(I18N_INPUT, (el, key) => {
         el.placeholder = getText(key);
     });
 
     // Translate alt attributes
-    translate<HTMLElement>(altKey, (el, key) => {
+    translate<HTMLElement>(I18N_ALT, (el, key) => {
         el.setAttribute("alt", getText(key));
     });
 });

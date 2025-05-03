@@ -40,7 +40,7 @@ const createInput = (placeholderKey: I18nKey) =>
     createEl("input", "w-full p-2 bg-gray-100 text-black rounded text-xl", {
         attributes: {
             placeholder: getText(placeholderKey),
-            [window.cfg.label.placeholderKey]: placeholderKey,
+            [CONST.ATTR.I18N_INPUT]: placeholderKey,
         },
     });
 
@@ -122,16 +122,16 @@ const joinLobby = (ctn: HTMLElement) => {
         () => {
             const gameId = gameIdInput.value.trim();
             if (!gameId) {
-                return window.log.error("Game ID is required.");
+                return log.error("Game ID is required.");
             }
-            window.log.debug("Joining game with ID:", gameId);
+            log.debug("Joining game with ID:", gameId);
 
             navigateTo("onlinegame");
 
             //TODO: Implement the join lobby logic
             // const { controller } = gameStore.get();
             // if (!controller) {
-            //     return window.log.error("Controller not initialized.");
+            //     return log.error("Controller not initialized.");
             // }
 
             // controller.joinLobby(gameId);
@@ -197,7 +197,7 @@ const aiMode = (ctn: HTMLElement) => {
     const { errorDiv, showErr, hideErr } = createError();
 
     const playBtn = createCtaBtn("setup_play", () => {
-        const selected = difficultyGrp.querySelector(`.${window.cfg.label.activeBtn}`);
+        const selected = difficultyGrp.querySelector(`.${CONST.ATTR.ACTIVE_BTN}`);
         if (!selected) {
             return showErr("select_Difficulty");
         }
@@ -330,10 +330,10 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 const tournamentMode = (ctn: HTMLElement) => {
     const { round } = tournamentStore.get();
     if (round !== null) {
-        window.log.error("Tournament already started. Cannot create a new tournament.");
+        log.error("Tournament already started. Cannot create a new tournament.");
         navigateTo("tournament");
     } else {
-        window.log.debug("Tournament not started. Proceeding to create a new tournament.");
+        log.debug("Tournament not started. Proceeding to create a new tournament.");
     }
     const returnBtn = createReturnButton(ctn, createSetupModal());
     const title = createTitleText(getText("create_tournament"));
@@ -350,7 +350,7 @@ const tournamentMode = (ctn: HTMLElement) => {
     const { errorDiv, showErr, hideErr } = createError();
 
     const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
-        const mode = modeBtnGrp.querySelector(`.${window.cfg.label.activeBtn}`);
+        const mode = modeBtnGrp.querySelector(`.${CONST.ATTR.ACTIVE_BTN}`);
         if (!mode) {
             return showErr("select_player_amount");
         }

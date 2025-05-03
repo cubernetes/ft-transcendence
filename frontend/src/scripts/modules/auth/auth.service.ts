@@ -8,7 +8,7 @@ import { authStore, emptyAuthState } from "./auth.store";
  */
 export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Error>> => {
     const result = await sendApiRequest.post<LoginBody, LoginResponse>(
-        `${window.cfg.url.user}/login`,
+        `${CONST.API.USER}/login`,
         payload
     );
 
@@ -44,7 +44,7 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
 
 export const tryRegister = async (payload: RegisterBody): Promise<Result<void, Error>> => {
     const result = await sendApiRequest.post<RegisterBody, LoginResponse>(
-        `${window.cfg.url.user}/register`,
+        `${CONST.API.USER}/register`,
         payload
     );
 
@@ -72,16 +72,17 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
 
 export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
     const { username, tempAuthString } = authStore.get();
-    const totpTokenEl = document.getElementById(window.cfg.id.totpToken);
+    const totpTokenEl = document.getElementById(CONST.ID.TOTP_TOKEN);
     const totpToken = (totpTokenEl as HTMLInputElement)?.value;
     if (!username || !tempAuthString || !totpTokenEl || !totpToken) {
         return err(new Error("Fail to get data for totp log in"));
     }
 
-    const result = await sendApiRequest.post<LoginBody, LoginResponse>(
-        `${window.cfg.url.user}/login`,
-        { username, password: tempAuthString, totpToken }
-    );
+    const result = await sendApiRequest.post<LoginBody, LoginResponse>(`${CONST.API.USER}/login`, {
+        username,
+        password: tempAuthString,
+        totpToken,
+    });
 
     if (result.isErr()) {
         return err(result.error);
@@ -106,9 +107,9 @@ export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
 };
 
 export const logout = () => {
-    window.log.debug("Logging out...");
+    log.debug("Logging out...");
 
     // Remove cookies
-    sendApiRequest.post(`${window.cfg.url.user}/logout`);
+    sendApiRequest.post(`${CONST.API.USER}/logout`);
     authStore.set(emptyAuthState);
 };

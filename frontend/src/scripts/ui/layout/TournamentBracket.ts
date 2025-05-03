@@ -17,7 +17,7 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
 
     matches.forEach((roundMatches) => {
         const roundColumn = createEl("div", "flex flex-col items-center gap-12");
-        window.log.debug("Round: ", round);
+        log.debug("Round: ", round);
         const roundTitle = createEl("h3", "text-xl font-semibold", {
             text: round,
         });
@@ -40,10 +40,10 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
             const playButton = createButton("Start", "text-xs px-2 py-1 mt-2", () => {
                 const { controller } = tournamentStore.get();
                 if (controller) {
-                    window.log.debug("Starting match...");
+                    log.debug("Starting match...");
                     controller.startMatch(matchIdx);
                 } else {
-                    window.log.debug("Controller not found in tournament store");
+                    log.debug("Controller not found in tournament store");
                 }
             });
 

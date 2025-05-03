@@ -1,4 +1,4 @@
-import type config from "./global/config";
+import type { CONSTANTS } from "./global/constants";
 import type { FtButton } from "./ui/components/Button";
 import type { logger } from "./utils/logger";
 import type {
@@ -23,10 +23,14 @@ declare global {
         };
     };
 
+    // Window is the same as global, TODO: check earcut, if it's needed, and ethereum
+    const CONST: typeof CONSTANTS;
+    const log: typeof logger;
+
     interface Window {
         ethereum?: any; // TODO: shouldn't use any if it can be helped?
         earcut: earcut; // TODO: Check if correct for earcut type
-        cfg: typeof config;
+        CONST: typeof CONSTANTS;
         log: typeof logger;
     }
 

@@ -28,11 +28,11 @@ export const createButtonGroup = (
     const setActive = (btn: HTMLButtonElement) => {
         Array.from(container.children).forEach((el) => {
             el.classList.remove(twSelected);
-            el.classList.remove(window.cfg.label.activeBtn);
+            el.classList.remove(CONST.CLASS.ACTIVE_BTN);
         });
 
         btn.classList.add(twSelected);
-        btn.classList.add(window.cfg.label.activeBtn);
+        btn.classList.add(CONST.CLASS.ACTIVE_BTN);
     };
 
     texts.forEach((text, i) => {

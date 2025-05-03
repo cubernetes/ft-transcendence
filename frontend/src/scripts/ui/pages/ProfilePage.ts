@@ -6,7 +6,7 @@ import { createEl } from "../../utils/dom-helper";
 import { createProfileSetting, createStatsDataSection } from "../layout/PlayerStatsModal";
 
 const fetchPlayerData = async (): Promise<Result<GetMePayload, Error>> => {
-    const tryFetch = await sendApiRequest.get<GetMeResponse>(`${window.cfg.url.user}/me`);
+    const tryFetch = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
 
     if (tryFetch.isErr()) {
         return err(tryFetch.error);

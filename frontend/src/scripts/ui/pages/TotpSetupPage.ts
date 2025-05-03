@@ -62,14 +62,14 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
             return;
         }
 
-        const resp = await sendApiRequest.post(`${window.cfg.url.totp}/verify`, {
+        const resp = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
             token: (document.getElementById("totpToken") as HTMLInputElement)?.value,
         });
 
         if (resp.isErr()) {
             return;
         }
-        navigateTo(window.cfg.url.home);
+        navigateTo(CONST.ROUTE.HOME);
         // if (resp.status == 400) {
         //     alert("Invalid request"); // TODO: Remove alerts
         // } else if (resp.status == 401) {
@@ -96,7 +96,7 @@ export const createTotpSetupPage = async (): Promise<HTMLElement[]> => {
 };
 
 const fetchQrCode = async () => {
-    const resp = await sendApiRequest.get<TotpSetupResponse>(`${window.cfg.url.totp}/setup`);
+    const resp = await sendApiRequest.get<TotpSetupResponse>(`${CONST.API.TOTP}/setup`);
 
     if (resp.isErr() || !resp.value.success) {
         return ["", ""];

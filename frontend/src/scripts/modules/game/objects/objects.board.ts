@@ -14,28 +14,22 @@ const boardConfig = (scene: Scene, size: Size3D) => {
     const material = new StandardMaterial("board", scene);
 
     // Add diffuse texture to material
-    material.diffuseTexture = new Texture(
-        `${window.cfg.dir.tile}/rubber_tiles_nor_gl_1k.jpg`,
-        scene
-    );
+    material.diffuseTexture = new Texture(`${CONST.DIR.TILE}/rubber_tiles_nor_gl_1k.jpg`, scene);
     material.diffuseColor = new Color3(0.8, 1, 0.8);
     (material.diffuseTexture as Texture).uScale = 4;
     (material.diffuseTexture as Texture).vScale = 3;
 
     // Add specular texture to material
-    material.specularTexture = new Texture(
-        `${window.cfg.dir.tile}/rubber_tiles_diff_1k.jpg`,
-        scene
-    );
+    material.specularTexture = new Texture(`${CONST.DIR.TILE}/rubber_tiles_diff_1k.jpg`, scene);
     material.specularColor = new Color3(0.5, 0.2, 0);
 
     // Add bump texture to material
-    material.bumpTexture = new Texture(`${window.cfg.dir.tile}/rubber_tiles_rough_1k.jpg`, scene);
+    material.bumpTexture = new Texture(`${CONST.DIR.TILE}/rubber_tiles_rough_1k.jpg`, scene);
     material.roughness = 50;
 
     return {
         name: "board",
-        src: `${window.cfg.dir.asset}/height_map1.jpeg`,
+        src: `${CONST.DIR.ASSET}/height_map1.jpeg`,
         options: {
             width: size.width,
             height: size.depth,

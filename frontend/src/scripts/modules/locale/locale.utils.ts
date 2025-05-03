@@ -13,7 +13,7 @@ export const isValidKey = (x: unknown): x is I18nKey => {
 };
 
 export const setLanguage = (lang: LanguageOpts) => {
-    localStorage.setItem(window.cfg.label.lang, lang);
+    localStorage.setItem(CONST.KEY.LANG, lang);
     localeStore.update({ lang });
 };
 
@@ -37,7 +37,7 @@ export const translate = <E extends HTMLElement>(
 ) => {
     document.querySelectorAll<E>(`[${attrName}]`).forEach((el) => {
         const key = el.getAttribute(attrName);
-        if (!key || !isValidKey(key)) return window.log.warn(`Invalid i18n key ${key}`);
+        if (!key || !isValidKey(key)) return log.warn(`Invalid i18n key ${key}`);
         cb(el, key);
     });
     // Add extrapolate template

@@ -19,11 +19,11 @@ export const createError = (
         errorDiv,
         showErr: (msg: I18nKey) => {
             errorDiv.textContent = getText(msg);
-            errorDiv.setAttribute(window.cfg.label.textKey, msg);
+            errorDiv.setAttribute(CONST.ATTR.I18N_TEXT, msg);
             errorDiv.classList.remove("hidden");
         },
         hideErr: () => {
-            errorDiv.removeAttribute(window.cfg.label.textKey);
+            errorDiv.removeAttribute(CONST.ATTR.I18N_TEXT);
             errorDiv.classList.add("hidden");
         },
     };

@@ -31,7 +31,7 @@ export const createTitleText = (
  */
 export const createBodyText = (text: string, tw: string = ""): HTMLElement => {
     text = isValidKey(text) ? getText(text) : text;
-    const attributes = isValidKey(text) ? { [window.cfg.label.textKey]: text } : undefined;
+    const attributes = isValidKey(text) ? { [CONST.ATTR.I18N_TEXT]: text } : undefined;
     const baseTw = "text-xl text-black";
     const fullTw = `${baseTw} ${tw}`;
     const bodyEl = createEl("p", fullTw, { text, attributes });

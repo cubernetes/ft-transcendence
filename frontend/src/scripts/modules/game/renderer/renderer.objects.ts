@@ -9,7 +9,7 @@ import { createWalls } from "../objects/objects.wall";
 export const createObjects = (engine: Engine, config: PongConfig) => {
     const { scene } = engine;
     if (!scene) {
-        return window.log.error("Fail to create objects, can't find scene");
+        return log.error("Fail to create objects, can't find scene");
     }
 
     // Create board

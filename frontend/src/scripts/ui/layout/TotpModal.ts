@@ -11,7 +11,7 @@ export const createTotpModal = async (): Promise<HTMLElement> => {
 
     const tokenInput = document.createElement("input");
     tokenInput.type = "number";
-    tokenInput.id = window.cfg.id.totpToken;
+    tokenInput.id = CONST.ID.TOTP_TOKEN;
     tokenInput.required = true;
     tokenInput.placeholder = "Enter TOTP code";
     tokenInput.className = "w-64 p-2 border border-gray-300 rounded";

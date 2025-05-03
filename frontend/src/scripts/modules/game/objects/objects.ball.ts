@@ -18,7 +18,7 @@ const ballConfig = (scene: Scene, radius: number) => {
 
     material.albedoColor = new Color3(1, 0.2, 0.6);
     material.albedoTexture = new Texture(
-        `${window.cfg.dir.texture}/red_ground/cracked_red_ground_diff_1k.jpg`,
+        `${CONST.DIR.TEXTURE}/red_ground/cracked_red_ground_diff_1k.jpg`,
         scene
     );
 
@@ -26,7 +26,7 @@ const ballConfig = (scene: Scene, radius: number) => {
     material.roughness = 0.5;
 
     material.bumpTexture = new Texture(
-        `${window.cfg.dir.texture}/red_ground/cracked_red_ground_nor_dx_1k.jpg`,
+        `${CONST.DIR.TEXTURE}/red_ground/cracked_red_ground_nor_dx_1k.jpg`,
         scene
     );
     material.bumpTexture.level = 20;

@@ -22,7 +22,7 @@ export const emptyAuthState = {
 };
 
 export const initAuthState = async (): Promise<AuthState> => {
-    const result = await sendApiRequest.get<GetMeResponse>(`${window.cfg.url.user}/me`);
+    const result = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
     if (result.isErr() || !result.value.success) return emptyAuthState;
 
     const { username, displayName } = result.value.data;
@@ -38,15 +38,12 @@ export const initAuthState = async (): Promise<AuthState> => {
 export const authStore = createStore<AuthState>(emptyAuthState);
 
 authStore.subscribe(async (state) => {
-    window.log.debug("AuthStore subscriber trigged");
+    log.debug("AuthStore subscriber trigged");
 
     // Replace login form with totp modal if totp is being required
     if (state.totpRequired) {
-        const el = document.getElementById(window.cfg.id.loginForm);
-        if (!el) {
-            window.log.error("Unable to find login form when totp is required");
-            return;
-        }
+        const el = document.getElementById(CONST.ID.LOGIN_FORM);
+        if (!el) return log.error("Unable to find login form when totp is required");
 
         const modalEl = await createTotpModal();
         el.innerHTML = "";
@@ -56,12 +53,12 @@ authStore.subscribe(async (state) => {
 
     // Redirect to default page and close socket connection once logged out
     if (!state.isAuthenticated) {
-        navigateTo(window.cfg.url.default);
+        navigateTo(CONST.ROUTE.DEFAULT);
         closeSocketConn();
         return;
     }
 
     // Redirect to home and open socket connection once successfully authenticated
-    navigateTo(window.cfg.url.home);
+    navigateTo(CONST.ROUTE.HOME);
     establishSocketConn();
 });

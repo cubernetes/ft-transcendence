@@ -8,7 +8,7 @@ import { createBtnEl, createButton } from "../components/Button";
 // TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
 export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLElement> => {
     const wrapper = createEl("div", "relative max-w-md mx-auto p-6 rounded-lg top-1/3", {
-        attributes: { id: window.cfg.id.loginForm },
+        attributes: { id: CONST.ID.LOGIN_FORM },
     });
 
     const usernameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
@@ -18,7 +18,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "username",
             required: true,
         },
-        attributes: { [window.cfg.label.placeholderKey]: "username" },
+        attributes: { [CONST.ATTR.I18N_INPUT]: "username" },
     });
 
     const displayNameInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
@@ -28,7 +28,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "given-name",
             required: true,
         },
-        attributes: { [window.cfg.label.placeholderKey]: "display_name" },
+        attributes: { [CONST.ATTR.I18N_INPUT]: "display_name" },
     });
 
     const passwordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
@@ -38,7 +38,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "current-password",
             required: true,
         },
-        attributes: { [window.cfg.label.placeholderKey]: "password" },
+        attributes: { [CONST.ATTR.I18N_INPUT]: "password" },
     });
 
     const confirmPasswordInput = createEl("input", "w-full p-2 border border-gray-300 rounded", {
@@ -48,7 +48,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             autocomplete: "current-password", // or new-password if updated
             required: true,
         },
-        attributes: { [window.cfg.label.placeholderKey]: "confirm_password" },
+        attributes: { [CONST.ATTR.I18N_INPUT]: "confirm_password" },
     });
 
     const errorMessage = createEl("div", "hidden p-2 bg-red-100 text-red-500 rounded text-sm", {
@@ -61,7 +61,7 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
         props: {
             type: "submit",
         },
-        attributes: { [window.cfg.label.textKey]: "login" },
+        attributes: { [CONST.ATTR.I18N_TEXT]: "login" },
     });
 
     const authForm = createEl("form", "space-y-4", {
@@ -171,14 +171,14 @@ export const createLoginForm = async (ctaButton: HTMLElement): Promise<HTMLEleme
             const result = await tryLogin(formData as LoginBody);
 
             if (result.isErr()) {
-                window.log.debug(`Fail to register: ${result.error.message}`);
+                log.debug(`Fail to register: ${result.error.message}`);
                 showError(getText("login_failed"));
                 return;
             }
         } else {
             const result = await tryRegister(formData as RegisterBody);
             if (result.isErr()) {
-                window.log.debug(`Fail to register: ${result.error.message}`);
+                log.debug(`Fail to register: ${result.error.message}`);
                 showError(getText("register_failed"));
                 return;
             }

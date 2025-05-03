@@ -8,12 +8,12 @@ import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
 
 const registerGeneralHandlers = (conn: WebSocket) => {
-    conn.onopen = () => window.log.info("WebSocket connection established");
+    conn.onopen = () => log.info("WebSocket connection established");
 
-    conn.onclose = () => window.log.info("WebSocket connection closed");
+    conn.onclose = () => log.info("WebSocket connection closed");
 
     conn.onerror = (e) =>
-        window.log.info(`Socket error: ${e instanceof ErrorEvent ? e.message : "unknown"}`);
+        log.error(`Socket error: ${e instanceof ErrorEvent ? e.message : "unknown"}`);
 };
 
 const registerGameControllers = (conn: WebSocket) => {
@@ -37,16 +37,15 @@ const registerGameControllers = (conn: WebSocket) => {
     const handleMessage = (evt: MessageEvent<any>) => {
         // Try to parse socket message to json and guard against invalid format
         const tryParseMessage = safeJsonParse<Message<Type>>(evt.data);
-        if (tryParseMessage.isErr())
-            return window.log.error(`Fail to parse socket message: ${evt.data}`);
+        if (tryParseMessage.isErr()) return log.error(`Fail to parse socket message: ${evt.data}`);
 
         // Try to get message type, payload, and guard against empty type
         const { type, payload } = tryParseMessage.value;
-        if (!type) return window.log.error(`Fail to handle socket message: type is null`);
+        if (!type) return log.error(`Fail to handle socket message: type is null`);
 
         // Try to get the handler for message type and guard against handler doens't exist
         const handler = wsStore.get().handlers.get(type);
-        if (!handler) return window.log.error(`Unhandled message type: ${type}`);
+        if (!handler) return log.error(`Unhandled message type: ${type}`);
 
         // Execute handler for the message
         handler(payload);

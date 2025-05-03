@@ -12,7 +12,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     // Background video
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: {
-            src: `${window.cfg.dir.video}/pong_simulation.webm`,
+            src: `${CONST.DIR.VIDEO}/pong_simulation.webm`,
         },
         props: { autoplay: true, loop: true, muted: true },
     });
@@ -49,7 +49,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
         initAuthState().then(async (state) => {
             authStore.set(state);
-            if (state.isAuthenticated) return navigateTo(window.cfg.url.home);
+            if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
 
             const loginForm = await createLoginForm(ctaButton);
             ctaButton.replaceWith(loginForm);
@@ -63,7 +63,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
     );
 
     const musicEl = createEl("audio", "", {
-        attributes: { src: `${window.cfg.dir.audio}/main.mp3` },
+        attributes: { src: `${CONST.DIR.AUDIO}/main.mp3` },
         props: { loop: true, volume: 0.4 },
     });
 

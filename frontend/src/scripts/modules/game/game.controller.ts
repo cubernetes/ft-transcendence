@@ -25,52 +25,52 @@ import { createScene } from "./renderer/renderer.scene";
 /** Renderer will be hidden behind controller and controller is the user interface */
 export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const handleKeydownLocal = (evt: KeyboardEvent) => {
-        if (window.cfg.key.lup.includes(evt.key)) {
+        if (CONST.CTRL.L_UP.includes(evt.key)) {
             engine.setInput(0, "up");
-        } else if (window.cfg.key.ldown.includes(evt.key)) {
+        } else if (CONST.CTRL.L_DOWN.includes(evt.key)) {
             engine.setInput(0, "down");
-        } else if (window.cfg.key.rup.includes(evt.key)) {
+        } else if (CONST.CTRL.R_UP.includes(evt.key)) {
             engine.setInput(1, "up");
-        } else if (window.cfg.key.rdown.includes(evt.key)) {
+        } else if (CONST.CTRL.R_DOWN.includes(evt.key)) {
             engine.setInput(1, "down");
         }
     };
 
     const handleKeyupLocal = (evt: KeyboardEvent) => {
-        if (window.cfg.key.left.includes(evt.key)) {
+        if (CONST.CTRL.LEFT.includes(evt.key)) {
             engine.setInput(0, "stop");
         }
-        if (window.cfg.key.right.includes(evt.key)) {
+        if (CONST.CTRL.RIGHT.includes(evt.key)) {
             engine.setInput(1, "stop");
         }
     };
 
     const handleKeydownAi = (evt: KeyboardEvent) => {
-        if (window.cfg.key.up.includes(evt.key)) {
+        if (CONST.CTRL.UP.includes(evt.key)) {
             engine.setInput(0, "up");
         }
-        if (window.cfg.key.down.includes(evt.key)) {
+        if (CONST.CTRL.DOWN.includes(evt.key)) {
             engine.setInput(0, "down");
         }
     };
 
     const handleKeyupAi = (evt: KeyboardEvent) => {
-        if (window.cfg.key.paddle.includes(evt.key)) {
+        if (CONST.CTRL.ALL.includes(evt.key)) {
             engine.setInput(0, "stop");
         }
     };
 
     const handleKeydownOnline = (evt: KeyboardEvent) => {
-        if (window.cfg.key.up.includes(evt.key)) {
+        if (CONST.CTRL.UP.includes(evt.key)) {
             sendGameAction("up");
         }
-        if (window.cfg.key.down.includes(evt.key)) {
+        if (CONST.CTRL.DOWN.includes(evt.key)) {
             sendGameAction("down");
         }
     };
 
     const handleKeyupOnline = (evt: KeyboardEvent) => {
-        if (window.cfg.key.paddle.includes(evt.key)) {
+        if (CONST.CTRL.ALL.includes(evt.key)) {
             sendGameAction("stop");
         }
     };
@@ -126,7 +126,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const attachOnlineSocketEvents = () => {
         const { isConnected, handlers } = wsStore.get();
-        if (!isConnected) return window.log.error("Socket is not connected when attaching events");
+        if (!isConnected) return log.error("Socket is not connected when attaching events");
 
         registerHandler("wall-collision", handleWallCollision, handlers);
         registerHandler("paddle-collision", handlePaddleCollision, handlers);
@@ -199,17 +199,15 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         showGameOver(renderer.scene, renderer.camera, winnerName);
         if (mode === "tournament") {
             const { controller } = tournamentStore.get();
-            if (!controller) {
-                window.log.error("Tournament controller not found");
-                return;
-            }
+            if (!controller) return log.error("Tournament controller not found");
+
             await controller.handleEndTournamentMatch(winnerName, state);
         }
         // Dispose stuff right away? Probably not..
     };
 
     const handleStateUpdate = (state: PongState) => {
-        // window.log.debug(state);
+        // log.debug(state);
         updateBall(state.ball);
         updateLeftPaddle(state.paddles[0].pos);
         updateRightPaddle(state.paddles[1].pos);
@@ -230,7 +228,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     /** Destroy the current game session */
     const destroy = () => {
-        window.log.debug("Game controller destroy triggered");
+        log.debug("Game controller destroy triggered");
         hideCanvas();
 
         // Destroy renderer related stuff

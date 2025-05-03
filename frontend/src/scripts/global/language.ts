@@ -61,7 +61,7 @@
 // //         return baseTranslation ? `${baseTranslation} ${playerNumber}` : `Player ${playerNumber}`;
 // //     }
 
-// //     window.log.warn(`Missing translation for key: ${key}`);
+// //     log.warn(`Missing translation for key: ${key}`);
 // //     return key; // Return the key itself as a last resort
 // // };
 

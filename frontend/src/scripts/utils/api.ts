@@ -27,13 +27,13 @@ const post = async <T, E extends ApiResponse<any>>(
 
         if (!response.ok) {
             const message = `POST to ${url}, response not ok, status: ${response.status}`;
-            window.log.debug(message);
+            log.debug(message);
             return err(new Error(message));
         }
 
         const data: E = await response.json();
         if (!data.success) {
-            window.log.debug(`POST to ${url}: ${data.error.code}`);
+            log.debug(`POST to ${url}: ${data.error.code}`);
             return err(new Error(data.error.message));
         }
 
@@ -59,13 +59,13 @@ const get = async <T extends ApiResponse<any>>(url: string): Promise<Result<T, E
 
         if (!response.ok) {
             const msg = `GET to ${url}, response not ok, status: ${response.status}`;
-            window.log.debug(msg);
+            log.debug(msg);
             return err(new Error(msg));
         }
 
         const data: T = await response.json();
         if (!data.success) {
-            window.log.debug(`GET to ${url}: ${data.error.code}`);
+            log.debug(`GET to ${url}: ${data.error.code}`);
             return err(new Error(data.error.message));
         }
 

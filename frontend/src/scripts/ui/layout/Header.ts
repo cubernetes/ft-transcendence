@@ -9,15 +9,15 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     // Title
     const titleEl = createEl("h1", "text-3xl font-bold cursor-pointer", {
         text: getText("title"),
-        events: { click: () => navigateTo(window.cfg.url.home) },
-        attributes: { [window.cfg.label.textKey]: "title" },
+        events: { click: () => navigateTo(CONST.ROUTE.HOME) },
+        attributes: { [CONST.ATTR.I18N_TEXT]: "title" },
     });
 
     //
     const navList = createEl("ul", "flex text-1xl space-x-4");
     const navKeys: [I18nKey, Route][] = [
-        ["home", window.cfg.url.home],
-        ["setup", window.cfg.url.home],
+        ["home", CONST.ROUTE.HOME],
+        ["setup", CONST.ROUTE.HOME],
         ["leaderboard", "leaderboard"],
         ["profile", "profile"],
         ["TOTP", "totp"],
@@ -27,7 +27,7 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
         const link = createEl("a", "hover:underline cursor-pointer", {
             text: getText(key),
             events: { click: () => navigateTo(route) },
-            attributes: { [window.cfg.label.textKey]: key },
+            attributes: { [CONST.ATTR.I18N_TEXT]: key },
         });
         const li = createEl("li", "", { children: [link] });
         navList.appendChild(li);
@@ -38,7 +38,7 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     navList.appendChild(loginStatus);
 
     const unsubscribeAuth = authStore.subscribe((state) => {
-        window.log.debug("AuthStore triggered in header");
+        log.debug("AuthStore triggered in header");
         if (state.isAuthenticated && state.username) {
             appendUserStatus(loginStatus, state.username);
         }
@@ -58,7 +58,7 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
 
     // Header is never destoryed but included for good practice
     headerEl.addEventListener("destory", () => {
-        window.log.debug("Header unsubscribe to Login status");
+        log.debug("Header unsubscribe to Login status");
         unsubscribeAuth();
     });
 

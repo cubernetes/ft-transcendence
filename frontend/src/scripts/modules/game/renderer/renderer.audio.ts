@@ -15,31 +15,31 @@ type SoundConfig = {
 
 const bgMusicConfig: SoundConfig = {
     name: "bgMusic",
-    src: `${window.cfg.dir.audio}/neon-gaming.mp3`,
+    src: `${CONST.DIR.AUDIO}/neon-gaming.mp3`,
     options: { loop: true, autoplay: false, volume: 0.5 },
 };
 
 const hitSoundConfig: SoundConfig = {
     name: "hitSound",
-    src: `${window.cfg.dir.audio}/hit.mp3`,
+    src: `${CONST.DIR.AUDIO}/hit.mp3`,
     options: { maxInstances: 2, volume: 0.8, spatialEnabled: true },
 };
 
 const bounceSoundConfig: SoundConfig = {
     name: "bounceSound",
-    src: `${window.cfg.dir.audio}/bounce.mp3`,
+    src: `${CONST.DIR.AUDIO}/bounce.mp3`,
     options: { maxInstances: 2, volume: 0.8, spatialEnabled: true },
 };
 
 const blopSoundConfig: SoundConfig = {
     name: "blopSound",
-    src: `${window.cfg.dir.audio}/blop.mp3`,
+    src: `${CONST.DIR.AUDIO}/blop.mp3`,
     options: { maxInstances: 2, pitch: 1.5, spatialEnabled: true },
 };
 
 const ballSoundConfig: SoundConfig = {
     name: "ballSound",
-    src: `${window.cfg.dir.audio}/tatata.mp3`,
+    src: `${CONST.DIR.AUDIO}/tatata.mp3`,
     options: { maxInstances: 2, playbackRate: 1.5, spatialEnabled: true },
 };
 
