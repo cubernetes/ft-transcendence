@@ -129,7 +129,7 @@ services:
             bootstrap.memory_lock: "true"
             cluster.name: "ft-transcendence-logs"
             node.name: "single-node"
-            ELASTIC_KEYSTORE_PASS: "changeme" # Password for the keystore
+            ELASTIC_KEYSTORE_PASS: "${ELASTIC_KEYSTORE_PASS}" # Password for the keystore
         volumes:
             - "elasticsearch-data:/usr/share/elasticsearch/data/"
             - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/"
