@@ -1,20 +1,21 @@
-import { showPageElements } from "../../modules/layout/layout.service";
 import { layoutStore } from "../../modules/layout/layout.store";
-import { createEl } from "../../utils/dom-helper";
+import { createContainer } from "../components/Container";
 import { createPaddles } from "../layout/Paddles";
-import { createSetupModal } from "../layout/SetupModal";
+import { switchModePanel } from "../layout/SetupPanel";
 
-export const createSetupPage = async (): Promise<HTMLElement[]> => {
-    showPageElements();
-
+export const createSetupPage = (): UIComponent => {
     const { router } = layoutStore.get();
-    const setupSection = createSetupModal();
     const paddles = createPaddles(router);
-
-    // TODO: Check cursor url, doesn't seem to be working?
-    const main = createEl("main", "w-full cursor-[url(assets/pongball.cur)]", {
-        children: [paddles, setupSection],
+    const setupCtn = createContainer({
+        tw: "w-1/2 bg-gray-300 p-8 items-center relative",
+        id: CONST.ID.SETUP_CTN, // Not using
     });
 
-    return [main];
+    // TODO: Check cursor url, doesn't seem to be working?
+    // const main = createEl("main", "w-full flex justify-center cursor-[url(assets/pongball.cur)]", {
+    //     children: [paddles, setupCtn],
+    // });
+
+    switchModePanel(setupCtn, "base");
+    return [paddles, setupCtn];
 };

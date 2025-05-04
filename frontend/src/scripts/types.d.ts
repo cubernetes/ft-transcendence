@@ -37,6 +37,7 @@ declare global {
     // Globally defined types so no need to import
     // Probably not good practice esp as things grow...
     type UIComponent = HTMLElement[];
+    type UIContainer = HTMLElement;
     type PageRenderer = () => UIComponent | Promise<UIComponent>;
 }
 

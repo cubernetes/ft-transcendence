@@ -5,7 +5,6 @@ import { layoutStore } from "../modules/layout/layout.store";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
-import { createQuickPlayPage } from "../ui/pages/QuickPlayPage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
 import { replaceChildren } from "../utils/dom-helper";
@@ -14,7 +13,7 @@ const ROUTES = {
     landing: createLandingPage,
     setup: createSetupPage,
     profile: createProfilePage,
-    quickplay: createQuickPlayPage,
+    quickplay: createSetupPage, // Maybe just use setup together, the UI handles whehter it's logged in or not by itself
     leaderboard: createLeaderboardPage,
     tournament: createTournamentPage,
 } satisfies Record<string, PageRenderer>;

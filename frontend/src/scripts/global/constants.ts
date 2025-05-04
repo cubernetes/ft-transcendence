@@ -39,8 +39,9 @@ const CLASS = {
 const ID = {
     LOGIN_FORM: "login-form",
     TOTP_FORM: "totp-form",
-    TOTP_TOKEN: "totp-token",
-    TOTP_NEW_TOKEN: "totp-new-token",
+    TOTP_TOKEN: "totp-token", // Using
+    TOTP_NEW_TOKEN: "totp-new-token", // Using
+    SETUP_CTN: "setup-ctn", // Using
     USER_STATUS: "user-status",
     ROOT: "app",
     HEADER: "header-ctn",

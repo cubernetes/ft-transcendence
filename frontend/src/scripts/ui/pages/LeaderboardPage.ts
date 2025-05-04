@@ -43,8 +43,6 @@ export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
     // Define how many players to be fetched
     const n = 10;
 
-    showPageElements();
-
     const main = createEl("main", "container mx-auto p-4");
     const section = createEl("section", "bg-white p-6 rounded-lg shadow-md");
     const title = createEl("h2", "text-2xl font-bold mb-4", { text: "Leaderboard" });

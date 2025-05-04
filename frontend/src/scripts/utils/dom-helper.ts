@@ -73,7 +73,9 @@ export const dispatchEventDown = (parent: HTMLElement, evt: Event) => {
 };
 
 /** Safely replace children in a container */
-export const replaceChildren = (ctn: HTMLElement, target: HTMLElement[]) => {
+export const replaceChildren = (ctn: UIContainer | null, target: UIComponent) => {
+    if (!ctn) return log.warn("Fail to replace children for null container");
+
     // Create fragment as cache for target elements to append at once
     const fragment = document.createDocumentFragment();
     target.forEach((el) => fragment.appendChild(el));
