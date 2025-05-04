@@ -56,6 +56,7 @@ export const createTotpSetupModal = async (): Promise<void> => {
         // TODO: Backend is ok to handle this,
         // const { isAuthenticated } = authStore.get();
         // if (!isAuthenticated) return log.warn("You have to be logged in to set up TOTP");
+        log.debug(tokenInput.value);
         const result = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
             token: tokenInput.value,
         });

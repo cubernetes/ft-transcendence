@@ -7,7 +7,6 @@ import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createQuickPlayPage } from "../ui/pages/QuickPlayPage";
 import { createSetupPage } from "../ui/pages/SetupPage";
-import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
 import { replaceChildren } from "../utils/dom-helper";
 
@@ -18,7 +17,6 @@ const ROUTES = {
     quickplay: createQuickPlayPage,
     leaderboard: createLeaderboardPage,
     tournament: createTournamentPage,
-    totp: createTotpSetupPage, // Refactor into modal later
 } satisfies Record<string, PageRenderer>;
 
 export type Route = keyof typeof ROUTES;
@@ -26,7 +24,7 @@ export type Route = keyof typeof ROUTES;
 // A type-safe list of protected routes, i.e. only available after logging in
 // Temporarily protect all routes so always start in landing page
 // TODO: Commented out localgame and aigame for quickplay.
-const PROTECTED_ROUTES: Route[] = ["setup", "profile", "leaderboard", "totp"];
+const PROTECTED_ROUTES: Route[] = ["setup", "profile", "leaderboard"];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
