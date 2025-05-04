@@ -9,7 +9,7 @@ import { createContainer } from "../components/Container";
 import { createApiError } from "../components/Error";
 import { createParagraph } from "../components/Paragraph";
 import { createTitle } from "../components/Title";
-import { createTotpSetupModal } from "./TotpSetupModal";
+import { createTotpModal } from "./TotpModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
     log.debug(user);
@@ -31,24 +31,20 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const passwordLabel = createParagraph({ text: "password", tw: "mr-8" });
     const passwordBtn = createButton({
         text: "update",
-        tw: "text-xl bg-gray-100 hover:bg-gray-400 px-2",
+        tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
         // TODO: click cb
     });
-
-    // totp on
-    const totpUpdateCb = () => {};
-    const totpDisableCb = () => {};
 
     const totpLabel = createParagraph({ text: "TOTP", tw: "mr-8" });
     const totpOnEl = createButtonGroup({
         texts: ["update", "disable"],
-        cbs: [totpUpdateCb, totpDisableCb],
-        twBtn: "text-xl bg-gray-100 hover:bg-gray-400 px-2",
+        cbs: [() => createTotpModal("update"), () => createTotpModal("disable")],
+        twBtn: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpOffEl = createButton({
         text: "enable",
-        click: createTotpSetupModal,
-        tw: "text-xl bg-gray-100 hover:bg-gray-400 px-2",
+        click: () => createTotpModal("setup"),
+        tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpEl = user.totpEnabled ? totpOnEl : totpOffEl;
 
@@ -56,17 +52,17 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const rankEl = createParagraph({ text: String(user.rank) });
 
     const labelCtn = createContainer({
-        tw: "flex-col bg-blue-300",
+        tw: "flex-col w-full bg-blue-300",
         children: [usernameLabel, passwordLabel, totpLabel, rankLabel],
     });
 
     const contentCtn = createContainer({
-        tw: "flex-col bg-yellow-300",
+        tw: "flex-col w-full bg-yellow-300",
         children: [usernameEl, passwordBtn, totpEl, rankEl],
     });
 
     const settingCtn = createContainer({
-        tw: "bg-green-300",
+        tw: "flex mx-auto bg-green-300",
         children: [labelCtn, contentCtn],
     });
 
@@ -78,14 +74,14 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
 
     // Create right container to include avartar
     const rightCtn = createContainer({
-        tw: "w-2/5 justify-center bg-blue-300",
+        tw: "w-2/5 flex justify-center bg-blue-300",
         children: [avatarEl],
     });
 
     // Create the root container for profile panel
     const container = createContainer({
         tag: "section",
-        tw: "bg-white rounded-lg shadow-md justify-evenly",
+        tw: "flex bg-white rounded-lg shadow-md justify-evenly",
         children: [leftCtn, rightCtn],
     });
 

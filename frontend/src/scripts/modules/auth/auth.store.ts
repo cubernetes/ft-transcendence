@@ -46,8 +46,9 @@ authStore.subscribe(async (state) => {
         const el = document.getElementById(CONST.ID.LOGIN_FORM);
         if (!el) return log.error("Fail to find login form: auth store, totpRequired");
 
-        const modalEl = await createTotpModal();
-        replaceChildren(el, [modalEl]);
+        createTotpModal("login");
+        //const modalEl = await createTotpModal();
+        //replaceChildren(el, [modalEl]);
         return;
     }
 

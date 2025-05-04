@@ -63,6 +63,7 @@ const renderRoute = async (dest: string) => {
 export const navigateTo = (dest: string, init: boolean = false) => {
     const path = `/${dest}`;
 
+    log.debug("navigating!");
     // Alread in the page, do nothing
     if (location.pathname === path && !init) return log.warn(`Already in ${dest}`);
 

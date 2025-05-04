@@ -62,7 +62,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
     // Create hero container
     const heroCtn = createContainer({
-        tw: "absolute top-0 left-0 h-full",
+        tw: "absolute top-0 left-0 w-full h-full",
         children: [ctaButtonEl],
     });
 

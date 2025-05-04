@@ -5,9 +5,9 @@ type Opts = { tw?: string; children?: HTMLElement[]; tag?: keyof HTMLElementTagN
 
 export const createContainer = ({ tw = "", tag = "div", children }: Opts): HTMLElement => {
     // Default tailwind style to be applied, additional styles will be merged
-    const BASE_TW = "relative w-full flex mx-auto text-center";
+    const BASE_TW = "relative text-center";
     const twStyle = twMerge(BASE_TW, tw);
-
+    // mx-auto, flex, w-full
     const container = createEl(tag, twStyle, { children });
 
     return container;

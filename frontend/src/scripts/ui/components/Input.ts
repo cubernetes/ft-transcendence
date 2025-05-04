@@ -7,6 +7,7 @@ type Opts = {
     tw?: string;
     type?: string;
     ac?: string; // Autocomplete
+    id?: string;
 };
 
 /**
@@ -14,7 +15,13 @@ type Opts = {
  * @params ph placeholder
  * @params ac autocomplete
  */
-export const createInput = ({ ph, tw = "", type = "text", ac = "on" }: Opts): HTMLInputElement => {
+export const createInput = ({
+    ph,
+    tw = "",
+    type = "text",
+    ac = "on",
+    id,
+}: Opts): HTMLInputElement => {
     const BASE_TW = "rounded w-full p-2 border border-gray-300";
 
     // bg-gray-100 hover:bg-gray-400
@@ -26,5 +33,8 @@ export const createInput = ({ ph, tw = "", type = "text", ac = "on" }: Opts): HT
     const twStyle = twMerge(BASE_TW, tw);
     const props = { placeholder, type, autocomplete: ac };
 
-    return createEl("input", twStyle, { attributes, props });
+    const input = createEl("input", twStyle, { attributes, props });
+
+    if (id) input.setAttribute("id", id);
+    return input;
 };

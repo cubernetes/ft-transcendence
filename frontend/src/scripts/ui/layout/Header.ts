@@ -20,7 +20,6 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
         ["setup", CONST.ROUTE.HOME],
         ["leaderboard", "leaderboard"],
         ["profile", "profile"],
-        ["TOTP", "totp"],
     ];
 
     for (const [key, route] of navKeys) {

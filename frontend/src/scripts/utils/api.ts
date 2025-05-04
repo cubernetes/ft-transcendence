@@ -25,6 +25,7 @@ const post = async <T, E extends ApiResponse<any>>(
         //     logout();
         // }
 
+        log.debug(response);
         if (!response.ok) {
             const message = `POST to ${url}, response not ok, status: ${response.status}`;
             log.debug(message);
@@ -32,6 +33,7 @@ const post = async <T, E extends ApiResponse<any>>(
         }
 
         const data: E = await response.json();
+        log.debug(data);
         if (!data.success) {
             log.debug(`POST to ${url}: ${data.error.code}`);
             return err(new Error(data.error.message));

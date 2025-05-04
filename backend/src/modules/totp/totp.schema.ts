@@ -31,7 +31,7 @@ const update = {
     tags: ["Totp"],
     description: "Update 2FA secret",
     security: [{ cookieAuth: [] }],
-    body: zodToJsonSchema(totpSchemas.totpBody),
+    body: zodToJsonSchema(totpSchemas.totpUpdateBody),
     response: {
         200: zodToJsonSchema(apiSuccess(z.object({}))),
         400: zodToJsonSchema(apiError("BAD_REQUEST")),
