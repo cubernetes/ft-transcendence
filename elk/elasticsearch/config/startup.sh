@@ -8,6 +8,7 @@ set -e
 : "${KIBANA_USER:?Missing KIBANA_USER}"
 : "${KIBANA_PASSWORD:?Missing KIBANA_PASSWORD}"
 : "${ELASTIC_KEYSTORE_PASS:?Missing ELASTIC_KEYSTORE_PASS}"
+: "${ELASTICSEARCH_PORT:?Missing ELASTICSEARCH_PORT}"
 
 # Set up permissions for certificates directory
 CERTS_DIR="/usr/share/elasticsearch/config/certs"
@@ -16,7 +17,7 @@ chown -R elasticsearch:elasticsearch "$CERTS_DIR"
 chmod -R 770 "$CERTS_DIR"
 
 # Checking if certificates exist
-su  --whitelist-environment='ELASTIC_PASSWORD,LOGSTASH_USER,LOGSTASH_PASSWORD,KIBANA_USER,KIBANA_PASSWORD,ELASTIC_KEYSTORE_PASS' \
+su  --whitelist-environment='ELASTIC_PASSWORD,LOGSTASH_USER,LOGSTASH_PASSWORD,KIBANA_USER,KIBANA_PASSWORD,ELASTIC_KEYSTORE_PASS,ELASTICSEARCH_PORT' \
     --command="/usr/share/elasticsearch/config/generate-certs.sh" \
     --login \
     elasticsearch
@@ -32,7 +33,7 @@ if [ ! -f "/usr/share/elasticsearch/config/elasticsearch.keystore" ]; then
 fi
 
 # Run the setup script as elasticsearch user
-su  --whitelist-environment='ELASTIC_PASSWORD,LOGSTASH_USER,LOGSTASH_PASSWORD,KIBANA_USER,KIBANA_PASSWORD,ELASTIC_KEYSTORE_PASS' \
+su  --whitelist-environment='ELASTIC_PASSWORD,LOGSTASH_USER,LOGSTASH_PASSWORD,KIBANA_USER,KIBANA_PASSWORD,ELASTIC_KEYSTORE_PASS,ELASTICSEARCH_PORT' \
     --command="/usr/share/elasticsearch/setup-single-node.sh" \
     --login \
     elasticsearch
