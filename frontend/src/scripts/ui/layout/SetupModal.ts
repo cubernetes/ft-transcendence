@@ -27,7 +27,11 @@ const createCtaBtn = (text: I18nKey, click: () => void): HTMLButtonElement => {
 
 const createDifficultyGroup = () => {
     const label = createBodyText("difficulty");
-    const btns = createButtonGroup(["easy", "medium", "hard"], []);
+    const btns = createButtonGroup({
+        texts: ["easy", "medium", "hard"],
+        twBtn: "bg-gray-100",
+        twSelected: "bg-gray-400",
+    });
 
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
         children: [label, btns],
@@ -194,7 +198,7 @@ const aiMode = (ctn: HTMLElement) => {
         p1.value = username;
     }
     const difficultyGrp = createDifficultyGroup();
-    const { errorDiv, showErr, hideErr } = createError();
+    const { errorEl, showErr, hideErr } = createError({});
 
     const playBtn = createCtaBtn("setup_play", () => {
         const selected = difficultyGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
@@ -225,7 +229,7 @@ const aiMode = (ctn: HTMLElement) => {
         p1,
         difficultyGrp,
         playBtn,
-        errorDiv,
+        errorEl,
     ]);
 
     ctn.innerHTML = "";
@@ -246,7 +250,7 @@ const localMode = (ctn: HTMLElement) => {
         children: [playerLabel, p1, p2],
     });
 
-    const { errorDiv, showErr, hideErr } = createError();
+    const { errorEl, showErr, hideErr } = createError({});
 
     const playBtn = createCtaBtn("setup_play", () => {
         const player1 = p1.value.trim();
@@ -272,7 +276,7 @@ const localMode = (ctn: HTMLElement) => {
         line,
         playersSection,
         playBtn,
-        errorDiv,
+        errorEl,
     ]);
 
     ctn.innerHTML = "";
@@ -285,7 +289,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
 
     const line = createSetupLine();
 
-    const { errorDiv, showErr, hideErr } = createError();
+    const { errorEl, showErr, hideErr } = createError({});
 
     const playerInputs: HTMLInputElement[] = [];
     for (let i = 0; i < playerAmount; i++) {
@@ -320,7 +324,7 @@ const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
         line,
         inputsWrapper,
         tournamentCreateBtn,
-        errorDiv,
+        errorEl,
     ]);
 
     ctn.innerHTML = "";
@@ -342,12 +346,16 @@ const tournamentMode = (ctn: HTMLElement) => {
 
     const modeLabel = createBodyText("player_number");
 
-    const modeBtnGrp = createButtonGroup(["4P", "8P"], []);
+    const modeBtnGrp = createButtonGroup({
+        texts: ["4P", "8P"],
+        twBtn: "bg-gray-100",
+        twSelected: "bg-gray-400",
+    });
     const modeSection = createEl("div", "flex flex-col w-full mt-6", {
         children: [modeLabel, modeBtnGrp],
     });
 
-    const { errorDiv, showErr, hideErr } = createError();
+    const { errorEl, showErr, hideErr } = createError({});
 
     const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
         const mode = modeBtnGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
@@ -366,7 +374,7 @@ const tournamentMode = (ctn: HTMLElement) => {
         line,
         modeSection,
         tournamentCreateBtn,
-        errorDiv,
+        errorEl,
     ]);
 
     ctn.innerHTML = "";
@@ -393,18 +401,18 @@ export const createSetupModal = (): HTMLElement => {
         btnCallbacks.push(onlineBtnCb);
     }
 
-    const gameBtnGrp = createButtonGroup(
-        (btnLabels as I18nKey[]).map((key) => getText(key)),
-        btnCallbacks,
-        "flex-1",
-        "mt-4"
-    );
+    // const gameBtnGrp = createButtonGroup(
+    //     (btnLabels as I18nKey[]).map((key) => getText(key)),
+    //     btnCallbacks,
+    //     "flex-1",
+    //     "mt-4"
+    // );
 
     // btnLabels.forEach((key, index) => {
     //     translatableElements[key] = gameBtnGrp.children[index] as HTMLElement;
     // });
 
-    const children = [title, line, gameBtnGrp];
+    const children = [title, line];
 
     if (authStore.get().isAuthenticated) {
         const tournamentBtn = createCtaBtn("setup_tournament_mode", tournamentCreateBtnCb);

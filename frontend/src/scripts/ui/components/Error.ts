@@ -1,30 +1,35 @@
+import { twMerge } from "tailwind-merge";
 import { I18nKey } from "../../modules/locale/locale.en";
+import { isValidKey } from "../../modules/locale/locale.store";
 import { getText } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 import { createBodyText } from "./Text";
 
-export const createError = (
-    tw: string = ""
-): {
-    errorDiv: HTMLElement;
-    showErr: (msg: I18nKey) => void;
-    hideErr: () => void;
-} => {
-    const baseTw = "hidden p-2 bg-red-100 text-red-500 rounded text-sm mt-4";
-    const fullTw = `${baseTw} ${tw}`;
+type Opts = { tw?: string; id?: string };
 
-    const errorDiv = createEl("div", fullTw);
+type ErrorComponent = { errorEl: HTMLElement; showErr: (msg: string) => void; hideErr: () => void };
+
+export const createError = ({ tw = "", id }: Opts): ErrorComponent => {
+    const BASE_TW = "hidden p-2 bg-red-100 text-red-500 rounded text-sm mt-4";
+    const twStyle = twMerge(BASE_TW, tw);
+    const attributes = id ? { id } : undefined;
+
+    const errorEl = createEl("p", twStyle, { attributes });
 
     return {
-        errorDiv,
-        showErr: (msg: I18nKey) => {
-            errorDiv.textContent = getText(msg);
-            errorDiv.setAttribute(CONST.ATTR.I18N_TEXT, msg);
-            errorDiv.classList.remove("hidden");
+        errorEl,
+        showErr: (msg: string) => {
+            if (isValidKey(msg)) {
+                errorEl.textContent = getText(msg);
+                errorEl.setAttribute(CONST.ATTR.I18N_TEXT, msg);
+            } else {
+                errorEl.textContent = msg;
+            }
+            errorEl.classList.remove("hidden");
         },
         hideErr: () => {
-            errorDiv.removeAttribute(CONST.ATTR.I18N_TEXT);
-            errorDiv.classList.add("hidden");
+            errorEl.removeAttribute(CONST.ATTR.I18N_TEXT);
+            errorEl.classList.add("hidden");
         },
     };
 };

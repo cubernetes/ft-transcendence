@@ -1,5 +1,16 @@
+import { twMerge } from "tailwind-merge";
 import { createEl } from "../../utils/dom-helper";
 import { createButton } from "./Button";
+
+type Opts = {
+    texts: string[];
+    twSelected: string;
+    cbs?: (() => void)[];
+    twBtnSpecific?: string[];
+    twBtn?: string;
+    twCtn?: string;
+    defaultSelected?: number;
+};
 
 /**
  * Create a group of buttons with uniform css style.
@@ -14,39 +25,43 @@ import { createButton } from "./Button";
  *              extendable and replacable by this param adding to it
  * @param twSelected optional tailwind classes
  */
-export const createButtonGroup = (
-    texts: string[],
-    cbs: (() => void)[],
-    twBtn: string = "",
-    twCtn: string = "",
-    twSelected: string = "bg-gray-400"
-): HTMLDivElement => {
-    const baseCtnTailwind = "flex space-x-4 mt-2";
-    const ctnTailwind = `${baseCtnTailwind} ${twCtn}`;
-    const container = createEl("div", ctnTailwind);
+export const createButtonGroup = ({
+    texts,
+    twSelected,
+    cbs,
+    twBtn = "",
+    twBtnSpecific,
+    twCtn = "",
+    defaultSelected,
+}: Opts): HTMLDivElement => {
+    const BASE_CTN_TW = "flex";
+    const ctnTwStyle = twMerge(BASE_CTN_TW, twCtn);
+    const container = createEl("div", ctnTwStyle); // use container
 
     const setActive = (btn: HTMLButtonElement) => {
+        const twSelectedList = twSelected.split(" ").filter(Boolean);
         Array.from(container.children).forEach((el) => {
-            el.classList.remove(twSelected);
+            twSelectedList.forEach((tw) => el.classList.remove(tw));
             el.classList.remove(CONST.CLASS.ACTIVE_BTN);
         });
 
-        btn.classList.add(twSelected);
+        twSelectedList.forEach((tw) => btn.classList.add(tw));
         btn.classList.add(CONST.CLASS.ACTIVE_BTN);
     };
 
     texts.forEach((text, i) => {
-        const btn = createButton({ text, tw: twBtn });
-        container.appendChild(btn);
+        const click = () => {
+            setActive(btn); // Default
+            cbs?.[i]?.();
+        };
+        const tw = twMerge(twBtn, twBtnSpecific?.[i]);
+        const btn = createButton({ text, tw, click });
 
-        // Default onclick
-        btn.onclick = () => setActive(btn);
-
-        // Attach callbacks, based on the index mapping
-        // When is this needed actually? TODO: CHECK
-        if (cbs && cbs[i]) {
-            btn.onclick = cbs[i];
+        if (defaultSelected === i) {
+            setActive(btn);
         }
+
+        container.appendChild(btn);
     });
 
     return container;
