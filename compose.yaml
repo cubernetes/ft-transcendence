@@ -163,7 +163,7 @@ services:
                     "elastic:${ELASTIC_PASSWORD}",
                     "--silent",
                     "--fail",
-                    "https://localhost:${ELASTICSEARCH_PORT:-9200}/_cluster/health",
+                    "https://localhost:${ELASTICSEARCH_PORT}/_cluster/health",
                 ]
             interval: 30s
             timeout: 10s
