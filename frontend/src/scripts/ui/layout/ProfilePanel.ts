@@ -9,6 +9,7 @@ import { createContainer } from "../components/Container";
 import { createApiError } from "../components/Error";
 import { createParagraph } from "../components/Paragraph";
 import { createTitle } from "../components/Title";
+import { createTotpSetupModal } from "./TotpSetupModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
     log.debug(user);
@@ -22,45 +23,57 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
         },
     });
 
-    const TitleEl = createTitle({ text: "your_profile" });
-    const titleEl = createEl("h2", "text-2xl font-bold mt-4", {
-        text: getText("your_profile"),
-        attributes: { [CONST.ATTR.I18N_TEXT]: "your_profile" },
+    const titleEl = createTitle({ text: "your_profile", tw: "text-4xl mt-4" });
+
+    const usernameLabel = createParagraph({ text: "username", tw: "mr-8" });
+    const usernameEl = createParagraph({ text: user.username });
+
+    const passwordLabel = createParagraph({ text: "password", tw: "mr-8" });
+    const passwordBtn = createButton({
+        text: "update",
+        tw: "text-xl bg-gray-100 hover:bg-gray-400 px-2",
+        // TODO: click cb
     });
-    const usernameEl = createParagraph({ text: "username" });
 
     // totp on
     const totpUpdateCb = () => {};
-    const totpEnableCb = () => {};
     const totpDisableCb = () => {};
 
-    const totpOnSettings = createButtonGroup({
+    const totpLabel = createParagraph({ text: "TOTP", tw: "mr-8" });
+    const totpOnEl = createButtonGroup({
         texts: ["update", "disable"],
         cbs: [totpUpdateCb, totpDisableCb],
+        twBtn: "text-xl bg-gray-100 hover:bg-gray-400 px-2",
     });
-    const totpOffSetting = createButton({ text: "enable", click: totpEnableCb });
-    const totpSettingEl = user.totpEnabled ? totpOnSettings : totpOffSetting;
-    // const fields = [
-    //     { label: "username", key: "username" },
-    //     { label: "games_played", key: "games" },
-    //     { label: "wins", key: "wins" },
-    //     { label: "losses", key: "losses" },
-    // ];
+    const totpOffEl = createButton({
+        text: "enable",
+        click: createTotpSetupModal,
+        tw: "text-xl bg-gray-100 hover:bg-gray-400 px-2",
+    });
+    const totpEl = user.totpEnabled ? totpOnEl : totpOffEl;
 
-    // const infoList = fields.map(({ label, key }) => {
-    //     const fieldElement = createEl("p", "text-gray-700 text-base", {
-    //         text: `${getText(label as TranslationKey)}: ${data[key]}`,
-    //     });
-    //     translatableElements[label as TranslationKey] = fieldElement;
-    //     return fieldElement;
-    // });
+    const rankLabel = createParagraph({ text: "rank", tw: "mr-8" });
+    const rankEl = createParagraph({ text: String(user.rank) });
 
-    const rankEl = createParagraph({ text: "rank" });
+    const labelCtn = createContainer({
+        tw: "flex-col bg-blue-300",
+        children: [usernameLabel, passwordLabel, totpLabel, rankLabel],
+    });
+
+    const contentCtn = createContainer({
+        tw: "flex-col bg-yellow-300",
+        children: [usernameEl, passwordBtn, totpEl, rankEl],
+    });
+
+    const settingCtn = createContainer({
+        tw: "bg-green-300",
+        children: [labelCtn, contentCtn],
+    });
 
     // Create left container to include infos and settings
     const leftCtn = createContainer({
         tw: "w-3/5 flex-col bg-red-300",
-        children: [titleEl, usernameEl, totpSettingEl, rankEl],
+        children: [titleEl, settingCtn],
     });
 
     // Create right container to include avartar

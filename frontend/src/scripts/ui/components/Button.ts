@@ -25,7 +25,7 @@ export const createButton = ({
     innerHTML,
 }: Opts): HTMLButtonElement => {
     // Default tailwind style to be applied to all button elements, additional styles will be merged
-    const BASE_TW = "rounded text-center p-2";
+    const BASE_TW = "rounded text-center";
     // bg-gray-100 hover:bg-gray-400
     // maybe select-none? dones't seem to be needed, disabled:opacity-50 font-medium transition
     // inline-block

@@ -8,7 +8,7 @@ export const createContainer = ({ tw = "", tag = "div", children }: Opts): HTMLE
     const BASE_TW = "relative w-full flex mx-auto text-center";
     const twStyle = twMerge(BASE_TW, tw);
 
-    const container = createEl("div", twStyle, { children });
+    const container = createEl(tag, twStyle, { children });
 
     return container;
 };

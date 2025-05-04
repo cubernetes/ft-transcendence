@@ -30,8 +30,8 @@ const createDifficultyGroup = () => {
     const label = createParagraph({ text: "difficulty" });
     const btns = createButtonGroup({
         texts: ["easy", "medium", "hard"],
-        twBtn: "bg-gray-100",
         twSelected: "bg-gray-400",
+        twBtn: "text-xl text-black bg-gray-100 hover:bg-gray-400 p-2",
         twCtn: "space-x-4 mt-4",
     });
 
@@ -406,7 +406,7 @@ export const createSetupModal = (): HTMLElement => {
         texts: btnLabels,
         cbs: btnCbs,
         twSelected: "bg-gray-400",
-        twBtn: "text-xl text-black bg-gray-100 hover:bg-gray-400",
+        twBtn: "text-2xl text-black bg-gray-100 hover:bg-gray-400 p-4",
         twCtn: "space-x-4 mt-4 justify-center",
     });
 
