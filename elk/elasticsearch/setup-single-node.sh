@@ -15,7 +15,7 @@ ES_PID=$!
 
 # Wait for Elasticsearch to start
 echo "Waiting for Elasticsearch to start..."
-until curl --silent --insecure --user "elastic:${ELASTIC_PASSWORD}" --fail "https://localhost:9200/_cluster/health"; do
+until curl --silent --insecure --user "elastic:${ELASTIC_PASSWORD}" --fail "https://localhost:${ELASTICSEARCH_PORT:-9200}/_cluster/health"; do
     sleep 5
 done
 
