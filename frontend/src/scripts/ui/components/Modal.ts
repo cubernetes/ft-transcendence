@@ -10,10 +10,11 @@ type Opts = {
 export const createModal = ({ children, tw = "" }: Opts) => {
     const BASE_TW = [
         "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-        "flex-col justify-center mx-auto shadow-md bg-white rounded p-6 z-50",
+        "shadow-md bg-white rounded p-6 z-50",
     ].join(" ");
 
     //w-1/2 h-1/2
+    //flex-col justify-center mx-auto
     const overlayEl = createEl("div", "fixed inset-0 bg-black bg-opacity-50 z-10");
     const twStyle = twMerge(BASE_TW, tw);
     const container = createContainer({

@@ -70,8 +70,13 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
     return ok();
 };
 
-export const tryLoginWithTotp = async (totpToken: string): Promise<Result<void, Error>> => {
+export const tryLoginWithTotp = async (): Promise<Result<void, Error>> => {
     const { username, tempAuthString } = authStore.get();
+    const totpTokenEl = document.getElementById(CONST.ID.TOTP_TOKEN);
+    const totpToken = (totpTokenEl as HTMLInputElement)?.value;
+    if (!username || !tempAuthString || !totpTokenEl || !totpToken) {
+        return err(new Error("Fail to get data for totp log in"));
+    }
 
     if (!username || !tempAuthString) {
         return err(new Error("Fail to get data for totp log in"));

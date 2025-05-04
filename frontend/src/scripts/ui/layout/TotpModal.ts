@@ -1,9 +1,9 @@
 import { TotpSetupResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
-import { tryLoginWithTotp } from "../../modules/auth/auth.service";
 import { sendApiRequest } from "../../utils/api";
-import { createEl } from "../../utils/dom-helper";
+import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
+import { createContainer } from "../components/Container";
 import { createInput } from "../components/Input";
 import { createModal } from "../components/Modal";
 import { createParagraph } from "../components/Paragraph";
@@ -23,7 +23,7 @@ const fetchQrCode = async () => {
     return [qrCode, secret];
 };
 
-const createTotpTokenForm = (mode: Mode): HTMLElement => {
+export const createTotpTokenForm = (mode: Mode): HTMLElement => {
     const titleEl = createTitle({ text: "Enter your TOTP code", tw: "text-2xl" });
 
     const tokenInput = createInput({
@@ -53,21 +53,25 @@ const createTotpTokenForm = (mode: Mode): HTMLElement => {
               ? [newTokenInput, submitBtn]
               : [tokenInput, newTokenInput, submitBtn];
 
-    const tokenForm = createEl("form", "space-y-4 flex flex-col mx-auto", {
-        props: { noValidate: true }, // Handle validation manually
-        children,
-    });
+    const tokenForm = createEl(
+        "form",
+        "bg-white shadow-md rounded p-6 items-center space-y-4 flex-col mx-auto",
+        {
+            props: { noValidate: true }, // Handle validation manually
+            children,
+        }
+    );
 
     return tokenForm;
 };
 
-export const createTotpModal = async (mode: Mode): Promise<void> => {
-    const tokenForm = createTotpTokenForm(mode);
-    let closeModal;
+export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<void> => {
+    const container = createContainer({ tw: "items-center flex-col mx-auto" });
+
     if (mode === "update" || mode === "setup") {
         const [qrCodeData, b32secretData] = await fetchQrCode();
 
-        const qrCodeImg = createEl("img", "w-48 h-48", {
+        const qrCodeImg = createEl("img", "w-48 h-48 mx-auto", {
             props: { src: qrCodeData, alt: "You have to be logged in to set up 2FA" },
         });
 
@@ -76,10 +80,13 @@ export const createTotpModal = async (mode: Mode): Promise<void> => {
             tw: "w-128 p-2 border border-gray-300 rounded text-xs",
         });
 
-        closeModal = createModal({ children: [qrCodeImg, b32secretP, tokenForm] });
-    } else {
-        closeModal = createModal({ children: [tokenForm] });
+        appendChildren(container, [qrCodeImg, b32secretP]);
     }
+
+    const tokenForm = createTotpTokenForm(mode);
+
+    container.appendChild(tokenForm);
+    const closeModal = createModal({ children: [container] });
 
     tokenForm.addEventListener("submit", async (evt) => {
         // Prevent reload and clear from default
@@ -99,13 +106,11 @@ export const createTotpModal = async (mode: Mode): Promise<void> => {
                 if (result.isErr()) return; // TODO: handle specfic error differently?
                 closeModal();
                 break;
-            case "login":
-                result = await tryLoginWithTotp(
-                    (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value
-                ); // TODO: move that here
-                if (result.isErr()) return; //
-                closeModal();
-                break;
+            // case "login":
+            //     result = await tryLoginWithTotp(); // TODO: move that here
+            //     if (result.isErr()) return; //
+            //     closeModal();
+            //     break;
             case "setup":
                 result = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
                     token: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
@@ -128,3 +133,5 @@ export const createTotpModal = async (mode: Mode): Promise<void> => {
         }
     });
 };
+
+// TODO: move handler to module probably auth

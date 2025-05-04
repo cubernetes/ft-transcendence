@@ -2,6 +2,7 @@ import { Result, err, ok } from "neverthrow";
 import { GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
+import { createGameStatsChart } from "../layout/GameStatsChart";
 import { createProfilePanel } from "../layout/ProfilePanel";
 
 const fetchPlayerData = async (): Promise<Result<GetMePayload, Error>> => {
@@ -46,7 +47,10 @@ export const createProfilePage = async (): Promise<UIComponent> => {
 
     const profileSection = createProfilePanel(playerData.value);
     //const profileSection = await createProfileSection();
-    const main = createEl("main", "container mx-auto p-4", { children: profileSection });
+    const statsSection = createGameStatsChart(playerData.value.games);
+    const main = createEl("main", "container mx-auto p-4", {
+        children: [...profileSection, ...statsSection],
+    });
 
     return [main];
 };
