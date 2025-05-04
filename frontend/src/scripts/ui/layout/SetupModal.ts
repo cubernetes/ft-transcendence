@@ -10,9 +10,10 @@ import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createError } from "../components/Error";
+import { createParagraph } from "../components/Paragraph";
 import { createReturnButton } from "../components/ReturnButton";
 import { createSectionContainer } from "../components/SectionContainer";
-import { createBodyText, createTitleText } from "../components/Text";
+import { createTitle } from "../components/Title";
 
 const createSetupLine = () => createEl("hr", "border-t-2 border-dotted border-white mb-6");
 
@@ -26,11 +27,12 @@ const createCtaBtn = (text: I18nKey, click: () => void): HTMLButtonElement => {
 };
 
 const createDifficultyGroup = () => {
-    const label = createBodyText("difficulty");
+    const label = createParagraph({ text: "difficulty" });
     const btns = createButtonGroup({
         texts: ["easy", "medium", "hard"],
         twBtn: "bg-gray-100",
         twSelected: "bg-gray-400",
+        twCtn: "space-x-4 mt-4",
     });
 
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
@@ -51,7 +53,7 @@ const createInput = (placeholderKey: I18nKey) =>
 //TODO: Implement logic for when the friend enters the game ID
 const createLobby = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("create_lobby"));
+    const title = createTitle({ text: "create_lobby" });
 
     const line = createSetupLine();
 
@@ -105,7 +107,7 @@ const createLobby = (ctn: HTMLElement) => {
 
 const joinLobby = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("join_lobby"));
+    const title = createTitle({ text: "join_lobby" });
 
     const line = createSetupLine();
 
@@ -158,7 +160,7 @@ const joinLobby = (ctn: HTMLElement) => {
 
 const onlineMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("setup_online"));
+    const title = createTitle({ text: "setup_online" });
 
     const line = createSetupLine();
 
@@ -189,7 +191,7 @@ const onlineMode = (ctn: HTMLElement) => {
 
 const aiMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("play_ai"));
+    const title = createTitle({ text: "play_ai" });
 
     const line = createSetupLine();
     let p1 = createInput("name_player");
@@ -238,11 +240,11 @@ const aiMode = (ctn: HTMLElement) => {
 
 const localMode = (ctn: HTMLElement) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("setup_play_local"));
+    const title = createTitle({ text: "setup_play_local" });
 
     const line = createSetupLine();
 
-    const playerLabel = createBodyText("enter_names");
+    const playerLabel = createParagraph({ text: "enter_names" });
 
     const p1 = createInput("name_player");
     const p2 = createInput("name_player");
@@ -285,7 +287,7 @@ const localMode = (ctn: HTMLElement) => {
 
 const setParticipants = (ctn: HTMLElement, playerAmount: number) => {
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("start_tournament"));
+    const title = createTitle({ text: "start_tournament" });
 
     const line = createSetupLine();
 
@@ -340,16 +342,17 @@ const tournamentMode = (ctn: HTMLElement) => {
         log.debug("Tournament not started. Proceeding to create a new tournament.");
     }
     const returnBtn = createReturnButton(ctn, createSetupModal());
-    const title = createTitleText(getText("create_tournament"));
+    const title = createTitle({ text: "create_tournament" });
 
     const line = createSetupLine();
 
-    const modeLabel = createBodyText("player_number");
+    const modeLabel = createParagraph({ text: "player_number" });
 
     const modeBtnGrp = createButtonGroup({
         texts: ["4P", "8P"],
         twBtn: "bg-gray-100",
         twSelected: "bg-gray-400",
+        twCtn: "space-x-4 mt-4",
     });
     const modeSection = createEl("div", "flex flex-col w-full mt-6", {
         children: [modeLabel, modeBtnGrp],
@@ -382,10 +385,8 @@ const tournamentMode = (ctn: HTMLElement) => {
 };
 
 export const createSetupModal = (): HTMLElement => {
-    const title = createTitleText(getText("setup_choose_mode"));
-
+    const title = createTitle({ text: "setup_choose_mode" });
     const line = createSetupLine();
-
     const wrapper = createEl("div", "w-full");
 
     const localBtnCb = () => localMode(wrapper);
@@ -394,26 +395,24 @@ export const createSetupModal = (): HTMLElement => {
     const tournamentCreateBtnCb = () => tournamentMode(wrapper);
 
     const btnLabels = ["setup_local", "setup_ai"];
-    const btnCallbacks = [localBtnCb, aiBtnCb];
+    const btnCbs = [localBtnCb, aiBtnCb];
 
     if (authStore.get().isAuthenticated) {
         btnLabels.push("setup_online");
-        btnCallbacks.push(onlineBtnCb);
+        btnCbs.push(onlineBtnCb);
     }
 
-    // const gameBtnGrp = createButtonGroup(
-    //     (btnLabels as I18nKey[]).map((key) => getText(key)),
-    //     btnCallbacks,
-    //     "flex-1",
-    //     "mt-4"
-    // );
+    const gameBtnGrp = createButtonGroup({
+        texts: btnLabels,
+        cbs: btnCbs,
+        twSelected: "bg-gray-400",
+        twBtn: "text-xl text-black bg-gray-100 hover:bg-gray-400",
+        twCtn: "space-x-4 mt-4 justify-center",
+    });
 
-    // btnLabels.forEach((key, index) => {
-    //     translatableElements[key] = gameBtnGrp.children[index] as HTMLElement;
-    // });
+    const children = [title, line, gameBtnGrp];
 
-    const children = [title, line];
-
+    // any reason why log in is needed to play tournament?
     if (authStore.get().isAuthenticated) {
         const tournamentBtn = createCtaBtn("setup_tournament_mode", tournamentCreateBtnCb);
         children.push(tournamentBtn);

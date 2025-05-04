@@ -3,7 +3,7 @@ import { I18nKey } from "../../modules/locale/locale.en";
 import { isValidKey } from "../../modules/locale/locale.store";
 import { getText } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
-import { createBodyText } from "./Text";
+import { createParagraph } from "./Paragraph";
 
 type Opts = { tw?: string; id?: string };
 
@@ -36,6 +36,6 @@ export const createError = ({ tw = "", id }: Opts): ErrorComponent => {
 
 // When API fetching failed
 export const createApiError = (ctn: HTMLElement, message: string): HTMLElement => {
-    ctn.appendChild(createBodyText("failed_query", "text-red-500 text-lg"));
+    ctn.appendChild(createParagraph({ text: "failed_query", tw: "text-red-500 text-lg" }));
     return ctn;
 };

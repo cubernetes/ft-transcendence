@@ -3,10 +3,10 @@ import { getText, isValidKey } from "../../modules/locale/locale.store";
 import { createEl } from "../../utils/dom-helper";
 
 type Opts = {
-    ph: string;
+    ph: string; // Placeholder
     tw?: string;
     type?: string;
-    ac?: string;
+    ac?: string; // Autocomplete
 };
 
 /**

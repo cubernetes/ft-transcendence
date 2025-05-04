@@ -4,7 +4,7 @@ import { createButton } from "./Button";
 
 type Opts = {
     texts: string[];
-    twSelected: string;
+    twSelected?: string;
     cbs?: (() => void)[];
     twBtnSpecific?: string[];
     twBtn?: string;
@@ -27,7 +27,7 @@ type Opts = {
  */
 export const createButtonGroup = ({
     texts,
-    twSelected,
+    twSelected = "",
     cbs,
     twBtn = "",
     twBtnSpecific,
@@ -51,7 +51,7 @@ export const createButtonGroup = ({
 
     texts.forEach((text, i) => {
         const click = () => {
-            setActive(btn); // Default
+            if (twSelected) setActive(btn); // Default
             cbs?.[i]?.();
         };
         const tw = twMerge(twBtn, twBtnSpecific?.[i]);

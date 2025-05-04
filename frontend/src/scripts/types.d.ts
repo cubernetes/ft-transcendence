@@ -36,7 +36,8 @@ declare global {
 
     // Globally defined types so no need to import
     // Probably not good practice esp as things grow...
-    type PageRenderer = () => Promise<HTMLElement[]>;
+    type UIComponent = HTMLElement[];
+    type PageRenderer = () => UIComponent | Promise<UIComponent>;
 }
 
 declare module "@babylonjs/core" {

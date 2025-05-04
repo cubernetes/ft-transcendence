@@ -1,9 +1,8 @@
 import { Result, err, ok } from "neverthrow";
 import { GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
-import { showPageElements } from "../../modules/layout/layout.service";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
-import { createProfileSetting, createStatsDataSection } from "../layout/PlayerStatsModal";
+import { createProfilePanel } from "../layout/ProfilePanel";
 
 const fetchPlayerData = async (): Promise<Result<GetMePayload, Error>> => {
     const tryFetch = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
@@ -39,27 +38,15 @@ const fetchGameStats = async (): Promise<Result<Record<string, unknown>[], Error
     return ok(gameStats);
 };
 
-const createProfileSection = async (): Promise<HTMLElement> => {
-    const profileSection = createEl("section", "bg-white p-6 rounded-lg shadow-md");
-
+export const createProfilePage = async (): Promise<UIComponent> => {
     const playerData = await fetchPlayerData();
+    if (playerData.isErr()) return []; // TODO: add fetch error component
+
     // const gameStats = await fetchGameStats();
 
-    const playerSection = createProfileSetting(playerData);
-    //const statsSection = createStatsDataSection(gameStats);
-
-    profileSection.appendChild(playerSection);
-    //profileSection.appendChild(statsSection);
-
-    return profileSection;
-};
-
-export const createProfilePage = async (): Promise<HTMLElement[]> => {
-    showPageElements();
-    const profileSection = await createProfileSection();
-    const main = createEl("main", "container mx-auto p-4", { children: [profileSection] });
-
-    main.appendChild(profileSection);
+    const profileSection = createProfilePanel(playerData.value);
+    //const profileSection = await createProfileSection();
+    const main = createEl("main", "container mx-auto p-4", { children: profileSection });
 
     return [main];
 };

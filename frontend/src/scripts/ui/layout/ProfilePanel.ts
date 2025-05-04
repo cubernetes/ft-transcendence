@@ -5,19 +5,16 @@ import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createChart } from "../components/Chart";
+import { createContainer } from "../components/Container";
 import { createApiError } from "../components/Error";
-import { createBodyText } from "../components/Text";
+import { createParagraph } from "../components/Paragraph";
+import { createTitle } from "../components/Title";
 
-// TODO: Change name to profile or setting
-export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLElement => {
-    const playerSection = createEl("section", "bg-white p-6 rounded-lg shadow-md mb-6");
-    if (data.isErr()) return createApiError(playerSection, data.error.message);
-
-    const user = data.value;
-
+export const createProfilePanel = (user: PersonalUser): UIComponent => {
     log.debug(user);
+
     // TODO: Click, upload
-    const avatarEl = createEl("img", "w-20 h-20 rounded-full mb-4", {
+    const avatarEl = createEl("img", "w-64 h-64 rounded-full", {
         attributes: {
             src: user.avatarUrl,
             alt: getText("profile_picture"),
@@ -25,20 +22,24 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
         },
     });
 
-    const titleEl = createEl("h2", "text-2xl font-bold mb-4", {
+    const TitleEl = createTitle({ text: "your_profile" });
+    const titleEl = createEl("h2", "text-2xl font-bold mt-4", {
         text: getText("your_profile"),
         attributes: { [CONST.ATTR.I18N_TEXT]: "your_profile" },
     });
-    const usernameEl = createBodyText("username");
+    const usernameEl = createParagraph({ text: "username" });
 
     // totp on
     const totpUpdateCb = () => {};
     const totpEnableCb = () => {};
     const totpDisableCb = () => {};
 
-    // const totpOnSettings = createButtonGroup(["update", "disable"], [totpUpdateCb, totpDisableCb]);
+    const totpOnSettings = createButtonGroup({
+        texts: ["update", "disable"],
+        cbs: [totpUpdateCb, totpDisableCb],
+    });
     const totpOffSetting = createButton({ text: "enable", click: totpEnableCb });
-    //const totpSettingEl = user.totpEnabled ? totpOnSettings : totpOffSetting;
+    const totpSettingEl = user.totpEnabled ? totpOnSettings : totpOffSetting;
     // const fields = [
     //     { label: "username", key: "username" },
     //     { label: "games_played", key: "games" },
@@ -54,11 +55,28 @@ export const createProfileSetting = (data: Result<PersonalUser, Error>): HTMLEle
     //     return fieldElement;
     // });
 
-    const rankEl = createBodyText("rank");
+    const rankEl = createParagraph({ text: "rank" });
 
-    //appendChildren(playerSection, [titleEl, avatarEl, usernameEl, totpSettingEl, rankEl]);
+    // Create left container to include infos and settings
+    const leftCtn = createContainer({
+        tw: "w-3/5 flex-col bg-red-300",
+        children: [titleEl, usernameEl, totpSettingEl, rankEl],
+    });
 
-    return playerSection;
+    // Create right container to include avartar
+    const rightCtn = createContainer({
+        tw: "w-2/5 justify-center bg-blue-300",
+        children: [avatarEl],
+    });
+
+    // Create the root container for profile panel
+    const container = createContainer({
+        tag: "section",
+        tw: "bg-white rounded-lg shadow-md justify-evenly",
+        children: [leftCtn, rightCtn],
+    });
+
+    return [container];
 };
 
 export const createStatsDataSection = (

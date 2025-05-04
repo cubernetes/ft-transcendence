@@ -3,7 +3,13 @@ import { getText, isValidKey } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 
 // Structure of the options to be passed in, esay to extend
-type Opts = { text: string; tw?: string; click?: () => void; type?: "submit" | "reset" };
+type Opts = {
+    text?: string;
+    tw?: string;
+    click?: () => void;
+    type?: "submit" | "reset";
+    innerHTML?: string; // For return button
+};
 
 /**
  * Create a custom button element with native life cycle support. Params passed in as object.
@@ -11,7 +17,13 @@ type Opts = { text: string; tw?: string; click?: () => void; type?: "submit" | "
  * @param tw optional tailwind classes, overriding (merge) with default defined in component
  * @param click optional onclick event
  */
-export const createButton = ({ text, tw = "", click, type }: Opts): HTMLButtonElement => {
+export const createButton = ({
+    text = "",
+    tw = "",
+    click,
+    type,
+    innerHTML,
+}: Opts): HTMLButtonElement => {
     // Default tailwind style to be applied to all button elements, additional styles will be merged
     const BASE_TW = "rounded text-center p-2";
     // bg-gray-100 hover:bg-gray-400
@@ -26,6 +38,7 @@ export const createButton = ({ text, tw = "", click, type }: Opts): HTMLButtonEl
 
     const button = createEl("button", twStyle, { text: resolvedText, attributes, props, events });
 
+    if (innerHTML) button.innerHTML = innerHTML;
     return button;
 };
 
