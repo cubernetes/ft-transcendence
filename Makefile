@@ -47,6 +47,17 @@ dev: check-env
 		--watch          \
 		$(ARGS))
 
+.PHONY: dev-elk
+dev-elk: check-env
+	$(MAKE) clean-frontend-volume ensure-secret-files
+	@$(call dev-env,     \
+		--profile elk    \
+		up               \
+		--remove-orphans \
+		--build          \
+		--watch          \
+		$(ARGS))
+
 # Don't depend on check-env (endless waiting), rather fail
 .PHONY: actual-prod
 actual-prod: clean-frontend-volume ensure-secret-files

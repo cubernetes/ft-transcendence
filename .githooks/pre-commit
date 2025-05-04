@@ -42,7 +42,7 @@ wrong_quotes () {
 	printf '\033[33m%s\033[m\n' \
 		'Wrong quoting style detected (only double quotes or backticks allowed)!' \
 		'Fix it, and if there are false-positives left, run the following command to make an exception for them:' \
-		"	\`script/find_quotes -n roff_squote roff_dquote squote >> script/quote_exceptions\`"
+		"	script/find_quotes -n roff_squote roff_dquote squote >> script/quote_exceptions"
 
 	if [ "${1:-}" = "enforce" ]; then
 		false

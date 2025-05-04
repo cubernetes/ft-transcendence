@@ -96,3 +96,8 @@ backend/src/utils/logger.ts://         paddle2Position: `x: ${state.paddlePositi
 backend/src/utils/logger.ts://         score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,
 
 # Other exceptions
+elk/kibana/setup-dashboards.sh:while ! curl --silent "http://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
+elk/elasticsearch/setup-ilm.sh:until curl --silent "http://elasticsearch:${ELASTICSEARCH_PORT}/_cluster/health" | grep -q '"status":"green"\|"status":"yellow"'; do
+elk/elasticsearch/setup-single-node.sh:curl --insecure "https://localhost:${ELASTICSEARCH_PORT}/_security/user/${LOGSTASH_USER}" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data '{
+elk/elasticsearch/setup-single-node.sh:curl --insecure "https://localhost:${ELASTICSEARCH_PORT}/_security/user/${KIBANA_USER}" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data '{
+elk/elasticsearch/setup-single-node.sh:curl --insecure -X PUT "https://localhost:${ELASTICSEARCH_PORT}/_ilm/policy/logs" --header 'Content-Type: application/json' --user "elastic:${ELASTIC_PASSWORD}" --data "@/usr/share/elasticsearch/config/ilm-policy.json"

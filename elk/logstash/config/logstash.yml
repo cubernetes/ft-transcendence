@@ -1,0 +1,29 @@
+api.http.host: "0.0.0.0"
+xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.hosts: ["https://elasticsearch:9200"]
+xpack.monitoring.elasticsearch.username: "${LOGSTASH_USER}"
+xpack.monitoring.elasticsearch.password: "${LOGSTASH_PASSWORD}"
+xpack.monitoring.elasticsearch.ssl.verification_mode: full
+xpack.monitoring.elasticsearch.sniffing: false
+
+# Pipeline settings
+pipeline.buffer.type: "heap"
+pipeline.workers: 2
+pipeline.batch.size: 125
+pipeline.batch.delay: 50
+pipeline.unsafe_shutdown: false
+
+# Queue settings
+queue.type: persisted
+queue.max_bytes: 1gb
+queue.checkpoint.acks: 1024
+queue.checkpoint.writes: 1024
+queue.checkpoint.interval: 1000
+
+# Logging settings
+log.level: debug
+path.logs: /usr/share/logstash/logs
+
+# Performance settings
+config.reload.automatic: true
+config.reload.interval: 3s
