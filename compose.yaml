@@ -82,9 +82,10 @@ services:
             <<: *env-caddy-backend
             NODE_ENV: "${NODE_ENV:-development}"
             DB_PATH: "${DB_PATH:-}"
+            LOG_LEVEL: "${LOG_LEVEL:-debug}"
+
             LOGSTASH_HOST: "logstash"
             LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
-            LOG_LEVEL: "${LOG_LEVEL:-debug}"
         volumes:
             - "drizzle:/backend/drizzle/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
@@ -115,20 +116,25 @@ services:
         container_name: elasticsearch
         environment:
             ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+
             discovery.type: "single-node"
-            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
-            ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
-            LOGSTASH_USER: "${LOGSTASH_USER}"
-            LOGSTASH_PASSWORD: "${LOGSTASH_PASSWORD}"
-            KIBANA_USER: "${KIBANA_USER}"
-            KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
             bootstrap.memory_lock: "true"
             cluster.name: "ft-transcendence-logs"
             node.name: "single-node"
+
+            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
+            ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
             ELASTIC_KEYSTORE_PASS: "${ELASTIC_KEYSTORE_PASS}" # Password for the keystore
+
+            LOGSTASH_USER: "${LOGSTASH_USER}"
+            LOGSTASH_PASSWORD: "${LOGSTASH_PASSWORD}"
+
+            KIBANA_USER: "${KIBANA_USER}"
+            KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
         volumes:
             - "elasticsearch-data:/usr/share/elasticsearch/data/"
             - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/"
+
             - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
             - "./elk/elasticsearch/config/generate-certs.sh:/usr/share/elasticsearch/config/generate-certs.sh:ro"
             - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh:ro"
@@ -182,13 +188,16 @@ services:
         environment:
             LS_JAVA_OPTS: "-Xmx256m -Xms256m"
             DEBUG: "${DEBUG:-false}"
+
+            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
+            ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
+
             LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
             LOGSTASH_USER: "${LOGSTASH_USER}"
             LOGSTASH_PASSWORD: "${LOGSTASH_PASSWORD}"
-            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
+
             KIBANA_USER: "${KIBANA_USER}"
             KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
-            ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
         networks:
             ft-transcendence-net:
                 ipv4_address: &logstash-ip 10.42.42.4
@@ -219,17 +228,19 @@ services:
         ports:
             - "${KIBANA_PORT:-5601}:${KIBANA_PORT:-5601}"
         environment:
+            SERVER_NAME: "kibana"
+            SERVER_HOST: "0.0.0.0"
+            SERVER_PORT: ${KIBANA_PORT:-5601}
+            XPACK_SECURITY_ENABLED: "true"
+
             ELASTICSEARCH_HOSTS: "https://elasticsearch:${ELASTICSEARCH_PORT:-9200}"
             ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
             ELASTICSEARCH_USERNAME: "${KIBANA_USER}"
             ELASTICSEARCH_PASSWORD: "${KIBANA_PASSWORD}"
             ELASTICSEARCH_SSL_VERIFICATIONMODE: "none"
+
             KIBANA_USER: "${KIBANA_USER}"
             KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
-            SERVER_NAME: "kibana"
-            SERVER_HOST: "0.0.0.0"
-            SERVER_PORT: ${KIBANA_PORT:-5601}
-            XPACK_SECURITY_ENABLED: "true"
         volumes:
             - "kibana-data:/usr/share/kibana/data"
             - "./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
