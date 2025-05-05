@@ -47,7 +47,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
     });
 
     // Create status component
-    const { statusEl, showErr, hideStatus } = createStatus({});
+    const { statusEl, showErr, hideStatus } = createStatus();
 
     // Map elements by mode
     const modeMap = {

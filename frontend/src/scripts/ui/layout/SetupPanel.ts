@@ -96,7 +96,7 @@ const createLocalPanel = (ctn: UIContainer): UIComponent => {
     const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
     const titleEl = createTitle({ text: "setup_play_local" });
     const lineHr = createLineHr();
-    const { statusEl, showErr } = createStatus({});
+    const { statusEl, showErr } = createStatus();
 
     const playerLabel = createParagraph({ text: "enter_names" });
     const localP1 = createInput({ ph: "name_player" });
@@ -127,7 +127,7 @@ const createAiPanel = (ctn: UIContainer): UIComponent => {
     const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
     const titleEl = createTitle({ text: "play_ai" });
     const lineHr = createLineHr();
-    const { statusEl, showErr } = createStatus({});
+    const { statusEl, showErr } = createStatus();
 
     const aiP1 = createInput({ ph: "name_player" }); // TODO: should you be able to name yourself
     const { displayName } = authStore.get();
@@ -160,7 +160,7 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
     const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
     const titleEl = createTitle({ text: "setup_online" });
     const lineHr = createLineHr();
-    const { statusEl, showErr } = createStatus({});
+    const { statusEl, showErr } = createStatus();
 
     const createLobbyBtn = createCtaBtn("create_lobby", async () => {
         const result = await sendApiRequest.post(`${CONST.API.LOBBY}/create`);
@@ -202,7 +202,7 @@ const createTournamentPanel = (ctn: UIContainer): UIComponent => {
     const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
     const titleEl = createTitle({ text: "create_tournament" });
     const lineHr = createLineHr();
-    const { statusEl, showErr } = createStatus({});
+    const { statusEl, showErr } = createStatus();
 
     const modeLabel = createParagraph({ text: "player_number" });
     const modeBtnGrp = createButtonGroup({
@@ -230,7 +230,7 @@ const createParticipantPanel = (ctn: UIContainer, length: number): UIComponent =
     const returnBtn = createReturnBtn(ctn, createTournamentPanel(ctn));
     const title = createTitle({ text: "start_tournament" });
     const line = createLineHr();
-    const { statusEl, showErr } = createStatus({});
+    const { statusEl, showErr } = createStatus();
 
     const playerInputs = Array.from({ length }).map(() => createInput({ ph: "name_player" }));
     const inputsCtn = createContainer({
@@ -262,7 +262,7 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
     const returnBtn = createReturnBtn(ctn, createOnlinePanel(ctn));
     const titleEl = createTitle({ text: "join_lobby" });
     const lineHr = createLineHr();
-    const { statusEl, showErr } = createStatus({});
+    const { statusEl, showErr } = createStatus();
 
     const lobbyIdInput = createEl("input", "p-2 bg-gray-100 text-black rounded text-xl", {
         attributes: { placeholder: "game_id" },

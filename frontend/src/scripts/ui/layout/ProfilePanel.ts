@@ -1,18 +1,14 @@
-import { Result } from "neverthrow";
-import { PersonalUser, PublicUser } from "@darrenkuro/pong-core";
+import { PersonalUser } from "@darrenkuro/pong-core";
 import { getText } from "../../modules/locale/locale.utils";
-import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
-import { createChart } from "../components/Chart";
 import { createContainer } from "../components/Container";
 import { createParagraph } from "../components/Paragraph";
 import { createTitle } from "../components/Title";
 import { createTotpModal } from "./TotpModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
-    log.debug(user);
-
     // TODO: Click, upload
     const avatarEl = createEl("img", "w-64 h-64 rounded-full", {
         attributes: {

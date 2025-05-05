@@ -49,7 +49,7 @@ authStore.subscribe(async (state) => {
         if (!el) return log.error("Fail to find login form: auth store, totpRequired");
 
         const tokenForm = createTotpTokenForm("login");
-        const { statusEl, showErr } = createStatus({});
+        const { statusEl, showErr } = createStatus();
         tokenForm.appendChild(statusEl);
         tokenForm.addEventListener("submit", async (evt) => {
             // Very important, to prevent reload

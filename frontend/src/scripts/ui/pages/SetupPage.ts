@@ -8,13 +8,8 @@ export const createSetupPage = (): UIComponent => {
     const paddles = createPaddles(router);
     const setupCtn = createContainer({
         tw: "w-1/2 bg-gray-300 p-8 items-center relative",
-        id: CONST.ID.SETUP_CTN, // Not using
+        id: CONST.ID.SETUP_CTN, // Not using?
     });
-
-    // TODO: Check cursor url, doesn't seem to be working?
-    // const main = createEl("main", "w-full flex justify-center cursor-[url(assets/pongball.cur)]", {
-    //     children: [paddles, setupCtn],
-    // });
 
     switchModePanel(setupCtn, "base");
     return [paddles, setupCtn];

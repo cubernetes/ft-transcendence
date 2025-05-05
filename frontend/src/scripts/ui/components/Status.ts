@@ -13,7 +13,7 @@ type StatusComponent = {
     hideStatus: () => void;
 };
 
-export const createStatus = ({ tw = "", id }: Opts): StatusComponent => {
+export const createStatus = ({ tw = "", id }: Opts = {}): StatusComponent => {
     const BASE_TW = "hidden p-2 rounded text-sm mt-4";
     const ERR_TW = "bg-red-100 text-red-500";
     const OK_TW = "bg-green-100 text-green-500";

@@ -1,6 +1,7 @@
 import { Result, err, ok } from "neverthrow";
 import { hidePageElements, showPageElements } from "../../modules/layout/layout.service";
-import { createEl } from "../../utils/dom-helper";
+import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createStatus } from "../components/Status";
 import { createTable } from "../components/Table";
 
 /**
@@ -53,18 +54,14 @@ export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
     const players = await fetchLeaderboard(n);
 
     if (players.isErr()) {
-        // TODO: Handle error better, element for failed stuff?
-        return [];
+        const { statusEl, showErr } = createStatus();
+        showErr("FETCH_ERROR");
+        return [statusEl];
     }
 
     const table = createTable(headers, columns, players.value);
 
-    // Error Handling maybe differently? This just don't append it if something went wrong.
-    if (table.isOk()) {
-        section.appendChild(title);
-        section.appendChild(table.value);
-    }
-
+    appendChildren(section, [title, table]);
     main.appendChild(section);
 
     return [main];

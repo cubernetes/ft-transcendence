@@ -3,7 +3,7 @@ import { gameStore } from "../../modules/game/game.store";
 import { sendGameStart } from "../../modules/ws/ws.service";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
-import { createButton } from "../components/Button";
+import { createCopyButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createContainer } from "../components/Container";
 import { createInput } from "../components/Input";
@@ -16,7 +16,7 @@ export const createLobbyPage = (): UIComponent => {
 
     const titleEl = createTitle({ text: "Lobby" });
     const lineHr = createEl("hr", "border-t-2 border-dotted border-white mb-6");
-    const { statusEl, showErr, showOk } = createStatus({});
+    const { statusEl, showErr, showOk } = createStatus();
 
     const infoEl = createParagraph({
         tw: "text-sm text-gray-700 font-medium mt-1",
@@ -32,16 +32,7 @@ export const createLobbyPage = (): UIComponent => {
         { text: lobbyId }
     );
 
-    const copyBtn = createButton({
-        text: "Copy",
-        tw: "ml-4 px-3 py-1 rounded hover:bg-blue-300 transition-all",
-        click: () => {
-            navigator.clipboard.writeText(lobbyId).then(() => {
-                copyBtn.textContent = "Copied!";
-                setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
-            });
-        },
-    });
+    const copyBtn = createCopyButton(lobbyId);
 
     const lobbyIdCtn = createContainer({
         tw: "flex items-center justify-center gap-2 mt-2 p-3 bg-gray-200 rounded-lg shadow-inner",
@@ -151,6 +142,7 @@ export const createLobbyPage = (): UIComponent => {
             if (isPlaying) controller?.startGame("online");
         }
     );
+
     container.addEventListener("destory", unsubscribeGameStore);
     return [container];
 };
