@@ -45,7 +45,16 @@ export class CLIRenderer {
     constructor(gameConf?: PongConfig, fieldConf?: FieldConfig) {
         this.#gameConf = gameConf || defaultGameConfig;
         this.#fieldConf = fieldConf || defaultFieldConfig;
-        this.#applyConfig();
+        this.updateResolution();
+    }
+
+    updateResolution(): void {
+        const res = userOptions.resolution;
+        if (res === "80x20") this.#setTerminalSize(80, 20);
+        else if (res === "160x40") this.#setTerminalSize(160, 40);
+        else if (res === "240x60") this.#setTerminalSize(240, 60);
+        else if (res === "320x80") this.#setTerminalSize(320, 80);
+        this.#setFieldConfig();
     }
 
     render(state: PongState) {
@@ -60,15 +69,6 @@ export class CLIRenderer {
         this.#updateBallTrail(state.ball.pos);
         this.#drawBall();
         this.#printFrame(state);
-    }
-
-    #applyConfig(): void {
-        const res = userOptions.resolution;
-        if (res === "80x20") this.#setTerminalSize(80, 20);
-        else if (res === "160x40") this.#setTerminalSize(160, 40);
-        else if (res === "240x60") this.#setTerminalSize(240, 60);
-        else if (res === "320x80") this.#setTerminalSize(320, 80);
-        this.#setFieldConfig();
     }
 
     #setTerminalSize(w: number, h: number): void {
@@ -125,14 +125,13 @@ export class CLIRenderer {
 
     // --- Mapping helpers ---
     #gameXToCol(x: number): number {
-        return (x + this.#halfBoardW) * this.#invBoardW * this.#termWid;
+        return Math.round((x + this.#halfBoardW) * this.#invBoardW * (this.#termWid - 1));
     }
+
     #gameZToRow(z: number): number {
-        return (z + this.#halfBoardD) * this.#invBoardD * this.#termHei;
+        return Math.round((z + this.#halfBoardD) * this.#invBoardD * (this.#termHei - 1));
     }
-    #colToGameX(col: number): number {
-        return (col / this.#termWid) * this.#gameConf.board.size.width - this.#halfBoardW;
-    }
+
     #rowToGameZ(row: number): number {
         return (row / this.#termHei) * this.#gameConf.board.size.depth - this.#halfBoardD;
     }
