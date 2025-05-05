@@ -217,6 +217,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const startRenderer = (config: PongConfig) => {
         renderer.scene = createScene(renderer, config);
+        if (renderer.soundsEnabled) renderer.audio.bgMusic.play();
 
         renderer.runRenderLoop(() => renderer.scene.render());
 
