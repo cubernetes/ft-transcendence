@@ -7,7 +7,6 @@ import { createButtonGroup } from "../components/ButtonGroup";
 import { createChart } from "../components/Chart";
 import { createContainer } from "../components/Container";
 import { createParagraph } from "../components/Paragraph";
-import { createApiError } from "../components/Status";
 import { createTitle } from "../components/Title";
 import { createTotpModal } from "./TotpModal";
 
@@ -27,6 +26,9 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
 
     const usernameLabel = createParagraph({ text: "username", tw: "mr-8" });
     const usernameEl = createParagraph({ text: user.username });
+
+    const displayNameLabel = createParagraph({ text: "Display name", tw: "mr-8" });
+    const DisplayNameEl = createParagraph({ text: user.displayName });
 
     const passwordLabel = createParagraph({ text: "password", tw: "mr-8" });
     const passwordBtn = createButton({
@@ -53,12 +55,12 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
 
     const labelCtn = createContainer({
         tw: "flex-col w-full bg-blue-300",
-        children: [usernameLabel, passwordLabel, totpLabel, rankLabel],
+        children: [usernameLabel, displayNameLabel, passwordLabel, totpLabel, rankLabel],
     });
 
     const contentCtn = createContainer({
         tw: "flex-col w-full bg-yellow-300",
-        children: [usernameEl, passwordBtn, totpEl, rankEl],
+        children: [usernameEl, DisplayNameEl, passwordBtn, totpEl, rankEl],
     });
 
     const settingCtn = createContainer({

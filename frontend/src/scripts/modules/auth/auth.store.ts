@@ -1,6 +1,7 @@
 import type { GetMeResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
+import { createStatus } from "../../ui/components/Status";
 import { createTotpModal, createTotpTokenForm } from "../../ui/layout/TotpModal";
 import { sendApiRequest } from "../../utils/api";
 import { replaceChildren } from "../../utils/dom-helper";
@@ -47,8 +48,17 @@ authStore.subscribe(async (state) => {
         const el = document.getElementById(CONST.ID.LOGIN_FORM);
         if (!el) return log.error("Fail to find login form: auth store, totpRequired");
 
-        const tokenForm = createTotpTokenForm("login"); // createTotpModal("login");
-        tokenForm.addEventListener("submit", tryLoginWithTotp);
+        const tokenForm = createTotpTokenForm("login");
+        const { statusEl, showErr } = createStatus({});
+        tokenForm.appendChild(statusEl);
+        tokenForm.addEventListener("submit", async (evt) => {
+            // Very important, to prevent reload
+            evt.preventDefault();
+
+            const tryLogin = await tryLoginWithTotp();
+            if (tryLogin.isErr()) return showErr(tryLogin.error);
+        });
+
         replaceChildren(el, [tokenForm]);
         return;
     }

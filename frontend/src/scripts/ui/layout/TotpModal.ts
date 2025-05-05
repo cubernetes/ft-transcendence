@@ -7,6 +7,7 @@ import { createContainer } from "../components/Container";
 import { createInput } from "../components/Input";
 import { createModal } from "../components/Modal";
 import { createParagraph } from "../components/Paragraph";
+import { createStatus } from "../components/Status";
 import { createTitle } from "../components/Title";
 
 type Mode = "login" | "disable" | "setup" | "update";
@@ -31,19 +32,21 @@ export const createTotpTokenForm = (mode: Mode): HTMLElement => {
         ph: "Enter TOTP code",
         id: CONST.ID.TOTP_TOKEN,
         tw: "w-64 p-2 border border-gray-300 rounded",
+        ac: "off",
     });
 
     const newTokenInput = createInput({
         type: "text",
         ph: "Enter TOTP code for new secret",
         id: CONST.ID.TOTP_NEW_TOKEN,
-        tw: "w-64 p-2 border border-gray-300 rounded",
+        tw: "w-64 p-2 border border-gray-300 rounded mx-2",
+        ac: "off",
     });
 
     const submitBtn = createButton({
         text: "submit",
         type: "submit",
-        tw: "w-64 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded",
+        tw: "w-64 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded mx-2",
     });
 
     const children =
@@ -67,6 +70,8 @@ export const createTotpTokenForm = (mode: Mode): HTMLElement => {
 
 export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<void> => {
     const container = createContainer({ tw: "items-center flex-col mx-auto" });
+    const { statusEl, showErr } = createStatus({});
+    container.appendChild(statusEl);
 
     if (mode === "update" || mode === "setup") {
         const [qrCodeData, b32secretData] = await fetchQrCode();
@@ -92,44 +97,33 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
         // Prevent reload and clear from default
         evt.preventDefault();
 
-        // TODO: Backend is ok to handle this,
-        // const { isAuthenticated } = authStore.get();
-        // if (!isAuthenticated) return log.warn("You have to be logged in to set up TOTP");
-
-        // TODO: clean up this mess
-        let result;
         switch (mode) {
             case "disable":
-                result = await sendApiRequest.post(`${CONST.API.TOTP}/disable`, {
+                const tryDisable = await sendApiRequest.post(`${CONST.API.TOTP}/disable`, {
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
                 });
-                if (result.isErr()) return; // TODO: handle specfic error differently?
-                closeModal();
-                break;
-            // case "login":
-            //     result = await tryLoginWithTotp(); // TODO: move that here
-            //     if (result.isErr()) return; //
-            //     closeModal();
-            //     break;
+                if (tryDisable.isErr()) return showErr(tryDisable.error);
+
+                return closeModal();
             case "setup":
-                result = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
+                const trySetup = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
                     token: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
                         .value,
                 });
 
-                if (result.isErr()) return; // TODO: handle specfic error differently?
-                closeModal();
+                if (trySetup.isErr()) return showErr(trySetup.error);
                 navigateTo(CONST.ROUTE.HOME);
-                break;
+
+                return closeModal();
             case "update":
-                result = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
+                const tryUpdate = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
                     newToken: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
                         .value,
                 });
-                if (result.isErr()) return; // TODO: handle specfic error differently?
-                closeModal();
-                break;
+                if (tryUpdate.isErr()) return showErr(tryUpdate.error);
+
+                return closeModal();
         }
     });
 };
