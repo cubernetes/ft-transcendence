@@ -1,6 +1,6 @@
 import { type Route, navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
-import { I18nKey } from "../../modules/locale/locale.en";
+import { I18nKey } from "../../modules/locale/locale.translation";
 import { changeLanguage, getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";

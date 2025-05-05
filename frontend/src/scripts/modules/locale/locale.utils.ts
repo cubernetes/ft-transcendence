@@ -1,8 +1,5 @@
-import { TEXT_DE } from "./locale.de";
-import { I18nKey, TEXT_EN, TEXT_KEYS } from "./locale.en";
-import { TEXT_ES } from "./locale.es";
-import { TEXT_FR } from "./locale.fr";
 import { LanguageOpts, SUPPORTED_LANGS, localeStore } from "./locale.store";
+import { I18nKey, TEXTS, TEXT_KEYS } from "./locale.translation";
 
 export const isLangSupported = (x: unknown): x is LanguageOpts => {
     return typeof x === "string" && SUPPORTED_LANGS.includes(x as LanguageOpts);
@@ -19,16 +16,7 @@ export const setLanguage = (lang: LanguageOpts) => {
 
 export const getText = (key: I18nKey): string => {
     const { lang } = localeStore.get();
-    switch (lang) {
-        case "de":
-            return TEXT_DE[key];
-        case "es":
-            return TEXT_ES[key];
-        case "fr":
-            return TEXT_FR[key];
-        case "en":
-            return TEXT_EN[key];
-    }
+    return TEXTS[lang][key];
 };
 
 export const translate = <E extends HTMLElement>(

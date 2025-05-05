@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
-import { getText, isValidKey } from "../../modules/locale/locale.store";
+import { getText, isValidKey } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 
 type Opts = {

@@ -1,6 +1,7 @@
 import type { ErrorCode } from "@darrenkuro/pong-core";
 import type { FastifyReply } from "fastify";
 
+// Deprecating entirely, deleting file
 export class ApiSuccess<T> {
     constructor(
         public data: T,
