@@ -18,8 +18,8 @@ export const createGameController = (app: FastifyInstance) => {
         app.gameService.registerCbHandlers(session);
         engine.start();
 
-        // Broadcast game-started event to all players
-        app.wsService.broadcast(players, { type: "game-start", payload: { playerNames } });
+        // Notify the guest player
+        app.wsService.send(players[1], { type: "game-start", payload: { playerNames } });
     };
 
     const action = (conn: WebSocket, payload: Payloads["game-action"]): void => {

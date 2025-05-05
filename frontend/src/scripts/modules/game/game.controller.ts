@@ -262,8 +262,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const startOnlineGame = (config: PongConfig) => {
         attachOnlineControl();
         attachOnlineSocketEvents();
-        sendGameStart(); // you'll need to send config over to backend first... but!! how would it stay consistent? create a lobby
-        startRenderer(config); // move this to msg handler
+        startRenderer(config);
     };
 
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
