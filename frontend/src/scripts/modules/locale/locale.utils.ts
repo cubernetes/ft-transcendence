@@ -1,10 +1,6 @@
 import { LanguageOpts, SUPPORTED_LANGS, localeStore } from "./locale.store";
 import { I18nKey, TEXTS, TEXT_KEYS } from "./locale.translation";
 
-export const isLangSupported = (x: unknown): x is LanguageOpts => {
-    return typeof x === "string" && SUPPORTED_LANGS.includes(x as LanguageOpts);
-};
-
 export const isValidKey = (x: unknown): x is I18nKey => {
     return typeof x === "string" && TEXT_KEYS.includes(x as I18nKey);
 };

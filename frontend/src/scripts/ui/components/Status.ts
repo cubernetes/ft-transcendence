@@ -1,5 +1,4 @@
 import { twMerge } from "tailwind-merge";
-import { I18nKey } from "../../modules/locale/locale.translation";
 import { isValidKey } from "../../modules/locale/locale.utils";
 import { getText } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";

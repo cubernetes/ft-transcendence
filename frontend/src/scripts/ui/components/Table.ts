@@ -1,9 +1,7 @@
 import { Result, err, ok } from "neverthrow";
 import { createEl } from "../../utils/dom-helper";
 
-/**
- * Generate a table.
- */
+// TODO: This should not return a Result, if it's error still return HTMLElement with error inside
 export const createTable = (
     headers: string[],
     columns: string[],

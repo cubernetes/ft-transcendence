@@ -3,6 +3,7 @@ import { getText, isValidKey } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 
 type Opts = { text: string; tw?: string; id?: string };
+
 /**
  * Create a text element.
  * @param text text string
