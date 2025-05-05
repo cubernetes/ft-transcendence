@@ -7,6 +7,7 @@ import { PADDLE_SOUND, SCORE_SOUND, WALL_SOUND } from "../utils/config";
 export class WebSocketManager {
     #socket: WebSocket;
     #openPromise: Promise<void>;
+    active = true;
 
     constructor(serverUrl: string) {
         this.#socket = new WebSocket(serverUrl);
@@ -59,26 +60,15 @@ export class WebSocketManager {
         this.#socket.send(response);
     }
 
-    // "wall-collision": null;
-    // "paddle-collision": null;
-    // "state-update": {
-    //     state: PongState;
-    // };
-    // "score-update": {
-    //     scores: [number, number];
-    // };
-    // "ball-reset": null;
-    // "game-start": null;
-    // "game-end": {
-    //     winner: 0 | 1;
-    //     hits: [number, number];
-    // };
-
     /**
      * Handles incoming messages from the server.
      * @param {WebSocket.Data} event - The incoming message -> event.
      */
     onMessage(event: WebSocket.Data) {
+        if (!this.active) {
+            return;
+        }
+
         try {
             const message = JSON.parse(event.toString());
 
