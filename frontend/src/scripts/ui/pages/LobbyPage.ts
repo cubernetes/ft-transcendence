@@ -98,6 +98,9 @@ export const createLobbyPage = (): UIComponent => {
         const { controller } = gameStore.get();
         if (!controller) return;
 
+        // Not a great way to guard against when only one player is in the lobby
+        if (!playerNames[1]) return showErr("Not enough players");
+
         sendGameStart();
         controller.startGame("online");
     };
