@@ -215,7 +215,7 @@ const createTournamentPanel = (ctn: UIContainer): UIComponent => {
         if (!mode) return showErr("select_player_amount");
 
         const playerCount = mode.textContent === "4P" ? 4 : 8;
-        createParticipantPanel(ctn, playerCount);
+        return replaceChildren(ctn, createParticipantPanel(ctn, playerCount));
     });
 
     return [returnBtn, titleEl, lineHr, modeSection, tournamentCreateBtn, statusEl];
