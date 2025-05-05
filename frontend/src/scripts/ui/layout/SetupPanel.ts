@@ -1,3 +1,4 @@
+import { twMerge } from "tailwind-merge";
 import { AIDifficulty, GameMode, defaultGameConfig } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
@@ -14,6 +15,10 @@ import { createParagraph } from "../components/Paragraph";
 import { createStatus } from "../components/Status";
 import { createTitle } from "../components/Title";
 
+// #region: Styles
+const TW_BASE_BTN = "p-4 text-2xl bg-gray-100 hover:bg-gray-400";
+// #endregion
+
 // #region: Components
 const createReturnBtn = (ctn: UIContainer, src: UIComponent) =>
     createButton({
@@ -27,7 +32,7 @@ const createLineHr = () => createEl("hr", "border-t-2 border-dotted border-white
 const createCtaBtn = (text: string, click: () => void) =>
     createButton({
         text,
-        tw: "mt-8 p-4 bg-red-500 text-white text-2xl hover:bg-red-600 w-full",
+        tw: twMerge(TW_BASE_BTN, "w-full mt-8 bg-red-500 text-white hover:bg-red-600"),
         click,
     });
 
@@ -36,7 +41,7 @@ const createDifficultyGrp = () => {
     const btns = createButtonGroup({
         texts: ["easy", "medium", "hard"],
         twSelected: "bg-gray-400",
-        twBtn: "text-xl text-black bg-gray-100 hover:bg-gray-400 p-2",
+        twBtn: twMerge(TW_BASE_BTN, "text-xl p-2"),
         twCtn: "space-x-4 mt-4",
     });
 
@@ -70,7 +75,7 @@ const createBasePanel = (ctn: UIContainer): UIComponent => {
         texts: baseBtnLabels,
         cbs: baseBtnCbs,
         twSelected: "bg-gray-400",
-        twBtn: "text-2xl text-black bg-gray-100 hover:bg-gray-400 p-4",
+        twBtn: TW_BASE_BTN,
         twCtn: "space-x-4 mt-4 justify-center",
     });
 
@@ -202,7 +207,7 @@ const createTournamentPanel = (ctn: UIContainer): UIComponent => {
     const modeLabel = createParagraph({ text: "player_number" });
     const modeBtnGrp = createButtonGroup({
         texts: ["4P", "8P"],
-        twBtn: "bg-gray-100",
+        twBtn: twMerge(TW_BASE_BTN, "text-xl p-2"),
         twSelected: "bg-gray-400",
         twCtn: "space-x-4 mt-4",
     });
@@ -265,7 +270,7 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
 
     const joinBtn = createButton({
         text: "Join",
-        tw: "ml-4 px-3 py-1 rounded bg-white hover:bg-blue-600 transition-all",
+        tw: twMerge(TW_BASE_BTN, "ml-4 px-3 py-1 bg-white hover:bg-blue-600 transition-all"),
         click: async () => {
             const lobbyId = lobbyIdInput.value.trim();
             if (!lobbyId) return showErr("Lobby ID is required.");
