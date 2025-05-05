@@ -2,7 +2,7 @@ import { TotpSetupResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { sendApiRequest } from "../../utils/api";
 import { appendChildren, createEl } from "../../utils/dom-helper";
-import { createButton } from "../components/Button";
+import { createButton, createCopyButton } from "../components/Button";
 import { createContainer } from "../components/Container";
 import { createInput } from "../components/Input";
 import { createModal } from "../components/Modal";
@@ -70,7 +70,7 @@ export const createTotpTokenForm = (mode: Mode): HTMLElement => {
 
 export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<void> => {
     const container = createContainer({ tw: "items-center flex-col mx-auto" });
-    const { statusEl, showErr } = createStatus({});
+    const { statusEl, showErr } = createStatus();
     container.appendChild(statusEl);
 
     if (mode === "update" || mode === "setup") {
@@ -85,7 +85,9 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
             tw: "w-128 p-2 border border-gray-300 rounded text-xs",
         });
 
-        appendChildren(container, [qrCodeImg, b32secretP]);
+        const copyBtn = createCopyButton(b32secretData);
+
+        appendChildren(container, [qrCodeImg, b32secretP, copyBtn]);
     }
 
     const tokenForm = createTotpTokenForm(mode);
@@ -103,7 +105,7 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
                 });
                 if (tryDisable.isErr()) return showErr(tryDisable.error);
-
+                navigateTo(CONST.ROUTE.HOME);
                 return closeModal();
             case "setup":
                 const trySetup = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
@@ -113,16 +115,16 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
 
                 if (trySetup.isErr()) return showErr(trySetup.error);
                 navigateTo(CONST.ROUTE.HOME);
-
                 return closeModal();
             case "update":
-                const tryUpdate = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
+                const tryUpdate = await sendApiRequest.post(`${CONST.API.TOTP}/update`, {
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
                     newToken: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
                         .value,
                 });
                 if (tryUpdate.isErr()) return showErr(tryUpdate.error);
 
+                navigateTo(CONST.ROUTE.HOME);
                 return closeModal();
         }
     });
