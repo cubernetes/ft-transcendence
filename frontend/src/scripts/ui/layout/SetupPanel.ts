@@ -2,22 +2,17 @@ import { AIDifficulty, GameMode, defaultGameConfig } from "@darrenkuro/pong-core
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
-import { I18nKey } from "../../modules/locale/locale.en";
-import { getText } from "../../modules/locale/locale.utils";
 import { createTournamentController } from "../../modules/tournament/tournament.controller";
 import { tournamentStore } from "../../modules/tournament/tournament.store";
+import { sendApiRequest } from "../../utils/api";
 import { createEl, replaceChildren } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createContainer } from "../components/Container";
-import { createError } from "../components/Error";
 import { createInput } from "../components/Input";
 import { createParagraph } from "../components/Paragraph";
-import { createReturnButton } from "../components/ReturnButton";
-import { createSectionContainer } from "../components/SectionContainer";
+import { createStatus } from "../components/Status";
 import { createTitle } from "../components/Title";
-
-type setupMode = "base" | GameMode;
 
 // #region: Components
 const createReturnBtn = (ctn: UIContainer, src: UIComponent) =>
@@ -53,125 +48,184 @@ const createDifficultyGrp = () => {
 };
 
 const createInputEl = (ph: string) =>
-    createInput({ ph, tw: "w-full p-2 bg-gray-100 text-black rounded text-xl" });
+    createInput({ ph, tw: "w-full p-2 bg-gray-100 text-black rounded text-xl" }); // TODO: Check tw
 
 // #endregion
 
-// const createLobby = (ctn: HTMLElement) => {
-//     const returnBtn = createReturnButton(ctn, createSetupModal()); // Warn to leave?
-//     const title = createTitle({ text: "create_lobby" });
-//     const line = createLineHr();
+// #region: Panels
 
-//     const { username } = authStore.get(); // TODO: get correct payload
-//     const creator = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
-//         text: `Your Name: ${username || "Anonymous"}`,
-//     });
+const createBasePanel = (ctn: UIContainer): UIComponent => {
+    const titleEl = createTitle({ text: "setup_choose_mode" });
+    const lineHr = createLineHr();
 
-//     // Game ID
-//     const gameId = crypto.randomUUID().split("-")[0]; // Replace with backend ID when available
-//     const gameIdLabel = createEl("span", "text-gray-600 mr-2");
-//     gameIdLabel.textContent = "Game ID:";
+    const baseBtnLabels = ["setup_local", "setup_ai"];
+    const baseBtnCbs = [() => switchModePanel(ctn, "local"), () => switchModePanel(ctn, "ai")];
 
-//     const gameIdValue = createEl(
-//         "code",
-//         "text-blue-800 font-semibold text-md bg-white px-2 py-1 rounded shadow-sm"
-//     );
-//     gameIdValue.textContent = gameId;
+    if (authStore.get().isAuthenticated) {
+        baseBtnLabels.push("setup_online");
+        baseBtnCbs.push(() => switchModePanel(ctn, "online"));
+    }
 
-//     const copyBtn = createButton({
-//         text: "Copy",
-//         tw: "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
-//         click: () => {
-//             navigator.clipboard.writeText(gameId).then(() => {
-//                 copyBtn.textContent = "Copied!";
-//                 setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
-//             });
-//         },
-//     });
+    const baseBtnGrp = createButtonGroup({
+        texts: baseBtnLabels,
+        cbs: baseBtnCbs,
+        twSelected: "bg-gray-400",
+        twBtn: "text-2xl text-black bg-gray-100 hover:bg-gray-400 p-4",
+        twCtn: "space-x-4 mt-4 justify-center",
+    });
 
-//     const gameIdContainer = createEl(
-//         "div",
-//         "flex items-center justify-center gap-2 mt-6 p-3 bg-gray-200 rounded-lg shadow-inner"
-//     );
-//     gameIdContainer.appendChild(gameIdLabel);
-//     gameIdContainer.appendChild(gameIdValue);
-//     gameIdContainer.appendChild(copyBtn);
+    const basePanel = [titleEl, lineHr, baseBtnGrp];
 
-//     const info = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
-//         text: "Share this ID with your friends to join your game.",
-//     });
+    if (authStore.get().isAuthenticated) {
+        // TODO: Check: Any reason why log in is needed to play tournament?
+        const tournamentBtn = createCtaBtn("setup_tournament_mode", () =>
+            switchModePanel(ctn, "tournament")
+        );
+        basePanel.push(tournamentBtn);
+    }
 
-//     const section = createSectionContainer(
-//         "w-1/2 bg-gray-300 p-8 items-center shaded relative rounded-lg shadow-lg space-y-4",
-//         [returnBtn, title, line, creator, gameIdContainer, info]
-//     );
+    return basePanel;
+};
 
-//     ctn.innerHTML = "";
-//     ctn.appendChild(section);
-// };
+const createLocalPanel = (ctn: UIContainer): UIComponent => {
+    const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
+    const titleEl = createTitle({ text: "setup_play_local" });
+    const lineHr = createLineHr();
+    const { statusEl, showErr } = createStatus({});
 
-// const joinLobby = (ctn: HTMLElement) => {
-//     const returnBtn = createReturnButton(ctn, createSetupModal());
-//     const title = createTitle({ text: "join_lobby" });
+    const playerLabel = createParagraph({ text: "enter_names" });
+    const localP1 = createInput({ ph: "name_player" });
+    const localP2 = createInput({ ph: "name_player" });
+    const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
+        children: [playerLabel, localP1, localP2],
+    });
 
-//     const line = createLineHr();
+    const localPlayBtn = createCtaBtn("setup_play", () => {
+        const player1 = localP1.value.trim();
+        const player2 = localP2.value.trim();
+        if (!player1 || !player2 || player1 === player2) return showErr("player_names_required");
 
-//     const username = authStore.get().username;
-//     const creator = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
-//         text: `Your Name: ${username || "Anonymous"}`,
-//     });
+        const { controller } = gameStore.get();
+        if (!controller) return showErr("initialize_controller");
 
-//     // Game ID
+        gameStore.update({ playerNames: [player1, player2] });
+        controller.startGame("local", {
+            ...defaultGameConfig,
+            playTo: 5,
+        });
+    });
 
-//     const gameIdInput = createEl("input", "p-2 bg-gray-100 text-black rounded text-xl", {
-//         attributes: { placeholder: getText("game_id") },
-//     });
+    return [returnBtn, titleEl, lineHr, playersSection, localPlayBtn, statusEl];
+};
 
-//     const joinBtn = createButton({
-//         text: "Join",
-//         tw: "ml-4 px-3 py-1 rounded hover:bg-blue-600 transition-all",
-//         click: () => {
-//             const gameId = gameIdInput.value.trim();
-//             if (!gameId) {
-//                 return log.error("Game ID is required.");
-//             }
-//             log.debug("Joining game with ID:", gameId);
+const createAiPanel = (ctn: UIContainer): UIComponent => {
+    const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
+    const titleEl = createTitle({ text: "play_ai" });
+    const lineHr = createLineHr();
+    const { statusEl, showErr } = createStatus({});
 
-//             navigateTo("onlinegame");
+    const aiP1 = createInput({ ph: "name_player" }); // TODO: should you be able to name yourself
+    const { displayName } = authStore.get();
+    if (displayName) {
+        aiP1.value = displayName;
+    }
 
-//             //TODO: Implement the join lobby logic
-//             // const { controller } = gameStore.get();
-//             // if (!controller) {
-//             //     return log.error("Controller not initialized.");
-//             // }
+    const difficultyGrp = createDifficultyGrp();
+    const aiPlayBtn = createCtaBtn("setup_play", () => {
+        const selected = difficultyGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
+        if (!selected) return showErr("select_Difficulty");
 
-//             // controller.joinLobby(gameId);
-//             // sendGameStart(gameId);
-//         },
-//     });
+        const difficulty = (selected.textContent?.toUpperCase() as AIDifficulty) || "MEDIUM";
+        const { controller } = gameStore.get();
+        if (!controller) return showErr("initialize_controller");
 
-//     const info = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
-//         text: "Enter the Game ID to join your friend's game.",
-//     });
+        gameStore.update({ playerNames: [aiP1.value, "The AI"] });
+        controller.startGame("ai", {
+            ...defaultGameConfig,
+            playTo: 5,
+            aiDifficulty: difficulty,
+            aiMode: true,
+        });
+    });
 
-//     const section = createSectionContainer(
-//         "w-1/2 bg-gray-300 p-8 items-center shaded relative rounded-lg shadow-lg space-y-4",
-//         [returnBtn, title, line, creator, gameIdInput, joinBtn, info]
-//     );
+    return [returnBtn, titleEl, lineHr, aiP1, difficultyGrp, aiPlayBtn, statusEl];
+};
 
-//     ctn.innerHTML = "";
-//     ctn.appendChild(section);
-// };
+const createOnlinePanel = (ctn: UIContainer): UIComponent => {
+    const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
+    const titleEl = createTitle({ text: "setup_online" });
+    const lineHr = createLineHr();
+    const { statusEl, showErr } = createStatus({});
 
-const createParticipantPanel = (
-    length: number,
-    ctn: UIContainer,
-    src: UIComponent
-): UIComponent => {
-    const returnBtn = createReturnBtn(ctn, src);
+    const createLobbyBtn = createCtaBtn("create_lobby", async () => {
+        const result = await sendApiRequest.post(`${CONST.API.LOBBY}/create`);
+
+        if (result.isErr()) {
+            showErr(result.error);
+            const devHack = createButton({
+                text: "LEAVE (dev hack)",
+                tw: "mt-2 p-2 bg-white hover:bg-gray-400",
+                click: () => {
+                    sendApiRequest.post(`${CONST.API.LOBBY}/leave`);
+                    switchModePanel(ctn, "online");
+                },
+            });
+            return replaceChildren(ctn, [returnBtn, statusEl, devHack]);
+        } // TODO: handle error cleanly
+        if (!result.value.success) return []; // Never, fix type later
+
+        const { lobbyId } = result.value.data;
+        gameStore.update({ lobbyId, lobbyHost: true });
+        navigateTo("lobby");
+    });
+    const joinLobbyBtn = createCtaBtn("join_lobby", () => switchModePanel(ctn, "join"));
+    const onlineBtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
+        children: [createLobbyBtn, joinLobbyBtn],
+    }); // TODO: refactor to use the correct function
+
+    return [returnBtn, titleEl, lineHr, onlineBtnGrp];
+};
+
+const createTournamentPanel = (ctn: UIContainer): UIComponent => {
+    // TODO: see what this logic is checking
+    const { round } = tournamentStore.get();
+    if (round) {
+        log.warn("Tournament already started. Cannot create a new tournament.");
+        navigateTo("tournament");
+    }
+
+    const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
+    const titleEl = createTitle({ text: "create_tournament" });
+    const lineHr = createLineHr();
+    const { statusEl, showErr } = createStatus({});
+
+    const modeLabel = createParagraph({ text: "player_number" });
+    const modeBtnGrp = createButtonGroup({
+        texts: ["4P", "8P"],
+        twBtn: "bg-gray-100",
+        twSelected: "bg-gray-400",
+        twCtn: "space-x-4 mt-4",
+    });
+    const modeSection = createEl("div", "flex flex-col w-full mt-6", {
+        children: [modeLabel, modeBtnGrp],
+    });
+
+    const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
+        const mode = modeBtnGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
+        if (!mode) return showErr("select_player_amount");
+
+        const playerCount = mode.textContent === "4P" ? 4 : 8;
+        createParticipantPanel(ctn, playerCount);
+    });
+
+    return [returnBtn, titleEl, lineHr, modeSection, tournamentCreateBtn, statusEl];
+};
+
+const createParticipantPanel = (ctn: UIContainer, length: number): UIComponent => {
+    const returnBtn = createReturnBtn(ctn, createTournamentPanel(ctn));
     const title = createTitle({ text: "start_tournament" });
     const line = createLineHr();
-    const { errorEl, showErr } = createError({});
+    const { statusEl, showErr } = createStatus({});
 
     const playerInputs = Array.from({ length }).map(() => createInput({ ph: "name_player" }));
     const inputsCtn = createContainer({
@@ -196,145 +250,59 @@ const createParticipantPanel = (
         navigateTo("tournament");
     });
 
-    return [returnBtn, title, line, inputsCtn, tournamentStartBtn, errorEl];
+    return [returnBtn, title, line, inputsCtn, tournamentStartBtn, statusEl];
 };
 
-// TODO: see what this logic is checking
-// const createTournamentPanel = () => {
-//     const { round } = tournamentStore.get();
-//     if (round !== null) {
-//         log.error("Tournament already started. Cannot create a new tournament.");
-//         navigateTo("tournament");
-//     } else {
-//         log.debug("Tournament not started. Proceeding to create a new tournament.");
-//     }
-//     const title = createTitle({ text: "create_tournament" });
-// };
+const createJoinPanel = (ctn: UIContainer): UIComponent => {
+    const returnBtn = createReturnBtn(ctn, createOnlinePanel(ctn));
+    const titleEl = createTitle({ text: "join_lobby" });
+    const lineHr = createLineHr();
+    const { statusEl, showErr } = createStatus({});
 
-export const switchModePanel = (ctn: UIContainer, mode: setupMode) => {
-    const title = createTitle({ text: mode }); // TODO: Translation code
-    const line = createLineHr();
-    const { errorEl, showErr } = createError({});
-
-    // Base panel
-    const baseBtnLabels = ["setup_local", "setup_ai"];
-    const baseBtnCbs = [() => switchModePanel(ctn, "local"), () => switchModePanel(ctn, "ai")];
-
-    if (authStore.get().isAuthenticated) {
-        baseBtnLabels.push("setup_online");
-        baseBtnCbs.push(() => switchModePanel(ctn, "online"));
-    }
-
-    const baseBtnGrp = createButtonGroup({
-        texts: baseBtnLabels,
-        cbs: baseBtnCbs,
-        twSelected: "bg-gray-400",
-        twBtn: "text-2xl text-black bg-gray-100 hover:bg-gray-400 p-4",
-        twCtn: "space-x-4 mt-4 justify-center",
+    const lobbyIdInput = createEl("input", "p-2 bg-gray-100 text-black rounded text-xl", {
+        attributes: { placeholder: "game_id" },
     });
 
-    const basePanel = [title, line, baseBtnGrp];
+    const joinBtn = createButton({
+        text: "Join",
+        tw: "ml-4 px-3 py-1 rounded bg-white hover:bg-blue-600 transition-all",
+        click: async () => {
+            const lobbyId = lobbyIdInput.value.trim();
+            if (!lobbyId) return showErr("Lobby ID is required.");
 
-    if (authStore.get().isAuthenticated) {
-        // TODO: Check: Any reason why log in is needed to play tournament?
-        const tournamentBtn = createCtaBtn("setup_tournament_mode", () =>
-            switchModePanel(ctn, "tournament")
-        );
-        basePanel.push(tournamentBtn);
-    }
+            const { controller } = gameStore.get();
+            if (!controller) return showErr("Controller not initilized");
 
-    // Return button
-    const returnBtn = createReturnBtn(ctn, basePanel);
+            const tryJoin = await sendApiRequest.post(`${CONST.API.LOBBY}/join/${lobbyId}`);
+            if (tryJoin.isErr()) return showErr(tryJoin.error);
 
-    // Local panel
-    const playerLabel = createParagraph({ text: "enter_names" });
-    const localP1 = createInput({ ph: "name_player" });
-    const localP2 = createInput({ ph: "name_player" });
-    const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
-        children: [playerLabel, localP1, localP2],
-    });
-    const localPlayBtn = createCtaBtn("setup_play", () => {
-        const player1 = localP1.value.trim();
-        const player2 = localP2.value.trim();
-        if (!player1 || !player2 || player1 === player2) return showErr("player_names_required");
-
-        const { controller } = gameStore.get();
-        if (!controller) return showErr("initialize_controller");
-
-        gameStore.update({ playerNames: [player1, player2] });
-        controller.startGame("local", {
-            ...defaultGameConfig,
-            playTo: 5,
-        });
-    });
-    const localPanel = [returnBtn, title, line, playersSection, localPlayBtn, errorEl];
-
-    // Ai mode
-    const aiP1 = createInput({ ph: "name_player" }); // TODO: should you name yourself
-    const { displayName } = authStore.get();
-    if (displayName) {
-        aiP1.value = displayName;
-    }
-    const difficultyGrp = createDifficultyGrp();
-    const aiPlayBtn = createCtaBtn("setup_play", () => {
-        const selected = difficultyGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
-        if (!selected) return showErr("select_Difficulty");
-
-        const difficulty = (selected.textContent?.toUpperCase() as AIDifficulty) || "MEDIUM";
-        const { controller } = gameStore.get();
-        if (!controller) return showErr("initialize_controller");
-
-        gameStore.update({ playerNames: [aiP1.value, "The AI"] });
-        controller.startGame("ai", {
-            ...defaultGameConfig,
-            playTo: 5,
-            aiDifficulty: difficulty,
-            aiMode: true,
-        });
+            gameStore.update({ lobbyId, lobbyHost: false });
+            navigateTo("lobby");
+        },
     });
 
-    const aiPanel = [returnBtn, title, line, aiP1, difficultyGrp, aiPlayBtn, errorEl];
-
-    // Online mode
-    const createLobbyBtn = createCtaBtn("create_lobby", () => {}); // TODO: Add action
-    const joinLobbyBtn = createCtaBtn("join_lobby", () => {});
-    const onlineBtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
-        children: [createLobbyBtn, joinLobbyBtn],
-    }); // TODO: refactor to use the correct function
-    const onlinePanel = [returnBtn, title, line, onlineBtnGrp];
-
-    // Tournament mode
-    const modeLabel = createParagraph({ text: "player_number" });
-    const modeBtnGrp = createButtonGroup({
-        texts: ["4P", "8P"],
-        twBtn: "bg-gray-100",
-        twSelected: "bg-gray-400",
-        twCtn: "space-x-4 mt-4",
-    });
-    const modeSection = createEl("div", "flex flex-col w-full mt-6", {
-        children: [modeLabel, modeBtnGrp],
+    const infoEl = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
+        text: "Enter the Game ID to join your friend's game.",
     });
 
-    const tournamentCreateBtn = createCtaBtn("start_tournament", () => {
-        const mode = modeBtnGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
-        if (!mode) return showErr("select_player_amount");
+    return [returnBtn, titleEl, lineHr, lobbyIdInput, joinBtn, infoEl, statusEl];
+};
 
-        const playerCount = mode.textContent === "4P" ? 4 : 8;
-        createParticipantPanel(playerCount, ctn, tournamentPanel);
-    });
+// #region: Components
 
-    const tournamentPanel = [returnBtn, modeSection, tournamentCreateBtn, errorEl];
-
+export const switchModePanel = async (ctn: UIContainer, mode: "base" | "join" | GameMode) => {
     switch (mode) {
         case "base":
-            return replaceChildren(ctn, basePanel);
+            return replaceChildren(ctn, createBasePanel(ctn));
         case "local":
-            return replaceChildren(ctn, localPanel);
+            return replaceChildren(ctn, createLocalPanel(ctn));
         case "ai":
-            return replaceChildren(ctn, aiPanel);
+            return replaceChildren(ctn, createAiPanel(ctn));
         case "online":
-            return replaceChildren(ctn, onlinePanel);
+            return replaceChildren(ctn, createOnlinePanel(ctn));
         case "tournament":
-            return replaceChildren(ctn, tournamentPanel);
+            return replaceChildren(ctn, createTournamentPanel(ctn));
+        case "join":
+            return replaceChildren(ctn, createJoinPanel(ctn));
     }
 };

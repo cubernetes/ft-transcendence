@@ -10,7 +10,11 @@ export const createLobbyController = (app: FastifyInstance) => {
         if (tryCreateLobby.isErr()) return reply.err(tryCreateLobby.error);
 
         const lobbyId = tryCreateLobby.value;
-        reply.ok({ lobbyId });
+
+        const tryUpdate = app.lobbyService.sendUpdate(lobbyId);
+        if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
+
+        return reply.ok({ lobbyId });
     };
 
     type joinCb = ZodHandler<{ params: typeof lobbySchemas.joinParams }>;
@@ -29,11 +33,14 @@ export const createLobbyController = (app: FastifyInstance) => {
     type updateCb = ZodHandler<{ body: typeof lobbySchemas.updateBody }>;
     const update: updateCb = ({ body }, req, reply) => {
         const { userId } = req;
-        const tryUpdateLobby = app.lobbyService.update(userId, body.config);
+        const { playTo } = body;
+        const tryUpdateLobby = app.lobbyService.update(userId, { playTo });
         if (tryUpdateLobby.isErr()) return reply.err(tryUpdateLobby.error);
 
         const lobbyId = tryUpdateLobby.value;
-        app.lobbyService.sendUpdate(lobbyId);
+
+        const tryUpdate = app.lobbyService.sendUpdate(lobbyId);
+        if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
         return reply.ok({});
     };
 
@@ -42,6 +49,10 @@ export const createLobbyController = (app: FastifyInstance) => {
         const tryLeaveLobby = app.lobbyService.leave(userId);
         if (tryLeaveLobby.isErr()) return reply.err(tryLeaveLobby.error);
 
+        const lobbyId = tryLeaveLobby.value;
+
+        const tryUpdate = app.lobbyService.sendUpdate(lobbyId);
+        if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
         return reply.ok({});
     };
 

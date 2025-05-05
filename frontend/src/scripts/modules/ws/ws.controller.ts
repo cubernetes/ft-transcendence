@@ -3,7 +3,8 @@ import type {
     OutgoingMessage as Message,
     OutgoingMessageType as Type,
 } from "@darrenkuro/pong-core";
-import { safeJsonParse } from "@darrenkuro/pong-core";
+import { defaultGameConfig, safeJsonParse } from "@darrenkuro/pong-core";
+import { createParagraph } from "../../ui/components/Paragraph";
 import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
 
@@ -28,6 +29,26 @@ const registerGameControllers = (conn: WebSocket) => {
                 playerNames,
             });
         },
+        handlers
+    );
+
+    registerHandler(
+        "lobby-update",
+        ({ config, playerNames, host }) => {
+            gameStore.update({ playTo: config.playTo, playerNames });
+        },
+        handlers
+    );
+
+    registerHandler(
+        "lobby-remove",
+        () =>
+            gameStore.update({
+                lobbyId: "",
+                lobbyHost: false,
+                playerNames: ["", ""],
+                playTo: defaultGameConfig.playTo,
+            }),
         handlers
     );
 

@@ -4,8 +4,8 @@ import { getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl, replaceChildren } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
-import { createError } from "../components/Error";
 import { createInput } from "../components/Input";
+import { createStatus } from "../components/Status";
 
 type AuthMode = "login" | "register";
 const DEFAULT_MODE = "login";
@@ -46,13 +46,13 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
         tw: "w-full bg-red-500 text-white",
     });
 
-    // Create error component
-    const { errorEl, showErr, hideErr } = createError({});
+    // Create status component
+    const { statusEl, showErr, hideStatus } = createStatus({});
 
     // Map elements by mode
     const modeMap = {
-        login: [usernameEl, passwordEl, errorEl, submitBtn],
-        register: [usernameEl, displayNameEl, passwordEl, confirmEl, errorEl, submitBtn],
+        login: [usernameEl, passwordEl, statusEl, submitBtn],
+        register: [usernameEl, displayNameEl, passwordEl, confirmEl, statusEl, submitBtn],
     } satisfies Record<AuthMode, HTMLElement[]>;
 
     const authForm = createEl("form", "space-y-4", {
@@ -69,7 +69,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
 
         // TODO: think about this, maybe use hidden and not empty and reappend
         replaceChildren(authForm, modeMap[mode]);
-        hideErr();
+        hideStatus();
     };
 
     const modeBtnGrp = createButtonGroup({

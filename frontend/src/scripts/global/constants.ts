@@ -41,7 +41,11 @@ const ID = {
     TOTP_FORM: "totp-form",
     TOTP_TOKEN: "totp-token", // Using
     TOTP_NEW_TOKEN: "totp-new-token", // Using
-    SETUP_CTN: "setup-ctn", // Using
+    SETUP_CTN: "setup-ctn", // NOT using?
+    LOBBY_CTN: "lobby-ctn",
+    LOBBY_P1: "lobby-p1",
+    LOBBY_P2: "lobby-p2",
+    CFG_PLAYTO: "cfg-playto",
     USER_STATUS: "user-status",
     ROOT: "app",
     HEADER: "header-ctn",
@@ -55,6 +59,7 @@ const ATTR = {
     I18N_TEXT: "data-i18n-key", // Key in props indicating textContext needs translation
     I18N_INPUT: "data-i18n-placeholder", // Key in props indicating placeholder needs translation (Input)
     I18N_ALT: "data-i18n-attr-alt", // Key in props indicating alt prop needs translation (Image)
+    PLAYER_STATUS: "data-player-status",
 };
 
 // Move to game controller

@@ -5,17 +5,19 @@ import { sendApiRequest } from "../../utils/api";
 type LobbyId = string;
 
 // TODO: Get type
-export const tryCreateLobby = async (): Promise<Result<LobbyId, ErrorCode>> => {
+export const createLobby = async (): Promise<Result<LobbyId, ErrorCode>> => {
     const result = await sendApiRequest.post(`${CONST.API.LOBBY}/create`);
 
-    if (result.isErr() || !result.value.success) return err("BAD_REQUEST"); // TODO change type later
+    if (result.isErr()) return err(result.error);
+    if (!result.value.success) return err("UNKNOWN_ERROR"); //  Should never happen, TODO: fix type in post call
 
     const { lobbyId } = result.value.data;
     return ok(lobbyId);
 };
 
-export const tryJoinLobby = async (payload: unknown): Promise<Result<unknown, ErrorCode>> => {
+export const joinLobby = async (payload: unknown): Promise<Result<unknown, ErrorCode>> => {
     return ok();
 };
 
+// export const handleLobbyUpdate = (payload)
 // TODO: move sendGameAction and sendGameStart here?

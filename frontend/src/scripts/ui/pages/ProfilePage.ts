@@ -1,11 +1,11 @@
 import { Result, err, ok } from "neverthrow";
-import { GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
+import { ErrorCode, GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
 import { createGameStatsChart } from "../layout/GameStatsChart";
 import { createProfilePanel } from "../layout/ProfilePanel";
 
-const fetchPlayerData = async (): Promise<Result<GetMePayload, Error>> => {
+const fetchPlayerData = async (): Promise<Result<GetMePayload, ErrorCode>> => {
     const tryFetch = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
 
     if (tryFetch.isErr()) {
@@ -16,7 +16,7 @@ const fetchPlayerData = async (): Promise<Result<GetMePayload, Error>> => {
     // However it is difficult to come up with good type guard or ways to please ts
     // TODO: FIX
     if (!tryFetch.value.success) {
-        return err(new Error("never"));
+        return err("UNKNOWN_ERROR");
     }
 
     return ok(tryFetch.value.data);

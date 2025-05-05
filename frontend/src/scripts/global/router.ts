@@ -4,6 +4,7 @@ import { hidePageElements, showPageElements, showRouter } from "../modules/layou
 import { layoutStore } from "../modules/layout/layout.store";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
+import { createLobbyPage } from "../ui/pages/LobbyPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
@@ -16,6 +17,7 @@ const ROUTES = {
     quickplay: createSetupPage, // Maybe just use setup together, the UI handles whehter it's logged in or not by itself
     leaderboard: createLeaderboardPage,
     tournament: createTournamentPage,
+    lobby: createLobbyPage,
 } satisfies Record<string, PageRenderer>;
 
 export type Route = keyof typeof ROUTES;

@@ -1,6 +1,6 @@
 import { EventMap, PongConfig, UserInput } from "../pong/pong.types";
 
-export type IncomingMessageType = "game-start" | "game-action";
+export type IncomingMessageType = "game-start" | "game-action" | "lobby-update";
 
 export type OutgoingMessageType = keyof EventMap | "game-start" | "lobby-update" | "lobby-remove";
 
@@ -8,6 +8,7 @@ export type MessageType = IncomingMessageType | OutgoingMessageType;
 
 export type IncomingMessagePayloads = {
     "game-start": null;
+    "lobby-update": { playTo: number };
     "game-action": { action: UserInput };
 };
 

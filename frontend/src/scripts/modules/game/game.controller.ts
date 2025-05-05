@@ -255,6 +255,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         attachLocalEngineEvents(mode);
         engine.start(); // get config
         startRenderer(config); // send config to renderer instead of using default
+
+        gameStore.update({ isPlaying: true });
     };
 
     const startOnlineGame = (config: PongConfig) => {
@@ -280,7 +282,6 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 break;
             default:
         }
-        gameStore.update({ isPlaying: true });
     };
 
     return {

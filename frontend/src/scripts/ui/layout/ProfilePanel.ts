@@ -6,8 +6,8 @@ import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createChart } from "../components/Chart";
 import { createContainer } from "../components/Container";
-import { createApiError } from "../components/Error";
 import { createParagraph } from "../components/Paragraph";
+import { createApiError } from "../components/Status";
 import { createTitle } from "../components/Title";
 import { createTotpModal } from "./TotpModal";
 
@@ -86,67 +86,4 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     });
 
     return [container];
-};
-
-export const createStatsDataSection = (
-    dataResult: Result<Record<string, unknown>[], Error>
-): HTMLElement => {
-    const statSection = createEl("section", "text-2xl font-bold mb-4", {
-        text: getText("your_stats"),
-    });
-
-    if (dataResult.isErr()) {
-        const errorElement = createEl("p", "text-1xl text-red-500", {
-            text: getText("failed_generate_chart"),
-        });
-        statSection.appendChild(errorElement);
-        return statSection;
-    }
-
-    const dataValue = dataResult.value;
-
-    if (dataValue.length < 2) {
-        const notEnoughDataElement = createEl("p", "text-1xl text-red-500", {
-            text: getText("not_enough_data"),
-        });
-        statSection.appendChild(notEnoughDataElement);
-        return statSection;
-    }
-
-    const chartResult = createChart(
-        "line",
-        dataValue,
-        {
-            responsive: true,
-            events: ["mousemove", "mouseout", "click", "touchstart", "touchmove"],
-            plugins: {
-                title: {
-                    display: true,
-                    text: "Pong Game Performance",
-                },
-                tooltip: {
-                    enabled: true,
-                    mode: "nearest",
-                    intersect: false,
-                },
-            },
-            interaction: {
-                mode: "nearest",
-                intersect: false,
-            },
-        },
-        "gameId",
-        ["hits", "misses"]
-    );
-
-    if (chartResult.isOk()) {
-        statSection.appendChild(chartResult.value);
-    } else {
-        const failedChartElement = createEl("p", "text-1xl text-red-500", {
-            text: getText("failed_generate_chart"),
-        });
-        statSection.appendChild(failedChartElement);
-    }
-
-    return statSection;
 };

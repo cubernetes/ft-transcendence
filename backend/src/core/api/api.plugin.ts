@@ -17,6 +17,7 @@ const STATUS = {
     GAME_STATUS_ERROR: 400,
     CORRUPTED_DATA: 500,
     SERVER_ERROR: 500,
+    UNKNOWN_ERROR: 500,
 } as const satisfies Record<ErrorCode, number>;
 
 const apiPlugin = async (app: FastifyInstance) => {

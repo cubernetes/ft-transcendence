@@ -15,6 +15,6 @@ export type JoinParams = z.infer<typeof joinParams>;
 const joinParams = z.object({ lobbyId: z.string().length(6) });
 
 export type UpdateBody = z.infer<typeof updateBody>;
-const updateBody = z.object({ config: z.object({ playTo: z.number() }) });
+const updateBody = z.object({ playTo: z.number().min(1).max(21) });
 
 export const lobbySchemas = { createPayload, joinParams, updateBody };

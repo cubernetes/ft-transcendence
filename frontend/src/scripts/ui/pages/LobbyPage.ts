@@ -1,0 +1,153 @@
+import { navigateTo } from "../../global/router";
+import { gameStore } from "../../modules/game/game.store";
+import { sendGameStart } from "../../modules/ws/ws.service";
+import { sendApiRequest } from "../../utils/api";
+import { createEl } from "../../utils/dom-helper";
+import { createButton } from "../components/Button";
+import { createButtonGroup } from "../components/ButtonGroup";
+import { createContainer } from "../components/Container";
+import { createInput } from "../components/Input";
+import { createParagraph } from "../components/Paragraph";
+import { createStatus } from "../components/Status";
+import { createTitle } from "../components/Title";
+
+export const createLobbyPage = (): UIComponent => {
+    const { lobbyId, lobbyHost, playerNames, playTo } = gameStore.get();
+
+    const titleEl = createTitle({ text: "Lobby" });
+    const lineHr = createEl("hr", "border-t-2 border-dotted border-white mb-6");
+    const { statusEl, showErr, showOk } = createStatus({});
+
+    const infoEl = createParagraph({
+        tw: "text-sm text-gray-700 font-medium mt-1",
+        text: "Share this ID with your friends to join your game.",
+    });
+
+    // Lobby Id
+    const lobbyIdLabelEl = createParagraph({ text: "ID: ", tw: "text-gray-600 mr-2" });
+
+    const lobbyIdValueEl = createEl(
+        "code",
+        "text-blue-800 font-semibold text-md bg-white px-2 py-1 rounded shadow-sm",
+        { text: lobbyId }
+    );
+
+    const copyBtn = createButton({
+        text: "Copy",
+        tw: "ml-4 px-3 py-1 rounded hover:bg-blue-300 transition-all",
+        click: () => {
+            navigator.clipboard.writeText(lobbyId).then(() => {
+                copyBtn.textContent = "Copied!";
+                setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+            });
+        },
+    });
+
+    const lobbyIdCtn = createContainer({
+        tw: "flex items-center justify-center gap-2 mt-2 p-3 bg-gray-200 rounded-lg shadow-inner",
+        children: [lobbyIdLabelEl, lobbyIdValueEl, copyBtn],
+    });
+
+    // Players
+    // TODO: add avatar maybe
+    const player1P = createParagraph({
+        text: playerNames[0],
+        id: CONST.ID.LOBBY_P1,
+        tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-white p-2 w-full mr-2",
+    });
+
+    const player2P = createParagraph({
+        text: playerNames[1] ?? "Waiting",
+        id: CONST.ID.LOBBY_P2,
+        tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-gray-200 p-2 w-full ml-2",
+    });
+
+    const playerCtn = createContainer({
+        id: CONST.ID.LOBBY_CTN,
+        tw: "flex justify-evenly items-center",
+        children: [player1P, player2P],
+    });
+
+    // Config
+    const playToLabelEl = createParagraph({ text: "Play to" });
+    const playToInput = createInput({
+        type: "number",
+        ph: "Enter a number",
+        tw: "h-8 w-1/2 p-2",
+        id: CONST.ID.CFG_PLAYTO,
+    });
+    playToInput.min = "1";
+    playToInput.max = "21";
+    playToInput.value = String(playTo);
+
+    const configCtn = createContainer({
+        children: [playToLabelEl, playToInput],
+        tw: "flex justify-evenly items-center mt-4 mx-10",
+    });
+
+    const updateBtnCb = async () => {
+        const tryUpdate = await sendApiRequest.post(`${CONST.API.LOBBY}/update`, {
+            playTo: Number(playToInput.value),
+        });
+        if (tryUpdate.isErr()) return showErr(tryUpdate.error);
+
+        showOk("Successfully updated");
+    };
+
+    const startBtnCb = () => {
+        const { controller } = gameStore.get();
+        if (!controller) return;
+
+        sendGameStart();
+        controller.startGame("online");
+    };
+
+    const leaveBtnCb = () => {
+        sendApiRequest.post(`${CONST.API.LOBBY}/leave`);
+        navigateTo("setup");
+    };
+
+    const ctaBtnGrp = createButtonGroup({
+        texts: ["update", "start", "leave"],
+        cbs: [updateBtnCb, startBtnCb, leaveBtnCb],
+        twBtn: "text-xl p-2 shadow-md",
+        twCtn: "flex justify-evenly items-center mt-4",
+        twBtnSpecific: ["bg-green-500", "bg-blue-300", "bg-red-300"],
+    });
+
+    // Disable options for guest
+    if (!lobbyHost) {
+        playToInput.disabled = true;
+        playToInput.classList.add("cursor-not-allowed");
+
+        const updateBtn = ctaBtnGrp.children[0] as HTMLButtonElement;
+        const startBtn = ctaBtnGrp.children[1] as HTMLButtonElement;
+        updateBtn.disabled = true;
+        updateBtn.classList.add("cursor-not-allowed");
+
+        startBtn.disabled = true;
+        startBtn.classList.add("cursor-not-allowed");
+    }
+
+    const container = createContainer({
+        tag: "main",
+        tw: "w-1/2 bg-gray-300 p-8 items-center relative",
+        children: [titleEl, lineHr, infoEl, lobbyIdCtn, playerCtn, configCtn, ctaBtnGrp, statusEl],
+    });
+
+    const unsubscribeGameStore = gameStore.subscribe(
+        ({ lobbyId, playerNames, playTo, isPlaying, controller }) => {
+            player1P.textContent = playerNames[0];
+            player2P.textContent = playerNames[1] ?? "Waiting";
+
+            playToInput.value = String(playTo);
+
+            // When host leave, lobby is removed
+            if (!lobbyId) navigateTo(CONST.ROUTE.HOME);
+
+            if (isPlaying) controller?.startGame("online");
+        }
+    );
+    container.addEventListener("destory", unsubscribeGameStore);
+    return [container];
+};

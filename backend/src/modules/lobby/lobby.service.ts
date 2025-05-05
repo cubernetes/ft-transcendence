@@ -77,16 +77,18 @@ export const createLobbyService = (app: FastifyInstance) => {
 
         const { players, playerNames } = session;
         const index = players.findIndex((p) => p === userId);
-        if (index !== 0 && index !== 1) return err("CORRUPTED_DATA");
 
-        players.splice(index, 1);
-        playerNames.splice(index, 1);
-        if (players.length === 0) {
+        // If host leaves, kick the guest, for now
+        if (index === 0) {
+            app.wsService.send(players[1], { type: "lobby-remove", payload: null });
+            lobbyMap.delete(userId);
+            lobbyMap.delete(players[1]);
             sessionMap.delete(lobbyId);
+        } else {
+            lobbyMap.delete(userId);
+            players.splice(1, 1);
+            playerNames.splice(1, 1);
         }
-
-        lobbyMap.delete(userId);
-
         return ok(lobbyId);
     };
 
