@@ -17,6 +17,20 @@ export const TEXT_MAP = {
     PROFILE: { en: "Profile", de: "Profil", fr: "Profil", es: "Perfil" },
     QUICKPLAY: { en: "Quickplay", de: "Schnelles Spiel", fr: "Jeu rapide", es: "Juego rápido" },
 
+    // System
+    COPY: {
+        en: "Copy",
+        de: "Copy", // TRANSLATION_NEEDED
+        fr: "Copy", // TRANSLATION_NEEDED
+        es: "Copy", // TRANSLATION_NEEDED
+    },
+    COPIED: {
+        en: "Copied",
+        de: "Copied", // TRANSLATION_NEEDED
+        fr: "Copied", // TRANSLATION_NEEDED
+        es: "Copied", // TRANSLATION_NEEDED
+    },
+
     // User
     USERNAME: {
         en: "Username",
@@ -42,29 +56,47 @@ export const TEXT_MAP = {
     REGISTER: { en: "Register", de: "Registrieren", fr: "S'inscrire", es: "Registrarse" },
     USER_AVATAR: {
         en: "User avatar",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "User avatar", // TRANSLATION_NEEDED
+        fr: "User avatar", // TRANSLATION_NEEDED
+        es: "User avatar", // TRANSLATION_NEEDED
     },
     RANK: { en: "Rank", de: "Rang", fr: "Rang", es: "Rango" },
     WINS: { en: "Wins", de: "Siege", fr: "Victoires", es: "Victorias" },
     UPDATE: {
         en: "Update",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Update", // TRANSLATION_NEEDED
+        fr: "Update", // TRANSLATION_NEEDED
+        es: "Update", // TRANSLATION_NEEDED
     },
     ENABLE: {
         en: "Enable",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Enable", // TRANSLATION_NEEDED
+        fr: "Enable", // TRANSLATION_NEEDED
+        es: "Enable", // TRANSLATION_NEEDED
     },
     DISABLE: {
         en: "Disable",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Disable", //TRANSLATION_NEEDED
+        fr: "Disable", //TRANSLATION_NEEDED
+        es: "Disable", //TRANSLATION_NEEDED
+    },
+    SUBMIT: {
+        en: "Submit",
+        de: "Submit", //TRANSLATION_NEEDED
+        fr: "Submit", //TRANSLATION_NEEDED
+        es: "Submit", //TRANSLATION_NEEDED
+    },
+    ENTER_TOTP_CODE: {
+        en: "Enter TOTP code",
+        de: "Enter TOTP code", //TRANSLATION_NEEDED
+        fr: "Enter TOTP code", //TRANSLATION_NEEDED
+        es: "Enter TOTP code", //TRANSLATION_NEEDED
+    },
+    ENTER_TOTP_CODE_NEW: {
+        en: "Enter TOTP code for new secret",
+        de: "Enter TOTP code for new secret", //TRANSLATION_NEEDED
+        fr: "Enter TOTP code for new secret", //TRANSLATION_NEEDED
+        es: "Enter TOTP code for new secret", //TRANSLATION_NEEDED
     },
 
     // Game setup
@@ -94,18 +126,23 @@ export const TEXT_MAP = {
     HARD: { en: "Hard", de: "Schwer", fr: "Difficile", es: "Difícil" },
 
     ONLINE: { en: "Online", de: " Online", fr: "En ligne", es: "En línea" },
-    LOBBY: { en: "Lobby", de: "Lobby", fr: "TRANSLATION_NEEDED", es: "TRANSLATION_NEEDED" },
+    LOBBY: {
+        en: "Lobby",
+        de: "Lobby", // TRANSLATION_NEEDED?
+        fr: "Lobby", // TRANSLATION_NEEDED
+        es: "Lobby", // TRANSLATION_NEEDED
+    },
     ENTER_LOBBY_ID: {
         en: "Enter lobby ID",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Enter lobby ID", // TRANSLATION_NEEDED
+        fr: "Enter lobby ID", // TRANSLATION_NEEDED
+        es: "Enter lobby ID", // TRANSLATION_NEEDED
     },
     JOIN: {
         en: "Join",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Join", // TRANSLATION_NEEDED
+        fr: "Join", // TRANSLATION_NEEDED
+        es: "Join", // TRANSLATION_NEEDED
     },
     CREATE_LOBBY: {
         en: "Create Lobby",
@@ -122,9 +159,9 @@ export const TEXT_MAP = {
 
     TOURNAMENT: {
         en: "Tournament",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Tournament", // TRANSLATION_NEEDED
+        fr: "Tournament", // TRANSLATION_NEEDED
+        es: "Tournament", // TRANSLATION_NEEDED
     },
     CREATE_TOURNAMENT: {
         en: "Create Tournament",
@@ -147,28 +184,28 @@ export const TEXT_MAP = {
 
     // Error CODE map to msg, probaly need refactor, do not need to be one to one with english
     FETCH_ERROR: {
-        en: "Fail to fetch",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        en: "Fail to fetch {URL}",
+        de: "Fail to fetch {URL}", // TRANSLATION_NEEDED
+        fr: "Fail to fetch {URL}", // TRANSLATION_NEEDED
+        es: "Fail to fetch {URL}", // TRANSLATION_NEEDED
     },
     INIT_ERROR: {
-        en: "Initialization error.",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        en: "Initialization error",
+        de: "Initialization error", // TRANSLATION_NEEDED
+        fr: "Initialization error", // TRANSLATION_NEEDED
+        es: "Initialization error", // TRANSLATION_NEEDED
     },
     LOGIN_ERROR: {
         en: "Login fialed. Please check your credentials.",
         de: "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen.",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        fr: "Échec de la connexion. Veuillez vérifier vos identifiants.",
+        es: "Error al iniciar sesión. Verifique sus credenciales.",
     },
     USERNAME_TAKEN: {
         en: "Username taken.",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Username taken.", // TRANSLATION_NEEDED
+        fr: "Username taken.", // TRANSLATION_NEEDED
+        es: "Username taken.", // TRANSLATION_NEEDED
     },
     PASSWORD_NOT_MATCH: {
         en: "Passwords do not match.",
@@ -184,9 +221,9 @@ export const TEXT_MAP = {
     },
     PLAYER_NAMES_DUPLICATE: {
         en: "Player names must to be unique.",
-        de: "TRANSLATION_NEEDED",
-        fr: "TRANSLATION_NEEDED",
-        es: "TRANSLATION_NEEDED",
+        de: "Player names must to be unique.", // TRANSLATION_NEEDED
+        fr: "Player names must to be unique.", // TRANSLATION_NEEDED
+        es: "Player names must to be unique.", // TRANSLATION_NEEDED
     },
     DIFFICULTY_REQUIRED: {
         en: "Please select a difficulty.",
@@ -207,6 +244,7 @@ export const TEXT_MAP = {
 export type I18nKey = keyof typeof TEXT_MAP;
 export const TEXT_KEYS = Object.keys(TEXT_MAP) as I18nKey[];
 
+// Map keys to its name and add to constants
 export const TEXT = TEXT_KEYS.reduce(
     (acc, key) => {
         acc[key] = key;

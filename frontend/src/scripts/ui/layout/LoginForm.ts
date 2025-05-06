@@ -7,12 +7,11 @@ import { createButtonGroup } from "../components/ButtonGroup";
 import { createInput } from "../components/Input";
 import { createStatus } from "../components/Status";
 
-type AuthMode = "LOGIN" | "REGISTER";
-const DEFAULT_MODE = "LOGIN";
+type AuthMode = "login" | "register";
 
 // TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
 export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTMLElement[]> => {
-    let mode: AuthMode = DEFAULT_MODE;
+    let mode: AuthMode = "login"; // Default to login
 
     const wrapper = createEl("div", "relative max-w-md mx-auto p-6 rounded-lg top-1/3", {
         attributes: { id: CONST.ID.LOGIN_FORM },
@@ -30,19 +29,20 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
     );
 
     // Create input elements
-    const usernameEl = createInput({ ph: "USERNAME", ac: "username" });
-    const displayNameEl = createInput({ ph: "DISPLAY_NAME", ac: "given-name" });
-    const passwordEl = createInput({ ph: "PASSWORD", type: "password", ac: "current-password" });
+    const { USERNAME, DISPLAY_NAME, PASSWORD, CONFIRM_PASSWORD, LOGIN, REGISTER } = CONST.TEXT;
+    const usernameEl = createInput({ ph: USERNAME, ac: "username" });
+    const displayNameEl = createInput({ ph: DISPLAY_NAME, ac: "given-name" });
+    const passwordEl = createInput({ ph: PASSWORD, type: "password", ac: "current-password" });
     const confirmEl = createInput({
         type: "password",
-        ph: "CONFIRM_PASSWORD",
+        ph: CONFIRM_PASSWORD,
         ac: "current-password", // or update
     });
 
     // Create submit button
     const submitBtn = createButton({
         type: "submit",
-        text: mode,
+        text: mode === "login" ? LOGIN : REGISTER,
         tw: "w-full bg-red-500 text-white",
     });
 
@@ -51,8 +51,8 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
 
     // Map elements by mode
     const modeMap = {
-        LOGIN: [usernameEl, passwordEl, statusEl, submitBtn],
-        REGISTER: [usernameEl, displayNameEl, passwordEl, confirmEl, statusEl, submitBtn],
+        login: [usernameEl, passwordEl, statusEl, submitBtn],
+        register: [usernameEl, displayNameEl, passwordEl, confirmEl, statusEl, submitBtn],
     } satisfies Record<AuthMode, HTMLElement[]>;
 
     const authForm = createEl("form", "space-y-4", {
@@ -60,12 +60,13 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
         children: modeMap[mode],
     });
 
-    const changeMode = (newMode: "LOGIN" | "REGISTER") => {
+    const changeMode = (newMode: "login" | "register") => {
         mode = newMode;
 
+        const i18nKey = mode === "login" ? LOGIN : REGISTER;
         // Update submit button text and i18n attr
-        submitBtn.textContent = getText(mode);
-        submitBtn.setAttribute(CONST.ATTR.I18N_TEXT, mode);
+        submitBtn.textContent = getText(i18nKey);
+        submitBtn.setAttribute(CONST.ATTR.I18N_TEXT, i18nKey);
 
         // TODO: think about this, maybe use hidden and not empty and reappend
         replaceChildren(authForm, modeMap[mode]);
@@ -73,8 +74,8 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
     };
 
     const modeBtnGrp = createButtonGroup({
-        texts: ["LOGIN", "REGISTER"],
-        cbs: [() => changeMode("LOGIN"), () => changeMode("REGISTER")],
+        texts: [LOGIN, REGISTER],
+        cbs: [() => changeMode("login"), () => changeMode("register")],
         twBtnSpecific: ["rounded-l-md", "rounded-r-md"],
         twSelected: "bg-red-500 text-white",
         twBtn: "px-4 py-2 bg-gray-300 rounded-none",
@@ -87,7 +88,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
         // Prevent reload and clear from default
         evt.preventDefault();
 
-        if (mode === "LOGIN") {
+        if (mode === "login") {
             const data = { username: usernameEl.value, password: passwordEl.value };
             const result = await tryLogin(data);
 
@@ -95,7 +96,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
             if (result.isErr()) return showErr("login_failed");
         } else {
             // TODO: maybe only let backend check this
-            if (passwordEl.value !== confirmEl.value) return showErr("passw_not_match");
+            if (passwordEl.value !== confirmEl.value) return showErr(CONST.TEXT.PASSWORD_NOT_MATCH);
 
             const data = {
                 username: usernameEl.value,
@@ -111,7 +112,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
     });
 
     const quickplayBtn = createButton({
-        text: "QUICKPLAY",
+        text: CONST.TEXT.QUICKPLAY,
         tw: "w-full px-4 py-2 bg-blue-500 text-white rounded-l-md mt-4",
         click: () => navigateTo("quickplay"),
     });

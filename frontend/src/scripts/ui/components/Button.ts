@@ -43,17 +43,23 @@ export const createButton = ({
 };
 
 export const createCopyButton = (text: string, tw = ""): HTMLButtonElement => {
-    // TODO: add translation
+    const { COPY, COPIED } = CONST.TEXT;
+
     const copyBtn = createButton({
-        text: "Copy",
+        text: COPY,
         tw: twMerge("ml-4 px-3 py-1 rounded hover:bg-blue-300 transition-all", tw),
         click: () => {
             navigator.clipboard.writeText(text).then(() => {
-                copyBtn.textContent = "Copied!";
-                setTimeout(() => (copyBtn.textContent = "Copy"), 3000);
+                copyBtn.textContent = getText(COPIED);
+                copyBtn.setAttribute(CONST.ATTR.I18N_TEXT, COPIED);
+                setTimeout(() => {
+                    copyBtn.textContent = getText(COPY);
+                    copyBtn.setAttribute(CONST.ATTR.I18N_TEXT, COPY);
+                }, 2000);
             });
         },
     });
+
     return copyBtn;
 };
 

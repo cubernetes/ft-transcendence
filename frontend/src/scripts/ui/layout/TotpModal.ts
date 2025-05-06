@@ -29,7 +29,7 @@ export const createTotpTokenForm = (mode: Mode): HTMLElement => {
 
     const tokenInput = createInput({
         type: "text",
-        ph: "Enter TOTP code",
+        ph: CONST.TEXT.ENTER_TOTP_CODE,
         id: CONST.ID.TOTP_TOKEN,
         tw: "w-64 p-2 border border-gray-300 rounded",
         ac: "off",
@@ -37,14 +37,14 @@ export const createTotpTokenForm = (mode: Mode): HTMLElement => {
 
     const newTokenInput = createInput({
         type: "text",
-        ph: "Enter TOTP code for new secret",
+        ph: CONST.TEXT.ENTER_TOTP_CODE_NEW,
         id: CONST.ID.TOTP_NEW_TOKEN,
         tw: "w-64 p-2 border border-gray-300 rounded mx-2",
         ac: "off",
     });
 
     const submitBtn = createButton({
-        text: "submit",
+        text: CONST.TEXT.SUBMIT,
         type: "submit",
         tw: "w-64 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded mx-2",
     });
