@@ -12,9 +12,9 @@ import { replaceChildren } from "../utils/dom-helper";
 
 const ROUTES = {
     landing: createLandingPage,
-    setup: createSetupPage,
+    play: createSetupPage,
+    quickplay: createSetupPage,
     profile: createProfilePage,
-    quickplay: createSetupPage, // Maybe just use setup together, the UI handles whehter it's logged in or not by itself
     leaderboard: createLeaderboardPage,
     tournament: createTournamentPage,
     lobby: createLobbyPage,
@@ -22,10 +22,11 @@ const ROUTES = {
 
 export type Route = keyof typeof ROUTES;
 
-// A type-safe list of protected routes, i.e. only available after logging in
-// Temporarily protect all routes so always start in landing page
-// TODO: Commented out localgame and aigame for quickplay.
-const PROTECTED_ROUTES: Route[] = ["setup", "profile", "leaderboard"];
+// Protected routes, i.e. only available after logging in
+const PROTECTED_ROUTES: Route[] = ["play", "profile", "leaderboard", "tournament", "lobby"];
+
+// Routes that will have router container take up the whole screen, i.e. no header or footer
+const FULL_WINDOW_ROUTES: Route[] = ["landing", "quickplay"];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
@@ -50,23 +51,16 @@ const renderRoute = async (dest: string) => {
     const { router } = layoutStore.get();
     replaceChildren(router, pageElements);
 
-    // TODO: Clean up later
-    if (route === "landing" || route === "quickplay") {
-        hidePageElements();
-    } else {
-        showPageElements();
-    }
-
+    FULL_WINDOW_ROUTES.includes(route) ? hidePageElements() : showPageElements();
     showRouter();
 };
 
-// Init to note whether it's the first time ever loading or not
-export const navigateTo = (dest: string, init: boolean = false) => {
+/** Navigate to route, default to do nothing if it's already in the route unless force is true */
+export const navigateTo = (dest: Route, force: boolean = false) => {
     const path = `/${dest}`;
 
-    log.debug("navigating!");
-    // Alread in the page, do nothing
-    if (location.pathname === path && !init) return log.warn(`Already in ${dest}`);
+    // Alread in this route, do nothing unless it's the first route
+    if (location.pathname === path && !force) return log.warn(`Already in ${dest}`);
 
     history.pushState({}, "", path);
     renderRoute(dest);

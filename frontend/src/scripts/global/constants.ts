@@ -21,7 +21,7 @@ const API = {
 
 // Routes
 const ROUTE = {
-    HOME: "setup" as Route, // Temporarily, should probably be profile?
+    HOME: "play" as Route, // Temporarily, should probably be profile?
     DEFAULT: "landing" as Route, // For invalid route, de facto 404
 };
 
@@ -62,7 +62,7 @@ const ATTR = {
     PLAYER_STATUS: "data-player-status",
 };
 
-// Move to game controller
+// TODO: Move to game controller? Make them customizable?
 // Controls
 const L_UP = ["w"]; // Left player up key
 const L_DOWN = ["s"]; // Left player down key

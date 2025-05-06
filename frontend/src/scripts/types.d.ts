@@ -23,13 +23,11 @@ declare global {
         };
     };
 
-    // Window is the same as global, TODO: check earcut, if it's needed, and ethereum
     const CONST: typeof CONSTANTS;
     const log: typeof logger;
 
     interface Window {
         ethereum?: any; // TODO: shouldn't use any if it can be helped?
-        earcut: earcut; // TODO: Check if correct for earcut type
         CONST: typeof CONSTANTS;
         log: typeof logger;
     }

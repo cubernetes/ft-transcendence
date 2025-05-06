@@ -98,7 +98,7 @@ export const createLobbyPage = (): UIComponent => {
 
     const leaveBtnCb = () => {
         sendApiRequest.post(`${CONST.API.LOBBY}/leave`);
-        navigateTo("setup");
+        navigateTo("play");
     };
 
     const ctaBtnGrp = createButtonGroup({

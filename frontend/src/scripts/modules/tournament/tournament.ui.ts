@@ -86,7 +86,7 @@ export const restartTournamentButton = (): HTMLButtonElement => {
         tw: "mx-auto",
         click: () => {
             controller.resetTournament();
-            navigateTo("setup");
+            navigateTo("play");
         },
     });
     return restartButton;

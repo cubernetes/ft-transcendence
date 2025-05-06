@@ -17,7 +17,7 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     const navList = createEl("ul", "flex text-1xl space-x-4");
     const navKeys: [I18nKey, Route][] = [
         ["home", CONST.ROUTE.HOME],
-        ["setup", CONST.ROUTE.HOME],
+        ["setup", "play"],
         ["leaderboard", "leaderboard"],
         ["profile", "profile"],
     ];

@@ -2,10 +2,10 @@ import earcut from "earcut";
 import { CONSTANTS } from "./global/constants";
 import { logger } from "./utils/logger";
 
-// Register globally accessible modules and utils
+// Register global modules and utils; earcut needed for some polygon functions of babylonjs
 Object.assign(window, { earcut, log: logger, CONST: CONSTANTS });
 
-// Register WebSocket for live reload
+// Register WebSocket for live reload for development
 if (process.env.WATCH === "1") {
     const port = process.env.LIVE_RELOAD_PORT ?? 35729;
     const ws = new WebSocket(`ws://localhost:${port}`);
@@ -17,7 +17,7 @@ if (process.env.WATCH === "1") {
     };
 }
 
-// Dynamic import to ensure globally registered objects are available
+// Dynamic import to ensure global modules are registered
 import("./modules/layout/layout.store").then(({ layoutStore }) => {
     // Try to get root element by ID defined in constants
     const root = document.getElementById(CONST.ID.ROOT);
