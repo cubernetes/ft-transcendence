@@ -34,20 +34,26 @@ export const localeStore = createStore<LocaleState>(initLocaleState());
 
 // Centralized translation subscriber
 localeStore.subscribe(() => {
-    const { I18N_TEXT, I18N_INPUT, I18N_ALT } = CONST.ATTR;
+    const { I18N_TEXT, I18N_INPUT, I18N_ALT, I18N_VARS } = CONST.ATTR;
 
     // Translate textContent
     translate<HTMLElement>(I18N_TEXT, (el, key) => {
-        el.textContent = getText(key);
+        const varsAttr = el.getAttribute(I18N_VARS);
+        const vars = varsAttr ? JSON.parse(varsAttr) : undefined;
+        el.textContent = getText(key, vars);
     });
 
     // Translate placeholders
     translate<HTMLInputElement>(I18N_INPUT, (el, key) => {
-        el.placeholder = getText(key);
+        const varsAttr = el.getAttribute(I18N_VARS);
+        const vars = varsAttr ? JSON.parse(varsAttr) : undefined;
+        el.placeholder = getText(key, vars);
     });
 
     // Translate alt attributes
     translate<HTMLElement>(I18N_ALT, (el, key) => {
-        el.setAttribute("alt", getText(key));
+        const varsAttr = el.getAttribute(I18N_VARS);
+        const vars = varsAttr ? JSON.parse(varsAttr) : undefined;
+        el.setAttribute("alt", getText(key, vars));
     });
 });

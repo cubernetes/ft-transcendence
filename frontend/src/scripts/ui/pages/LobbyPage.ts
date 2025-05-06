@@ -6,15 +6,15 @@ import { createEl } from "../../utils/dom-helper";
 import { createCopyButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createContainer } from "../components/Container";
+import { createHeading } from "../components/Heading";
 import { createInput } from "../components/Input";
 import { createParagraph } from "../components/Paragraph";
 import { createStatus } from "../components/Status";
-import { createTitle } from "../components/Title";
 
 export const createLobbyPage = (): UIComponent => {
     const { lobbyId, lobbyHost, playerNames, playTo } = gameStore.get();
 
-    const titleEl = createTitle({ text: "Lobby" });
+    const titleEl = createHeading({ text: "Lobby" });
     const lineHr = createEl("hr", "border-t-2 border-dotted border-white mb-6");
     const { statusEl, showErr, showOk } = createStatus();
 

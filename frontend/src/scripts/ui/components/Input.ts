@@ -8,6 +8,7 @@ type Opts = {
     type?: string;
     ac?: string; // Autocomplete
     id?: string;
+    i18nVars?: Record<string, string | number>;
 };
 
 /**
@@ -21,6 +22,7 @@ export const createInput = ({
     type = "text",
     ac = "on",
     id,
+    i18nVars,
 }: Opts): HTMLInputElement => {
     const BASE_TW = "rounded w-full p-2 border border-gray-300";
 
@@ -28,7 +30,7 @@ export const createInput = ({
     // maybe select-none? dones't seem to be needed, disabled:opacity-50 font-medium transition
     // inline-block
 
-    const placeholder = isValidKey(ph) ? getText(ph) : ph;
+    const placeholder = isValidKey(ph) ? getText(ph, i18nVars) : ph;
     const attributes = isValidKey(ph) ? { [CONST.ATTR.I18N_INPUT]: ph } : undefined;
     const twStyle = twMerge(BASE_TW, tw);
     const props = { placeholder, type, autocomplete: ac };
@@ -36,5 +38,7 @@ export const createInput = ({
     const input = createEl("input", twStyle, { attributes, props });
 
     if (id) input.setAttribute("id", id);
+    if (i18nVars) input.setAttribute(CONST.ATTR.I18N_VARS, JSON.stringify(i18nVars));
+
     return input;
 };

@@ -4,11 +4,11 @@ import { sendApiRequest } from "../../utils/api";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton, createCopyButton } from "../components/Button";
 import { createContainer } from "../components/Container";
+import { createHeading } from "../components/Heading";
 import { createInput } from "../components/Input";
 import { createModal } from "../components/Modal";
 import { createParagraph } from "../components/Paragraph";
 import { createStatus } from "../components/Status";
-import { createTitle } from "../components/Title";
 
 type Mode = "login" | "disable" | "setup" | "update";
 
@@ -25,7 +25,7 @@ const fetchQrCode = async () => {
 };
 
 export const createTotpTokenForm = (mode: Mode): HTMLElement => {
-    const titleEl = createTitle({ text: "Enter your TOTP code", tw: "text-2xl" });
+    const titleEl = createHeading({ text: "Enter your TOTP code", tw: "text-2xl" });
 
     const tokenInput = createInput({
         type: "text",

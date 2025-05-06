@@ -29,7 +29,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
     // Create a call-to-action button
     const ctaButtonEl = createButton({
-        text: "Play",
+        text: CONST.TEXT.PLAY,
         tw: [
             "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
             "rounded-full text-white p-0 border-2 border-red-600 hover:border-red-400",

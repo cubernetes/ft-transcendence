@@ -3,23 +3,24 @@ import { authStore } from "../../modules/auth/auth.store";
 import { I18nKey } from "../../modules/locale/locale.translation";
 import { changeLanguage, getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createHeading } from "../components/Heading";
 import { appendUserStatus } from "./UserStatus";
 
 export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     // Title
-    const titleEl = createEl("h1", "text-3xl font-bold cursor-pointer", {
-        text: getText("title"),
-        events: { click: () => navigateTo(CONST.ROUTE.HOME) },
-        attributes: { [CONST.ATTR.I18N_TEXT]: "title" },
+    const titleEl = createHeading({
+        text: CONST.TEXT.FT_TRANSCENDENCE,
+        tag: "h1",
+        tw: "text-3xl cursor-pointer mb-0 text-left text-white",
     });
 
     //
-    const navList = createEl("ul", "flex text-1xl space-x-4");
+    const navList = createEl("ul", "flex text-xl space-x-4");
     const navKeys: [I18nKey, Route][] = [
-        ["home", CONST.ROUTE.HOME],
-        ["setup", "play"],
-        ["leaderboard", "leaderboard"],
-        ["profile", "profile"],
+        [CONST.TEXT.HOME, CONST.ROUTE.HOME],
+        [CONST.TEXT.PLAY, "play"],
+        [CONST.TEXT.LEADERBOARD, "leaderboard"],
+        [CONST.TEXT.PROFILE, "profile"],
     ];
 
     for (const [key, route] of navKeys) {
@@ -45,7 +46,8 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
 
     // Language toggle
     const languageBtn = createEl("button", "hover:underline", {
-        text: getText("lang"),
+        text: getText(CONST.TEXT.LANG),
+        attributes: { [CONST.ATTR.I18N_TEXT]: CONST.TEXT.LANG },
         events: { click: changeLanguage },
     });
 

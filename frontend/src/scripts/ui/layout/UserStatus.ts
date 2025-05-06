@@ -17,7 +17,7 @@ export const appendUserStatus = (container: HTMLElement, username: string) => {
 
     // Logout button
     const logoutBtn = document.createElement("button");
-    logoutBtn.textContent = getText("logout");
+    logoutBtn.textContent = getText("LOGOUT");
     logoutBtn.className =
         "ml-4 bg-red-500 hover:bg-red-600 text-white text-sm py-1 px-3 rounded focus:outline-none";
 

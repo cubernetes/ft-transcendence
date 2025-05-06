@@ -4,8 +4,8 @@ import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createContainer } from "../components/Container";
+import { createHeading } from "../components/Heading";
 import { createParagraph } from "../components/Paragraph";
-import { createTitle } from "../components/Title";
 import { createTotpModal } from "./TotpModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
@@ -13,40 +13,40 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const avatarEl = createEl("img", "w-64 h-64 rounded-full", {
         attributes: {
             src: user.avatarUrl,
-            alt: getText("profile_picture"),
-            [CONST.ATTR.I18N_ALT]: "profile_picture",
+            alt: getText("USER_AVATAR"),
+            [CONST.ATTR.I18N_ALT]: "USER_AVATAR",
         },
     });
 
-    const titleEl = createTitle({ text: "your_profile", tw: "text-4xl mt-4" });
+    const titleEl = createHeading({ text: "your_profile", tw: "text-4xl mt-4" });
 
-    const usernameLabel = createParagraph({ text: "username", tw: "mr-8" });
+    const usernameLabel = createParagraph({ text: "USERNAME", tw: "mr-8" });
     const usernameEl = createParagraph({ text: user.username });
 
-    const displayNameLabel = createParagraph({ text: "Display name", tw: "mr-8" });
+    const displayNameLabel = createParagraph({ text: "DISPLAY_NAME", tw: "mr-8" });
     const DisplayNameEl = createParagraph({ text: user.displayName });
 
-    const passwordLabel = createParagraph({ text: "password", tw: "mr-8" });
+    const passwordLabel = createParagraph({ text: "PASSWORD", tw: "mr-8" });
     const passwordBtn = createButton({
-        text: "update",
+        text: "UPDATE",
         tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
         // TODO: click cb
     });
 
-    const totpLabel = createParagraph({ text: "TOTP", tw: "mr-8" });
+    const totpLabel = createParagraph({ text: "2FA", tw: "mr-8" });
     const totpOnEl = createButtonGroup({
-        texts: ["update", "disable"],
+        texts: ["UPDATE", "DISABLE"],
         cbs: [() => createTotpModal("update"), () => createTotpModal("disable")],
         twBtn: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpOffEl = createButton({
-        text: "enable",
+        text: "ENABLE",
         click: () => createTotpModal("setup"),
         tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpEl = user.totpEnabled ? totpOnEl : totpOffEl;
 
-    const rankLabel = createParagraph({ text: "rank", tw: "mr-8" });
+    const rankLabel = createParagraph({ text: "RANK", tw: "mr-8" });
     const rankEl = createParagraph({ text: String(user.rank) });
 
     const labelCtn = createContainer({

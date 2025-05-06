@@ -2,7 +2,7 @@ import type { GetMeResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createStatus } from "../../ui/components/Status";
-import { createTotpModal, createTotpTokenForm } from "../../ui/layout/TotpModal";
+import { createTotpTokenForm } from "../../ui/layout/TotpModal";
 import { sendApiRequest } from "../../utils/api";
 import { replaceChildren } from "../../utils/dom-helper";
 import { closeSocketConn, establishSocketConn } from "../ws/ws.service";

@@ -1,4 +1,5 @@
 import type { Route } from "./router";
+import { TEXT } from "../modules/locale/locale.translation";
 
 // Directories
 const ASSETS_DIR = "./assets";
@@ -59,6 +60,7 @@ const ATTR = {
     I18N_TEXT: "data-i18n-key", // Key in props indicating textContext needs translation
     I18N_INPUT: "data-i18n-placeholder", // Key in props indicating placeholder needs translation (Input)
     I18N_ALT: "data-i18n-attr-alt", // Key in props indicating alt prop needs translation (Image)
+    I18N_VARS: "data-i18n-vars", // For dynamic translate variables
     PLAYER_STATUS: "data-player-status",
 };
 
@@ -82,4 +84,4 @@ const CTRL = {
 };
 
 /** Constants will be attached globally, can be accessed via `CONST` */
-export const CONSTANTS = { DIR, API, ROUTE, KEY, CLASS, ID, ATTR, CTRL };
+export const CONSTANTS = { DIR, API, ROUTE, KEY, CLASS, ID, ATTR, CTRL, TEXT };
