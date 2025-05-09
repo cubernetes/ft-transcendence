@@ -4,10 +4,11 @@ import inquirer from "inquirer";
 import { PongConfig } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
-import { getToken, setToken } from "../utils/auth";
+import { clearToken, getToken, setToken } from "../utils/auth";
 import { cleanup } from "../utils/cleanup";
 import { API_URL, GAME_FETCH_ERROR_MSG, MENU_MUSIC } from "../utils/config";
-import { optionsMenu } from "./options";
+import { optionsMenu } from "./optionsMenu";
+import { createLobby, joinLobby, promptRemotePlayMenu } from "./remoteMenu";
 
 let defaultMode = 1;
 
@@ -125,44 +126,6 @@ async function handleMenuSelection(mode: number): Promise<void> {
     }
 }
 
-async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
-    printTitle("REMOTE GAME");
-    const token = getToken();
-
-    if (token) {
-        // Optional: add a ping or token validation call to check if token is still valid
-        return gameManager.start1PRemote();
-    }
-
-    const { action } = await inquirer.prompt([
-        {
-            type: "list",
-            name: "action",
-            message: errorMsg ? chalk.red(errorMsg) : "Login / Register:",
-            choices: [
-                new inquirer.Separator(),
-                { name: chalk.magenta("🔐  Login"), value: "login" },
-                new inquirer.Separator(),
-                { name: chalk.magenta("📝  Register"), value: "register" },
-                new inquirer.Separator(),
-                { name: chalk.red("🔙  Back"), value: "back" },
-            ],
-        },
-    ]);
-
-    switch (action) {
-        case "login":
-            await handleServerLogin();
-            break;
-        case "register":
-            if (await registerUser()) return await handleServerLogin();
-            else return await promptRemotePlayMenu("Registration failed. Please try again.");
-        case "back":
-        default:
-            return await mainMenu();
-    }
-}
-
 // --- Server Flow ---
 async function fetchGameConfig(): Promise<PongConfig> {
     try {
@@ -177,93 +140,33 @@ async function fetchGameConfig(): Promise<PongConfig> {
     }
 }
 
-async function handleServerLogin() {
-    try {
-        console.log(" ");
-        const { username, password } = await inquirer.prompt([
-            { type: "input", name: "username", message: "Username:" },
-            { type: "password", name: "password", message: "Password:" },
-        ]);
+async function promptLobbyMenu(): Promise<void> {
+    printTitle("LOBBY MENU");
 
-        const token = await loginToServer(username, password);
-
-        if (!token) {
-            return promptRemotePlayMenu("Login failed. Please try again.");
-        }
-
-        setToken(token);
-        gameManager.start1PRemote();
-    } catch (err: any) {
-        if (err?.isTtyError || err?.constructor?.name === "ExitPromptError") {
-            cleanup();
-        } else {
-            console.error(chalk.red("Error during login process."), err);
-            cleanup("Login process failed.");
-        }
-    }
-}
-
-async function loginToServer(username: string, password: string): Promise<string | null> {
-    try {
-        const response = await fetch(`${API_URL}/user/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
-        });
-
-        if (!response.ok) {
-            // Handle non-200 HTTP responses (e.g., 4xx or 5xx errors)
-            console.error(chalk.red(`Login failed with status: ${response.status}`));
-            return null;
-        }
-
-        const result = await response.json();
-        return result.data.token;
-    } catch (err) {
-        // console.error(chalk.red("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"));
-        // Handle network-related errors (e.g., ECONNREFUSED)
-        if (err.code === "ECONNREFUSED") {
-            console.error(chalk.red("Connection refused. Please ensure the server is running."));
-        } else {
-            console.error(chalk.red("Login error:", err));
-        }
-        return null;
-    }
-}
-
-async function registerUser(): Promise<boolean> {
-    console.log(" ");
-    const { username, password, displayName, confirmPassword } = await inquirer.prompt([
-        { type: "input", name: "username", message: "New username: " },
-        { type: "password", name: "password", message: "New password: " },
-        { type: "input", name: "displayName", message: "Displayed Name: " },
-        { type: "password", name: "confirmPassword", message: "Confirm Password: " },
+    const { action } = await inquirer.prompt([
+        {
+            type: "list",
+            name: "action",
+            message: "Lobby Actions:",
+            choices: [
+                new inquirer.Separator(),
+                { name: chalk.magenta("➕  Create Lobby"), value: "create" },
+                { name: chalk.magenta("🔗  Join Lobby"), value: "join" },
+                { name: chalk.red("🔙  Back"), value: "back" },
+            ],
+        },
     ]);
 
-    const data = {
-        username: username,
-        password: password,
-        displayName: displayName,
-        confirmPassword: confirmPassword,
-    };
-
-    try {
-        const res = await fetch(`${API_URL}/user/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-
-        if (!res.ok) {
-            const errText = "Unknown error";
-            console.log(chalk.red(`❌ Registration failed: ${res.status} ${errText}`));
-            return false;
-        }
-
-        console.log(chalk.green("✅ Registration successful! You can now log in."));
-        return true;
-    } catch (err) {
-        console.error(chalk.red("⚠️ Registration error:"), err);
-        return false;
+    switch (action) {
+        case "create":
+            await createLobby();
+            break;
+        case "join":
+            await joinLobby();
+            break;
+        case "back":
+        default:
+            console.log(chalk.green("Returning to main menu..."));
+            await mainMenu();
     }
 }
