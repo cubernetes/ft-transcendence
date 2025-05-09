@@ -86,7 +86,7 @@ export const createLobbyPage = (): UIComponent => {
     };
 
     const startBtnCb = () => {
-        const { controller } = gameStore.get();
+        const { controller, playerNames } = gameStore.get();
         if (!controller) return;
 
         // Not a great way to guard against when only one player is in the lobby
