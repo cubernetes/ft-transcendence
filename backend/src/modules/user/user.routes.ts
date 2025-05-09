@@ -1,32 +1,45 @@
-import type { FastifyPluginAsync } from "fastify";
-import { userSchemas } from "@darrenkuro/pong-core";
+import type { FastifyInstance } from "fastify";
+import { userSchemas as schemas } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
-import handlers from "./user.controller.ts";
-import routeSchemas from "./user.schema.ts";
+import { createUserController } from "./user.controller.ts";
+import route from "./user.schema.ts";
 
-const userRoutes: FastifyPluginAsync = async (app) => {
-    app.post(
-        "/register",
-        { schema: routeSchemas.register },
-        withZod({ body: userSchemas.registerBody }, handlers.register)
-    );
+export const userRoutes = async (app: FastifyInstance) => {
+    const controller = createUserController(app);
 
-    app.post(
-        "/login",
-        { schema: routeSchemas.login },
-        withZod({ body: userSchemas.loginBody }, handlers.login)
-    );
+    // Deconstruct to get shorten variable names
+    const { registerBody, loginBody, leaderboardParams, infoParams } = schemas;
+    const { register, login, logout, leaderboard, info, me } = controller;
 
-    // TODO: add Schema
-    app.post("/logout", handlers.logout);
+    // Register
+    const registerOpts = { schema: route.register }; // Schema for swagger UI
+    const registerHandler = withZod({ body: registerBody }, register);
 
-    app.get(
-        "/leaderboard/:n",
-        { schema: routeSchemas.leaderboard },
-        withZod({ params: userSchemas.leaderboardParams }, handlers.leaderboard)
-    );
+    // Login
+    const loginOpts = { schema: route.login };
+    const loginHandler = withZod({ body: loginBody }, login);
 
-    app.get("/me", { preHandler: [app.requireAuth], schema: routeSchemas.me }, handlers.me);
+    // Logout
+    const logoutOpts = { preHandler: [app.requireAuth], schema: route.logout };
+    const logoutHandler = logout;
+
+    // Leaderboard
+    const leaderboardOpts = { schema: route.getLeaderboard };
+    const leaderboardHandler = withZod({ params: leaderboardParams }, leaderboard);
+
+    // Info
+    const infoOpts = { schema: route.getInfo };
+    const infoHandler = withZod({ params: infoParams }, info);
+
+    // Me
+    const meOpts = { preHandler: [app.requireAuth], schema: route.getMe };
+    const meHandler = me;
+
+    // Register routes
+    app.post("/register", registerOpts, registerHandler);
+    app.post("/login", loginOpts, loginHandler);
+    app.post("/logout", logoutOpts, logoutHandler);
+    app.get("/leaderboard/:n", leaderboardOpts, leaderboardHandler);
+    app.get("/info/:username", infoOpts, infoHandler);
+    app.get("/me", meOpts, meHandler);
 };
-
-export default userRoutes;

@@ -1,57 +1,50 @@
 import { Result, err, ok } from "neverthrow";
 import { createAIPlayer } from "../ai";
+import { ErrorCode } from "../schemas/schemas.api";
 import { deepAssign } from "../utils";
 import { defaultGameConfig } from "./pong.config";
 import {
     Ball,
-    EventCallback,
+    EventCb,
+    EventMap,
     Paddle,
     PongConfig,
-    PongEngineEventMap,
-    PongState,
-    PongStatus,
+    State,
+    Status,
     UserInput,
 } from "./pong.types";
 
-// Enforce 2 players for now
 export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
-    const listeners: { [K in keyof PongEngineEventMap]?: EventCallback<K>[] } = {};
-    const userInputs: [UserInput, UserInput] = ["stop", "stop"];
     const config: PongConfig = cfg;
-    const paddles: [Paddle, Paddle] = [...config.paddles]; // Use value instead of ref
-    const ball: Ball = { ...config.ball }; // Use value instead of ref
+    const listeners: { [K in keyof EventMap]: Set<EventCb<K>> } = {
+        "wall-collision": new Set(),
+        "paddle-collision": new Set(),
+        "score-update": new Set(),
+        "state-update": new Set(),
+        "ball-reset": new Set(),
+        "game-end": new Set(),
+    };
     const scores: [number, number] = [0, 0];
     const hits: [number, number] = [0, 0];
+    const userInputs: [UserInput, UserInput] = ["stop", "stop"];
+    const paddles: [Paddle, Paddle] = [...config.paddles]; // Use value instead of ref
+    const ball: Ball = { ...config.ball }; // Use value instead of ref
     let tickRate = 1000 / config.fps;
     let interval: ReturnType<typeof setInterval> | null = null;
-    let status: PongStatus = "waiting";
+    let status: Status = "waiting";
 
-    const emit = <K extends keyof PongEngineEventMap>(
-        eventType: K,
-        payload: PongEngineEventMap[K]
-    ): void => {
-        listeners[eventType]?.forEach((cb) => cb(payload));
+    const emit = <K extends keyof EventMap>(type: K, payload: EventMap[K]) => {
+        listeners[type]?.forEach((cb) => cb(payload));
     };
 
-    const onEvent = <K extends keyof PongEngineEventMap>(
-        eventType: K,
-        cb: EventCallback<K>
-    ): void => {
-        listeners[eventType] ??= [];
-        if (!listeners[eventType].includes(cb)) {
-            listeners[eventType].push(cb);
-        }
+    const onEvent = <K extends keyof EventMap>(type: K, cb: EventCb<K>) => {
+        listeners[type].add(cb);
     };
 
-    const movePaddle = (i: number, direction: UserInput): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const movePaddle = (i: 0 | 1, direction: UserInput): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         const paddle = paddles[i];
-        if (!paddle) {
-            return err(new Error("Paddle not found"));
-        }
 
         const { board } = config;
         const topLimit = board.size.depth / 2 - paddle.size.depth / 2;
@@ -61,13 +54,12 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         } else if (direction === "down") {
             paddle.pos.z = Math.max(paddle.pos.z - paddle.speed, bottomLimit);
         }
+
         return ok();
     };
 
-    const moveBall = (): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const moveBall = (): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         ball.pos.x += ball.vec.x;
         ball.pos.y += ball.vec.y;
@@ -85,10 +77,8 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    const detectCollisions = (): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const detectCollisions = (): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         const { pos } = ball;
         const p = paddles;
@@ -120,10 +110,8 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    const detectOutOfBounds = (): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const detectOutOfBounds = (): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         const { pos } = ball;
         const { board } = config;
@@ -136,13 +124,12 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
             emit("score-update", { scores });
             resetBall();
         }
+
         return ok();
     };
 
-    const resetBall = (): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const resetBall = (): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         ball.pos = { x: 0, y: 0, z: 0 };
         ball.vec = { x: 0, y: 0, z: 0 }; // Stop the ball temporarily
@@ -164,101 +151,90 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    const checkWins = (): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const checkWins = (): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         const state = getState();
-        if (!state.isOk()) {
-            return err(new Error("Failed to get state after game ended"));
-        }
 
         if (scores.some((n) => n >= config.playTo)) {
+            stop();
             status = "ended";
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state: state.value });
+            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state });
         }
 
         return ok();
     };
 
-    const getState = (): Result<PongState, Error> => {
-        return ok({
-            status,
-            scores,
-            ball,
-            paddles,
-        });
-    };
+    const getState = (): State => ({ status, scores, ball, paddles });
 
-    const tick = (): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const getConfig = (): PongConfig => config;
 
-        userInputs.forEach((input, i) => movePaddle(i, input));
+    const tick = (): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
+
+        userInputs.forEach((input, i) => movePaddle(i as 0 | 1, input));
         moveBall();
         detectCollisions();
         detectOutOfBounds();
         checkWins();
 
         const state = getState();
-        if (state.isOk()) {
-            emit("state-update", { state: state.value });
-        }
+        emit("state-update", { state });
 
         return ok();
     };
 
-    const start = (): Result<void, Error> => {
-        if (status === "ongoing") {
-            return err(new Error("Game has already started"));
-        }
+    const start = (): Result<void, ErrorCode> => {
+        if (status === "ongoing" || status === "ended") return err("GAME_STATUS_ERROR");
 
         status = "ongoing";
-
         if (config.aiMode && config.aiDifficulty) {
             createAIPlayer({ onEvent, setInput }, config.aiDifficulty, 1);
         }
 
         interval = setInterval(tick, tickRate);
-        emit("game-start", null);
         return ok();
     };
 
-    const stop = () => {
-        if (status !== "ended") {
-            status = "ended";
-            if (interval) {
-                clearInterval(interval);
-                interval = null;
-            }
-            const state = getState();
-            if (!state.isOk()) {
-                return err(new Error("Failed to get state after game ended"));
-            }
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state: state.value });
-        }
+    const pause = (): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
+        if (!interval) return err("CORRUPTED_DATA");
+
+        status = "paused";
+        clearInterval(interval);
+        interval = null;
+        return ok();
     };
 
-    const setInput = (i: number, key: UserInput): Result<void, Error> => {
-        if (status !== "ongoing") {
-            return err(new Error("Game is not ongoing"));
-        }
+    const stop = (): Result<void, ErrorCode> => {
+        if (status === "ended") return err("GAME_STATUS_ERROR");
+        if (!interval) return err("CORRUPTED_DATA");
+
+        status = "ended";
+        clearInterval(interval);
+        interval = null;
+
+        const state = getState();
+        emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state });
+        return ok();
+    };
+
+    const setInput = (i: 0 | 1, key: UserInput): Result<void, ErrorCode> => {
+        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         userInputs[i] = key;
         return ok();
     };
 
     /** Reset all game states, will skip undefined */
-    const reset = (cfg: Partial<PongConfig>) => {
+    const reset = (cfg: Partial<PongConfig>): Result<void, ErrorCode> => {
+        if (status === "ongoing" || status === "paused") return err("GAME_STATUS_ERROR");
+
         // Update config
         deepAssign(config, cfg, true);
 
         // Clear listeners
-        (Object.keys(listeners) as Array<keyof PongEngineEventMap>).forEach((key) => {
-            listeners[key] = [];
-        });
+        Object.values(listeners).forEach((set) => set.clear());
 
         // Complete reset
         userInputs.fill("stop");
@@ -266,17 +242,15 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         hits.fill(0);
         paddles.forEach((p, i) => deepAssign(p, config.paddles[i]));
         deepAssign(ball, config.ball);
+        status = "waiting";
+
         if (interval) {
             clearInterval(interval);
             interval = null;
         }
-        status = "waiting";
+
+        return ok();
     };
 
-    /** For debug, delete later */
-    const getInternalState = () => {
-        return { listeners, userInputs, scores, paddles, ball, tickRate, interval, status };
-    };
-
-    return { start, stop, onEvent, setInput, reset, getInternalState };
+    return { start, pause, stop, onEvent, setInput, reset, getConfig };
 };

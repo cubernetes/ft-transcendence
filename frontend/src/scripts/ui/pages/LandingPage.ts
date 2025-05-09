@@ -5,75 +5,72 @@ import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer } from "../../modules/game/game.renderer";
 import { gameStore } from "../../modules/game/game.store";
 import { layoutStore } from "../../modules/layout/layout.store";
-import { createEl } from "../../utils/dom-helper";
+import { createEl, replaceChildren } from "../../utils/dom-helper";
+import { createButton } from "../components/Button";
+import { createContainer } from "../components/Container";
 import { createLoginForm } from "../layout/LoginForm";
 
 export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
-    // Background video
+    // Create music and video element
+    const musicEl = createEl("audio", "", {
+        attributes: { src: `${CONST.DIR.AUDIO}/main.mp3` },
+        props: { loop: true, volume: 0.4 },
+    });
     const videoEl = createEl("video", "w-full h-full object-cover", {
-        attributes: {
-            src: `${window.cfg.dir.video}/pong_simulation.webm`,
-        },
+        attributes: { src: `${CONST.DIR.VIDEO}/pong_simulation.webm` },
         props: { autoplay: true, loop: true, muted: true },
     });
 
-    const overlayEl = createEl("div", "absolute top-0 left-0 w-full h-full bg-black opacity-40");
+    // Create an overlay element
+    const overlayEl = createEl(
+        "div",
+        "absolute top-0 left-0 w-full h-full bg-black opacity-40 pointer-events-none"
+    );
 
-    const ctaButton = createEl(
-        "a",
-        [
-            "absolute cursor-pointer top-1/2 left-1/2",
-            "transform -translate-x-1/2 -translate-y-1/2 text-white text-center",
-            "rounded-full border-2 border-red-600 hover:border-red-400",
-            "transition-all duration-300 ease-in-out transform",
+    // Create a call-to-action button
+    const ctaButtonEl = createButton({
+        text: CONST.TEXT.PLAY,
+        tw: [
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+            "rounded-full text-white p-0 border-2 border-red-600 hover:border-red-400",
+            "transition-all duration-300 ease-in-out",
             "hover:scale-105 w-[100px] h-[100px] leading-[100px]",
         ].join(" "),
-        {
-            text: "Play",
-        }
-    );
+        click: () => {
+            const { canvas } = layoutStore.get();
 
-    ctaButton.onclick = () => {
-        musicEl.play();
+            // Initilize game components here so browser doesn't warn need user gesture
+            // TODO: This is a problem, if flashes still
+            createRenderer(canvas).then((renderer) => {
+                const engine = createPongEngine();
+                const controller = createGameController(renderer, engine);
 
-        const { canvas } = layoutStore.get();
+                gameStore.update({ controller });
+            });
 
-        // Initilize game components here so babylon audio engine doesn't show unmute button
-        // Should move later
-        createRenderer(canvas).then((renderer) => {
-            const engine = createPongEngine();
-            const controller = createGameController(renderer, engine);
+            initAuthState().then(async (state) => {
+                authStore.set(state);
+                if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
 
-            gameStore.update({ controller });
-        });
+                const loginFormEl = await createLoginForm(ctaButtonEl);
+                replaceChildren(heroCtn, loginFormEl);
+            });
 
-        initAuthState().then(async (state) => {
-            authStore.set(state);
-            if (state.isAuthenticated) {
-                window.log.debug("User is authenticated, navigate to home");
-                navigateTo(window.cfg.url.home);
-                return;
-            }
-
-            const loginForm = await createLoginForm(ctaButton);
-            ctaButton.replaceWith(loginForm);
-        });
-    };
-
-    const heroEl = createEl(
-        "div",
-        "absolute top-0 left-0 w-full h-full flex flex-col p-8 rounded-lg text-center",
-        { children: [ctaButton] }
-    );
-
-    const musicEl = createEl("audio", "", {
-        attributes: { src: `${window.cfg.dir.audio}/main.mp3` },
-        props: { loop: true, volume: 0.4 },
+            musicEl.play();
+        },
     });
 
-    const mainEl = createEl("main", "w-full h-screen relative", {
-        children: [videoEl, overlayEl, heroEl],
+    // Create hero container
+    const heroCtn = createContainer({
+        tw: "absolute top-0 left-0 w-full h-full",
+        children: [ctaButtonEl],
     });
 
-    return [mainEl];
+    const mainCtn = createContainer({
+        tag: "main",
+        tw: "w-full h-screen relative",
+        children: [videoEl, overlayEl, heroCtn],
+    });
+
+    return [mainCtn];
 };

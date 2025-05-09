@@ -1,17 +1,15 @@
 import earcut from "earcut";
-import config from "./global/config";
+import { CONSTANTS } from "./global/constants";
 import { logger } from "./utils/logger";
 
-// Register globally accessible modules and utils
-window.earcut = earcut; // Needed for babylonJS
-window.cfg = config; // Constants
-window.log = logger; // Register logger
+// Register global modules and utils; earcut needed for some polygon functions of babylonjs
+Object.assign(window, { earcut, log: logger, CONST: CONSTANTS });
 
-// Register WebSocket for live reload
+// Register WebSocket for live reload for development
 if (process.env.WATCH === "1") {
     const port = process.env.LIVE_RELOAD_PORT ?? 35729;
     const ws = new WebSocket(`ws://localhost:${port}`);
-    window.log.info(`WebSocket for live reload connected at port ${port}`);
+    log.info(`WebSocket for live reload connected at port ${port}`);
     ws.onmessage = (msg) => {
         if (msg.data === "reload") {
             location.reload();
@@ -19,20 +17,12 @@ if (process.env.WATCH === "1") {
     };
 }
 
-// Dynamic import to ensure globally registered objects are available
-
+// Dynamic import to ensure global modules are registered
 import("./modules/layout/layout.store").then(({ layoutStore }) => {
-    const root = document.getElementById(window.cfg.id.app);
-    if (!root) {
-        window.log.error(`Fail to find HTMLElement #${window.cfg.id.app}`);
-        return;
-    }
+    // Try to get root element by ID defined in constants
+    const root = document.getElementById(CONST.ID.ROOT);
+    if (!root) return log.error(`Fail to find HTMLElement #${CONST.ID.ROOT}`);
 
+    // Entry point of the entire app at layoutStore so only need one dynamic import
     layoutStore.update({ root });
-
-    // document.addEventListener("DOMContentLoaded", launchSite);
-    // Maybe register cleanup logic, should close sockets?
-    // document.addEventListener("beforeunload", );
-    // re-open socket?
-    // document.addEventListener("pageshow", );
 });

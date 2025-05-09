@@ -86,36 +86,13 @@ See [vault/README.md](./vault/README.md)
 
 ### Translatable UI Components (through language Button)
 
-1. **Elements are stored in `translatableElements`**
+1. ~~**Elements are stored in `translatableElements`**~~ Elements no longer need to be stored anywhere, an attribute will be attached to the element instead so the caller doesn't have to worry about it at all when using component factory function (i.e. createButton, createInput, createContainer, etc.) since they will handle everything internally. When creating element by non standard way, which is highly discouraged, will need to set attribute `CONST.ATTR.I18N_TEXT` (for textcontent, similar process for placeholder for input element, and alt attribute) to the I18Nkey.
 
-    - Each visible (translatable) element was added to the `translatableElements` object using a unique `TranslationKey`:
+2. **Translation Keys are defined in the `TEXT_MAP` object `locale.translation.ts`** Restructured to make adding or editing translation as needed simpler. Typescript will freak out when you don't have required keys (all available languages).
 
-    ```typescript
-    const link = createEl("a", "hover:underline", {
-        text: getText("home"),
-        events: {
-            click: (e) => {
-                e.preventDefault();
-                navigateTo("/home");
-            },
-        },
-    });
-    translatableElements["home"] = link;
-    ```
+3. ~~**Subscribed to Language Changes with `languageStore.subscribe`:**~~ Again, caller does not need to worry about subscribing, translation is done via one central subscriber in locale.store.
 
-2. **Translation Keys are defined in the `texts` object `language.ts`**
-
-3. **Subscribed to Language Changes with `languageStore.subscribe`:**
-    ```typescript
-    unsubscribeLanguage = languageStore.subscribe(() => {
-        (Object.keys(translatableElements) as TranslationKey[]).forEach((key) => {
-            const el = translatableElements[key];
-            if (el) {
-                el.textContent = getText(key);
-            }
-        });
-    });
-    ```
+4. Translation string can be templated with syntax of `{string}`. For instance, `Player name {username}` will expand to get username from the object passed to translation uiltilties. It should also be saved in dataset of the element with tag `CONST.ATTR.I18N_VARS` However, all these are handled internally by compontent factory function and should not concern caller.
 
 ## Project Modules Tally
 

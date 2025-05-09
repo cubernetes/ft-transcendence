@@ -1,3 +1,5 @@
+export type TotpEncodingOption = "ascii" | "hex" | "base32";
+
 export type CookieConfig = {
     path: string;
     secure: boolean;
@@ -16,6 +18,6 @@ export type AppConfig = {
     corsOrigin: string[] | "*";
     cookieName: string;
     cookieConfig: CookieConfig;
-    totpEncoding: "ascii" | "hex" | "base32";
+    totpEncoding: TotpEncodingOption;
     wsMaxPayload: number;
 };

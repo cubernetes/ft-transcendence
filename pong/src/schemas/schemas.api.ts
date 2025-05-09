@@ -3,10 +3,18 @@ import { z } from "zod";
 export const errorCodeEnum = z.enum([
     "BAD_REQUEST",
     "VALIDATION_ERROR",
-    "USERNAME_TAKEN",
-    "NOT_FOUND",
     "UNAUTHORIZED",
-    "INTERNAL_SERVER_ERROR",
+    "INVALID_PASSWORD",
+    "INVALID_TOTP_TOKEN",
+    "NOT_FOUND",
+    "USERNAME_TAKEN",
+    "LOBBY_FULL",
+    "ALREADY_IN_LOBBY",
+    "NOT_IN_LOBBY",
+    "GAME_STATUS_ERROR",
+    "CORRUPTED_DATA",
+    "SERVER_ERROR",
+    "UNKNOWN_ERROR",
 ]);
 
 export type ErrorCode = z.infer<typeof errorCodeEnum>;
@@ -37,10 +45,7 @@ export const isApiResponseError = <T extends z.ZodType<any, any, any>>(
 
 export const apiErrorSchema = z.object({
     success: z.literal(false),
-    error: z.object({
-        message: z.string(),
-        code: errorCodeEnum,
-    }),
+    error: z.object({ code: errorCodeEnum }),
 });
 
 export type ApiError = z.infer<typeof apiErrorSchema>;
@@ -54,8 +59,5 @@ export const apiSuccess = <T extends z.ZodTypeAny>(data: T) =>
 export const apiError = <T extends ErrorCode>(code: T) =>
     z.object({
         success: z.literal(false),
-        error: z.object({
-            message: z.string(),
-            code: z.literal(code),
-        }),
+        error: z.object({ code: z.literal(code) }),
     });

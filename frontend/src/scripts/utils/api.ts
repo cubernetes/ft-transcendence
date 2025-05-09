@@ -1,5 +1,5 @@
 import { Result, err, ok } from "neverthrow";
-import { ApiResponse } from "@darrenkuro/pong-core";
+import { ApiResponse, ErrorCode, defaultGameConfig } from "@darrenkuro/pong-core";
 import { logout } from "../modules/auth/auth.service";
 
 /**
@@ -10,7 +10,7 @@ import { logout } from "../modules/auth/auth.service";
 const post = async <T, E extends ApiResponse<any>>(
     url: string,
     body?: T
-): Promise<Result<E, Error>> => {
+): Promise<Result<E, ErrorCode>> => {
     try {
         const headers: HeadersInit = body ? { "Content-Type": "application/json" } : {};
         const response = await fetch(url, {
@@ -20,60 +20,40 @@ const post = async <T, E extends ApiResponse<any>>(
             credentials: "include", // Cookies
         });
 
-        // // Code 401 means token invalid, log out user
-        // if (response.status === 401) {
-        //     logout();
-        // }
-
-        if (!response.ok) {
-            const message = `POST to ${url}, response not ok, status: ${response.status}`;
-            window.log.debug(message);
-            return err(new Error(message));
-        }
-
         const data: E = await response.json();
+        log.debug(data);
+
         if (!data.success) {
-            window.log.debug(`POST to ${url}: ${data.error.code}`);
-            return err(new Error(data.error.message));
+            log.debug(`POST to ${url}: ${response.status} ${data.error.code}`);
+            return err(data.error.code);
         }
 
         return ok(data);
     } catch (error) {
-        return err(
-            new Error(`POST to ${url}: ${error instanceof Error ? error.message : "unknown error"}`)
-        );
+        log.error(`POST to ${url}: ${error instanceof Error ? error.message : "unknown error"}`);
+        return err("UNKNOWN_ERROR");
     }
 };
 
-const get = async <T extends ApiResponse<any>>(url: string): Promise<Result<T, Error>> => {
+const get = async <T extends ApiResponse<any>>(url: string): Promise<Result<T, ErrorCode>> => {
     try {
         const response = await fetch(url, {
             method: "GET",
             credentials: "include", // Cookies
         });
 
-        // Code 401 means token invalid, log out user
-        if (response.status === 401) {
-            logout();
-        }
-
-        if (!response.ok) {
-            const msg = `GET to ${url}, response not ok, status: ${response.status}`;
-            window.log.debug(msg);
-            return err(new Error(msg));
-        }
-
         const data: T = await response.json();
+        log.debug(data);
+
         if (!data.success) {
-            window.log.debug(`GET to ${url}: ${data.error.code}`);
-            return err(new Error(data.error.message));
+            log.debug(`GET ${url}: ${response.status} ${data.error.code}`);
+            return err(data.error.code);
         }
 
         return ok(data);
     } catch (error) {
-        return err(
-            new Error(`GET to ${url}: ${error instanceof Error ? error.message : "unknown error"}`)
-        );
+        log.error(`POST to ${url}: ${error instanceof Error ? error.message : "unknown error"}`);
+        return err("UNKNOWN_ERROR");
     }
 };
 

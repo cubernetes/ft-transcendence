@@ -1,14 +1,12 @@
-import { Result, err, ok } from "neverthrow";
 import { createEl } from "../../utils/dom-helper";
+import { createStatus } from "./Status";
 
-/**
- * Generate a table.
- */
+// TODO: This should not return a Result, if it's error still return HTMLElement with error inside
 export const createTable = (
     headers: string[],
     columns: string[],
     data: Record<string, unknown>[]
-): Result<HTMLTableElement, Error> => {
+): HTMLElement => {
     const table = createEl("table", "min-w-full divide-y divide-gray-200");
     const thead = createEl("thead", "bg-gray-50");
     const headerRow = createEl("tr");
@@ -31,7 +29,9 @@ export const createTable = (
         const row = createEl("tr");
         for (const key of columns) {
             if (!Object.hasOwn(i, key)) {
-                return err(new Error(`Fail to create table: ${key} doesn't exist on data`));
+                const { statusEl, showErr } = createStatus();
+                showErr(`Fail to create table: ${key} doesn't exist on data`);
+                return statusEl;
             }
             const cell = createEl("td", "px-6 py-4 whitespace-nowrap", {
                 text: String(i[key]),
@@ -42,5 +42,5 @@ export const createTable = (
     }
     table.appendChild(tbody);
 
-    return ok(table);
+    return table;
 };

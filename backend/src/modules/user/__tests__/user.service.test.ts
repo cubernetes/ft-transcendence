@@ -36,11 +36,9 @@ test("Create user", async (t) => {
         passwordHash,
     });
 
-    if (user.isOk()) {
-        return t.fail("User should not be created");
-    }
+    if (user.isOk()) return t.fail("User should not be created");
 
-    t.equal(user.error.code, "USERNAME_TAKEN", "Error code should be USERNAME_TAKEN");
+    t.equal(user.error, "USERNAME_TAKEN", "Error code should be USERNAME_TAKEN");
 
     user = await app.userService.findById(-1);
     t.ok(user.isErr(), "User should not be found");

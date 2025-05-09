@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ApiResponse } from "./schemas.api";
+import { gameSchemas } from "./schemas.game";
 
 export type JwtPayload = z.infer<typeof jwtPayload>;
 const jwtPayload = z.object({
@@ -38,6 +39,9 @@ const loginPayload = z.object({
     totpEnabled: z.coerce.number().int().gte(0).optional(),
 });
 
+export type InfoParams = z.infer<typeof infoParams>;
+const infoParams = z.object({ username: z.string({ required_error: "Username is required" }) });
+
 export type PublicUser = z.infer<typeof publicUser>;
 const publicUser = z.object({
     id: z.number(),
@@ -46,13 +50,22 @@ const publicUser = z.object({
     avatarUrl: z.string().url(),
     wins: z.number(),
     losses: z.number(),
+    totalGames: z.number(),
     createdAt: z.string().datetime(),
     rank: z.number(),
+    games: gameSchemas.publicGame.array(),
 });
+
+export type GetInfoPayload = z.infer<typeof getInfoPayload>;
+export type GetInfoResponse = ApiResponse<typeof getInfoPayload>;
+const getInfoPayload = publicUser;
+
+export type PersonalUser = z.infer<typeof personalUser>;
+const personalUser = publicUser.merge(z.object({ totpEnabled: z.number() }));
 
 export type GetMePayload = z.infer<typeof getMePayload>;
 export type GetMeResponse = ApiResponse<typeof getMePayload>;
-const getMePayload = publicUser;
+const getMePayload = personalUser;
 
 export type LeaderboardPayload = z.infer<typeof leaderboardPayload>;
 export type leaderboardResponse = ApiResponse<typeof leaderboardPayload>;
@@ -63,7 +76,10 @@ export const userSchemas = {
     registerBody,
     loginBody,
     leaderboardParams,
+    infoParams,
+    getInfoPayload,
     publicUser,
+    personalUser,
     getMePayload,
     loginPayload,
     leaderboardPayload,

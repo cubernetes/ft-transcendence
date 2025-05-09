@@ -1,14 +1,27 @@
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
-import { createAuthService, verifyCookie } from "./auth.service.ts";
+import { createAuthService } from "./auth.service.ts";
 
 const authPlugin = async (app: FastifyInstance) => {
-    app.decorateRequest("userId", -1); // Default -1 to always have a number type
-    app.decorateRequest("userDisplayName", ""); // Default empty string to always have userDisplayName
-
     app.decorate("authService", createAuthService(app));
-    app.decorate("requireAuth", app.authService.requireAuth);
-    app.addHook("onRequest", verifyCookie); // Always verify cookie and attach userId
+
+    // Always verify cookie and attach userId on Request
+    app.addHook("onRequest", async (req, _) => {
+        const { cookieName } = req.server.config;
+        const token = req.cookies?.[cookieName];
+        if (!token) return;
+
+        const payload = req.server.authService.verifyJwtToken(token);
+        if (payload.isOk() && payload.value.id && !isNaN(Number(payload.value.id))) {
+            req.userId = Number(payload.value.id);
+            req.username = payload.value.username;
+            req.userDisplayName = payload.value.displayName;
+        }
+    });
+
+    app.decorate("requireAuth", async (req, reply) => {
+        if (!req.userId) reply.err("UNAUTHORIZED");
+    });
 };
 
 export default fp(authPlugin, {

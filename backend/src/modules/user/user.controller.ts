@@ -1,127 +1,124 @@
-import type { LeaderboardParams, LoginBody, RegisterBody } from "@darrenkuro/pong-core";
-import type { FastifyReply, FastifyRequest } from "fastify";
-import { ApiError } from "../../utils/errors.ts";
-import { toPersonalUser, toPublicUser } from "./user.helpers.ts";
+import type { PublicUser } from "@darrenkuro/pong-core";
+import type { FastifyInstance, RouteHandlerMethod } from "fastify";
+import { userSchemas } from "@darrenkuro/pong-core";
+import { ZodHandler } from "../../utils/zod-validate.ts";
 
-const registerHandler = async (
-    { body }: { body: RegisterBody },
-    req: FastifyRequest,
-    reply: FastifyReply
-): Promise<void> => {
-    // Remove confirmPassword from data
-    const { confirmPassword, ...userData } = body;
+export const createUserController = (app: FastifyInstance) => {
+    type RegisterCb = ZodHandler<{ body: typeof userSchemas.registerBody }>;
+    const register: RegisterCb = async ({ body }, _, reply) => {
+        // Remove password fields from user data
+        const { confirmPassword, password, ...userData } = body;
 
-    const passwordHash = await req.server.authService.hashPassword(userData.password);
+        // Generate and add password hash to user data
+        const passwordHash = await app.authService.hashPassword(password);
+        const userWithHash = { ...userData, passwordHash };
 
-    const userWithHash = { ...userData, passwordHash };
+        // Try create user in database, send back error if failed
+        const tryCreateUser = await app.userService.create(userWithHash);
+        if (tryCreateUser.isErr()) return reply.err(tryCreateUser.error);
 
-    const user = await req.server.userService.create(userWithHash);
+        // Generate JWT token and send back as cookies
+        const user = tryCreateUser.value;
+        const token = app.authService.generateJwtToken(user);
+        const { username, displayName } = user;
 
-    if (user.isErr()) {
-        return user.error.send(reply);
-    }
+        reply.ok({ username, displayName }, 201, { token });
+    };
 
-    const token = req.server.authService.generateJwtToken(user.value);
-    const { username, displayName } = user.value;
-    const { cookieName, cookieConfig } = req.server.config;
+    type LoginCb = ZodHandler<{ body: typeof userSchemas.loginBody }>;
+    const login: LoginCb = async ({ body }, _, reply) => {
+        const { username, password, totpToken } = body;
 
-    return reply
-        .setCookie(cookieName, token, cookieConfig)
-        .code(201)
-        .send({ success: true, data: { username, displayName } });
-};
+        // Try to find user with username provided, send back error if failed
+        const tryGetUser = await app.userService.findByUsername(username);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
 
-const loginHandler = async (
-    { body }: { body: LoginBody },
-    req: FastifyRequest,
-    reply: FastifyReply
-): Promise<void> => {
-    // Find user
-    const user = await req.server.userService.findByUsername(body.username);
-    if (user.isErr()) {
-        return user.error.send(reply);
-    }
+        const user = tryGetUser.value;
+        const { displayName, totpEnabled, totpSecret, passwordHash } = user;
 
-    // Validate password
-    const isPasswordValid = await req.server.authService.comparePassword(
-        body.password,
-        user.value.passwordHash
-    );
-    if (!isPasswordValid) {
-        const err = new ApiError("UNAUTHORIZED", 401, "Invalid password");
-        return err.send(reply);
-    }
+        // Validate password, send back 401 error if failed
+        const verifyPassword = await app.authService.comparePassword(password, passwordHash);
+        if (!verifyPassword) return reply.err("INVALID_PASSWORD");
 
-    const { username, displayName, totpEnabled, totpSecret } = user.value;
+        // Check 2FA
+        if (totpEnabled) {
+            // 2FA enabled but have yet to receive token, send back totp request
+            if (!totpToken) return reply.ok({ totpEnabled });
 
-    // Check 2FA
-    if (totpEnabled) {
-        // 2FA enabled but have yet to receive token
-        if (!body.totpToken) {
-            return reply.send({ success: true, data: { totpEnabled } });
+            // 2FA enabled but no TOTP secret in database, should never happen in theory
+            if (!totpSecret) return reply.err("SERVER_ERROR");
+
+            // Verify TOTP token
+            const verifyToken = app.authService.verifyTotpToken(totpSecret, totpToken);
+            if (!verifyToken) return reply.err("INVALID_TOTP_TOKEN");
         }
 
-        // 2FA enabled but no TOTP secret in database (should never happen ideally)
-        if (!totpSecret) {
-            const err = new ApiError("INTERNAL_SERVER_ERROR", 500, "TOTP setup incomplete");
-            return err.send(reply);
+        // Password and 2FA have been verified, send cookies
+        const token = app.authService.generateJwtToken(user);
+
+        reply.ok({ username, displayName }, 200, { token });
+    };
+
+    const logout: RouteHandlerMethod = async (_, reply) => {
+        const { cookieName } = app.config;
+        reply.clearCookie(cookieName);
+
+        reply.ok({});
+    };
+
+    type LeaderboardCb = ZodHandler<{ params: typeof userSchemas.leaderboardParams }>;
+    const leaderboard: LeaderboardCb = async ({ params }, _, reply) => {
+        // Get number of users requested from params
+        const { n } = params;
+
+        // Fetch all users from database, send back error if failed
+        const tryGetUsers = await app.userService.findAll();
+        if (tryGetUsers.isErr()) return reply.err(tryGetUsers.error);
+
+        // Map each user to public user data
+        const publicUsers: PublicUser[] = [];
+        for (const user of tryGetUsers.value) {
+            const tryMapUser = await app.userService.toPublicUser(user);
+
+            // If any user is failing for whatever reason, stop and send back error
+            if (tryMapUser.isErr()) return reply.err(tryMapUser.error);
+
+            publicUsers.push(tryMapUser.value);
         }
 
-        // Verify the TOTP token
-        const isTotpValid = req.server.authService.verifyTotpToken(totpSecret, body.totpToken);
-        if (!isTotpValid) {
-            const err = new ApiError("UNAUTHORIZED", 401, "Invalid TOTP token");
-            return err.send(reply);
-        }
-    }
+        // Sort by rank, then get the first n users
+        const data = publicUsers.sort((a, b) => a.rank - b.rank).slice(0, n);
+        reply.ok(data);
+    };
 
-    // 2FA verified, send cookies
-    const token = req.server.authService.generateJwtToken(user.value);
-    const { cookieName, cookieConfig } = req.server.config;
-    return reply
-        .setCookie(cookieName, token, cookieConfig)
-        .send({ success: true, data: { username, displayName } });
-};
+    type InfoCb = ZodHandler<{ params: typeof userSchemas.infoParams }>;
+    const info: InfoCb = async ({ params }, _, reply) => {
+        const { username } = params;
 
-const logoutHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    const { cookieName } = req.server.config;
-    reply.clearCookie(cookieName);
+        // Try to find user with username provided, send back error if failed
+        const tryGetUser = await app.userService.findByUsername(username);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
 
-    return { success: true, data: {} };
-};
+        // Try to map user to public user data, send back error if failed
+        const tryMapUser = await app.userService.toPublicUser(tryGetUser.value);
+        if (tryMapUser.isErr()) return reply.err(tryMapUser.error);
 
-const getLeaderboardHandler = async (
-    { params }: { params: LeaderboardParams },
-    req: FastifyRequest,
-    reply: FastifyReply
-) => {
-    const { n } = params;
-    const users = await req.server.userService.findAll();
+        reply.ok(tryMapUser.value);
+    };
 
-    if (users.isErr()) {
-        return users.error.send(reply);
-    }
+    const me: RouteHandlerMethod = async (req, reply) => {
+        const { username } = req;
 
-    const publicUsers = await Promise.all(users.value.map(toPublicUser(req.server)));
-    const leadUsers = publicUsers.sort((a, b) => b.wins - a.wins).slice(0, n);
+        // Try to find user with username provided, send back error if failed
+        const tryGetUser = await app.userService.findByUsername(username);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
 
-    return reply.send({ success: true, data: leadUsers });
-};
+        // Try to map user to personal user data, send back error if failed
+        const tryMapUser = await app.userService.toPersonalUser(tryGetUser.value);
+        if (tryMapUser.isErr()) return reply.err(tryMapUser.error);
 
-const getMeHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    const user = await req.server.userService.findById(req.userId);
+        reply.ok(tryMapUser.value);
+    };
 
-    if (user.isErr()) {
-        return user.error.send(reply);
-    }
-
-    return reply.send({ success: true, data: toPersonalUser(user.value) });
-};
-
-export default {
-    register: registerHandler,
-    login: loginHandler,
-    logout: logoutHandler,
-    leaderboard: getLeaderboardHandler,
-    me: getMeHandler,
+    return { register, login, logout, leaderboard, info, me };
 };

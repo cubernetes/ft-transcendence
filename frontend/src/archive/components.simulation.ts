@@ -47,7 +47,7 @@
 //     container.appendChild(gameSection);
 
 //     container.addEventListener("destroy", () => {
-//         window.log.info("received destroy");
+//         log.info("received destroy");
 //     });
 
 //     // Initialize game only after user interaction
@@ -214,19 +214,19 @@
 //     };
 
 //     meshTask1.onError = function (task, message, exception) {
-//         window.log.info(message, exception);
+//         log.info(message, exception);
 //     };
 
 //     meshTask2.onError = function (task, message, exception) {
-//         window.log.info(message, exception);
+//         log.info(message, exception);
 //     };
 
 //     meshTask3.onError = function (task, message, exception) {
-//         window.log.info(message, exception);
+//         log.info(message, exception);
 //     };
 
 //     meshTask4.onError = function (task, message, exception) {
-//         window.log.info(message, exception);
+//         log.info(message, exception);
 //     };
 
 //     return assetsManager;

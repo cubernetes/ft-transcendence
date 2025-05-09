@@ -1,6 +1,6 @@
 import { handlePopState, navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
-import { createHeader } from "../../ui/layout/Header";
+import { hydrateHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 
 type LayoutState = {
@@ -16,16 +16,16 @@ type LayoutState = {
 export const initLayoutState = {
     root: createEl("div"), // Space holder, will be replaced by #app
     header: createEl("header", "bg-black/50 p-4 text-white justify-between items-center hidden", {
-        attributes: { id: window.cfg.id.header },
+        attributes: { id: CONST.ID.HEADER },
     }),
     canvas: createEl("canvas", "w-screen h-screen hidden", {
-        attributes: { id: window.cfg.id.canvas },
+        attributes: { id: CONST.ID.CANVAS },
     }),
     router: createEl("div", "flex-grow flex items-center justify-center w-full", {
-        attributes: { id: window.cfg.id.router },
+        attributes: { id: CONST.ID.ROUTER },
     }),
     footer: createEl("footer", "bg-gray-200 p-4 text-center hidden", {
-        attributes: { id: window.cfg.id.footer },
+        attributes: { id: CONST.ID.FOOTER },
         children: [createEl("p", "", { text: "© 2025 ft-transcendence" })],
     }),
     initialized: false,
@@ -33,9 +33,8 @@ export const initLayoutState = {
 
 export const layoutStore = createStore<LayoutState>(initLayoutState);
 
+// Entry point of the app
 layoutStore.subscribe((state) => {
-    window.log.debug("LayoutStore subscriber triggered");
-
     const { root, header, canvas, router, footer } = state;
 
     if (!state.initialized) {
@@ -44,13 +43,14 @@ layoutStore.subscribe((state) => {
         // Attach elements to root
         appendChildren(root, [header, canvas, router, footer]);
 
-        // Create needed states for persisted elements
-        createHeader(header);
+        // Hydrate needed states for persisted elements
+        hydrateHeader(header);
 
         // Attach pop state handler
         window.addEventListener("popstate", handlePopState);
 
         // Navigate To default page
-        navigateTo(window.cfg.url.default, true);
+        // Should try to get the location.pathname, i.e quicplay
+        navigateTo(CONST.ROUTE.DEFAULT, true);
     }
 });

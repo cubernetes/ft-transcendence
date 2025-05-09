@@ -1,41 +1,133 @@
-import { tryLoginWithTotp } from "../../modules/auth/auth.service";
+import { TotpSetupResponse } from "@darrenkuro/pong-core";
+import { navigateTo } from "../../global/router";
+import { sendApiRequest } from "../../utils/api";
+import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createButton, createCopyButton } from "../components/Button";
+import { createContainer } from "../components/Container";
+import { createHeading } from "../components/Heading";
+import { createInput } from "../components/Input";
+import { createModal } from "../components/Modal";
+import { createParagraph } from "../components/Paragraph";
+import { createStatus } from "../components/Status";
 
-export const createTotpModal = async (): Promise<HTMLElement> => {
-    const totpVerifyContainer = document.createElement("div");
-    totpVerifyContainer.className =
-        "flex flex-col items-center gap-4 bg-white shadow-md rounded p-6";
+type Mode = "login" | "disable" | "setup" | "update";
 
-    const heading = document.createElement("h2");
-    heading.textContent = "Enter your TOTP code";
-    heading.className = "w-48";
+const fetchQrCode = async () => {
+    const resp = await sendApiRequest.get<TotpSetupResponse>(`${CONST.API.TOTP}/setup`);
 
-    const tokenInput = document.createElement("input");
-    tokenInput.type = "number";
-    tokenInput.id = window.cfg.id.totpToken;
-    tokenInput.required = true;
-    tokenInput.placeholder = "Enter TOTP code";
-    tokenInput.className = "w-64 p-2 border border-gray-300 rounded";
+    if (resp.isErr() || !resp.value.success) {
+        // TODO: IF fail, api error el
+        return ["", ""];
+    }
 
-    const submitButton = document.createElement("button");
-    submitButton.textContent = "Submit";
-    submitButton.id = "submit";
-    submitButton.className =
-        "w-64 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded";
+    const { qrCode, secret } = resp.value.data;
+    return [qrCode, secret];
+};
 
-    // Append all to container
-    totpVerifyContainer.appendChild(heading);
-    totpVerifyContainer.appendChild(tokenInput);
-    totpVerifyContainer.appendChild(submitButton);
+export const createTotpTokenForm = (mode: Mode): HTMLElement => {
+    const titleEl = createHeading({ text: "Enter your TOTP code", tw: "text-2xl" });
 
-    tokenInput.addEventListener("keypress", (evt) => {
-        if (evt.key == "Enter") {
-            evt.preventDefault();
-
-            document.getElementById("submit")?.click();
-        }
+    const tokenInput = createInput({
+        type: "text",
+        ph: CONST.TEXT.ENTER_TOTP_CODE,
+        id: CONST.ID.TOTP_TOKEN,
+        tw: "w-64 p-2 border border-gray-300 rounded",
+        ac: "off",
     });
 
-    submitButton.addEventListener("click", tryLoginWithTotp);
+    const newTokenInput = createInput({
+        type: "text",
+        ph: CONST.TEXT.ENTER_TOTP_CODE_NEW,
+        id: CONST.ID.TOTP_NEW_TOKEN,
+        tw: "w-64 p-2 border border-gray-300 rounded mx-2",
+        ac: "off",
+    });
 
-    return totpVerifyContainer;
+    const submitBtn = createButton({
+        text: CONST.TEXT.SUBMIT,
+        type: "submit",
+        tw: "w-64 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded mx-2",
+    });
+
+    const children =
+        mode === "login" || mode === "disable"
+            ? [titleEl, tokenInput, submitBtn]
+            : mode === "setup"
+              ? [newTokenInput, submitBtn]
+              : [tokenInput, newTokenInput, submitBtn];
+
+    const tokenForm = createEl(
+        "form",
+        "bg-white shadow-md rounded p-6 items-center space-y-4 flex-col mx-auto",
+        {
+            props: { noValidate: true }, // Handle validation manually
+            children,
+        }
+    );
+
+    return tokenForm;
 };
+
+export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<void> => {
+    const container = createContainer({ tw: "items-center flex-col mx-auto" });
+    const { statusEl, showErr } = createStatus();
+    container.appendChild(statusEl);
+
+    if (mode === "update" || mode === "setup") {
+        const [qrCodeData, b32secretData] = await fetchQrCode();
+
+        const qrCodeImg = createEl("img", "w-48 h-48 mx-auto", {
+            props: { src: qrCodeData, alt: "You have to be logged in to set up 2FA" },
+        });
+
+        const b32secretP = createParagraph({
+            text: b32secretData,
+            tw: "w-128 p-2 border border-gray-300 rounded text-xs",
+        });
+
+        const copyBtn = createCopyButton(b32secretData);
+
+        appendChildren(container, [qrCodeImg, b32secretP, copyBtn]);
+    }
+
+    const tokenForm = createTotpTokenForm(mode);
+
+    container.appendChild(tokenForm);
+    const closeModal = createModal({ children: [container] });
+
+    tokenForm.addEventListener("submit", async (evt) => {
+        // Prevent reload and clear from default
+        evt.preventDefault();
+
+        switch (mode) {
+            case "disable":
+                const tryDisable = await sendApiRequest.post(`${CONST.API.TOTP}/disable`, {
+                    token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
+                });
+                if (tryDisable.isErr()) return showErr(tryDisable.error);
+                navigateTo(CONST.ROUTE.HOME);
+                return closeModal();
+            case "setup":
+                const trySetup = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
+                    token: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
+                        .value,
+                });
+
+                if (trySetup.isErr()) return showErr(trySetup.error);
+                navigateTo(CONST.ROUTE.HOME);
+                return closeModal();
+            case "update":
+                const tryUpdate = await sendApiRequest.post(`${CONST.API.TOTP}/update`, {
+                    token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
+                    newToken: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
+                        .value,
+                });
+                if (tryUpdate.isErr()) return showErr(tryUpdate.error);
+
+                navigateTo(CONST.ROUTE.HOME);
+                return closeModal();
+        }
+    });
+};
+
+// TODO: move handler to module probably auth

@@ -14,7 +14,7 @@ export const createTournamentController = (allPlayers: string[]) => {
         const { activePlayers, matches } = tournamentStore.get();
 
         if (!activePlayers || activePlayers.length <= 1) {
-            window.log.error("Not enough players available for the next round.");
+            log.error("Not enough players available for the next round.");
             return;
         }
 
@@ -43,7 +43,7 @@ export const createTournamentController = (allPlayers: string[]) => {
         const { matches, round } = tournamentStore.get();
 
         if (!Array.isArray(matches) || matches.length === 0) {
-            window.log.warn("No matches found in tournament store.");
+            log.warn("No matches found in tournament store.");
             return null;
         }
 
@@ -62,15 +62,15 @@ export const createTournamentController = (allPlayers: string[]) => {
         }
         const { matches } = tournamentStore.get();
         if (!matches || matches.length === 0) {
-            window.log.error("No matches found in tournament store.");
+            log.error("No matches found in tournament store.");
             return;
         }
-        const players = matches[matches.length - 1][gameId].players;
-        if (!players || players.length < 2) {
-            window.log.error("Not enough players for the match.");
+        const playerNames = matches[matches.length - 1][gameId].players;
+        if (!playerNames || playerNames.length < 2) {
+            log.error("Not enough players for the match.");
             return;
         }
-        gameStore.update({ players });
+        gameStore.update({ playerNames });
         controller.startGame("tournament", {
             ...defaultGameConfig,
             playTo: 3,
@@ -80,7 +80,7 @@ export const createTournamentController = (allPlayers: string[]) => {
     const handleEndTournamentMatch = async (winnerName: string, finalState: PongState) => {
         const { matches, activePlayers, round } = tournamentStore.get();
         if (!matches || matches.length === 0) {
-            window.log.error("No matches found in tournament store.");
+            log.error("No matches found in tournament store.");
             return;
         }
 
@@ -91,7 +91,7 @@ export const createTournamentController = (allPlayers: string[]) => {
         );
 
         if (!matchToUpdate) {
-            window.log.error("Match not found for winner:", winnerName);
+            log.error("Match not found for winner:", winnerName);
             return;
         }
 

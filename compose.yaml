@@ -84,7 +84,7 @@ services:
             DB_PATH: "${DB_PATH:-}"
             LOG_LEVEL: "${LOG_LEVEL:-debug}"
 
-            LOGSTASH_HOST: "logstash"
+            LOGSTASH_HOST: ${LOGSTASH_HOST:-}
             LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
         volumes:
             - "drizzle:/backend/drizzle/"

@@ -2,108 +2,65 @@ import { authStore } from "../modules/auth/auth.store";
 import { gameStore } from "../modules/game/game.store";
 import { hidePageElements, showPageElements, showRouter } from "../modules/layout/layout.service";
 import { layoutStore } from "../modules/layout/layout.store";
-import { createGamePage } from "../ui/pages/GamePage";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
+import { createLobbyPage } from "../ui/pages/LobbyPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
-import { createQuickPlayPage } from "../ui/pages/QuickPlayPage";
 import { createSetupPage } from "../ui/pages/SetupPage";
-import { createTotpSetupPage } from "../ui/pages/TotpSetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
+import { replaceChildren } from "../utils/dom-helper";
 
-const routes = {
+const ROUTES = {
     landing: createLandingPage,
-    setup: createSetupPage,
-    // Game routes are for dev, will be deleted later
-    // Games will be directly strated through setup interaction
-    onlinegame: createGamePage("online"),
-    localgame: createGamePage("local"),
-    aigame: createGamePage("ai"),
+    play: createSetupPage,
+    quickplay: createSetupPage,
     profile: createProfilePage,
-    quickplay: createQuickPlayPage,
     leaderboard: createLeaderboardPage,
     tournament: createTournamentPage,
-    totp: createTotpSetupPage, // Refactor into modal later
+    lobby: createLobbyPage,
 } satisfies Record<string, PageRenderer>;
 
-// A type-safe list of protected routes, i.e. only available after logging in
-// Temporarily protect all routes so always start in landing page
-// TODO: Commented out localgame and aigame for quickplay.
-const protectedRoutes: (keyof typeof routes)[] = [
-    "setup",
-    "onlinegame",
-    "profile",
-    "leaderboard",
-    "totp",
-    // "localgame",
-    // "aigame",
-];
+export type Route = keyof typeof ROUTES;
+
+// Protected routes, i.e. only available after logging in
+const PROTECTED_ROUTES: Route[] = ["play", "profile", "leaderboard", "tournament", "lobby"];
+
+// Routes that will have router container take up the whole screen, i.e. no header or footer
+const FULL_WINDOW_ROUTES: Route[] = ["landing", "quickplay"];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
-    let route = (dest in routes ? dest : window.cfg.url.default) as keyof typeof routes;
+    let route = (dest in ROUTES ? dest : CONST.ROUTE.DEFAULT) as Route;
 
     // Check auth state for protected routes
-    if (protectedRoutes.includes(route)) {
+    if (PROTECTED_ROUTES.includes(route)) {
         const authState = authStore.get();
         // Go to default page if not logged in
         if (!authState.isAuthenticated) {
-            route = window.cfg.url.default as keyof typeof routes;
+            route = CONST.ROUTE.DEFAULT;
         }
     }
 
     // Clean up game session when route changes, this probably belongs somewhere else
     gameStore.update({ isPlaying: false });
 
-    const { router } = layoutStore.get();
-
-    // Functionally dispatch the event bubbling down to all children elements
-    const dispatchEventDown = (parent: HTMLElement, evt: Event) => {
-        // Dispatch the event to the parent first
-        parent.dispatchEvent(evt);
-
-        // Dispatch the event to all child elements
-        parent.querySelectorAll("*").forEach((child) => {
-            child.dispatchEvent(evt);
-        });
-    };
-
-    dispatchEventDown(router, new Event("destroy"));
-
-    // Render the appropriate page
-    const createPage = routes[route];
-
+    // Create the appropriate page as an array of HTMLElement
+    const createPage = ROUTES[route];
     const pageElements = await createPage();
 
-    const fragment = document.createDocumentFragment();
-    pageElements.forEach((el) => fragment.appendChild(el));
+    const { router } = layoutStore.get();
+    replaceChildren(router, pageElements);
 
-    router.innerHTML = "";
-    router.appendChild(fragment);
-
-    // TODO: Clean up later
-    if (
-        route === "landing" ||
-        route === "onlinegame" ||
-        route === "localgame" ||
-        route === "aigame" ||
-        route === "quickplay"
-    ) {
-        hidePageElements();
-    } else {
-        showPageElements();
-    }
-
+    FULL_WINDOW_ROUTES.includes(route) ? hidePageElements() : showPageElements();
     showRouter();
 };
 
-// Init to note whether it's the first time ever loading or not
-export const navigateTo = (dest: string, init: boolean = false) => {
+/** Navigate to route, default to do nothing if it's already in the route unless force is true */
+export const navigateTo = (dest: Route, force: boolean = false) => {
     const path = `/${dest}`;
 
-    if (window.location.pathname === path && !init) {
-        return; // Already in this page
-    }
+    // Alread in this route, do nothing unless it's the first route
+    if (location.pathname === path && !force) return log.warn(`Already in ${dest}`);
 
     history.pushState({}, "", path);
     renderRoute(dest);
@@ -111,8 +68,8 @@ export const navigateTo = (dest: string, init: boolean = false) => {
 
 export const handlePopState = () => {
     // Remove slash
-    const dest = window.location.pathname.slice(1);
+    const dest = location.pathname.slice(1);
 
-    window.log.debug(`HandlePopState triggered, dest: ${dest}`);
+    log.debug(`HandlePopState triggered, dest: ${dest}`);
     renderRoute(dest);
 };

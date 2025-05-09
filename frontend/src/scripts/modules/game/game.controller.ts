@@ -8,11 +8,11 @@ import {
     PongState,
     Position3D,
     defaultGameConfig,
-    registerOutgoingMessageHandler as registerHandler,
 } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";
+import { registerHandler } from "../ws/ws.controller";
 import { sendGameAction, sendGameStart } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
@@ -25,52 +25,52 @@ import { createScene } from "./renderer/renderer.scene";
 /** Renderer will be hidden behind controller and controller is the user interface */
 export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const handleKeydownLocal = (evt: KeyboardEvent) => {
-        if (window.cfg.key.lup.includes(evt.key)) {
+        if (CONST.CTRL.L_UP.includes(evt.key)) {
             engine.setInput(0, "up");
-        } else if (window.cfg.key.ldown.includes(evt.key)) {
+        } else if (CONST.CTRL.L_DOWN.includes(evt.key)) {
             engine.setInput(0, "down");
-        } else if (window.cfg.key.rup.includes(evt.key)) {
+        } else if (CONST.CTRL.R_UP.includes(evt.key)) {
             engine.setInput(1, "up");
-        } else if (window.cfg.key.rdown.includes(evt.key)) {
+        } else if (CONST.CTRL.R_DOWN.includes(evt.key)) {
             engine.setInput(1, "down");
         }
     };
 
     const handleKeyupLocal = (evt: KeyboardEvent) => {
-        if (window.cfg.key.left.includes(evt.key)) {
+        if (CONST.CTRL.LEFT.includes(evt.key)) {
             engine.setInput(0, "stop");
         }
-        if (window.cfg.key.right.includes(evt.key)) {
+        if (CONST.CTRL.RIGHT.includes(evt.key)) {
             engine.setInput(1, "stop");
         }
     };
 
     const handleKeydownAi = (evt: KeyboardEvent) => {
-        if (window.cfg.key.up.includes(evt.key)) {
+        if (CONST.CTRL.UP.includes(evt.key)) {
             engine.setInput(0, "up");
         }
-        if (window.cfg.key.down.includes(evt.key)) {
+        if (CONST.CTRL.DOWN.includes(evt.key)) {
             engine.setInput(0, "down");
         }
     };
 
     const handleKeyupAi = (evt: KeyboardEvent) => {
-        if (window.cfg.key.paddle.includes(evt.key)) {
+        if (CONST.CTRL.ALL.includes(evt.key)) {
             engine.setInput(0, "stop");
         }
     };
 
     const handleKeydownOnline = (evt: KeyboardEvent) => {
-        if (window.cfg.key.up.includes(evt.key)) {
+        if (CONST.CTRL.UP.includes(evt.key)) {
             sendGameAction("up");
         }
-        if (window.cfg.key.down.includes(evt.key)) {
+        if (CONST.CTRL.DOWN.includes(evt.key)) {
             sendGameAction("down");
         }
     };
 
     const handleKeyupOnline = (evt: KeyboardEvent) => {
-        if (window.cfg.key.paddle.includes(evt.key)) {
+        if (CONST.CTRL.ALL.includes(evt.key)) {
             sendGameAction("stop");
         }
     };
@@ -115,8 +115,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const attachLocalEngineEvents = (mode: GameMode) => {
         engine.onEvent("wall-collision", handleWallCollision);
         engine.onEvent("paddle-collision", handlePaddleCollision);
-        engine.onEvent("score-update", (evt) => handleScoreUpdate(evt.scores));
-        engine.onEvent("state-update", (evt) => handleStateUpdate(evt.state));
+        engine.onEvent("score-update", ({ scores }) => handleScoreUpdate(scores));
+        engine.onEvent("state-update", ({ state }) => handleStateUpdate(state));
         engine.onEvent("ball-reset", handleBallReset);
         // TODO: GET NAME
         // Don't hook this for now because game-end event will be called when going away from page
@@ -126,10 +126,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const attachOnlineSocketEvents = () => {
         const { isConnected, handlers } = wsStore.get();
-        if (!isConnected) {
-            window.log.error("Online game ongoing but socket is not connected");
-            return;
-        }
+        if (!isConnected) return log.error("Socket is not connected when attaching events");
 
         registerHandler("wall-collision", handleWallCollision, handlers);
         registerHandler("paddle-collision", handlePaddleCollision, handlers);
@@ -162,13 +159,10 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         renderer.ball.rotationQuaternion = q.multiply(renderer.ball.rotationQuaternion!);
     };
 
-    const updateLeftPaddle = (pos: Position3D) => {
-        renderer.leftPaddle.position.set(pos.x, pos.y, pos.z);
-    };
+    const updateLeftPaddle = ({ x, y, z }: Position3D) => renderer.leftPaddle.position.set(x, y, z);
 
-    const updateRightPaddle = (pos: Position3D) => {
-        renderer.rightPaddle.position.set(pos.x, pos.y, pos.z);
-    };
+    const updateRightPaddle = ({ x, y, z }: Position3D) =>
+        renderer.rightPaddle.position.set(x, y, z);
 
     const handleScoreUpdate = (scores: [number, number]) => {
         // TODO: duplicate code
@@ -200,27 +194,20 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const handleEndGame = async (mode: GameMode, winner: number, state: PongState) => {
-        //TODO: the below does not work for online mode.
-        const { players } = gameStore.get();
-        if (!players) {
-            window.log.error("Players not found in game store");
-            return;
-        }
-        const winnerName = players[winner];
+        const { playerNames } = gameStore.get();
+        const winnerName = playerNames[winner];
         showGameOver(renderer.scene, renderer.camera, winnerName);
         if (mode === "tournament") {
             const { controller } = tournamentStore.get();
-            if (!controller) {
-                window.log.error("Tournament controller not found");
-                return;
-            }
+            if (!controller) return log.error("Tournament controller not found");
+
             await controller.handleEndTournamentMatch(winnerName, state);
         }
         // Dispose stuff right away? Probably not..
     };
 
     const handleStateUpdate = (state: PongState) => {
-        // window.log.debug(state);
+        // log.debug(state);
         updateBall(state.ball);
         updateLeftPaddle(state.paddles[0].pos);
         updateRightPaddle(state.paddles[1].pos);
@@ -228,9 +215,21 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const resizeListener = () => renderer.resize();
 
+    const startRenderer = (config: PongConfig) => {
+        renderer.scene = createScene(renderer, config);
+        if (renderer.soundsEnabled) renderer.audio.bgMusic.play();
+
+        renderer.runRenderLoop(() => renderer.scene.render());
+
+        window.addEventListener("resize", resizeListener);
+
+        // Initial scale
+        requestAnimationFrame(() => renderer.resize());
+    };
+
     /** Destroy the current game session */
     const destroy = () => {
-        window.log.debug("Game controller destroy triggered");
+        log.debug("Game controller destroy triggered");
         hideCanvas();
 
         // Destroy renderer related stuff
@@ -247,19 +246,6 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         detachAllControls();
     };
 
-    const startRenderer = (config: PongConfig) => {
-        renderer.scene = createScene(renderer, config);
-
-        renderer.runRenderLoop(() => {
-            renderer.scene.render();
-        });
-
-        window.addEventListener("resize", resizeListener);
-
-        // Initial scale
-        requestAnimationFrame(() => renderer.resize());
-    };
-
     const startLocalGame = (mode: GameMode, config: PongConfig) => {
         engine.reset(config);
         if (mode === "ai") {
@@ -270,13 +256,14 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         attachLocalEngineEvents(mode);
         engine.start(); // get config
         startRenderer(config); // send config to renderer instead of using default
+
+        gameStore.update({ isPlaying: true });
     };
 
     const startOnlineGame = (config: PongConfig) => {
         attachOnlineControl();
         attachOnlineSocketEvents();
-        sendGameStart(); // you'll need to send config over to backend first... but!! how would it stay consistent? create a lobby
-        startRenderer(config); // move this to msg handler
+        startRenderer(config);
     };
 
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
@@ -295,7 +282,6 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 break;
             default:
         }
-        gameStore.update({ isPlaying: true });
     };
 
     return {

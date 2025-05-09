@@ -10,7 +10,7 @@ const setup = {
         200: zodToJsonSchema(apiSuccess(totpSchemas.setupPayload)),
         400: zodToJsonSchema(apiError("BAD_REQUEST")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
-        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+        500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
 
@@ -23,7 +23,7 @@ const verify = {
         200: zodToJsonSchema(apiSuccess(z.object({}))),
         400: zodToJsonSchema(apiError("BAD_REQUEST")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
-        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+        500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
 
@@ -31,12 +31,12 @@ const update = {
     tags: ["Totp"],
     description: "Update 2FA secret",
     security: [{ cookieAuth: [] }],
-    body: zodToJsonSchema(totpSchemas.totpBody),
+    body: zodToJsonSchema(totpSchemas.totpUpdateBody),
     response: {
         200: zodToJsonSchema(apiSuccess(z.object({}))),
         400: zodToJsonSchema(apiError("BAD_REQUEST")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
-        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+        500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
 
@@ -49,7 +49,7 @@ const disable = {
         200: zodToJsonSchema(apiSuccess(z.object({}))),
         400: zodToJsonSchema(apiError("BAD_REQUEST")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
-        500: zodToJsonSchema(apiError("INTERNAL_SERVER_ERROR")),
+        500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
 

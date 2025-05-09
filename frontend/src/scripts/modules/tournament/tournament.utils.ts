@@ -2,7 +2,7 @@ import { MatchState, Round } from "./tournament.store";
 
 export const generateRoundMatches = (players: string[]): MatchState[] => {
     if (!players || players.length < 2) {
-        window.log.error("Not enough players to generate matches.");
+        log.error("Not enough players to generate matches.");
         return [];
     }
 
@@ -37,7 +37,7 @@ export const roundCompleted = (matches: MatchState[][] | null): boolean => {
 
     const currentRoundMatches = matches[matches.length - 1];
 
-    window.log.debug("Current Round Matches: ", currentRoundMatches);
+    log.debug("Current Round Matches: ", currentRoundMatches);
 
     if (!currentRoundMatches || currentRoundMatches.length === 0) {
         return false;

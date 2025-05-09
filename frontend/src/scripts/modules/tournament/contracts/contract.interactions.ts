@@ -62,7 +62,7 @@ export const setupWallet = async () => {
                 transport: custom(window.ethereum),
             });
         } catch (error) {
-            window.log.error("Failed to initialize wallet client:", error);
+            log.error("Failed to initialize wallet client:", error);
             return null;
         }
     })();
@@ -72,18 +72,18 @@ export const setupWallet = async () => {
 
 export const connectWallet = async (walletClient: any): Promise<`0x${string}` | undefined> => {
     if (!walletClient) {
-        window.log.info("No wallet detected! Please install MetaMask or another web3 wallet.");
+        log.info("No wallet detected! Please install MetaMask or another web3 wallet.");
         return undefined;
     }
     try {
         const [address] = await walletClient.requestAddresses();
         if (address) {
             // setAccount(address);
-            window.log.info("Connected account:", address);
+            log.info("Connected account:", address);
             return address;
         }
     } catch (error) {
-        window.log.info(error);
+        log.info(error);
     }
     return undefined;
 };

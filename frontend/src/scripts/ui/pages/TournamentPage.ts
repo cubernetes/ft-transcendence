@@ -8,10 +8,11 @@ import {
 import { appendChildren, createEl } from "../../utils/dom-helper";
 
 export const createTournamentPage = async (): Promise<HTMLElement[]> => {
-    showPageElements();
+    // showPageElements(); -> shouldn't have side effects
     const { controller, round, tournamentId } = tournamentStore.get();
     const pageContainer = createEl("div", "tournament-page-container");
 
+    // TODO: Should never throw, return the error html el instead
     if (!controller) throw new Error("initialize_controller");
 
     const tournamentIdEl = createEl("div", "text-center text-2xl font-bold", {

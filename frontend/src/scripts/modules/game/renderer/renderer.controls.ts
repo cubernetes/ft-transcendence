@@ -93,7 +93,7 @@ const createSFXButton = (grid: Grid, engine: Engine) => {
 const createMusicButton = (grid: Grid, audio: AudioEngineV2) => {
     const buttonHandler = (button: Button, audio: AudioEngineV2) => {
         if (!audio.bgMusic) {
-            return window.log.error("Background music not attached on engine");
+            return log.error("Background music not attached on engine");
         }
 
         const { bgMusic } = audio;

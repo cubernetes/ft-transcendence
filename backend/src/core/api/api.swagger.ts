@@ -6,38 +6,36 @@ import swaggerUI from "@fastify/swagger-ui";
 const swaggerPlugin = async (app: FastifyInstance) => {
     const { apiPrefix, cookieName } = app.config;
 
-    await app.register(swagger, {
-        openapi: {
-            info: {
-                title: "Example API",
-                description: "API docs for service endpoints",
-                version: "1.0.0",
-            },
-            servers: [
-                {
-                    url: apiPrefix,
-                    description: "API behind Caddy reverse proxy",
-                },
-            ],
-            components: {
-                securitySchemes: {
-                    cookieAuth: {
-                        type: "apiKey",
-                        in: "cookie",
-                        name: cookieName,
-                    },
-                },
+    const info = {
+        title: "Example API",
+        description: "API docs for service endpoints",
+        version: "1.0.0",
+    };
+
+    const servers = [
+        {
+            url: apiPrefix,
+            description: "API behind Caddy reverse proxy",
+        },
+    ];
+
+    const components = {
+        securitySchemes: {
+            cookieAuth: {
+                type: "apiKey" as const,
+                in: "cookie",
+                name: cookieName,
             },
         },
-    });
+    };
+
+    await app.register(swagger, { openapi: { info, servers, components } });
 
     await app.register(swaggerUI, {
         // Trailing slash is automatically added here
         routePrefix: "/docs/",
-        uiConfig: {
-            docExpansion: "list",
-            deepLinking: false,
-        },
+        uiConfig: { docExpansion: "list", deepLinking: false },
+
         // Required to allow inline styles for client to not print errors in console
         staticCSP: true,
         transformStaticCSP: (header) => {

@@ -21,7 +21,7 @@ const setupScene = (scene: Scene) => {
     // ---------------- SKYBOX
     const sky = new BackgroundMaterial("skyMaterial", scene);
     sky.backFaceCulling = false;
-    sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.asset}/skybox/`, scene, [
+    sky.reflectionTexture = new CubeTexture(`${CONST.DIR.ASSET}/skybox/`, scene, [
         "px.png",
         "py.png",
         "pz.png",

@@ -1,19 +1,21 @@
-import { PongEngineEventMap, UserInput } from "../pong/pong.types";
+import { EventMap, PongConfig, UserInput } from "../pong/pong.types";
 
-export type IncomingMessageType = "game-start" | "game-action";
+export type IncomingMessageType = "game-start" | "game-action" | "lobby-update";
 
-export type OutgoingMessageType = keyof PongEngineEventMap | "waiting-for-opponent";
+export type OutgoingMessageType = keyof EventMap | "game-start" | "lobby-update" | "lobby-remove";
 
 export type MessageType = IncomingMessageType | OutgoingMessageType;
 
 export type IncomingMessagePayloads = {
     "game-start": null;
-    "game-action": { gameId: string; index: number; action: UserInput };
+    "lobby-update": { playTo: number };
+    "game-action": { action: UserInput };
 };
 
-export type OutgoingMessagePayloads = Omit<PongEngineEventMap, "game-start"> & {
-    "game-start": { gameId: string; opponentId: number; opponentName: string; index: 0 | 1 };
-    "waiting-for-opponent": null;
+export type OutgoingMessagePayloads = EventMap & {
+    "game-start": { playerNames: string[] }; // TODO: not needed?
+    "lobby-update": { config: PongConfig; playerNames: string[]; host: boolean };
+    "lobby-remove": null;
 };
 
 export interface IncomingMessage<T extends IncomingMessageType> {
@@ -25,10 +27,6 @@ export interface OutgoingMessage<T extends OutgoingMessageType> {
     type: T;
     payload: OutgoingMessagePayloads[T];
 }
-
-export type IncomingMessageHandler<T extends IncomingMessageType> = (
-    payload: IncomingMessagePayloads[T]
-) => void;
 
 export type OutgoingMessageHandler<T extends OutgoingMessageType> = (
     payload: OutgoingMessagePayloads[T]

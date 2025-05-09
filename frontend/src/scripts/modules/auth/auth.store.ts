@@ -1,9 +1,12 @@
 import type { GetMeResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
-import { createTotpModal } from "../../ui/layout/TotpModal";
+import { createStatus } from "../../ui/components/Status";
+import { createTotpTokenForm } from "../../ui/layout/TotpModal";
 import { sendApiRequest } from "../../utils/api";
+import { replaceChildren } from "../../utils/dom-helper";
 import { closeSocketConn, establishSocketConn } from "../ws/ws.service";
+import { tryLoginWithTotp } from "./auth.service";
 
 type AuthState = {
     isAuthenticated: boolean;
@@ -22,11 +25,8 @@ export const emptyAuthState = {
 };
 
 export const initAuthState = async (): Promise<AuthState> => {
-    const result = await sendApiRequest.get<GetMeResponse>(`${window.cfg.url.user}/me`);
-
-    if (result.isErr() || !result.value.success) {
-        return emptyAuthState;
-    }
+    const result = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
+    if (result.isErr() || !result.value.success) return emptyAuthState;
 
     const { username, displayName } = result.value.data;
     return {
@@ -41,30 +41,36 @@ export const initAuthState = async (): Promise<AuthState> => {
 export const authStore = createStore<AuthState>(emptyAuthState);
 
 authStore.subscribe(async (state) => {
-    window.log.debug("AuthStore subscriber trigged");
+    log.debug("AuthStore subscriber trigged");
 
     // Replace login form with totp modal if totp is being required
     if (state.totpRequired) {
-        const el = document.getElementById(window.cfg.id.loginForm);
-        if (!el) {
-            window.log.error("Unable to find login form when totp is required");
-            return;
-        }
+        const el = document.getElementById(CONST.ID.LOGIN_FORM);
+        if (!el) return log.error("Fail to find login form: auth store, totpRequired");
 
-        const modalEl = await createTotpModal();
-        el.innerHTML = "";
-        el.appendChild(modalEl);
+        const tokenForm = createTotpTokenForm("login");
+        const { statusEl, showErr } = createStatus();
+        tokenForm.appendChild(statusEl);
+        tokenForm.addEventListener("submit", async (evt) => {
+            // Very important, to prevent reload
+            evt.preventDefault();
+
+            const tryLogin = await tryLoginWithTotp();
+            if (tryLogin.isErr()) return showErr(tryLogin.error);
+        });
+
+        replaceChildren(el, [tokenForm]);
         return;
     }
 
     // Redirect to default page and close socket connection once logged out
     if (!state.isAuthenticated) {
-        navigateTo(window.cfg.url.default);
+        navigateTo(CONST.ROUTE.DEFAULT);
         closeSocketConn();
         return;
     }
 
     // Redirect to home and open socket connection once successfully authenticated
-    navigateTo(window.cfg.url.home);
+    navigateTo(CONST.ROUTE.HOME);
     establishSocketConn();
 });

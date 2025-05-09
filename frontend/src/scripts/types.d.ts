@@ -1,4 +1,5 @@
-import type config from "./global/config";
+import type { CONSTANTS } from "./global/constants";
+import type { FtButton } from "./ui/components/Button";
 import type { logger } from "./utils/logger";
 import type {
     ArcRotateCamera,
@@ -22,16 +23,20 @@ declare global {
         };
     };
 
+    const CONST: typeof CONSTANTS;
+    const log: typeof logger;
+
     interface Window {
         ethereum?: any; // TODO: shouldn't use any if it can be helped?
-        earcut: earcut; // TODO: Check if correct for earcut type
-        cfg: typeof config;
+        CONST: typeof CONSTANTS;
         log: typeof logger;
     }
 
     // Globally defined types so no need to import
     // Probably not good practice esp as things grow...
-    type PageRenderer = () => Promise<HTMLElement[]>;
+    type UIComponent = HTMLElement[];
+    type UIContainer = HTMLElement;
+    type PageRenderer = () => UIComponent | Promise<UIComponent>;
 }
 
 declare module "@babylonjs/core" {

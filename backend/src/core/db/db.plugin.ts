@@ -1,12 +1,11 @@
+import type { DbClient } from "./db.types.ts";
 import type { FastifyInstance } from "fastify/types/instance";
 import fp from "fastify-plugin";
 import Database from "better-sqlite3";
-import { BetterSQLite3Database, drizzle } from "drizzle-orm/better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import path from "path";
 import * as schema from "./db.schema.ts";
-
-export type DbClient = BetterSQLite3Database<typeof schema> & { $client: Database.Database };
 
 const dbPlugin = async (app: FastifyInstance) => {
     try {
@@ -14,16 +13,17 @@ const dbPlugin = async (app: FastifyInstance) => {
         const sqlite = new Database(dbPath);
 
         // Ensure to close sqlite connection on shutdown
-        app.addHook("onClose", async (instance) => {
-            instance.log.info("On close hook triggered: Closing SQLite connection...");
+        const onCloseHook = async (app: FastifyInstance) => {
+            app.log.info("On close hook triggered: Closing SQLite connection...");
             try {
                 sqlite.close();
-                instance.log.info("SQLite closed");
+                app.log.info("SQLite closed");
             } catch (error) {
                 // Log error but no need to rethrow
-                instance.log.error({ error }, "Error closing SQLite");
+                app.log.error({ error }, "Error closing SQLite");
             }
-        });
+        };
+        app.addHook("onClose", onCloseHook);
 
         const db: DbClient = drizzle(sqlite, { schema });
 
@@ -37,7 +37,4 @@ const dbPlugin = async (app: FastifyInstance) => {
     }
 };
 
-export default fp(dbPlugin, {
-    name: "db-plugin",
-    dependencies: ["config-plugin"],
-});
+export default fp(dbPlugin, { name: "db-plugin", dependencies: ["config-plugin"] });

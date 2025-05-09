@@ -1,6 +1,7 @@
 /** A general reactive store for global states. */
 export const createStore = <T extends object>(initialState: T) => {
-    let state = initialState;
+    let state: T = initialState;
+
     const subscribers: Set<(newState: T) => void> = new Set();
 
     const notifySubscribers = () => {
@@ -19,9 +20,7 @@ export const createStore = <T extends object>(initialState: T) => {
      */
     const subscribe = (subscriber: (newState: T) => void) => {
         subscribers.add(subscriber);
-        return () => {
-            subscribers.delete(subscriber);
-        };
+        return () => subscribers.delete(subscriber);
     };
 
     /** Function to update partial state. */
@@ -37,10 +36,5 @@ export const createStore = <T extends object>(initialState: T) => {
 
     const get = () => state;
 
-    return {
-        subscribe,
-        update,
-        set,
-        get,
-    };
+    return { subscribe, update, set, get };
 };

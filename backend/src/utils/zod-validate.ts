@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { ZodError, ZodTypeAny, z } from "zod";
-import { ApiError } from "./errors.ts";
+import { ApiError } from "./api-response.ts";
 
 type ZodTarget = "body" | "query" | "params" | "headers";
 type SchemaMap = Partial<Record<ZodTarget, ZodTypeAny>>;
@@ -9,11 +9,11 @@ type InferSchemaMap<S extends SchemaMap> = {
     [K in keyof S]: S[K] extends ZodTypeAny ? z.infer<S[K]> : never;
 };
 
-type ZodHandler<S extends SchemaMap> = (
+export type ZodHandler<S extends SchemaMap> = (
     data: InferSchemaMap<S>,
     req: FastifyRequest,
     reply: FastifyReply
-) => Promise<void>;
+) => void | Promise<void>;
 
 /**
  * Middleware to validate data for the request (params, body, query, headers) using Zod.

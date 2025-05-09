@@ -1,79 +1,40 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest, WebSocket } from "fastify";
-import { IncomingMessagePayloads, createPongEngine } from "@darrenkuro/pong-core";
-import { CreateGameDTO, GameIdDTO } from "./game.types.ts";
+import type { FastifyInstance, WebSocket } from "fastify";
+import { IncomingMessagePayloads as Payloads } from "@darrenkuro/pong-core";
 
-export const handleGameStart =
-    (app: FastifyInstance) =>
-    (conn: WebSocket): void => {
-        const opponent = app.gameService.tryGetOpponent(conn);
-        if (opponent.isErr()) {
-            return app.wsService.send(conn, {
-                type: "waiting-for-opponent",
-                payload: null,
-            });
-        }
+export const createGameController = (app: FastifyInstance) => {
+    const start = (conn: WebSocket): void => {
+        // Try to get game session
+        const { userId } = conn;
+        const tryGetSession = app.lobbyService.getSessionByUserId(userId!);
+        if (tryGetSession.isErr()) return app.log.error(tryGetSession.error);
 
-        const engine = createPongEngine();
-        const gameId = app.gameService.registerGameSession(engine, [opponent.value, conn]);
-        app.gameService.registerCbHandlers(gameId);
+        const session = tryGetSession.value;
+        const { engine, players, playerNames } = session;
 
-        // Maybe hold off and don't start automatically
+        // Guard against wrong number of players
+        if (players.length !== 2) return app.log.error("Fail to start game: wrong player count");
+
+        // Register event handlers and start the engine
+        app.gameService.registerCbHandlers(session);
         engine.start();
+
+        // Notify the guest player
+        app.wsService.send(players[1], { type: "game-start", payload: { playerNames } });
     };
 
-export const handleGameAction =
-    (app: FastifyInstance) =>
-    (_: WebSocket, payload: IncomingMessagePayloads["game-action"]): void => {
-        const { gameId, index, action } = payload;
-        app.gameService.setUserInput(gameId, index, action);
-        // Update right away? Don't do anything and wait for game state to update automatically?
+    const action = (conn: WebSocket, payload: Payloads["game-action"]): void => {
+        // Try to get game session
+        const { userId } = conn;
+        const tryGetSession = app.lobbyService.getSessionByUserId(userId!);
+        if (tryGetSession.isErr()) return app.log.error(tryGetSession.error);
+
+        // Get player index from socket, and set user input
+        const { engine, players } = tryGetSession.value;
+        const index = players.findIndex((p) => p === userId);
+
+        if (index !== 0 && index !== 1) return app.log.error("Fail to set action: wrong index");
+        engine.setInput(index, payload.action);
     };
 
-export const createGameHandler = async (
-    { body }: { body: CreateGameDTO },
-    req: FastifyRequest,
-    reply: FastifyReply
-) => {
-    try {
-        //const game = await req.server.gameService.create(body);
-        const game = body; // TODO
-
-        if (!game) {
-            return reply.code(400).send({ error: "Failed to create game" });
-        }
-
-        return reply.code(201).send(game);
-    } catch (error) {
-        req.log.error({ error }, "Failed to create game");
-        return reply.code(500).send({ error: "Internal server error" });
-    }
-};
-
-export const getGameByIdHandler = async (
-    { params }: { params: GameIdDTO },
-    req: FastifyRequest,
-    reply: FastifyReply
-) => {
-    try {
-        const game = await req.server.gameService.findById(params.id);
-
-        if (!game) {
-            return reply.code(404).send({ error: "Game not found" });
-        }
-
-        return reply.send(game);
-    } catch (error) {
-        req.log.error({ error }, "Failed to get game by ID");
-        return reply.code(500).send({ error: "Internal server error" });
-    }
-};
-
-export const getAllGamesHandler = async (req: FastifyRequest, reply: FastifyReply) => {
-    try {
-        const games = await req.server.gameService.findAll();
-        return reply.send(games);
-    } catch (error) {
-        req.log.error({ error }, "Failed to get all games");
-        return reply.code(500).send({ error: "Internal server error" });
-    }
+    return { start, action };
 };
