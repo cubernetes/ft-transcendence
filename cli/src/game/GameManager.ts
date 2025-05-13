@@ -1,3 +1,4 @@
+import ora from "ora";
 import {
     AIDifficulty,
     PongConfig,
@@ -89,6 +90,17 @@ export class GameManager {
         }
         this.wsManager.active = true;
         this.renderer.updateResolution();
+
+        // Show a spinner while waiting for the host
+        const spinner = ora("Waiting for the host to start the game...").start();
+
+        // Wait for the "game-start" event from the WebSocketManager
+        await new Promise<void>((resolve) => {
+            this.wsManager.once("game-start", () => {
+                spinner.succeed("Game started!");
+                resolve();
+            });
+        });
 
         this.cleanupController();
         this.controller = new GameController([
