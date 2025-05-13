@@ -15,9 +15,8 @@ let defaultMode = 1;
 export async function mainMenu(): Promise<void> {
     try {
         audioManager.startMusic(MENU_MUSIC);
-        printTitle();
-        const mode = await promptMainMenu();
-        await handleMenuSelection(mode);
+        printTitle("MAIN MENU");
+        await promptMainMenu();
     } catch (err) {
         cleanup();
     }
@@ -33,8 +32,7 @@ export function printTitle(subtitle?: string): void {
     }
 }
 
-async function promptMainMenu(): Promise<number> {
-    printTitle("MAIN MENU");
+async function promptMainMenu(): Promise<void> {
     const { mode } = await inquirer.prompt([
         {
             type: "list",
@@ -56,7 +54,7 @@ async function promptMainMenu(): Promise<number> {
 
     audioManager.playSoundEffect("blop");
     defaultMode = mode;
-    return mode;
+    return handleMenuSelection(mode);
 }
 
 async function handleMenuSelection(mode: number): Promise<void> {

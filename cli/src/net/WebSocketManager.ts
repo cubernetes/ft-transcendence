@@ -11,7 +11,7 @@ import { showLobbyUpdate } from "../utils/div";
 export class WebSocketManager extends EventEmitter {
     #socket: WebSocket;
     #openPromise: Promise<void>;
-    active = true;
+    active = false;
     jwtToken: string | null = null;
 
     constructor(serverUrl: string) {
@@ -113,7 +113,7 @@ export class WebSocketManager extends EventEmitter {
                     audioManager.playSoundEffect(PADDLE_SOUND);
                     break;
                 case "state-update":
-                    // gameManager.renderRemoteState(message.payload.state);
+                    gameManager.renderRemoteState(message.payload.state);
                     break;
                 case "waiting-for-opponent":
                     console.log("Waiting for opponent...");
