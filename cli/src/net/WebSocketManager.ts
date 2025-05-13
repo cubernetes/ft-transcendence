@@ -1,16 +1,24 @@
+import { EventEmitter } from "events";
 import WebSocket from "ws";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
 import { getToken } from "../utils/auth";
 import { PADDLE_SOUND, SCORE_SOUND, WALL_SOUND } from "../utils/config";
 
-export class WebSocketManager {
+export class WebSocketManager extends EventEmitter {
     #socket: WebSocket;
     #openPromise: Promise<void>;
     active = true;
 
     constructor(serverUrl: string) {
-        this.#socket = new WebSocket(serverUrl);
+        super();
+        const jwtToken = getToken();
+        this.#socket = new WebSocket(serverUrl, {
+            headers: {
+                cookie: `token=${jwtToken}`,
+            },
+        });
+        this.#socket.binaryType = "arraybuffer";
 
         this.#openPromise = new Promise((resolve, reject) => {
             this.#socket.on("open", () => {
@@ -33,17 +41,17 @@ export class WebSocketManager {
             await this.#openPromise;
             console.log("Sending game-start");
 
-            const jwtToken: string | null = getToken();
-            if (!jwtToken) {
-                console.log("JWT token not found.");
-                return;
-            }
+            // const jwtToken: string | null = getToken();
+            // if (!jwtToken) {
+            //     console.log("JWT token not found.");
+            //     return;
+            // }
 
             console.log("JWT token:", jwtToken);
 
             const message = JSON.stringify({
                 type: "game-start",
-                payload: { token: jwtToken },
+                // payload: { token: jwtToken },
             });
             this.#socket.send(message);
             console.log("Game start sent!");
@@ -85,6 +93,8 @@ export class WebSocketManager {
                         message.payload.opponentId,
                         message.payload.index
                     );
+
+                    this.emit("game-start");
                     break;
                 case "game-end":
                     gameManager.showRemoteWinner(message.payload.winner);
