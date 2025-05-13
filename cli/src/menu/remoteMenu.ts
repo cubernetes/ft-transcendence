@@ -101,48 +101,74 @@ export async function createLobby(): Promise<void> {
 }
 
 export async function joinLobby(): Promise<void> {
-    const { lobbyId } = await inquirer.prompt([
-        { type: "input", name: "lobbyId", message: "Enter Lobby ID to join:" },
-    ]);
+    while (true) {
+        const { lobbyId } = await inquirer.prompt([
+            { type: "input", name: "lobbyId", message: "Enter Lobby ID to join:" },
+        ]);
 
-    console.log(chalk.blue("Lobby ID entered:", lobbyId));
+        // console.log(chalk.blue("Lobby ID entered:", lobbyId));
 
-    if (!lobbyId || lobbyId.trim() === "") {
-        console.error(chalk.red("❌ Invalid Lobby ID. Please try again."));
-        return;
-    }
-
-    try {
-        const token = getToken();
-
-        if (!token) {
-            console.error(chalk.red("❌ No token found. Please log in again."));
+        if (!lobbyId || lobbyId.trim().length !== 6) {
+            console.error(chalk.red("❌ Invalid Lobby ID. It must be 6 characters. Try again."));
             return;
         }
 
-        const response = await fetch(`${API_URL}/lobby/join/${lobbyId}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Cookie: `token=${token}`,
-            },
-            body: JSON.stringify({}),
-        });
+        try {
+            const token = getToken();
 
-        console.log(chalk.blue("Join lobby response status:", response.status));
+            if (!token) {
+                console.error(chalk.red("❌ No token found. Please log in again."));
+                return;
+            }
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(chalk.red(`Failed to join lobby: ${response.status} - ${errorText}`));
+            const response = await fetch(`${API_URL}/lobby/join/${lobbyId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Cookie: `token=${token}`,
+                },
+                body: JSON.stringify({}),
+            });
+
+            // console.log(chalk.blue("Join lobby response status:", response.status));
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                if (response.status === 404 && errorText.includes("NOT_FOUND")) {
+                    console.error(
+                        chalk.red("❌ Lobby not found. Please check the Lobby ID and try again.")
+                    );
+                } else if (response.status === 409 && errorText.includes("ALREADY_IN_LOBBY")) {
+                    printTitle("GAME LOBBY");
+                    console.error(chalk.red("✅ You are already in this lobby."));
+                    await gameManager.join1PRemote();
+                    return;
+                } else {
+                    console.error(
+                        chalk.red(`Failed to join lobby: ${response.status} - ${errorText}`)
+                    );
+                }
+                const { retry } = await inquirer.prompt([
+                    {
+                        type: "confirm",
+                        name: "retry",
+                        message: "Would you like to try again?",
+                        default: true,
+                    },
+                ]);
+                if (!retry) return;
+                continue;
+            }
+            console.log(chalk.yellow("Waiting for the host to start the game..."));
+
+            printTitle("GAME LOBBY");
+            console.log(chalk.green("✅ Successfully joined the lobby!"));
+            await gameManager.join1PRemote();
+            return;
+        } catch (err) {
+            console.error(chalk.red("Error joining lobby:"), err);
             return;
         }
-        console.log(chalk.green("✅ Successfully joined the lobby!"));
-        console.log(chalk.yellow("Waiting for the host to start the game..."));
-
-        // Start remote play and wait for the host to start the game
-        await gameManager.start1PRemote();
-    } catch (err) {
-        console.error(chalk.red("Error joining lobby:"), err);
     }
 }
 
@@ -194,6 +220,12 @@ async function loginToServer(username: string, password: string): Promise<boolea
 
         console.log(chalk.blue("Login response status:", response.status));
 
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(chalk.red(`❌ Login failed: ${response.status} - ${errorText}`));
+            return false;
+        }
+
         // Extract the token from the set-cookie header
         const setCookieHeader = response.headers.get("set-cookie");
         if (setCookieHeader) {
@@ -211,7 +243,7 @@ async function loginToServer(username: string, password: string): Promise<boolea
 
         const result = await response.json();
 
-        if (response.ok && result.success) {
+        if (result.success) {
             console.log(chalk.green("✅ Login successful! Welcome,", result.data.displayName));
             return true;
         } else {

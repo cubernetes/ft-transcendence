@@ -9,6 +9,7 @@ import {
 import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { mainMenu } from "../menu/mainMenu";
+import { printTitle } from "../menu/mainMenu";
 import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
 import {
@@ -84,22 +85,29 @@ export class GameManager {
         this.controller.start();
     }
 
-    async start1PRemote() {
+    async join1PRemote() {
         if (!this.wsManager) {
             this.wsManager = new WebSocketManager(SERVER_URL);
         }
         this.wsManager.active = true;
         this.renderer.updateResolution();
 
-        // Show a spinner while waiting for the host
         const spinner = ora("Waiting for the host to start the game...").start();
 
         // Wait for the "game-start" event from the WebSocketManager
-        await new Promise<void>((resolve) => {
+        await new Promise<void>((resolve, reject) => {
             this.wsManager.once("game-start", () => {
                 spinner.succeed("Game started!");
                 resolve();
             });
+
+            this.wsManager.once("lobby-remove", () => {
+                spinner.fail("You have been removed from the lobby.");
+                reject();
+            });
+        }).catch(() => {
+            this.wsManager.active = false;
+            mainMenu();
         });
 
         this.cleanupController();
