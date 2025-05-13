@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
+import gameManager from "../game/GameManager";
 import { clearToken, getToken, setToken } from "../utils/auth";
 import { cleanup } from "../utils/cleanup";
 import { API_URL } from "../utils/config";
@@ -135,8 +136,11 @@ export async function joinLobby(): Promise<void> {
             console.error(chalk.red(`Failed to join lobby: ${response.status} - ${errorText}`));
             return;
         }
-
         console.log(chalk.green("✅ Successfully joined the lobby!"));
+        console.log(chalk.yellow("Waiting for the host to start the game..."));
+
+        // Start remote play and wait for the host to start the game
+        await gameManager.start1PRemote();
     } catch (err) {
         console.error(chalk.red("Error joining lobby:"), err);
     }
