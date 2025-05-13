@@ -13,6 +13,7 @@ import { printTitle } from "../menu/mainMenu";
 import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
 import {
+    API_URL,
     PADDLE_SOUND,
     PLAYER_ONE,
     PLAYER_TWO,
@@ -139,6 +140,13 @@ export class GameManager {
         this.opponentId = opponent;
     }
 
+    setWSActive(acitve: boolean) {
+        if (!this.wsManager) {
+            this.wsManager = new WebSocketManager(SERVER_URL);
+        }
+        this.wsManager.active = acitve;
+    }
+
     configEngine() {
         this.engine.onEvent("game-end", (evt) => {
             // this.wsManager.active = false;
@@ -191,7 +199,9 @@ export class GameManager {
     }
 
     stopGame(): void {
-        this.wsManager.active = false;
+        if (this.wsManager) {
+            this.wsManager.active = false;
+        }
         this.cleanupController();
         this.engine?.stop();
     }
