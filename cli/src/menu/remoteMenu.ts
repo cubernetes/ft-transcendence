@@ -4,7 +4,7 @@ import gameManager from "../game/GameManager";
 import { clearToken, getToken, setToken } from "../utils/auth";
 import { cleanup } from "../utils/cleanup";
 import { API_URL } from "../utils/config";
-import { printTitle } from "./mainMenu";
+import { mainMenu, printTitle } from "./mainMenu";
 
 export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
     printTitle("REMOTE GAME");
@@ -19,8 +19,11 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
                 choices: [
                     new inquirer.Separator(),
                     { name: chalk.magenta("➕  Create Lobby"), value: "create" },
+                    new inquirer.Separator(),
                     { name: chalk.magenta("🔗  Join Lobby"), value: "join" },
+                    new inquirer.Separator(),
                     { name: chalk.red("🚪  Logout"), value: "logout" },
+                    new inquirer.Separator(),
                     { name: chalk.red("🔙  Back"), value: "back" },
                 ],
             },
@@ -28,17 +31,14 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
 
         switch (action) {
             case "create":
-                await createLobby();
-                break;
+                return createLobby();
             case "join":
-                await joinLobby();
-                break;
+                return joinLobby();
             case "logout":
-                await logout();
-                return;
+                return logout();
             case "back":
             default:
-                return;
+                return mainMenu();
         }
     }
 
@@ -50,7 +50,9 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
             choices: [
                 new inquirer.Separator(),
                 { name: chalk.magenta("🔐  Login"), value: "login" },
+                new inquirer.Separator(),
                 { name: chalk.magenta("📝  Register"), value: "register" },
+                new inquirer.Separator(),
                 { name: chalk.red("🔙  Back"), value: "back" },
             ],
         },
@@ -64,9 +66,9 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
             if (await registerUser()) return await handleServerLogin();
             else return await promptRemotePlayMenu("Registration failed. Please try again.");
         case "back":
+            return mainMenu();
         default:
-            return;
-        // return await mainMenu();
+            return mainMenu();
     }
 }
 
@@ -84,10 +86,32 @@ export async function createLobby(): Promise<void> {
                 "Content-Type": "application/json",
                 Cookie: `token=${token}`,
             },
+            body: JSON.stringify({}),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
+
+            if (response.status === 409 && errorText.includes("ALREADY_IN_LOBBY")) {
+                const lobbyInfoResponse = await fetch(`${API_URL}/lobby/leave`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Cookie: `token=${token}`,
+                    },
+                    // body: JSON.stringify({}),
+                });
+
+                if (!lobbyInfoResponse.ok) {
+                    console.error(
+                        chalk.red(`Failed to fetch lobby info: ${lobbyInfoResponse.status}`)
+                    );
+                    return;
+                }
+
+                return createLobby();
+            }
+
             console.error(chalk.red(`Failed to create lobby: ${response.status} - ${errorText}`));
             return;
         }
@@ -187,9 +211,9 @@ export async function handleServerLogin(): Promise<void> {
             return;
         }
 
-        console.log(chalk.green("✅ Login successful!"));
-        await promptRemotePlayMenu(); // Redirect to the remote play menu
-        // await promptLobbyMenu(); // Redirect to the lobby menu
+        // console.log(chalk.green("✅ Login successful!"));
+        gameManager.setWSActive(true);
+        await promptRemotePlayMenu();
     } catch (err: any) {
         if (err?.isTtyError || err?.constructor?.name === "ExitPromptError") {
             cleanup();
