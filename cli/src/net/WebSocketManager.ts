@@ -1,14 +1,18 @@
+import chalk from "chalk";
 import { EventEmitter } from "events";
 import WebSocket from "ws";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
+import { printTitle } from "../menu/mainMenu";
 import { getToken } from "../utils/auth";
 import { PADDLE_SOUND, SCORE_SOUND, WALL_SOUND } from "../utils/config";
+import { showLobbyUpdate } from "../utils/div";
 
 export class WebSocketManager extends EventEmitter {
     #socket: WebSocket;
     #openPromise: Promise<void>;
     active = true;
+    jwtToken: string | null = null;
 
     constructor(serverUrl: string) {
         super();
@@ -22,7 +26,7 @@ export class WebSocketManager extends EventEmitter {
 
         this.#openPromise = new Promise((resolve, reject) => {
             this.#socket.on("open", () => {
-                console.log("Connected to the server");
+                // console.log("Connected to the server via WebSocket");
                 resolve();
             });
 
@@ -47,7 +51,7 @@ export class WebSocketManager extends EventEmitter {
             //     return;
             // }
 
-            console.log("JWT token:", jwtToken);
+            console.log("JWT token:", this.jwtToken);
 
             const message = JSON.stringify({
                 type: "game-start",
@@ -109,13 +113,22 @@ export class WebSocketManager extends EventEmitter {
                     audioManager.playSoundEffect(PADDLE_SOUND);
                     break;
                 case "state-update":
-                    gameManager.renderRemoteState(message.payload.state);
+                    // gameManager.renderRemoteState(message.payload.state);
                     break;
                 case "waiting-for-opponent":
                     console.log("Waiting for opponent...");
                     break;
                 case "ball-reset":
                     console.log("Resetting ball");
+                    break;
+                case "lobby-update":
+                    printTitle("GAME LOBBY");
+                    showLobbyUpdate(message.payload);
+                    this.emit("lobby-update", message.payload);
+                    break;
+                case "lobby-remove":
+                    console.log(chalk.red("❌ You have been removed from the lobby."));
+                    this.emit("lobby-remove");
                     break;
                 default:
                     console.warn("Unknown WebSocket event type:", message.type);
