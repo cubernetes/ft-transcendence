@@ -6,13 +6,11 @@ import gameManager from "../game/GameManager";
 import { printTitle } from "../menu/mainMenu";
 import { getToken } from "../utils/auth";
 import { PADDLE_SOUND, SCORE_SOUND, WALL_SOUND } from "../utils/config";
-import { showLobbyUpdate } from "../utils/div";
 
 export class WebSocketManager extends EventEmitter {
     #socket: WebSocket;
     #openPromise: Promise<void>;
     active = false;
-    jwtToken: string | null = null;
 
     constructor(serverUrl: string) {
         super();
@@ -26,7 +24,6 @@ export class WebSocketManager extends EventEmitter {
 
         this.#openPromise = new Promise((resolve, reject) => {
             this.#socket.on("open", () => {
-                // console.log("Connected to the server via WebSocket");
                 resolve();
             });
 
@@ -40,22 +37,17 @@ export class WebSocketManager extends EventEmitter {
     }
 
     async sendGameStart() {
-        console.log("in function sendGameStart");
         try {
             await this.#openPromise;
-            console.log("Sending game-start");
 
-            // const jwtToken: string | null = getToken();
-            // if (!jwtToken) {
-            //     console.log("JWT token not found.");
-            //     return;
-            // }
-
-            console.log("JWT token:", this.jwtToken);
+            const jwtToken: string | null = getToken();
+            if (!jwtToken) {
+                console.log("JWT token not found.");
+                return;
+            }
 
             const message = JSON.stringify({
                 type: "game-start",
-                // payload: { token: jwtToken },
             });
             this.#socket.send(message);
             console.log("Game start sent!");
@@ -123,7 +115,7 @@ export class WebSocketManager extends EventEmitter {
                     break;
                 case "lobby-update":
                     printTitle("GAME LOBBY");
-                    showLobbyUpdate(message.payload);
+                    gameManager.setRemoteConfig(message.payload);
                     this.emit("lobby-update", message.payload);
                     break;
                 case "lobby-remove":
