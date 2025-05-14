@@ -1,4 +1,3 @@
-import ora from "ora";
 import {
     AIDifficulty,
     PongConfig,
@@ -9,7 +8,7 @@ import {
 import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { mainMenu } from "../menu/mainMenu";
-import { printTitle } from "../menu/mainMenu";
+import { askLobbyLeave, promptRemotePlayMenu } from "../menu/remoteMenu";
 import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
 import {
@@ -38,6 +37,7 @@ export class GameManager {
     private opponentId: number | null = null;
 
     private default: PongConfig;
+    private remoteConfig: PongConfig | null = null;
 
     constructor() {
         this.renderer = new CLIRenderer();
@@ -93,24 +93,24 @@ export class GameManager {
         this.wsManager.active = true;
         this.renderer.updateResolution();
 
-        const spinner = ora("Waiting for the host to start the game...").start();
+        // Listen for game-start and lobby-remove events
+        const onGameStart = () => {
+            return this.startRemoteGame();
+        };
 
-        // Wait for the "game-start" event from the WebSocketManager
-        await new Promise<void>((resolve, reject) => {
-            this.wsManager.once("game-start", () => {
-                spinner.succeed("Game started!");
-                resolve();
-            });
-
-            this.wsManager.once("lobby-remove", () => {
-                spinner.fail("You have been removed from the lobby.");
-                reject();
-            });
-        }).catch(() => {
+        const onLobbyRemove = () => {
+            console.log("You have been removed from the lobby.");
             this.wsManager.active = false;
-            mainMenu();
-        });
+            return promptRemotePlayMenu("You have left the lobby.");
+        };
 
+        this.wsManager.once("game-start", onGameStart);
+        this.wsManager.once("lobby-remove", onLobbyRemove);
+
+        return askLobbyLeave();
+    }
+
+    async startRemoteGame() {
         this.cleanupController();
         this.controller = new GameController([
             {
@@ -134,6 +134,18 @@ export class GameManager {
         await this.wsManager.sendGameStart();
     }
 
+    async start1PRemote() {
+        if (!this.wsManager) {
+            this.wsManager = new WebSocketManager(SERVER_URL);
+        }
+        this.wsManager.active = true;
+        this.renderer.updateResolution();
+
+        this.wsManager.sendGameStart();
+
+        this.startRemoteGame();
+    }
+
     setRemoteGame(gameID: string, opponent: number, playerID: number) {
         this.remoteGameId = gameID;
         this.remotePlayerIndex = playerID;
@@ -145,6 +157,21 @@ export class GameManager {
             this.wsManager = new WebSocketManager(SERVER_URL);
         }
         this.wsManager.active = acitve;
+    }
+
+    getWSManager() {
+        if (!this.wsManager) {
+            this.wsManager = new WebSocketManager(SERVER_URL);
+        }
+        return this.wsManager;
+    }
+
+    setRemoteConfig(payload: any) {
+        this.remoteConfig = payload;
+    }
+
+    getRemoteConfig() {
+        return this.remoteConfig || this.default;
     }
 
     configEngine() {
