@@ -1,5 +1,5 @@
 # Change to docker-compose if you need
-DC := COMPOSE_BAKE=false docker compose
+DC := COMPOSE_BAKE=true docker compose
 # Change to podman if you need
 D := docker
 # Enables you do run `make` alone
@@ -11,7 +11,10 @@ D := docker
 # ./.secrets/${service}_vault_token
 # where ${service} is the same as the JSON root subkeys in ./env.json
 VAULT_TOKEN_EXCHANGE_FILES := \
-	./.secrets/backend_vault_token
+	./.secrets/backend_vault_token \
+	./.secrets/elasticsearch_vault_token \
+	./.secrets/logstash_vault_token \
+	./.secrets/kibana_vault_token
 
 # Must be in standard dotenv format
 -include .env

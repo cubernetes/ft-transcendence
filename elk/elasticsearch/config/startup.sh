@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+#set -vx
 
 : "${ELASTIC_PASSWORD:?Missing ELASTIC_PASSWORD}"
 : "${LOGSTASH_USER:?Missing LOGSTASH_USER}"
@@ -9,6 +10,16 @@ set -e
 : "${KIBANA_PASSWORD:?Missing KIBANA_PASSWORD}"
 : "${ELASTIC_KEYSTORE_PASS:?Missing ELASTIC_KEYSTORE_PASS}"
 : "${ELASTICSEARCH_PORT:?Missing ELASTICSEARCH_PORT}"
+
+# Healthcheck background service (because only this process has access to the environment
+# and an external healthcheck would need access to those, which is not intended)
+TERM=linux setsid -f watch -xtcn5 curl \
+		--no-progress-meter \
+		--insecure \
+		--user "generic_user:${ELASTIC_PASSWORD}" \
+		--fail \
+		--output /tmp/healthcheck \
+		"https://localhost:${ELASTICSEARCH_PORT}/_cluster/health" 1>/dev/null 2>&1
 
 # Set up permissions for certificates directory
 CERTS_DIR="/usr/share/elasticsearch/config/certs"

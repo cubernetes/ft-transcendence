@@ -2,9 +2,10 @@
 
 # Exit on error
 set -e
+#set -vx
 
 CERTS_DIR="/usr/share/elasticsearch/config/certs"
-KEYSTORE_PASSWORD=${ELASTIC_KEYSTORE_PASS:-changeme}
+KEYSTORE_PASSWORD=${ELASTIC_KEYSTORE_PASS:-generic_password}
 
 # Create certs directory if it doesn't exist and set proper permissions
 chown -R elasticsearch:elasticsearch "$CERTS_DIR"

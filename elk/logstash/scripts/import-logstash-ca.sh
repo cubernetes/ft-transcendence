@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+#set -vx
 
 # Path to the CA cert inside the container
 CA_CERT_PATH="/etc/logstash/config/certs/ca.crt"
@@ -9,7 +11,7 @@ TRUSTSTORE_PATH="/usr/share/logstash/jdk/lib/security/cacerts"
 
 KEYTOOL="/usr/share/logstash/jdk/bin/keytool"
 # Default truststore password
-STOREPASS="changeme"
+STOREPASS="generic_password"
 
 if [ ! -f "$CA_CERT_PATH" ]; then
   echo "CA certificate not found at $CA_CERT_PATH"

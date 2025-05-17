@@ -74,7 +74,7 @@ services:
     backend:
         build: "./backend/"
         container_name: backend
-        restart: unless-stopped
+        restart: no # cannot restart because of expiring vault token
         networks:
             ft-transcendence-net:
                 ipv4_address: &backend-ip 10.42.42.2
@@ -113,98 +113,62 @@ services:
 
     elasticsearch:
         profiles: [elk]
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.3
+        build: "./elk/elasticsearch/"
         container_name: elasticsearch
-        environment:
-            ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-
-            discovery.type: "single-node"
-            bootstrap.memory_lock: "true"
-            cluster.name: "ft-transcendence-logs"
-            node.name: "single-node"
-
-            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
-            ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
-            ELASTIC_KEYSTORE_PASS: "${ELASTIC_KEYSTORE_PASS}" # Password for the keystore
-
-            LOGSTASH_USER: "${LOGSTASH_USER}"
-            LOGSTASH_PASSWORD: "${LOGSTASH_PASSWORD}"
-
-            KIBANA_USER: "${KIBANA_USER}"
-            KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
         volumes:
             - "elasticsearch-data:/usr/share/elasticsearch/data/"
             - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/"
+            - "./.secrets/elasticsearch_vault_token:/run/secrets/elasticsearch_vault_token"
 
             - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
             - "./elk/elasticsearch/config/generate-certs.sh:/usr/share/elasticsearch/config/generate-certs.sh:ro"
             - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh:ro"
             - "./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json:ro"
             - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh:ro"
-        command: ["/usr/share/elasticsearch/config/startup.sh"]
         user: root # Run as root to ensure we can set permissions
         ports:
-            - "${ELASTICSEARCH_PORT:-9200}:${ELASTICSEARCH_PORT:-9200}"
+            - "9200:9200"
         networks:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
-        restart: unless-stopped
-        healthcheck:
-            test:
-                [
-                    "CMD",
-                    "curl",
-                    "--insecure",
-                    "--user",
-                    "elastic:${ELASTIC_PASSWORD}",
-                    "--silent",
-                    "--fail",
-                    "https://localhost:${ELASTICSEARCH_PORT}/_cluster/health",
-                ]
-            interval: 30s
-            timeout: 10s
-            retries: 5
+        depends_on:
+            vault:
+                restart: true
+                condition: service_healthy
+        restart: no # cannot restart because of expiring vault token
 
     logstash:
         profiles: [elk]
-        image: docker.elastic.co/logstash/logstash:8.17.3
+        build: "./elk/logstash/"
         container_name: logstash
         volumes:
             - "logstash-data:/usr/share/logstash/data/"
             - "elasticsearch-certs:/etc/logstash/config/certs/"
+            - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
+
             - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/:ro"
             - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
             - "./elk/logstash/scripts/import-logstash-ca.sh:/usr/local/bin/import-logstash-ca.sh:ro"
         ports:
-            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"
-            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/udp"
-            - "${LOGSTASH_API_PORT:-9600}:${LOGSTASH_API_PORT:-9600}"
-        environment:
-            LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-            DEBUG: "${DEBUG:-false}"
-
-            ELASTIC_PASSWORD: "${ELASTIC_PASSWORD}"
-            ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
-
-            LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
-            LOGSTASH_USER: "${LOGSTASH_USER}"
-            LOGSTASH_PASSWORD: "${LOGSTASH_PASSWORD}"
-
-            KIBANA_USER: "${KIBANA_USER}"
-            KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
+            - "5050:5050/tcp"
+            - "5050:5050/udp"
+            - "9600:9600"
         networks:
             ft-transcendence-net:
                 ipv4_address: &logstash-ip 10.42.42.4
         depends_on:
             elasticsearch:
                 condition: service_healthy
-        restart: unless-stopped
+            vault:
+                restart: true
+                condition: service_healthy
+        restart: no # cannot restart because of expiring vault token
         healthcheck:
             test:
                 [
                     "CMD",
                     "curl",
-                    "--silent",
+                    "--no-progress-meter",
                     "--fail",
                     "http://localhost:${LOGSTASH_API_PORT:-9600}/_node/stats",
                 ]
@@ -212,31 +176,17 @@ services:
             timeout: 5s
             retries: 3
             start_period: 30s
-        entrypoint:
-            ["sh", "-c", "/usr/local/bin/import-logstash-ca.sh && /usr/local/bin/docker-entrypoint"]
 
     kibana:
         profiles: [elk]
-        image: docker.elastic.co/kibana/kibana:8.17.3
+        build: "./elk/kibana/"
         container_name: kibana
         ports:
-            - "${KIBANA_PORT:-5601}:${KIBANA_PORT:-5601}"
-        environment:
-            SERVER_NAME: "kibana"
-            SERVER_HOST: "0.0.0.0"
-            SERVER_PORT: ${KIBANA_PORT:-5601}
-            XPACK_SECURITY_ENABLED: "true"
-
-            ELASTICSEARCH_HOSTS: "https://elasticsearch:${ELASTICSEARCH_PORT:-9200}"
-            ELASTICSEARCH_PORT: "${ELASTICSEARCH_PORT:-9200}"
-            ELASTICSEARCH_USERNAME: "${KIBANA_USER}"
-            ELASTICSEARCH_PASSWORD: "${KIBANA_PASSWORD}"
-            ELASTICSEARCH_SSL_VERIFICATIONMODE: "none"
-
-            KIBANA_USER: "${KIBANA_USER}"
-            KIBANA_PASSWORD: "${KIBANA_PASSWORD}"
+            - "5601:5601"
         volumes:
             - "kibana-data:/usr/share/kibana/data"
+            - "./.secrets/kibana_vault_token:/run/secrets/kibana_vault_token"
+
             - "./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
             - "./elk/kibana/dashboards:/usr/share/kibana/dashboards/:ro"
             - "./elk/kibana/setup-dashboards.sh:/usr/share/kibana/setup-dashboards.sh:ro"
@@ -246,23 +196,16 @@ services:
         depends_on:
             elasticsearch:
                 condition: service_healthy
-        restart: unless-stopped
+            vault:
+                restart: true
+                condition: service_healthy
+        restart: no # cannot restart because of expiring vault token
         healthcheck:
             test: ["CMD", "curl", "--fail", "http://localhost:${KIBANA_PORT:-5601}/api/status"]
             interval: 30s
             timeout: 10s
             retries: 5
             start_period: 30s
-
-        command: >
-            sh -ec '
-              /usr/local/bin/kibana-docker &
-              KIBANA_PID=$!
-              echo "Kibana starting with PID $$KIBANA_PID"
-              sleep 120
-              /usr/share/kibana/setup-dashboards.sh &
-              wait $$KIBANA_PID
-            '
 
     vault:
         build:
@@ -286,8 +229,13 @@ services:
             - "vault-storage:/vault/file/"
             - "vault-secret:/vault/secret/"
             - "vault-logs:/vault/logs/"
-            - "./env.json:/vault/config/env.json:ro"
+
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
+            - "./.secrets/elasticsearch_vault_token:/run/secrets/elasticsearch_vault_token"
+            - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
+            - "./.secrets/kibana_vault_token:/run/secrets/kibana_vault_token"
+
+            - "./env.json:/vault/config/env.json:ro"
         environment:
             <<: *env-watch
             LOGLEVEL: "debug"
@@ -321,8 +269,8 @@ volumes:
     frontend:
     elasticsearch-data:
     elasticsearch-certs: # New volume for certificates
-    kibana-data:
     logstash-data:
+    kibana-data:
 
 networks:
     ft-transcendence-net:

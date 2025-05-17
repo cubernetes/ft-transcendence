@@ -203,7 +203,7 @@ Let's say your service is called `foo`, then the steps would be the following:
 
     set -e # exit on any error
     set -u # treat failed expansion as error
-    # set -x # for debugging
+    # set -vx # for debugging
 
     ### Customization Point 2 ###
     service=foo

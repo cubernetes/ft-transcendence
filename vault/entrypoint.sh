@@ -3,7 +3,7 @@
 set -e
 set -u
 set -m
-#set -x
+#set -vx
 
 : "${LOGLEVEL:=INFO}"
 : "${SAVE_UNSEAL_KEYS:=0}"
