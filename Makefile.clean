@@ -1,28 +1,34 @@
+PROJECT_NAME := ft-transcendence
+
+define rm-volume
+	@{ echo $(D) volume rm "$(PROJECT_NAME)_$(1)" ; $(D) volume rm "$(PROJECT_NAME)_$(1)" 2>/dev/null; } || echo "[ WARN ] Volume couldn't be removed because it doesn't exist: $(PROJECT_NAME)_$(1)"
+endef
+
 ### clean specific volumes
 .PHONY: clean-frontend-volume
 clean-frontend-volume: down
-	$(D) volume rm --force ft-transcendence_frontend
+	$(call rm-volume,frontend)
 
 .PHONY: clean-vault
 clean-vault: down
-	$(D) volume rm --force ft-transcendence_vault-logs
-	$(D) volume rm --force ft-transcendence_vault-secret
-	$(D) volume rm --force ft-transcendence_vault-storage
+	$(call rm-volume,vault-logs)
+	$(call rm-volume,vault-secret)
+	$(call rm-volume,vault-storage)
 
 .PHONY: clean-db
 clean-db: down
-	$(D) volume rm --force ft-transcendence_drizzle
+	$(call rm-volume,drizzle)
 
 .PHONY: clean-elk
 clean-elk: down
-	$(D) volume rm --force ft-transcendence_elasticsearch-data
-	$(D) volume rm --force ft-transcendence_elasticsearch-certs
-	$(D) volume rm --force ft-transcendence_kibana-data
-	$(D) volume rm --force ft-transcendence_logstash-data
+	$(call rm-volume,elasticsearch-data)
+	$(call rm-volume,elasticsearch-certs)
+	$(call rm-volume,kibana-data)
+	$(call rm-volume,logstash-data)
 
 .PHONY: clean-caddy
 clean-caddy: down
-	$(D) volume rm --force ft-transcendence_caddy-data
+	$(call rm-volume,caddy-data)
 
 ### clean all volumes, including caddy-db (user data) and caddy-data (TLS certificates)
 ### not suitable for production, obviously
