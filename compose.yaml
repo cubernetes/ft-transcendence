@@ -313,9 +313,9 @@ services:
                   target: "/vault/policies/"
 
 volumes:
-    vault-storage:
-    vault-secret:
     vault-logs:
+    vault-secret:
+    vault-storage:
     caddy-data:
     drizzle:
     frontend:

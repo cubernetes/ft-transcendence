@@ -5,9 +5,9 @@ clean-frontend-volume: down
 
 .PHONY: clean-vault
 clean-vault: down
-	$(D) volume rm --force ft-transcendence_vault
 	$(D) volume rm --force ft-transcendence_vault-logs
-	$(D) volume rm --force ft-transcendence_vault-secrets
+	$(D) volume rm --force ft-transcendence_vault-secret
+	$(D) volume rm --force ft-transcendence_vault-storage
 
 .PHONY: clean-db
 clean-db: down
@@ -16,10 +16,13 @@ clean-db: down
 .PHONY: clean-elk
 clean-elk: down
 	$(D) volume rm --force ft-transcendence_elasticsearch-data
+	$(D) volume rm --force ft-transcendence_elasticsearch-certs
+	$(D) volume rm --force ft-transcendence_kibana-data
+	$(D) volume rm --force ft-transcendence_logstash-data
 
 .PHONY: clean-caddy
 clean-caddy: down
-	$(D) volume rm --force ft-transcendence_elasticsearch-caddy-data
+	$(D) volume rm --force ft-transcendence_caddy-data
 
 ### clean all volumes, including caddy-db (user data) and caddy-data (TLS certificates)
 ### not suitable for production, obviously
