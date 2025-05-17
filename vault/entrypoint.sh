@@ -324,13 +324,13 @@ populate_kv_secrets () {
 revoke_all_client_tokens () {
 	info "Revoking all client (non-root) tokens"
 	while read -r accessor; do
-		display_name=$(vault token lookup -format=json -accessor "$accessor" | jq '.data.display_name')
-		policies=$(vault token lookup -format=json -accessor "$accessor" | jq '.data.policies[]' | xargs | tr ' ' ',')
+		display_name=$(vault token lookup -format=json -accessor "$accessor" | jq --raw-output '.data.display_name')
+		policies=$(vault token lookup -format=json -accessor "$accessor" | jq --raw-output '.data.policies[]' | xargs | tr ' ' ',')
 		if ! vault token lookup -format=json -accessor "$accessor" | jq --exit-status '.data.policies | index("root")' 1>/dev/null; then
-			info "Token with name $display_name and policies '$policies' is not a root token, revoking it"
+			info "Token with name '$display_name' and policies '$policies' is not a root token, revoking it"
 			1>/dev/null vault token revoke -accessor "$accessor"
 		else
-			info "Token with name $display_name and policies '$policies' is a root token, not revoking it"
+			info "Token with name '$display_name' and policies '$policies' is a root token, not revoking it"
 		fi
 	done <<-EOF
 	$(vault list -format=json auth/token/accessors | jq --raw-output '.[]')
@@ -363,7 +363,7 @@ create_policies () {
 	EOF
 }
 
-create_token_role () {
+create_token_roles () {
 	ensure_env_json
 
 	if [ "$WATCH" = "1" ]; then
@@ -378,6 +378,7 @@ create_token_role () {
 		info "Determining IP for service \033\133;93m%s\033\133m" "$service"
 		allowed_ip=$({ timeout 0.3 ping -q4 -s0 -w1 -W1 -c1 "$service" | grep -o '\([[:digit:]]\+\.\)\{3\}[[:digit:]]\+' | head -n 1; } 2>/dev/null)
 		[ -n "$allowed_ip" ] || die "Failed to resolve domain \033\133;93m%s\033\133m to an IP address" "$service"
+		debug "Service name resolves to: \033\133;93m%s -> %s\033\133m" "$service" "$allowed_ip"
 
 		info "Creating new role for service \033\133;93m%s\033\133m" "$service"
 		1>/dev/null vault write auth/token/roles/"$service" \
@@ -401,6 +402,8 @@ create_and_share_client_tokens () {
 	while read -r service; do
 		info "Creating new client token for service \033\133;93m%s\033\133m with role \033\133;93m%s\033\133m and with policy \033\133;93m%s\033\133m" "$service" "$service" "$service"
 		vault token create -role="$service" -policy="$service" -format=json | jq --raw-output '.auth.client_token' > "$token_exchange_dir/${service}_vault_token"
+		test -s "$token_exchange_dir/${service}_vault_token" || die "File \033\133;93m%s\033\133m is empty!" "$token_exchange_dir/${service}_vault_token"
+		debug "%s token contents: \033\133;93m%s\033\133m" "$service" "$(cat "$token_exchange_dir/${service}_vault_token")"
 	done <<-EOF
 	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
 	EOF
@@ -438,7 +441,7 @@ main () {
 
 		revoke_all_client_tokens
 		create_policies
-		create_token_role
+		create_token_roles
 		create_and_share_client_tokens
 		#shutdown_server # For debugging
 	fi
