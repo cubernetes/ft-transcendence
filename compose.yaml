@@ -201,7 +201,14 @@ services:
                 condition: service_healthy
         restart: no # cannot restart because of expiring vault token
         healthcheck:
-            test: ["CMD", "curl", "--fail", "http://localhost:${KIBANA_PORT:-5601}/api/status"]
+            test:
+                [
+                    "CMD",
+                    "curl",
+                    "--no-progress-meter",
+                    "--fail",
+                    "http://localhost:${KIBANA_PORT:-5601}/api/status",
+                ]
             interval: 30s
             timeout: 10s
             retries: 5

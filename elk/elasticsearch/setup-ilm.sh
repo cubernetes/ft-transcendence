@@ -13,13 +13,13 @@ done
 
 # Apply ILM policy
 echo "Creating Index Lifecycle Management policy..."
-curl -X PUT "http://elasticsearch:${ELASTICSEARCH_PORT}/_ilm/policy/ft-transcendence-logs-policy" \
+curl --no-progress-meter -X PUT "http://elasticsearch:${ELASTICSEARCH_PORT}/_ilm/policy/ft-transcendence-logs-policy" \
   --header 'Content-Type: application/json' \
   --data "@/usr/share/elasticsearch/config/ilm-policy.json"
 
 # Create index template with ILM policy
 echo "Creating index template with ILM policy..."
-curl -X PUT "http://elasticsearch:${ELASTICSEARCH_PORT}/_template/ft-transcendence-logs" \
+curl --no-progress-meter -X PUT "http://elasticsearch:${ELASTICSEARCH_PORT}/_template/ft-transcendence-logs" \
   --header 'Content-Type: application/json' \
   --data '{
     "index_patterns": ["ft-transcendence-logs-*"],
@@ -46,7 +46,7 @@ curl -X PUT "http://elasticsearch:${ELASTICSEARCH_PORT}/_template/ft-transcenden
 
 # Create initial index
 echo "Creating initial index..."
-curl -X PUT "http://elasticsearch:${ELASTICSEARCH_PORT}/%3Cft-transcendence-logs-%7Bnow%2Fd%7D-000001%3E" \
+curl --no-progress-meter -X PUT "http://elasticsearch:${ELASTICSEARCH_PORT}/%3Cft-transcendence-logs-%7Bnow%2Fd%7D-000001%3E" \
   --header 'Content-Type: application/json' \
   --data '{
     "aliases": {

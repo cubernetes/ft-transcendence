@@ -212,7 +212,7 @@ Let's say your service is called `foo`, then the steps would be the following:
     vault_addr=http://vault:8200
 
     get_all_secrets_as_export_lines () {
-        curl --header "X-Vault-Token: \$vault_token" \\
+        curl --no-progress-meter --fail --header "X-Vault-Token: \$vault_token" \\
             "\$vault_addr/v1/secret/data/\$service" |
             jq --raw-output '
              .data.data|to_entries[] |

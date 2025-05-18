@@ -2,7 +2,7 @@
 
 # Wait for Kibana to be fully operational
 echo "Waiting for Kibana to be fully operational..."
-while ! curl --silent "http://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
+while ! curl --no-progress-meter "http://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
   echo "Kibana is not yet fully available - waiting..."
   sleep 10
 done
