@@ -98,3 +98,12 @@ install:
 .PHONY: test
 test: install
 	npm --prefix=backend test
+
+# Usage: make get-env SERVICE=elasticsearch
+.PHONY: get-env
+get-env:
+	$(D) exec vault sh -c 'SERVICE=$(SERVICE); wget --header="X-Vault-Token: $$(cat /vault/secret/root_token)" --quiet --output-document=- "$$(cat /tmp/vault_addr)"/v1/secret/data/$$SERVICE | jq --raw-output --color-output .data.data'
+
+.PHONY: wait
+wait:
+	wait_for_service () { service=$$1; [ -n "$$service" ] || { echo "Expected 1 argument"; return 1; }; i=0; while [ ! "$$(2>/dev/null docker inspect -f "{{.State.Health.Status}}" "$$service")" = "healthy" ]; do printf "\015""Waiting_for_service_$${service}_to_start%$${i}s" "" | sed -u "s/ /./g;s/_/ /g"; i=$$((i + 1)); sleep 0.3; done; echo; } && start=$$(date +%s); wait_for_service vault && wait_for_service elasticsearch && wait_for_service logstash && wait_for_service kibana && wait_for_service backend && sleep 15 && echo "Frontend: http://localhost:8080" && echo "OpenAPI: http://localhost:8080/api/discover" && echo "ELK http://localhost:5601" ; now=$$(date +%s); min=$$(( (now - start) / 60)); sec=$$(( (now - start) % 60)); echo "Took $${min}m$${sec}s"
