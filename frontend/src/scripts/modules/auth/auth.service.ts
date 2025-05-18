@@ -7,23 +7,17 @@ import { authStore, emptyAuthState } from "./auth.store";
  * @returns boolean true - success; false - totp required
  */
 export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, ErrorCode>> => {
-    const result = await sendApiRequest.post<LoginBody, LoginResponse>(
-        `${CONST.API.USER}/login`,
-        payload
-    );
-
-    if (result.isErr()) {
-        return err(result.error);
-    }
+    const res = await sendApiRequest.post<LoginBody, LoginResponse>(CONST.API.LOGIN, payload);
+    if (res.isErr()) return err(res.error);
 
     // Will never reach this becuase result will return Error when success is off
     // However it is difficult to come up with good type guard or ways to please ts
     // TODO: FIX
-    if (!result.value.success) {
+    if (!res.value.success) {
         return err("UNKNOWN_ERROR");
     }
 
-    const { data } = result.value;
+    const { data } = res.value;
 
     if (data.totpEnabled) {
         const { username, password } = payload;
@@ -43,19 +37,16 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
 };
 
 export const tryRegister = async (payload: RegisterBody): Promise<Result<void, ErrorCode>> => {
-    const result = await sendApiRequest.post<RegisterBody, LoginResponse>(
-        `${CONST.API.USER}/register`,
-        payload
-    );
+    const res = await sendApiRequest.post<RegisterBody, LoginResponse>(CONST.API.REGISTER, payload);
 
-    if (result.isErr()) return err(result.error);
+    if (res.isErr()) return err(res.error);
 
     // Will never reach this becuase result will return Error when success is off
     // However it is difficult to come up with good type guard or ways to please ts
     // TODO: FIX
-    if (!result.value.success) return err("UNKNOWN_ERROR");
+    if (!res.value.success) return err("UNKNOWN_ERROR");
 
-    const { username, displayName } = result.value.data;
+    const { username, displayName } = res.value.data;
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,
@@ -74,7 +65,7 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         return err("UNKNOWN_ERROR");
     }
 
-    const result = await sendApiRequest.post<LoginBody, LoginResponse>(`${CONST.API.USER}/login`, {
+    const result = await sendApiRequest.post<LoginBody, LoginResponse>(CONST.API.LOGIN, {
         username,
         password: tempAuthString,
         totpToken,
@@ -102,6 +93,6 @@ export const logout = () => {
     log.debug("Logging out...");
 
     // Remove cookies
-    sendApiRequest.post(`${CONST.API.USER}/logout`);
+    sendApiRequest.post(CONST.API.LOGOUT);
     authStore.set(emptyAuthState);
 };

@@ -13,7 +13,7 @@ import { createStatus } from "../components/Status";
 type Mode = "login" | "disable" | "setup" | "update";
 
 const fetchQrCode = async () => {
-    const resp = await sendApiRequest.get<TotpSetupResponse>(`${CONST.API.TOTP}/setup`);
+    const resp = await sendApiRequest.get<TotpSetupResponse>(CONST.API.SETUP_2FA);
 
     if (resp.isErr() || !resp.value.success) {
         // TODO: IF fail, api error el
@@ -101,14 +101,14 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
 
         switch (mode) {
             case "disable":
-                const tryDisable = await sendApiRequest.post(`${CONST.API.TOTP}/disable`, {
+                const tryDisable = await sendApiRequest.post(CONST.API.DISABLE_2FA, {
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
                 });
                 if (tryDisable.isErr()) return showErr(tryDisable.error);
                 navigateTo(CONST.ROUTE.HOME);
                 return closeModal();
             case "setup":
-                const trySetup = await sendApiRequest.post(`${CONST.API.TOTP}/verify`, {
+                const trySetup = await sendApiRequest.post(CONST.API.VERIFY_2FA, {
                     token: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
                         .value,
                 });
@@ -117,7 +117,7 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
                 navigateTo(CONST.ROUTE.HOME);
                 return closeModal();
             case "update":
-                const tryUpdate = await sendApiRequest.post(`${CONST.API.TOTP}/update`, {
+                const tryUpdate = await sendApiRequest.post(CONST.API.UPDATE_2FA, {
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
                     newToken: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
                         .value,

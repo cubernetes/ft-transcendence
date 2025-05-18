@@ -14,9 +14,28 @@ const DIR = {
 
 // API endpoints
 const BACKEND_API_URL = "/api";
+const USER_API_URL = `${BACKEND_API_URL}/user`;
+const LOBBY_API_URL = `${BACKEND_API_URL}/lobby`;
+const TOTP_API_URL = `${BACKEND_API_URL}/totp`;
 const API = {
+    LOGIN: `${USER_API_URL}/login`,
+    LOGOUT: `${USER_API_URL}/logout`,
+    REGISTER: `${USER_API_URL}/register`,
+    ME: `${USER_API_URL}/me`,
+    ME: `${USER_API_URL}/leaderboard`,
+    AVATAR: `${USER_API_URL}/avatar`,
+
+    CREATE_LOBBY: `${LOBBY_API_URL}/create`,
+    UPDATE_LOBBY: `${LOBBY_API_URL}/update`,
+    LEAVE: `${LOBBY_API_URL}/leave`,
+    JOIN: `${LOBBY_API_URL}/join`,
+
+    SETUP_2FA: `${TOTP_API_URL}/setup`,
+    VERIFY_2FA: `${TOTP_API_URL}/verify`,
+    UPDATE_2FA: `${TOTP_API_URL}/update`,
+    DISABLE_2FA: `${TOTP_API_URL}/disable`,
+
     USER: `${BACKEND_API_URL}/user`,
-    AVATAR: `${BACKEND_API_URL}/user/avatar`,
     TOTP: `${BACKEND_API_URL}/totp`,
     LOBBY: `${BACKEND_API_URL}/lobby`,
 };

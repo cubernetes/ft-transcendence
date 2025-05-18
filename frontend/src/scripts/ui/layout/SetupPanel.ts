@@ -176,7 +176,7 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
     const createLobbyBtn = createCtaBtn(
         CREATE_LOBBY,
         async () => {
-            const result = await sendApiRequest.post(`${CONST.API.LOBBY}/create`);
+            const result = await sendApiRequest.post(CONST.API.CREATE_LOBBY);
 
             if (result.isErr()) {
                 showErr(result.error);
@@ -184,7 +184,7 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
                     text: "LEAVE (dev hack)",
                     tw: "mt-2 p-2 bg-white hover:bg-gray-400",
                     click: () => {
-                        sendApiRequest.post(`${CONST.API.LOBBY}/leave`);
+                        sendApiRequest.post(CONST.API.LEAVE);
                         switchModePanel(ctn, "online");
                     },
                 });
@@ -305,7 +305,7 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
             const { controller } = gameStore.get();
             if (!controller) return showErr(INIT_ERROR);
 
-            const tryJoin = await sendApiRequest.post(`${CONST.API.LOBBY}/join/${lobbyId}`);
+            const tryJoin = await sendApiRequest.post(`${CONST.API.JOIN}/${lobbyId}`);
             if (tryJoin.isErr()) return showErr(tryJoin.error);
 
             gameStore.update({ lobbyId, lobbyHost: false });

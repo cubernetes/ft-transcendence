@@ -11,7 +11,7 @@ import { createTable } from "../components/Table";
  */
 const fetchLeaderboard = async (n: number): Promise<Result<Record<string, unknown>[], Error>> => {
     try {
-        const response = await fetch(`${CONST.API.USER}/leaderboard/${n}`);
+        const response = await fetch(`${CONST.API.LEADERBOARD}/${n}`);
         if (!response.ok) {
             throw new Error("Failed to fetch users");
         }

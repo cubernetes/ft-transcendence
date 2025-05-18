@@ -6,7 +6,7 @@ import { createGameStatsChart } from "../layout/GameStatsChart";
 import { createProfilePanel } from "../layout/ProfilePanel";
 
 const fetchPlayerData = async (): Promise<Result<GetMePayload, ErrorCode>> => {
-    const tryFetch = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
+    const tryFetch = await sendApiRequest.get<GetMeResponse>(CONST.API.ME);
 
     if (tryFetch.isErr()) return err(tryFetch.error);
 

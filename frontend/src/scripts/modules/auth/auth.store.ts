@@ -25,7 +25,7 @@ export const emptyAuthState = {
 };
 
 export const initAuthState = async (): Promise<AuthState> => {
-    const result = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
+    const result = await sendApiRequest.get<GetMeResponse>(CONST.API.ME);
     if (result.isErr() || !result.value.success) return emptyAuthState;
 
     const { username, displayName } = result.value.data;

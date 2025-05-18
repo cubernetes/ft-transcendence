@@ -81,7 +81,7 @@ export const createLobbyPage = (): UIComponent => {
     });
 
     const updateBtnCb = async () => {
-        const tryUpdate = await sendApiRequest.post(`${CONST.API.LOBBY}/update`, {
+        const tryUpdate = await sendApiRequest.post(CONST.API.UPDATE_LOBBY, {
             playTo: Number(playToInput.value),
         });
         if (tryUpdate.isErr()) return showErr(tryUpdate.error);
@@ -101,7 +101,7 @@ export const createLobbyPage = (): UIComponent => {
     };
 
     const leaveBtnCb = () => {
-        sendApiRequest.post(`${CONST.API.LOBBY}/leave`);
+        sendApiRequest.post(CONST.API.LEAVE);
         navigateTo("play");
     };
 
@@ -154,7 +154,7 @@ export const createLobbyPage = (): UIComponent => {
         unsubscribeGameStore();
 
         // Always leave when route away from lobby page
-        sendApiRequest.post(`${CONST.API.LOBBY}/leave`);
+        sendApiRequest.post(CONST.API.LEAVE);
     });
     return [container];
 };
