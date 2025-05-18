@@ -11,7 +11,6 @@ const upload = async (file: File): Promise<void | string> => {
     if (!ALLOWED_TYPES.includes(file.type)) return alert("Unsupported error type");
     if (file.size > MAX_SIZE) return alert("File size too large");
 
-    // prepare form-data
     const form = new FormData();
     form.append("image", file);
 
@@ -27,24 +26,19 @@ const upload = async (file: File): Promise<void | string> => {
 type Opts = {
     src: string;
     tw?: string;
-    /** POST endpoint that accepts multipart/form-data and returns { url: string } */
     maxSize?: number; // Default = 5 MB
-    onChange?: (url: string) => void; // callback when upload succeeds;
 };
 
-export const createAvatar = ({ src, tw = "", onChange }: Opts): HTMLElement => {
-    // ----- DOM scaffold -----------------------------------------------------
+export const createAvatar = ({ src, tw = "" }: Opts): HTMLElement => {
     const imgEl = createEl(
         "img",
         "w-full h-full object-cover rounded-full cursor-pointer ring-2 ring-transparent hover:ring-blue-400 transition",
         { attributes: { src, alt: getText("USER_AVATAR"), [CONST.ATTR.I18N_ALT]: "USER_AVATAR" } }
     );
 
-    // hidden input (accept images only)
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ALLOWED_TYPES.join(",");
-    input.className = "hidden";
+    const inputEl = createEl("input", "hidden", {
+        attributes: { type: "file", accept: ALLOWED_TYPES.join(",") },
+    });
 
     const overlayEl = createEl(
         "div",
@@ -59,19 +53,18 @@ export const createAvatar = ({ src, tw = "", onChange }: Opts): HTMLElement => {
 
     const ctn = createContainer({
         tw: "relative w-64 h-64 rounded-full group",
-        children: [input, overlayEl, imgEl],
+        children: [inputEl, overlayEl, imgEl],
     });
 
-    // ----- events -----------------------------------------------------------
     imgEl.addEventListener("click", (e) => {
         e.preventDefault();
-        input.click();
+        inputEl.click();
     });
 
-    input.addEventListener("change", async (e) => {
+    inputEl.addEventListener("change", async (e) => {
         e.preventDefault();
 
-        const file = input.files?.[0];
+        const file = inputEl.files?.[0];
         if (!file) return;
 
         const url = await upload(file);
