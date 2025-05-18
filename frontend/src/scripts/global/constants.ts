@@ -30,6 +30,9 @@ const ROUTE = {
 // Storage keys
 const KEY = {
     LANG: "lang", // Language preference key in local storage
+    BGM: "bgm",
+    SFX: "sfx",
+    SHADOWS: "shadows",
 };
 
 // Class for HTML elements

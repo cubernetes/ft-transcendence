@@ -42,7 +42,8 @@ declare global {
 declare module "@babylonjs/core" {
     interface Engine {
         shadowsEnabled: boolean;
-        soundsEnabled: boolean;
+        bgmEnabled: boolean;
+        sfxEnabled: boolean;
         audio: AudioEngineV2;
         shadowGenerator: ShadowGenerator;
         directionalLight: DirectionalLight;
@@ -54,6 +55,7 @@ declare module "@babylonjs/core" {
         rightPaddle: Mesh;
         score: Mesh;
         ballMat: PBRMaterial;
+        castShadow: () => void;
     }
 
     interface AudioEngineV2 {

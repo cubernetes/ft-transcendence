@@ -55,7 +55,8 @@ export const createScene = (engine: Engine, config: PongConfig): Scene => {
     setupScene(engine.scene);
 
     engine.directionalLight = createDirectionalLight(engine.scene);
-    engine.shadowGenerator = createShadowGenerator(engine.directionalLight);
+    engine.shadowGenerator = createShadowGenerator(engine);
+
     engine.camera = createCamera(engine); // TODO: check if attaching camera is needed
     engine.controls = createControls(engine);
 

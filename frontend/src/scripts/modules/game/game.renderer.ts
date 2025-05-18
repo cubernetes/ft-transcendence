@@ -9,8 +9,9 @@ export const createRenderer = async (canvasEl: HTMLCanvasElement): Promise<Engin
     engine.audio = await createAudioEngine();
 
     // Initialize options
-    engine.shadowsEnabled = false;
-    engine.soundsEnabled = true;
+    engine.shadowsEnabled = localStorage.getItem(CONST.KEY.SFX) !== "0"; // Default true
+    engine.sfxEnabled = localStorage.getItem(CONST.KEY.SFX) !== "0"; // Default true
+    engine.bgmEnabled = localStorage.getItem(CONST.KEY.BGM) !== "0"; // Default true
 
     return engine;
 };
