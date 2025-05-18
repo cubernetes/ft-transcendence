@@ -163,19 +163,6 @@ services:
                 restart: true
                 condition: service_healthy
         restart: no # cannot restart because of expiring vault token
-        healthcheck:
-            test:
-                [
-                    "CMD",
-                    "curl",
-                    "--no-progress-meter",
-                    "--fail",
-                    "http://localhost:${LOGSTASH_API_PORT:-9600}/_node/stats",
-                ]
-            interval: 10s
-            timeout: 5s
-            retries: 3
-            start_period: 30s
 
     kibana:
         profiles: [elk]
@@ -200,19 +187,6 @@ services:
                 restart: true
                 condition: service_healthy
         restart: no # cannot restart because of expiring vault token
-        healthcheck:
-            test:
-                [
-                    "CMD",
-                    "curl",
-                    "--no-progress-meter",
-                    "--fail",
-                    "http://localhost:${KIBANA_PORT:-5601}/api/status",
-                ]
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 30s
 
     vault:
         build:

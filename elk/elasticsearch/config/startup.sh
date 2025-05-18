@@ -18,7 +18,7 @@ TERM=linux setsid -f watch -xtcn5 curl \
 		--insecure \
 		--user "generic_user:${ELASTIC_PASSWORD}" \
 		--fail \
-		--output /tmp/healthcheck \
+		--write-out '%output{/tmp/healthcheck}%{exitcode}' \
 		"https://localhost:${ELASTICSEARCH_PORT}/_cluster/health" 1>/dev/null 2>&1
 
 # Set up permissions for certificates directory

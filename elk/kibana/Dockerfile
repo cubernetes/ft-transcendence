@@ -58,12 +58,15 @@ printf "Environment end"
 eval exec env -- "\$env_params" /bin/tini -- '"\$@"'
 EOF
 
-CMD ["sh", "-xec", "echo BEFORE-KIBANA; env; echo AFTER-KIBANA; /usr/local/bin/kibana-docker & KIBANA_PID=$! ; echo \"Kibana starting with PID $KIBANA_PID\" ; sleep 120 ; /usr/share/kibana/setup-dashboards.sh & wait $KIBANA_PID"]
+CMD ["sh", "-xec", ": Healthcheck ; TERM=linux setsid -f watch -xtcn5 curl --no-progress-meter --fail --write-out '%output{/tmp/healthcheck}%{exitcode}' \"http://localhost:${KIBANA_PORT:-5601}/api/status\" 1>/dev/null 2>&1 ; /usr/local/bin/kibana-docker & KIBANA_PID=$! ; echo \"Kibana starting with PID $KIBANA_PID\" ; sleep 120 ; /usr/share/kibana/setup-dashboards.sh & wait $KIBANA_PID"]
 
 # No need to set WORKDIR, will be inherited from base image
 # No need to set CMD, will be inherited from base image
 # No need to set any ENV, will be inherited from base image
 # No need to set USER, will be inherited from base image
+
+# Healthcheck defined inline in the Dockerfile CMD directive, 7 lines above /\
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=30s CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
 
 USER 1000
 ENTRYPOINT ["/entrypoint.sh"]

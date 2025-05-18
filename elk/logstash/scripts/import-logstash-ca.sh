@@ -2,6 +2,14 @@
 
 #set -vx
 
+# Healthcheck background service (because only this process has access to the environment
+# and an external healthcheck would need access to those, which is not intended)
+TERM=linux setsid -f watch -xtcn5 curl \
+	--no-progress-meter \
+	--fail \
+	--write-out '%output{/tmp/healthcheck}%{exitcode}' \
+	"http://localhost:${LOGSTASH_API_PORT:-9600}/_node/stats" 1>/dev/null 2>&1
+
 # Path to the CA cert inside the container
 CA_CERT_PATH="/etc/logstash/config/certs/ca.crt"
 # Alias for the cert in the truststore

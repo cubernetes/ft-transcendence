@@ -68,7 +68,8 @@ CMD ["/usr/share/elasticsearch/config/startup.sh"]
 # No need to set any ENV, will be inherited from base image
 # No need to set USER, will be inherited from base image
 
-HEALTHCHECK --interval=30s --timeout=10s --retries=5 CMD ["grep", "-q", "\"status\":\"green\",\"timed_out\":false", "/tmp/healthcheck"]
+# Healthcheck defined in ${REPO_ROOT}/elk/logstash/scripts/import-logstash-ca.sh
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
 
 USER 1000
 ENTRYPOINT ["/entrypoint.sh"]

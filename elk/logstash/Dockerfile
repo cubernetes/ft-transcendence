@@ -66,5 +66,8 @@ EOF
 # No need to set any ENV, will be inherited from base image
 # No need to set USER, will be inherited from base image
 
+# Healthcheck defined in ${REPO_ROOT}/elk/elasticsearch/config/startup.sh
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=30s CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
+
 USER 1000
 ENTRYPOINT ["/entrypoint.sh"]
