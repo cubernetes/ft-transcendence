@@ -12,7 +12,7 @@ const TOTP_ENCODING: TotpEncodingOption = "base32";
 
 const WS_MAX_PAYLOAD = 65536;
 
-const UPLOAD_DIR = "./frontend/dist/assets/uploads";
+const UPLOAD_DIR = "/frontend/dist/assets/uploads";
 
 const UPLOAD_MAX_SIZE = 10 * 1024 * 1024; // 10MB; reject abnormally large file upload for protection
 
