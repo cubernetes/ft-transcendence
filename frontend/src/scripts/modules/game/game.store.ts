@@ -5,7 +5,7 @@ import { createGameController } from "./game.controller";
 // What other data should be stored? start time? duration? names?
 type GameState = {
     isPlaying: boolean;
-    isWaiting: boolean;
+    isWaiting: boolean; // Do we need this still?
     playerNames: string[];
     lobbyId: string;
     lobbyHost: boolean;

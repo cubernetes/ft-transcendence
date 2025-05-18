@@ -23,6 +23,7 @@ const upload = async (file: File): Promise<void | string> => {
     return res.value.data.avatarUrl;
 };
 
+// Mode: Change, profile, stats, etc.
 type Opts = {
     src: string;
     tw?: string;

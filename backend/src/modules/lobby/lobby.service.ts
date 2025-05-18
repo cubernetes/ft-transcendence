@@ -76,20 +76,24 @@ export const createLobbyService = (app: FastifyInstance) => {
         if (!session) return err("CORRUPTED_DATA");
 
         const { players, playerNames } = session;
-        const index = players.findIndex((p) => p === userId);
+        const isHost = players.findIndex((p) => p === userId) === 0;
 
         // If host leaves, kick the guest, for now
-        if (index === 0) {
-            app.wsService.broadcast(players, { type: "lobby-remove", payload: null });
-            //app.wsService.send(players[1], { type: "lobby-remove", payload: null });
+        if (isHost) {
             lobbyMap.delete(userId);
             lobbyMap.delete(players[1]);
             sessionMap.delete(lobbyId);
+
+            app.wsService.broadcast(players, { type: "lobby-remove", payload: null });
         } else {
-            app.wsService.send(players[0], { type: "lobby-remove", payload: null });
-            lobbyMap.delete(userId);
-            players.splice(1, 1);
+            // Remove player 1 by name first
             playerNames.splice(1, 1);
+
+            sendUpdate(lobbyId);
+
+            // Remove player 1 from backend memory
+            players.splice(1, 1);
+            lobbyMap.delete(userId);
         }
         return ok();
     };
@@ -111,19 +115,23 @@ export const createLobbyService = (app: FastifyInstance) => {
         const { engine, players, playerNames } = session;
         const config = engine.getConfig();
 
-        if (players[0]) {
-            app.wsService.send(players[0], {
-                type: "lobby-update",
-                payload: { config, playerNames, host: true },
-            });
-        }
+        app.wsService.send(players[0], {
+            type: "lobby-update",
+            payload: { config, playerNames, host: true },
+        });
 
-        if (players[1]) {
-            app.wsService.send(players[1], {
-                type: "lobby-update",
-                payload: { config, playerNames, host: false },
-            });
-        }
+        app.wsService.send(
+            players[1],
+            playerNames[1]
+                ? {
+                      type: "lobby-update",
+                      payload: { config, playerNames, host: false },
+                  }
+                : {
+                      type: "lobby-remove",
+                      payload: null,
+                  }
+        );
 
         return ok();
     };
