@@ -52,8 +52,7 @@ authStore.subscribe(async (state) => {
         const { statusEl, showErr } = createStatus();
         tokenForm.appendChild(statusEl);
         tokenForm.addEventListener("submit", async (evt) => {
-            // Very important, to prevent reload
-            evt.preventDefault();
+            evt.preventDefault(); // Prevent reload
 
             const tryLogin = await tryLoginWithTotp();
             if (tryLogin.isErr()) return showErr(tryLogin.error);
@@ -69,8 +68,4 @@ authStore.subscribe(async (state) => {
         closeSocketConn();
         return;
     }
-
-    // Redirect to home and open socket connection once successfully authenticated
-    navigateTo(CONST.ROUTE.HOME);
-    establishSocketConn();
 });

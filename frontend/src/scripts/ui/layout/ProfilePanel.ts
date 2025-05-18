@@ -1,4 +1,5 @@
 import { PersonalUser } from "@darrenkuro/pong-core";
+import { authStore } from "../../modules/auth/auth.store";
 import { getText } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 import { createAvatar } from "../components/Avatar";
@@ -8,6 +9,7 @@ import { createContainer } from "../components/Container";
 import { createHeading } from "../components/Heading";
 import { createParagraph } from "../components/Paragraph";
 import { createTotpModal } from "./TotpModal";
+import { createUpdateModal } from "./UpdateModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const avatarEl = createAvatar({ src: user.avatarUrl });
@@ -18,13 +20,18 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const usernameEl = createParagraph({ text: user.username });
 
     const displayNameLabel = createParagraph({ text: "DISPLAY_NAME", tw: "mr-8" });
-    const DisplayNameEl = createParagraph({ text: user.displayName });
+    const displayNameEl = createParagraph({ text: user.displayName, tw: "cursor-pointer" });
+    displayNameEl.onclick = () => createUpdateModal("displayName");
+    const unsubscribeAuth = authStore.subscribe(
+        ({ displayName }) => (displayNameEl.textContent = displayName ?? "")
+    );
+    displayNameEl.addEventListener("destory", unsubscribeAuth);
 
     const passwordLabel = createParagraph({ text: "PASSWORD", tw: "mr-8" });
     const passwordBtn = createButton({
         text: "UPDATE",
         tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
-        // TODO: click cb
+        click: () => createUpdateModal("password"),
     });
 
     const totpLabel = createParagraph({ text: "2FA", tw: "mr-8" });
@@ -50,7 +57,7 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
 
     const contentCtn = createContainer({
         tw: "flex-col w-full bg-yellow-300",
-        children: [usernameEl, DisplayNameEl, passwordBtn, totpEl, rankEl],
+        children: [usernameEl, displayNameEl, passwordBtn, totpEl, rankEl],
     });
 
     const settingCtn = createContainer({

@@ -9,6 +9,7 @@ export const errorCodeEnum = z.enum([
     "USERNAME_REQUIRED",
     "USERNAME_TAKEN",
     "USERNAME_TOO_SHORT",
+    "DISPLAY_NAME_REQUIRED",
     "DISPLAY_NAME_TOO_SHORT",
 
     "PASSWORD_REQUIRED",

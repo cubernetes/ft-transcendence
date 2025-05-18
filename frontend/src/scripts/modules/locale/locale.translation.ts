@@ -56,6 +56,8 @@ export const TEXT_MAP = {
         es: "Nombre para mostrar",
     },
     PASSWORD: { en: "Password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" },
+    OLD_PASSWORD: { en: "Old password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" }, // TRANSLATION_NEEDED
+    NEW_PASSWORD: { en: "New password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" }, // TRANSLATION_NEEDED
     CONFIRM_PASSWORD: {
         en: "Confirm password",
         de: "Passwort bestätigen",

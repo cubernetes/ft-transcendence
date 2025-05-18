@@ -93,8 +93,7 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
     const closeModal = createModal({ children: [container] });
 
     tokenForm.addEventListener("submit", async (evt) => {
-        // Prevent reload and clear from default
-        evt.preventDefault();
+        evt.preventDefault(); // Prevent reload
 
         switch (mode) {
             case "disable":

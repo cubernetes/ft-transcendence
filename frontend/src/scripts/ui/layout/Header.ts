@@ -58,10 +58,7 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     appendChildren(headerEl, [titleEl, navEl]);
 
     // Header is never destoryed but included for good practice
-    headerEl.addEventListener("destory", () => {
-        log.debug("Header unsubscribe to Login status");
-        unsubscribeAuth();
-    });
+    headerEl.addEventListener("destory", unsubscribeAuth);
 
     return headerEl;
 };

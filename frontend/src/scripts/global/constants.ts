@@ -18,9 +18,11 @@ const USER_API_URL = `${BACKEND_API_URL}/user`;
 const LOBBY_API_URL = `${BACKEND_API_URL}/lobby`;
 const TOTP_API_URL = `${BACKEND_API_URL}/totp`;
 const API = {
+    REGISTER: `${USER_API_URL}/register`,
     LOGIN: `${USER_API_URL}/login`,
     LOGOUT: `${USER_API_URL}/logout`,
-    REGISTER: `${USER_API_URL}/register`,
+    PASSWORD: `${USER_API_URL}/password`,
+    DISPLAYNAME: `${USER_API_URL}/displayname`,
     ME: `${USER_API_URL}/me`,
     LEADERBOARD: `${USER_API_URL}/leaderboard`,
     AVATAR: `${USER_API_URL}/avatar`,

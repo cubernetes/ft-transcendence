@@ -8,8 +8,16 @@ export const userRoutes = async (app: FastifyInstance) => {
     const controller = createUserController(app);
 
     // Deconstruct to get shorten variable names
-    const { registerBody, loginBody, leaderboardParams, infoParams } = schemas;
-    const { register, login, logout, leaderboard, info, me, avatar } = controller;
+    const {
+        registerBody,
+        loginBody,
+        displayNameBody,
+        passwordBody,
+        leaderboardParams,
+        infoParams,
+    } = schemas;
+    const { register, login, logout, displayName, password, leaderboard, info, me, avatar } =
+        controller;
 
     // Register
     const registerOpts = { schema: route.register }; // Schema for swagger UI
@@ -22,6 +30,14 @@ export const userRoutes = async (app: FastifyInstance) => {
     // Logout
     const logoutOpts = { preHandler: [app.requireAuth], schema: route.logout };
     const logoutHandler = logout;
+
+    // Display name
+    const displayNameOpts = { preHandler: [app.requireAuth] }; // TODO: schema
+    const displayNameHandler = withZod({ body: displayNameBody }, displayName);
+
+    // Password
+    const passwordOpts = { preHandler: [app.requireAuth] }; // TODO: schema
+    const passwordHandler = withZod({ body: passwordBody }, password);
 
     // Leaderboard
     const leaderboardOpts = { schema: route.getLeaderboard };
@@ -43,6 +59,8 @@ export const userRoutes = async (app: FastifyInstance) => {
     app.post("/register", registerOpts, registerHandler);
     app.post("/login", loginOpts, loginHandler);
     app.post("/logout", logoutOpts, logoutHandler);
+    app.post("/displayname", displayNameOpts, displayNameHandler);
+    app.post("/password", passwordOpts, passwordHandler);
     app.get("/leaderboard/:n", leaderboardOpts, leaderboardHandler);
     app.get("/info/:username", infoOpts, infoHandler);
     app.get("/me", meOpts, meHandler);

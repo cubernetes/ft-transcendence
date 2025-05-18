@@ -66,6 +66,35 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
+    type DisplayNameCb = ZodHandler<{ body: typeof userSchemas.displayNameBody }>;
+    const displayName: DisplayNameCb = async ({ body }, req, reply) => {
+        const { displayName } = body;
+        const tryUpdateUser = await app.userService.update(req.userId, { displayName });
+        if (tryUpdateUser.isErr()) return reply.err(tryUpdateUser.error);
+
+        reply.ok({});
+    };
+
+    type PasswordCb = ZodHandler<{ body: typeof userSchemas.passwordBody }>;
+    const password: PasswordCb = async ({ body }, req, reply) => {
+        const tryGetUser = await app.userService.findById(req.userId);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
+
+        const { passwordHash } = tryGetUser.value;
+        const { oldPassword, newPassword } = body;
+
+        const verifyPassword = await app.authService.comparePassword(oldPassword, passwordHash);
+        if (!verifyPassword) return reply.err("PASSWORD_INVALID");
+
+        const newPasswordHash = await app.authService.hashPassword(newPassword);
+        const tryUpdateUser = await app.userService.update(req.userId, {
+            passwordHash: newPasswordHash,
+        });
+        if (tryUpdateUser.isErr()) return reply.err(tryUpdateUser.error);
+
+        reply.ok({});
+    };
+
     type LeaderboardCb = ZodHandler<{ params: typeof userSchemas.leaderboardParams }>;
     const leaderboard: LeaderboardCb = async ({ params }, _, reply) => {
         // Get number of users requested from params
@@ -137,5 +166,5 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({ avatarUrl });
     };
 
-    return { register, login, logout, leaderboard, info, me, avatar };
+    return { register, login, logout, displayName, password, leaderboard, info, me, avatar };
 };

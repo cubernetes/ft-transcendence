@@ -1,6 +1,8 @@
 import type { ErrorCode, LoginBody, LoginPayload, RegisterBody } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
+import { navigateTo } from "../../global/router";
 import { sendApiRequest } from "../../utils/api";
+import { establishSocketConn } from "../ws/ws.service";
 import { authStore, emptyAuthState } from "./auth.store";
 
 /**
@@ -25,6 +27,8 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
             displayName,
             tempAuthString: null,
         });
+        establishSocketConn();
+        navigateTo(CONST.ROUTE.HOME);
         return ok(true);
     }
 };
@@ -52,15 +56,15 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         return err("UNKNOWN_ERROR");
     }
 
-    const result = await sendApiRequest.post<LoginBody, LoginPayload>(CONST.API.LOGIN, {
+    const res = await sendApiRequest.post<LoginBody, LoginPayload>(CONST.API.LOGIN, {
         username,
         password: tempAuthString,
         totpToken,
     });
 
-    if (result.isErr()) return err(result.error);
+    if (res.isErr()) return err(res.error);
 
-    const { displayName } = result.value;
+    const { displayName } = res.value;
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,
@@ -68,6 +72,8 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         displayName,
         tempAuthString: null,
     });
+    establishSocketConn();
+    navigateTo(CONST.ROUTE.HOME);
     return ok();
 };
 

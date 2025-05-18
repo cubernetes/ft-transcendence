@@ -18,10 +18,18 @@ export const PASSWORD_MIN_LENGTH = 8;
 export type RegisterBody = z.infer<typeof registerBody>;
 const registerBody = z
     .object({
-        username: z.string().min(USERNAME_MIN_LENGTH, "USERNAME_TOO_SHORT"),
-        displayName: z.string().min(DISPLAY_NAME_MIN_LENGTH, "DISPLAY_NAME_TOO_SHORT"),
-        password: z.string().min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
-        confirmPassword: z.string().min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
+        username: z
+            .string({ required_error: "USERNAME_REQUIRED" })
+            .min(USERNAME_MIN_LENGTH, "USERNAME_TOO_SHORT"),
+        displayName: z
+            .string({ required_error: "DISPLAY_NAME_REQUIRED" })
+            .min(DISPLAY_NAME_MIN_LENGTH, "DISPLAY_NAME_TOO_SHORT"),
+        password: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
+        confirmPassword: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
     })
     .refine((data) => data.password === data.confirmPassword, "PASSWORD_MATCH_ERROR");
 
@@ -31,6 +39,26 @@ const loginBody = z.object({
     password: z.string({ required_error: "PASSWORD_REQUIRED" }),
     totpToken: z.string().length(6, "TOKEN_LENGTH_ERROR").optional(),
 });
+
+export type DisplayNameBody = z.infer<typeof displayNameBody>;
+const displayNameBody = z.object({
+    displayName: z
+        .string({ required_error: "DISPLAY_NAME_REQUIRED" })
+        .min(DISPLAY_NAME_MIN_LENGTH, "DISPLAY_NAME_TOO_SHORT"),
+});
+
+export type PasswordBody = z.infer<typeof passwordBody>;
+const passwordBody = z
+    .object({
+        oldPassword: z.string({ required_error: "PASSWORD_REQUIRED" }),
+        newPassword: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
+        confirmPassword: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, "PASSWORD_MATCH_ERROR");
 
 export type LeaderboardParams = z.infer<typeof leaderboardParams>;
 const leaderboardParams = z.object({ n: z.coerce.number().int().gt(0) });
@@ -79,6 +107,8 @@ export const userSchemas = {
     jwtPayload,
     registerBody,
     loginBody,
+    displayNameBody,
+    passwordBody,
     leaderboardParams,
     infoParams,
     getInfoPayload,

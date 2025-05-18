@@ -85,8 +85,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
 
     // Submit listern will also take in enter
     authForm.addEventListener("submit", async (evt) => {
-        // Prevent reload and clear from default
-        evt.preventDefault();
+        evt.preventDefault(); // Prevent reload
 
         if (mode === "login") {
             const data = { username: usernameEl.value, password: passwordEl.value };
@@ -94,7 +93,6 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
 
             if (res.isErr()) return showErr(res.error);
         } else {
-            // TODO: maybe only let backend check this
             if (passwordEl.value !== confirmEl.value)
                 return showErr(CONST.TEXT.PASSWORD_MATCH_ERROR);
 
