@@ -1,7 +1,10 @@
 import type { UserInsert, UserRecord } from "../../core/db/db.types.ts";
 import type { FastifyInstance } from "fastify";
+import { MultipartFile } from "@fastify/multipart";
 import { Result, err, ok } from "neverthrow";
 import { count, desc, eq } from "drizzle-orm";
+import { writeFile } from "fs/promises";
+import { extname, join } from "path";
 import { ErrorCode, PersonalUser, PublicUser } from "@darrenkuro/pong-core";
 import { users } from "../../core/db/db.schema.ts";
 import { errUniqueConstraintOn } from "../../utils/api-response.ts";
@@ -111,6 +114,26 @@ export const createUserService = (app: FastifyInstance) => {
         }
     };
 
+    const upload = async (
+        file: MultipartFile,
+        username: string
+    ): Promise<Result<string, ErrorCode>> => {
+        const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+        const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+        if (!ALLOWED_TYPES.includes(file.mimetype)) return err("UNKNOWN_ERROR"); // TODO: correct error type
+
+        const ext = extname(file.filename);
+        const filename = `${username}${ext}`; // Every user will have one, will overwrite
+        const filepath = join(app.config.uploadDir, filename);
+
+        const buffer = await file.toBuffer();
+        if (buffer.length > MAX_SIZE) return err("UNKNOWN_ERROR"); // TODO: correct error type
+
+        await writeFile(filepath, buffer);
+        return ok(filename);
+    };
+
     const getCount = async (): Promise<Result<number, ErrorCode>> => {
         try {
             const [result] = await db.select({ count: count() }).from(users);
@@ -156,6 +179,7 @@ export const createUserService = (app: FastifyInstance) => {
         findAll,
         update,
         remove,
+        upload,
         getCount,
         getRankByUsername,
         toPublicUser,

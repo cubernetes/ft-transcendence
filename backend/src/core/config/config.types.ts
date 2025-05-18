@@ -20,4 +20,6 @@ export type AppConfig = {
     cookieConfig: CookieConfig;
     totpEncoding: TotpEncodingOption;
     wsMaxPayload: number;
+    uploadDir: string;
+    uploadMaxSize: number;
 };

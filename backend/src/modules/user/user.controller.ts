@@ -120,5 +120,20 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok(tryMapUser.value);
     };
 
-    return { register, login, logout, leaderboard, info, me };
+    const avatar: RouteHandlerMethod = async (req, reply) => {
+        const app = req.server;
+
+        const data = await req.file();
+
+        if (!data) return; //TODO: fill in; this validation should be done with zod or something at a higher level?
+
+        const tryUpload = await app.userService.upload(data, req.username);
+        if (tryUpload.isErr()) return reply.err(tryUpload.error);
+
+        await app.userService.update(req.userId, { avatarUrl: tryUpload.value });
+
+        reply.ok({});
+    };
+
+    return { register, login, logout, leaderboard, info, me, avatar };
 };

@@ -12,9 +12,14 @@ const TOTP_ENCODING: TotpEncodingOption = "base32";
 
 const WS_MAX_PAYLOAD = 65536;
 
+const UPLOAD_DIR = "./frontend/dist/public/uploads";
+const UPLOAD_MAX_SIZE = 10 * 1024 * 1024; // 10MB; reject abnormally large file upload for protection
+
 export default {
     cookieName: COOKIE_NAME,
     cookieConfig: COOKIE_CONFIG,
     totpEncoding: TOTP_ENCODING,
     wsMaxPayload: WS_MAX_PAYLOAD,
+    uploadDir: UPLOAD_DIR,
+    uploadMaxSize: UPLOAD_MAX_SIZE,
 };
