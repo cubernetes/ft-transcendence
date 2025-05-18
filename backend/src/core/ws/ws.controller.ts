@@ -13,9 +13,9 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
 
     app.wsService.addConnection(conn);
 
-    conn.on("message", (raw: string) => {
+    conn.on("message", async (raw: string) => {
         // Try to parse message payload into JSON object
-        const msg = safeJsonParse<IncomingMessage<IncomingMessageType>>(raw.toString());
+        const msg = await safeJsonParse<IncomingMessage<IncomingMessageType>>(raw.toString());
         if (msg.isErr()) return app.log.error("Websocket on message failed to parse JSON");
 
         // Try to get handler for the message type

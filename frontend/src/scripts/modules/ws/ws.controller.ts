@@ -55,9 +55,9 @@ const registerGameControllers = (conn: WebSocket) => {
     // In game handlers will be registered by game controller at online game start time
     // Because the those function exist in game controller that does not exist at this time potentially
 
-    const handleMessage = (evt: MessageEvent<any>) => {
+    const handleMessage = async (evt: MessageEvent<any>) => {
         // Try to parse socket message to json and guard against invalid format
-        const tryParseMessage = safeJsonParse<Message<Type>>(evt.data);
+        const tryParseMessage = await safeJsonParse<Message<Type>>(evt.data);
         if (tryParseMessage.isErr()) return log.error(`Fail to parse socket message: ${evt.data}`);
 
         // Try to get message type, payload, and guard against empty type

@@ -1,12 +1,16 @@
 import { Result, err, ok } from "neverthrow";
+import { ErrorCode } from "./schemas/schemas.api";
 
-/** Safely parse a string to JSON and return a Result. */
-export const safeJsonParse = <T>(text: string): Result<T, Error> => {
+/** Safely parse a string or a fetch response to JSON and return a Result. */
+export const safeJsonParse = async <T>(input: string | Response): Promise<Result<T, ErrorCode>> => {
+    const isRes = (val: unknown): val is Response =>
+        typeof Response !== "undefined" && val instanceof Response;
+
     try {
-        const parsedData: T = JSON.parse(text);
+        const parsedData: T = isRes(input) ? await input.json() : JSON.parse(input);
         return ok(parsedData);
     } catch (error) {
-        return err(new Error("Invalid JSON format"));
+        return err("CORRUPTED_DATA");
     }
 };
 

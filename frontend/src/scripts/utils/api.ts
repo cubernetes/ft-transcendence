@@ -1,16 +1,12 @@
 import { Result, err, ok } from "neverthrow";
-import { ApiResponse, ErrorCode, defaultGameConfig } from "@darrenkuro/pong-core";
-import { logout } from "../modules/auth/auth.service";
+import { ApiResponse, ErrorCode, defaultGameConfig, safeJsonParse } from "@darrenkuro/pong-core";
 
 /**
  * A generic fetch wrapper to send JSON over request body.
  * Jwt Token will be automtically attached.
- * @template T,E T: RequestBody, E: ResponseJSON
+ * @template T,E T: Request body, E: Response payload
  */
-const post = async <T, E extends ApiResponse<any>>(
-    url: string,
-    body?: T
-): Promise<Result<E, ErrorCode>> => {
+const post = async <T, E>(url: string, body?: T): Promise<Result<E, ErrorCode>> => {
     try {
         const init: RequestInit = {
             method: "POST",
@@ -18,7 +14,7 @@ const post = async <T, E extends ApiResponse<any>>(
         };
 
         if (body) {
-            if (typeof FormData && body instanceof FormData) {
+            if (typeof FormData !== "undefined" && body instanceof FormData) {
                 init.body = body;
             } else {
                 init.body = JSON.stringify(body);
@@ -26,39 +22,42 @@ const post = async <T, E extends ApiResponse<any>>(
             }
         }
 
-        const response = await fetch(url, init);
+        const res = await fetch(url, init);
+        const tryParsePayload = await safeJsonParse(res);
+        if (tryParsePayload.isErr()) return err("CORRUPTED_DATA");
 
-        const data: E = await response.json();
-        log.debug(data);
+        const payload = tryParsePayload.value as ApiResponse<any>;
 
-        if (!data.success) {
-            log.debug(`POST to ${url}: ${response.status} ${data.error.code}`);
-            return err(data.error.code);
+        if (!payload.success) {
+            log.debug(`POST to ${url}: ${res.status} ${payload.error.code}`);
+            return err(payload.error.code);
         }
 
-        return ok(data);
+        return ok(payload.data as E);
     } catch (error) {
         log.error(`POST to ${url}: ${error instanceof Error ? error.message : "unknown error"}`);
         return err("UNKNOWN_ERROR");
     }
 };
 
-const get = async <T extends ApiResponse<any>>(url: string): Promise<Result<T, ErrorCode>> => {
+const get = async <T>(url: string): Promise<Result<T, ErrorCode>> => {
     try {
-        const response = await fetch(url, {
+        const res = await fetch(url, {
             method: "GET",
             credentials: "include", // Cookies
         });
 
-        const data: T = await response.json();
-        log.debug(data);
+        const tryParsePayload = await safeJsonParse(res);
+        if (tryParsePayload.isErr()) return err("CORRUPTED_DATA");
 
-        if (!data.success) {
-            log.debug(`GET ${url}: ${response.status} ${data.error.code}`);
-            return err(data.error.code);
+        const payload = tryParsePayload.value as ApiResponse<any>;
+
+        if (!payload.success) {
+            log.debug(`GET ${url}: ${res.status} ${payload.error.code}`);
+            return err(payload.error.code);
         }
 
-        return ok(data);
+        return ok(payload.data as T);
     } catch (error) {
         log.error(`POST to ${url}: ${error instanceof Error ? error.message : "unknown error"}`);
         return err("UNKNOWN_ERROR");

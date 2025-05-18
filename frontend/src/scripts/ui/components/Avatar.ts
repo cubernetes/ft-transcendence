@@ -15,12 +15,12 @@ const upload = async (file: File): Promise<void | string> => {
     const form = new FormData();
     form.append("image", file);
 
-    const res = await sendApiRequest.post(CONST.API.AVATAR, form);
+    const res = await sendApiRequest.post<any, { avatarUrl: string }>(CONST.API.AVATAR, form);
 
     if (res.isErr()) return alert("Upload Fail");
-    if (!res.value.success) return;
+    if (!res.value) return;
 
-    return res.value.data.avatarUrl;
+    return res.value.avatarUrl;
 };
 
 // Mode: Change, profile, stats, etc.

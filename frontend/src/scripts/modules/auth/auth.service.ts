@@ -1,4 +1,4 @@
-import type { ErrorCode, LoginBody, LoginResponse, RegisterBody } from "@darrenkuro/pong-core";
+import type { ErrorCode, LoginBody, LoginPayload, RegisterBody } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
 import { sendApiRequest } from "../../utils/api";
 import { authStore, emptyAuthState } from "./auth.store";
@@ -7,17 +7,10 @@ import { authStore, emptyAuthState } from "./auth.store";
  * @returns boolean true - success; false - totp required
  */
 export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, ErrorCode>> => {
-    const res = await sendApiRequest.post<LoginBody, LoginResponse>(CONST.API.LOGIN, payload);
+    const res = await sendApiRequest.post<LoginBody, LoginPayload>(CONST.API.LOGIN, payload);
     if (res.isErr()) return err(res.error);
 
-    // Will never reach this becuase result will return Error when success is off
-    // However it is difficult to come up with good type guard or ways to please ts
-    // TODO: FIX
-    if (!res.value.success) {
-        return err("UNKNOWN_ERROR");
-    }
-
-    const { data } = res.value;
+    const data = res.value;
 
     if (data.totpEnabled) {
         const { username, password } = payload;
@@ -37,16 +30,10 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
 };
 
 export const tryRegister = async (payload: RegisterBody): Promise<Result<void, ErrorCode>> => {
-    const res = await sendApiRequest.post<RegisterBody, LoginResponse>(CONST.API.REGISTER, payload);
-
+    const res = await sendApiRequest.post<RegisterBody, LoginPayload>(CONST.API.REGISTER, payload);
     if (res.isErr()) return err(res.error);
 
-    // Will never reach this becuase result will return Error when success is off
-    // However it is difficult to come up with good type guard or ways to please ts
-    // TODO: FIX
-    if (!res.value.success) return err("UNKNOWN_ERROR");
-
-    const { username, displayName } = res.value.data;
+    const { username, displayName } = res.value;
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,
@@ -65,7 +52,7 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         return err("UNKNOWN_ERROR");
     }
 
-    const result = await sendApiRequest.post<LoginBody, LoginResponse>(CONST.API.LOGIN, {
+    const result = await sendApiRequest.post<LoginBody, LoginPayload>(CONST.API.LOGIN, {
         username,
         password: tempAuthString,
         totpToken,
@@ -73,12 +60,7 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
 
     if (result.isErr()) return err(result.error);
 
-    // Will never reach this becuase result will return Error when success is off
-    // However it is difficult to come up with good type guard or ways to please ts
-    // TODO: FIX
-    if (!result.value.success) return err("UNKNOWN_ERROR");
-
-    const { displayName } = result.value.data;
+    const { displayName } = result.value;
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,

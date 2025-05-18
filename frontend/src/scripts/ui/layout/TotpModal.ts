@@ -1,4 +1,4 @@
-import { TotpSetupResponse } from "@darrenkuro/pong-core";
+import { TotpSetupPayload, TotpSetupResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { sendApiRequest } from "../../utils/api";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -13,14 +13,11 @@ import { createStatus } from "../components/Status";
 type Mode = "login" | "disable" | "setup" | "update";
 
 const fetchQrCode = async () => {
-    const resp = await sendApiRequest.get<TotpSetupResponse>(CONST.API.SETUP_2FA);
+    const resp = await sendApiRequest.get<TotpSetupPayload>(CONST.API.SETUP_2FA);
 
-    if (resp.isErr() || !resp.value.success) {
-        // TODO: IF fail, api error el
-        return ["", ""];
-    }
+    if (resp.isErr()) return ["", ""];
 
-    const { qrCode, secret } = resp.value.data;
+    const { qrCode, secret } = resp.value;
     return [qrCode, secret];
 };
 

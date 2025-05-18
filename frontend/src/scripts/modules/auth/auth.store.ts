@@ -1,4 +1,4 @@
-import type { GetMeResponse } from "@darrenkuro/pong-core";
+import type { GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createStatus } from "../../ui/components/Status";
@@ -25,10 +25,10 @@ export const emptyAuthState = {
 };
 
 export const initAuthState = async (): Promise<AuthState> => {
-    const result = await sendApiRequest.get<GetMeResponse>(CONST.API.ME);
-    if (result.isErr() || !result.value.success) return emptyAuthState;
+    const result = await sendApiRequest.get<GetMePayload>(CONST.API.ME);
+    if (result.isErr()) return emptyAuthState;
 
-    const { username, displayName } = result.value.data;
+    const { username, displayName } = result.value;
     return {
         isAuthenticated: true,
         totpRequired: false,

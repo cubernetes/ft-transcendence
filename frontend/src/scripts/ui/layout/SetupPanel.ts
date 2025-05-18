@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
-import { AIDifficulty, GameMode, defaultGameConfig } from "@darrenkuro/pong-core";
+import { AIDifficulty, CreatePayload, GameMode, defaultGameConfig } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
@@ -176,10 +176,10 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
     const createLobbyBtn = createCtaBtn(
         CREATE_LOBBY,
         async () => {
-            const result = await sendApiRequest.post(CONST.API.CREATE_LOBBY);
+            const res = await sendApiRequest.post<undefined, CreatePayload>(CONST.API.CREATE_LOBBY);
 
-            if (result.isErr()) {
-                showErr(result.error);
+            if (res.isErr()) {
+                showErr(res.error);
                 const devHack = createButton({
                     text: "LEAVE (dev hack)",
                     tw: "mt-2 p-2 bg-white hover:bg-gray-400",
@@ -190,9 +190,8 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
                 });
                 return replaceChildren(ctn, [returnBtn, statusEl, devHack]);
             } // TODO: handle error cleanly
-            if (!result.value.success) return []; // Never, fix type later
 
-            const { lobbyId } = result.value.data;
+            const { lobbyId } = res.value;
             gameStore.update({ lobbyId, lobbyHost: true });
             navigateTo("lobby");
         },
