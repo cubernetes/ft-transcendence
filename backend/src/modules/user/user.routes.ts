@@ -9,7 +9,7 @@ export const userRoutes = async (app: FastifyInstance) => {
 
     // Deconstruct to get shorten variable names
     const { registerBody, loginBody, leaderboardParams, infoParams } = schemas;
-    const { register, login, logout, leaderboard, info, me } = controller;
+    const { register, login, logout, leaderboard, info, me, avatar } = controller;
 
     // Register
     const registerOpts = { schema: route.register }; // Schema for swagger UI
@@ -35,6 +35,10 @@ export const userRoutes = async (app: FastifyInstance) => {
     const meOpts = { preHandler: [app.requireAuth], schema: route.getMe };
     const meHandler = me;
 
+    // Avatar
+    const avatarOpts = { preHandler: [app.requireAuth] };
+    const avatarHandler = avatar;
+
     // Register routes
     app.post("/register", registerOpts, registerHandler);
     app.post("/login", loginOpts, loginHandler);
@@ -42,4 +46,5 @@ export const userRoutes = async (app: FastifyInstance) => {
     app.get("/leaderboard/:n", leaderboardOpts, leaderboardHandler);
     app.get("/info/:username", infoOpts, infoHandler);
     app.get("/me", meOpts, meHandler);
+    app.post("/avatar", avatarOpts, avatarHandler);
 };

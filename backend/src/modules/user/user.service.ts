@@ -130,8 +130,9 @@ export const createUserService = (app: FastifyInstance) => {
         const buffer = await file.toBuffer();
         if (buffer.length > MAX_SIZE) return err("UNKNOWN_ERROR"); // TODO: correct error type
 
+        app.log.debug(`${filepath} type: ${ext}`);
         await writeFile(filepath, buffer);
-        return ok(filename);
+        return ok(filepath);
     };
 
     const getCount = async (): Promise<Result<number, ErrorCode>> => {

@@ -88,7 +88,7 @@ services:
             LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
         volumes:
             - "drizzle:/backend/drizzle/"
-            - "frontend:/frontend/dist/"
+            - "frontend:/backend/frontend/dist/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         depends_on:
             vault:

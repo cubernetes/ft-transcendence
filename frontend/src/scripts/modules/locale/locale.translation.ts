@@ -30,6 +30,12 @@ export const TEXT_MAP = {
         fr: "Copied", // TRANSLATION_NEEDED
         es: "Copied", // TRANSLATION_NEEDED
     },
+    UPLOAD: {
+        en: "Upload",
+        de: "Upload", // TRANSLATION_NEEDED
+        fr: "Upload", // TRANSLATION_NEEDED
+        es: "Upload", // TRANSLATION_NEEDED
+    },
 
     // User
     USERNAME: {

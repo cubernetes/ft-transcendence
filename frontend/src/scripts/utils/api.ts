@@ -12,13 +12,21 @@ const post = async <T, E extends ApiResponse<any>>(
     body?: T
 ): Promise<Result<E, ErrorCode>> => {
     try {
-        const headers: HeadersInit = body ? { "Content-Type": "application/json" } : {};
-        const response = await fetch(url, {
+        const init: RequestInit = {
             method: "POST",
-            headers,
-            body: body ? JSON.stringify(body) : undefined,
             credentials: "include", // Cookies
-        });
+        };
+
+        if (body) {
+            if (typeof FormData && body instanceof FormData) {
+                init.body = body;
+            } else {
+                init.body = JSON.stringify(body);
+                init.headers = { "Content-Type": "application/json" };
+            }
+        }
+
+        const response = await fetch(url, init);
 
         const data: E = await response.json();
         log.debug(data);

@@ -1,6 +1,7 @@
 import { PersonalUser } from "@darrenkuro/pong-core";
 import { getText } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
+import { createAvatar } from "../components/Avatar";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createContainer } from "../components/Container";
@@ -9,14 +10,7 @@ import { createParagraph } from "../components/Paragraph";
 import { createTotpModal } from "./TotpModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
-    // TODO: Click, upload
-    const avatarEl = createEl("img", "w-64 h-64 rounded-full", {
-        attributes: {
-            src: user.avatarUrl,
-            alt: getText("USER_AVATAR"),
-            [CONST.ATTR.I18N_ALT]: "USER_AVATAR",
-        },
-    });
+    const avatarEl = createAvatar({ src: user.avatarUrl });
 
     const titleEl = createHeading({ text: "your_profile", tw: "text-4xl mt-4" });
 

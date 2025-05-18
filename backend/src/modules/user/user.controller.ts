@@ -130,9 +130,11 @@ export const createUserController = (app: FastifyInstance) => {
         const tryUpload = await app.userService.upload(data, req.username);
         if (tryUpload.isErr()) return reply.err(tryUpload.error);
 
-        await app.userService.update(req.userId, { avatarUrl: tryUpload.value });
+        const avatarUrl = tryUpload.value.replace("frontend/dist/", ""); // TODO: clean up
+        app.log.debug(`avatar URL: ${tryUpload.value}`);
+        await app.userService.update(req.userId, { avatarUrl });
 
-        reply.ok({});
+        reply.ok({ avatarUrl });
     };
 
     return { register, login, logout, leaderboard, info, me, avatar };

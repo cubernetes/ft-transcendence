@@ -16,6 +16,7 @@ const DIR = {
 const BACKEND_API_URL = "/api";
 const API = {
     USER: `${BACKEND_API_URL}/user`,
+    AVATAR: `${BACKEND_API_URL}/user/avatar`,
     TOTP: `${BACKEND_API_URL}/totp`,
     LOBBY: `${BACKEND_API_URL}/lobby`,
 };
