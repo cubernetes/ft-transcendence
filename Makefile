@@ -41,18 +41,16 @@ dev-old-compose: check-env
 	@$(call dev-env,watch --no-up)
 
 .PHONY: dev
-dev: check-env
-	$(MAKE) ensure-secret-files
-	@$(call dev-env,     \
-		up               \
-		--remove-orphans \
-		--build          \
-		--watch          \
+dev: check-env ensure-secret-files
+	@unset -v LOGSTASH_HOST && $(call dev-env, \
+		up                                     \
+		--remove-orphans                       \
+		--build                                \
+		--watch                                \
 		$(ARGS))
 
 .PHONY: dev-elk
-dev-elk: check-env
-	$(MAKE) ensure-secret-files
+dev-elk: check-env ensure-secret-files
 	@$(call dev-env,     \
 		--profile elk    \
 		up               \
@@ -74,13 +72,12 @@ actual-prod: ensure-secret-files
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod: check-env
-	$(MAKE) ensure-secret-files
-	@$(call dev-env,     \
-		up               \
-		--remove-orphans \
-		--build          \
-		--detach         \
+prod: check-env ensure-secret-files
+	@unset -v LOGSTASH_HOST && $(call dev-env, \
+		up                                     \
+		--remove-orphans                       \
+		--build                                \
+		--detach                               \
 		$(ARGS))
 
 .PHONY: down

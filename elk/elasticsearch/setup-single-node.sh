@@ -9,8 +9,7 @@ set -e
 : "${KIBANA_PASSWORD:?Missing KIBANA_PASSWORD}"
 : "${LOGSTASH_USER:?Missing LOGSTASH_USER}"
 : "${LOGSTASH_PASSWORD:?Missing LOGSTASH_PASSWORD}"
-
-: "${ELASTIC_USER:=elastic}" # pretty much always "elastic", rather NOT change this unless really necessary
+: "${ELASTIC_USER:?Missing ELASTIC_USER}" # MUST be "elastic"! https://discuss.elastic.co/t/how-to-change-the-username-by-own-instead-of-elastic/337552/2
 
 # Start Elasticsearch in the background
 /usr/local/bin/docker-entrypoint.sh eswrapper &
