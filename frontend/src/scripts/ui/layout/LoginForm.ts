@@ -90,13 +90,13 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
 
         if (mode === "login") {
             const data = { username: usernameEl.value, password: passwordEl.value };
-            const result = await tryLogin(data);
+            const res = await tryLogin(data);
 
-            // TODO handle base on what's the error
-            if (result.isErr()) return showErr("login_failed");
+            if (res.isErr()) return showErr(res.error);
         } else {
             // TODO: maybe only let backend check this
-            if (passwordEl.value !== confirmEl.value) return showErr(CONST.TEXT.PASSWORD_NOT_MATCH);
+            if (passwordEl.value !== confirmEl.value)
+                return showErr(CONST.TEXT.PASSWORD_MATCH_ERROR);
 
             const data = {
                 username: usernameEl.value,
@@ -104,10 +104,9 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
                 password: passwordEl.value,
                 confirmPassword: confirmEl.value,
             };
-            const result = await tryRegister(data);
+            const res = await tryRegister(data);
 
-            // TODO handle base on what's the error
-            if (result.isErr()) return showErr("register_failed");
+            if (res.isErr()) return showErr(res.error);
         }
     });
 

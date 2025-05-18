@@ -38,7 +38,7 @@ export const createUserController = (app: FastifyInstance) => {
 
         // Validate password, send back 401 error if failed
         const verifyPassword = await app.authService.comparePassword(password, passwordHash);
-        if (!verifyPassword) return reply.err("INVALID_PASSWORD");
+        if (!verifyPassword) return reply.err("PASSWORD_INVALID");
 
         // Check 2FA
         if (totpEnabled) {
@@ -50,7 +50,7 @@ export const createUserController = (app: FastifyInstance) => {
 
             // Verify TOTP token
             const verifyToken = app.authService.verifyTotpToken(totpSecret, totpToken);
-            if (!verifyToken) return reply.err("INVALID_TOTP_TOKEN");
+            if (!verifyToken) return reply.err("TOKEN_INVALID");
         }
 
         // Password and 2FA have been verified, send cookies

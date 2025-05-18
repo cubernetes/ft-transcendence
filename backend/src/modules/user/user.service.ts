@@ -7,7 +7,7 @@ import { writeFile } from "fs/promises";
 import { extname, join } from "path";
 import { ErrorCode, PersonalUser, PublicUser } from "@darrenkuro/pong-core";
 import { users } from "../../core/db/db.schema.ts";
-import { errUniqueConstraintOn } from "../../utils/api-response.ts";
+import { errUniqueConstraintOn } from "../../core/db/db.utils.ts";
 import { getDynamicFields, hideFieldsPersonal, hideFieldsPublic } from "./user.utils.ts";
 
 export const createUserService = (app: FastifyInstance) => {
@@ -34,7 +34,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.id, id));
             const user = result[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {
@@ -48,7 +48,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.username, username));
             const user = result[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {
@@ -62,7 +62,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.id, id));
             const user = result[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user.username);
         } catch (error) {
@@ -89,7 +89,7 @@ export const createUserService = (app: FastifyInstance) => {
             const updated = await db.update(users).set(data).where(eq(users.id, id)).returning();
             const user = updated[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {
@@ -105,7 +105,7 @@ export const createUserService = (app: FastifyInstance) => {
             const deleted = await db.delete(users).where(eq(users.id, id)).returning();
             const user = deleted[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {

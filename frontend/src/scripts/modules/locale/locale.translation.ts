@@ -1,3 +1,8 @@
+import {
+    DISPLAY_NAME_MIN_LENGTH,
+    PASSWORD_MIN_LENGTH,
+    USERNAME_MIN_LENGTH,
+} from "@darrenkuro/pong-core";
 import { LanguageOpts } from "./locale.store";
 
 // TODO: Check if everything here should all be lower case and let component or translate to handle capitalization for different needs
@@ -188,6 +193,92 @@ export const TEXT_MAP = {
         es: "Número de jugadores", // TODO: Check if stil correct
     },
 
+    // Server error codes
+    USER_NOT_FOUND: {
+        en: "User not found",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    USERNAME_REQUIRED: {
+        en: "Username is required",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    USERNAME_TAKEN: {
+        en: "Username taken",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    USERNAME_TOO_SHORT: {
+        en: `Username needs to be at least ${USERNAME_MIN_LENGTH} characters long`,
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    DISPLAY_NAME_TOO_SHORT: {
+        en: `Display name needs to be at least ${DISPLAY_NAME_MIN_LENGTH} characters long`,
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_REQUIRED: {
+        en: "Password is required",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_INVALID: {
+        en: "Invalid password",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_TOO_SHORT: {
+        en: `Password needs to be at least ${PASSWORD_MIN_LENGTH} characters long`,
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_MATCH_ERROR: {
+        en: "Passwords do not match",
+        de: "Passwörter stimmen nicht überein.",
+        fr: "Les mots de passe ne correspondent pas.",
+        es: "Las contraseñas no coinciden.",
+    },
+    TOKEN_REQUIRED: {
+        en: "TOTP token is required",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    TOKEN_LENGTH_ERROR: {
+        en: "TOTP token must be 6 characters",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    TOKEN_INVALID: {
+        en: "TOTP token is invalid",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    LOBBY_NOT_FOUND: {
+        en: "Lobby not found",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    LOBBY_FULL: {
+        en: "Lobby is full",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+
     // Error CODE map to msg, probaly need refactor, do not need to be one to one with english
     FETCH_ERROR: {
         en: "Fail to fetch {URL}",
@@ -202,22 +293,10 @@ export const TEXT_MAP = {
         es: "Initialization error", // TRANSLATION_NEEDED
     },
     LOGIN_ERROR: {
-        en: "Login fialed. Please check your credentials.",
+        en: "Login failed. Please check your credentials.",
         de: "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen.",
         fr: "Échec de la connexion. Veuillez vérifier vos identifiants.",
         es: "Error al iniciar sesión. Verifique sus credenciales.",
-    },
-    USERNAME_TAKEN: {
-        en: "Username taken.",
-        de: "Username taken.", // TRANSLATION_NEEDED
-        fr: "Username taken.", // TRANSLATION_NEEDED
-        es: "Username taken.", // TRANSLATION_NEEDED
-    },
-    PASSWORD_NOT_MATCH: {
-        en: "Passwords do not match.",
-        de: "Passwörter stimmen nicht überein.",
-        fr: "Les mots de passe ne correspondent pas.",
-        es: "Las contraseñas no coinciden.",
     },
     PLAYER_NAMES_REQUIRED: {
         en: "Please enter names for all players.",

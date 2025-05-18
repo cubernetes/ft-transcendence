@@ -40,7 +40,7 @@ export const createLobbyService = (app: FastifyInstance) => {
         if (lobbyMap.has(userId)) return err("ALREADY_IN_LOBBY");
 
         const session = sessionMap.get(lobbyId);
-        if (!session) return err("NOT_FOUND");
+        if (!session) return err("LOBBY_NOT_FOUND");
 
         const { players, playerNames } = session;
         if (players.length >= 2) return err("LOBBY_FULL");
@@ -110,7 +110,7 @@ export const createLobbyService = (app: FastifyInstance) => {
 
     const sendUpdate = (lobbyId: string): Result<void, ErrorCode> => {
         const session = sessionMap.get(lobbyId);
-        if (!session) return err("NOT_FOUND");
+        if (!session) return err("SERVER_ERROR");
 
         const { engine, players, playerNames } = session;
         const config = engine.getConfig();
