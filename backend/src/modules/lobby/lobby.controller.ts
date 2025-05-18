@@ -49,10 +49,6 @@ export const createLobbyController = (app: FastifyInstance) => {
         const tryLeaveLobby = app.lobbyService.leave(userId);
         if (tryLeaveLobby.isErr()) return reply.err(tryLeaveLobby.error);
 
-        const lobbyId = tryLeaveLobby.value;
-
-        const tryUpdate = app.lobbyService.sendUpdate(lobbyId);
-        if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
         return reply.ok({});
     };
 

@@ -68,7 +68,7 @@ export const createLobbyService = (app: FastifyInstance) => {
         return ok(lobbyId);
     };
 
-    const leave = (userId: number): Result<LobbyId, ErrorCode> => {
+    const leave = (userId: number): Result<void, ErrorCode> => {
         const lobbyId = lobbyMap.get(userId);
         if (!lobbyId) return err("NOT_IN_LOBBY");
 
@@ -80,16 +80,18 @@ export const createLobbyService = (app: FastifyInstance) => {
 
         // If host leaves, kick the guest, for now
         if (index === 0) {
-            app.wsService.send(players[1], { type: "lobby-remove", payload: null });
+            app.wsService.broadcast(players, { type: "lobby-remove", payload: null });
+            //app.wsService.send(players[1], { type: "lobby-remove", payload: null });
             lobbyMap.delete(userId);
             lobbyMap.delete(players[1]);
             sessionMap.delete(lobbyId);
         } else {
+            app.wsService.send(players[0], { type: "lobby-remove", payload: null });
             lobbyMap.delete(userId);
             players.splice(1, 1);
             playerNames.splice(1, 1);
         }
-        return ok(lobbyId);
+        return ok();
     };
 
     const getSessionByUserId = (userId: number): Result<GameSession, ErrorCode> => {
