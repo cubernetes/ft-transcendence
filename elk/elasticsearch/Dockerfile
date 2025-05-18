@@ -3,7 +3,9 @@ FROM docker.elastic.co/elasticsearch/elasticsearch:8.17.3
 
 USER 0
 
-RUN export DEBIAN_FRONTEND=noninteractive && apt update -y && apt install -y curl jq
+ADD --chmod=755 https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-amd64 /usr/bin/curl
+
+RUN export DEBIAN_FRONTEND=noninteractive && apt update -y && apt install -y jq
 
 COPY --chmod=755 <<EOF /entrypoint.sh
 #!/bin/bash
