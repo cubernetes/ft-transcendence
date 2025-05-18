@@ -22,7 +22,7 @@ const API = {
     LOGOUT: `${USER_API_URL}/logout`,
     REGISTER: `${USER_API_URL}/register`,
     ME: `${USER_API_URL}/me`,
-    ME: `${USER_API_URL}/leaderboard`,
+    LEADERBOARD: `${USER_API_URL}/leaderboard`,
     AVATAR: `${USER_API_URL}/avatar`,
 
     CREATE_LOBBY: `${LOBBY_API_URL}/create`,
