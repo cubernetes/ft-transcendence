@@ -68,7 +68,7 @@ EOF
 # No need to set any ENV, will be inherited from base image
 # No need to set USER, will be inherited from base image
 
-# Healthcheck defined in ${REPO_ROOT}/elk/elasticsearch/config/startup.sh
+# Healthcheck defined in ${REPO_ROOT}/elk/logstash/scripts/import-logstash-ca.sh
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=60s --start-interval=1s CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
 
 USER 1000

@@ -5,7 +5,7 @@ set -u
 set -m
 #set -vx
 
-: "${LOGLEVEL:=INFO}"
+: "${LOG_LEVEL:=INFO}"
 : "${SAVE_UNSEAL_KEYS:=0}"
 : "${SAVE_ROOT_TOKEN:=0}"
 : "${vault_config:=/vault/config/config.hcl}"
@@ -54,7 +54,7 @@ log () {
 			set "(Invalid loglevel for log function): " "$*"
 			;;
 	esac
-	[ "$(loglevel_to_num "$level")" -gt "$(loglevel_to_num "$LOGLEVEL")" ] && return 0
+	[ "$(loglevel_to_num "$level")" -gt "$(loglevel_to_num "$LOG_LEVEL")" ] && return 0
 
 	printf '[ %b%-5s%b ]: %s\n' "$ansi_color" "$level" "$ansi_reset" "$(printf "$@")"
 	IFS=$OLDIFS

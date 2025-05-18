@@ -8,7 +8,7 @@ TERM=linux setsid -f watch -xtcn5 curl \
 	--no-progress-meter \
 	--fail \
 	--write-out '%output{/tmp/healthcheck}%{exitcode}' \
-	"http://localhost:${LOGSTASH_API_PORT:-9600}/_node/stats" 1>/dev/null 2>&1
+	"http://localhost:${LOGSTASH_API_PORT}/_node/stats" 1>/dev/null 2>&1
 
 # Path to the CA cert inside the container
 CA_CERT_PATH="/etc/logstash/config/certs/ca.crt"
