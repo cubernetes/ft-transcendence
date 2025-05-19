@@ -8,10 +8,11 @@ die () {
 	exit 1
 }
 
-regex_titlecase_verb='^[A-Z][a-z]+ '
-regex_imperative_verb='^[A-Z][a-z]+ed '
+optional_squash_regex='((squash|fixup)! )?'
+regex_titlecase_verb='[A-Z][a-z]+ '
+regex_imperative_verb='[A-Z][a-z]+ed '
 
-grep -qE -e "$regex_titlecase_verb" -- "$1" || \
+grep -qE -e "^$optional_squash_regex$regex_titlecase_verb" -- "$1" || \
 	die "Commit message format is incorrect (must start with titlecase verb). Example: 'Add feature' or 'Update file'"
-! grep -qE -e "$regex_imperative_verb" "$1" || \
+! grep -qE -e "^$optional_squash_regex$regex_imperative_verb" "$1" || \
 	die "Commit message format is incorrect (use imperative verb form). Example: 'Add feature' or 'Update file'"

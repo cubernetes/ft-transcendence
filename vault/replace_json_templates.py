@@ -22,10 +22,13 @@
 import re
 import sys
 import json
+import shlex
 import random
 import string
 import contextlib
 
+# Maximum 5 levels of indirection
+PASSES = 5
 
 character_sets = {
     'alnum': string.ascii_letters + string.digits,
@@ -58,44 +61,106 @@ def parse_json(name: str, args: list[str]) -> dict:
             print(f"Error parsing JSON: {e}", file=sys.stderr, flush=True)
             return {}
 
-    if not data:
-        print(f"JSON object is empty", file=sys.stderr, flush=True)
     return data
 
-def replace_templates(s: str) -> str:
-    if (m := re.match(r'\{\{(\w+):(\d+)\}\}', s)):
-        template_type = m[1]
-        template_len = int(m[2])
+def resolve_json_path(json_object: dict | list | str | int | float | bool | None, json_path: list) -> dict | list | str | int | float | bool | None:
+    for key in json_path:
+        try:
+            if isinstance(json_object, dict) and isinstance(key, str):
+                json_object = json_object[key]
+            elif isinstance(json_object, list) and isinstance(key, int):
+                json_object = json_object[key]
+            elif isinstance(json_object, dict) or isinstance(json_object, list):
+                print(f'\033\133;91mWARNING\033\133m: Ref JSON Path: Trying to use a string index on a list or an int key on an object. Leaving template unmodified', file=sys.stderr, flush=True)
+                return "___error___"
+            else:
+                print(f'\033\133;91mWARNING\033\133m: Ref JSON Path: Trying to use a string index or an int key on something that is neither object nor list. Leaving template unmodified', file=sys.stderr, flush=True)
+                return "___error___"
+        except KeyError:
+            print(f'\033\133;91mWARNING\033\133m: Ref JSON Path: KeyError. Leaving template unmodified', file=sys.stderr, flush=True)
+            return "___error___"
+        except IndexError:
+            print(f'\033\133;91mWARNING\033\133m: Ref JSON Path: IndexError. Leaving template unmodified', file=sys.stderr, flush=True)
+            return "___error___"
+    return json_object
+
+def replacement_function(match: re.Match, *, references: bool) -> str:
+    global json_object
+    raw_match_string = match[0]
+    template_type = match[1]
+    template_argument = match[2]
+    if template_type in ['alnum', 'alpha', 'digit']:
         character_set = character_sets.get(template_type, '')
         if not character_set:
             print(f'\033\133;91mWARNING\033\133m: Unknown template type: \033\133;93m{template_type}\033\133m, supported types are \033\133;92m{", ".join(character_sets.keys())}\033\133m. Leaving it unmodified', file=sys.stderr, flush=True)
-            return s
-        return ''.join(random.choices(character_set, k=template_len))
-    elif re.match(r'\{\{.*\}\}', s):
-        print(f"\033\133;91mWARNING\033\133m: Found template string \033\133;93m{s}\033\133m, but it doesn't match the expected regex \033\133;94m\\{{\\{{(\\w+):(\\d+)\\}}\\}}\033\133m. Leaving it unmodified", file=sys.stderr, flush=True)
-        return s
+            return raw_match_string
+        return ''.join(random.choices(character_set, k=int(template_argument)))
+    elif template_type == 'ref':
+        if not references:
+            return raw_match_string
+        lexer = shlex.shlex(template_argument)
+        lexer.whitespace = ','
+        lexer.whitespace_split = True
+        lexer.quotes = "'"
+        try:
+            tokens = list(iter(lexer.get_token, ''))
+            json_path = []
+            for token in tokens:
+                if not token:
+                    print(f'\033\133;91mWARNING\033\133m: Ref JSON path contains empty string. Leaving template unmodified', file=sys.stderr, flush=True)
+                    return raw_match_string
+                elif token[0] == "'" == token[-1]:
+                    json_path.append(token[1:-1])
+                elif token.isdecimal():
+                    json_path.append(int(token))
+                else:
+                    print(f'\033\133;91mWARNING\033\133m: Ref JSON path contains invalid token: \033\133;93m{token}\033\133m. Leaving template unmodified', file=sys.stderr, flush=True)
+                    return raw_match_string
+            json_item = resolve_json_path(json_object, json_path)
+            if json_item == "___error___":
+                return raw_match_string
+            if not isinstance(json_item, str) or json_item is None:
+                    print(f'\033\133;91mWARNING\033\133m: Ref JSON path did not return a string. Leaving template unmodified', file=sys.stderr, flush=True)
+                    return raw_match_string
+            return json_item
+        except ValueError:
+            print(f'\033\133;91mWARNING\033\133m: Ref JSON path is wrongly quoted. Leaving template unmodified', file=sys.stderr, flush=True)
+            return raw_match_string
     else:
-        return s
+        return raw_match_string
 
-def transform_json(data: dict | list | str | int | float) -> dict:
-    new_data = {}
-    for key, value in data.items():
-        new_key = replace_templates(key)
-        if isinstance(value, str):
-            new_value = replace_templates(value)
-        else:
-            new_value = transform_json(value)
-        new_data[new_key] = new_value
-    return new_data
+def replace_templates(s: str, *, references: bool) -> str:
+    replaced = re.sub(r'\{\{(\w+):([^}]+)\}\}', lambda m: replacement_function(m, references=references), s)
+
+    return replaced
+
+def transform_json(data: dict | list | str | int | float | bool | None, *, references: bool) -> dict | list | str | int | float | bool | None:
+    if isinstance(data, dict):
+        new_data = {}
+        for key, value in data.items():
+            new_key = replace_templates(key, references=references)
+            new_value = transform_json(value, references=references)
+            new_data[new_key] = new_value
+        return new_data
+    elif isinstance(data, list):
+        new_data = []
+        for value in data:
+            new_data.append(transform_json(value, references=references))
+        return new_data
+    elif isinstance(data, str):
+        return replace_templates(data, references=references)
+    else:
+        return data
 
 def main(name: str, args: list[str]) -> int:
-    data = parse_json(name, args)
-    if not data:
-        return 1
+    global json_object
+    json_object = parse_json(name, args)
 
-    new_data = transform_json(data)
+    for _ in range(PASSES):
+        json_object = transform_json(json_object, references=False)
+        json_object = transform_json(json_object, references=True)
 
-    print(json.dumps(new_data, indent=4, ensure_ascii=False))
+    print(json.dumps(json_object, indent=4, ensure_ascii=False))
     return 0
 
 if __name__ == "__main__":

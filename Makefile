@@ -1,5 +1,5 @@
 # Change to docker-compose if you need
-DC := COMPOSE_BAKE=false docker compose
+DC := COMPOSE_BAKE=true docker compose
 # Change to podman if you need
 D := docker
 # Enables you do run `make` alone
@@ -11,7 +11,10 @@ D := docker
 # ./.secrets/${service}_vault_token
 # where ${service} is the same as the JSON root subkeys in ./env.json
 VAULT_TOKEN_EXCHANGE_FILES := \
-	./.secrets/backend_vault_token
+	./.secrets/backend_vault_token \
+	./.secrets/elasticsearch_vault_token \
+	./.secrets/logstash_vault_token \
+	./.secrets/kibana_vault_token
 
 # Must be in standard dotenv format
 -include .env
@@ -38,18 +41,16 @@ dev-old-compose: check-env
 	@$(call dev-env,watch --no-up)
 
 .PHONY: dev
-dev: check-env
-	$(MAKE) ensure-secret-files
-	@$(call dev-env,     \
-		up               \
-		--remove-orphans \
-		--build          \
-		--watch          \
+dev: check-env ensure-secret-files
+	@unset -v LOGSTASH_HOST && $(call dev-env, \
+		up                                     \
+		--remove-orphans                       \
+		--build                                \
+		--watch                                \
 		$(ARGS))
 
 .PHONY: dev-elk
-dev-elk: check-env
-	$(MAKE) ensure-secret-files
+dev-elk: check-env ensure-secret-files
 	@$(call dev-env,     \
 		--profile elk    \
 		up               \
@@ -71,13 +72,12 @@ actual-prod: ensure-secret-files
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod: check-env
-	$(MAKE) ensure-secret-files
-	@$(call dev-env,     \
-		up               \
-		--remove-orphans \
-		--build          \
-		--detach         \
+prod: check-env ensure-secret-files
+	@unset -v LOGSTASH_HOST && $(call dev-env, \
+		up                                     \
+		--remove-orphans                       \
+		--build                                \
+		--detach                               \
 		$(ARGS))
 
 .PHONY: down
@@ -98,3 +98,12 @@ install:
 .PHONY: test
 test: install
 	npm --prefix=backend test
+
+# Usage: make get-env SERVICE=elasticsearch
+.PHONY: get-env
+get-env:
+	$(D) exec vault sh -c 'SERVICE=$(SERVICE); wget --header="X-Vault-Token: $$(cat /vault/secret/root_token)" --quiet --output-document=- "$$(cat /tmp/vault_addr)"/v1/secret/data/$$SERVICE | jq --raw-output --color-output .data.data'
+
+.PHONY: wait
+wait:
+	wait_for_service () { service=$$1; [ -n "$$service" ] || { echo "Expected 1 argument"; return 1; }; i=0; while [ ! "$$(2>/dev/null docker inspect -f "{{.State.Health.Status}}" "$$service")" = "healthy" ]; do printf "\015""Waiting_for_service_$${service}_to_start%$${i}s" "" | sed -u "s/ /./g;s/_/ /g"; i=$$((i + 1)); sleep 0.3; done; echo; } && start=$$(date +%s); wait_for_service vault && wait_for_service elasticsearch && wait_for_service logstash && wait_for_service kibana && wait_for_service backend && echo "Waiting 15 more seconds" && sleep 15 && echo "Frontend: http://localhost:8080" && echo "OpenAPI:  http://localhost:8080/api/docs" && echo "ELK       http://localhost:5601" ; now=$$(date +%s); min=$$(( (now - start) / 60)); sec=$$(( (now - start) % 60)); echo "Took $${min}m$${sec}s"
