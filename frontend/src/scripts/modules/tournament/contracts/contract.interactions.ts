@@ -1,5 +1,4 @@
 import { Result, err, ok } from "neverthrow";
-import { holesky } from "viem/chains";
 import {
     PublicClient,
     WalletClient,
@@ -8,9 +7,10 @@ import {
     custom,
     http,
 } from "viem";
+import { avalancheFuji, holesky } from "viem/chains";
 import { MatchState } from "../tournament.store";
 import { CONTRACT_ABI } from "./contracts.abi";
-import { CONTRACT_ADDRESS } from "./contracts.constants";
+import { FUJI_ADDRESS } from "./contracts.constants";
 
 export const readLocalContract = async (
     publicClient: PublicClient,
@@ -18,7 +18,7 @@ export const readLocalContract = async (
     args: any[]
 ) => {
     return publicClient.readContract({
-        address: CONTRACT_ADDRESS,
+        address: FUJI_ADDRESS,
         abi: CONTRACT_ABI,
         functionName,
         args,
@@ -46,7 +46,7 @@ export const writeLocalContract = async (
     }));
 
     const { request } = await publicClient.simulateContract({
-        address: CONTRACT_ADDRESS,
+        address: FUJI_ADDRESS,
         abi: CONTRACT_ABI,
         functionName,
         args: [gameId, gameResults],
@@ -59,7 +59,7 @@ export const writeLocalContract = async (
 export const setupWallet = async () => {
     //Get Clients
     const publicClient = createPublicClient({
-        chain: holesky,
+        chain: avalancheFuji,
         transport: http(),
     });
 
@@ -69,7 +69,7 @@ export const setupWallet = async () => {
                 return null;
             }
             return createWalletClient({
-                chain: holesky,
+                chain: avalancheFuji,
                 transport: custom(window.ethereum),
             });
         } catch (error) {
