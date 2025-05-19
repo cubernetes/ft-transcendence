@@ -42,7 +42,6 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
             log.info("Game Got:", result);
         },
     });
-    //readButton.style.display = "none";
 
     const writeButton = createButton({
         text: "📝 Record Game",
@@ -70,7 +69,6 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
             }
         },
     });
-    //writeButton.style.display = "none";
 
     const container = createEl("div", "flex flex-col gap-4 items-center mt-4");
     appendChildren(container, [connectButton, readButton, writeButton]);
