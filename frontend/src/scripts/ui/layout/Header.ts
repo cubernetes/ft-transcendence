@@ -4,6 +4,7 @@ import { I18nKey } from "../../modules/locale/locale.translation";
 import { changeLanguage, getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createHeading } from "../components/Heading";
+import { createLanguageButton } from "./LanguageButton";
 import { appendUserStatus } from "./UserStatus";
 
 export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
@@ -11,7 +12,7 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     const titleEl = createHeading({
         text: CONST.TEXT.FT_TRANSCENDENCE,
         tag: "h1",
-        tw: "text-3xl cursor-pointer mb-0 text-left text-white",
+        tw: "text-3xl mb-0 text-left text-white",
     });
 
     //
@@ -44,15 +45,8 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
         }
     });
 
-    // Language toggle
-    const languageBtn = createEl("button", "hover:underline", {
-        text: getText(CONST.TEXT.LANG),
-        attributes: { [CONST.ATTR.I18N_TEXT]: CONST.TEXT.LANG },
-        events: { click: changeLanguage },
-    });
-
     const navEl = createEl("nav", "flex items-center space-x-6", {
-        children: [navList, languageBtn],
+        children: [navList],
     });
 
     appendChildren(headerEl, [titleEl, navEl]);

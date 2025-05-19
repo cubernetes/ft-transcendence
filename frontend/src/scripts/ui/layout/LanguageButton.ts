@@ -44,7 +44,7 @@ export const createLanguageButton = (tw = ""): UIContainer => {
     });
 
     const ctn = createContainer({
-        tw: "absolute top-6 right-6 z-50",
+        tw: twMerge("absolute top-6 right-6 z-50", tw),
         children: [triggerBtn, popoverCtn],
     });
 

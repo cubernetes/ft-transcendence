@@ -39,6 +39,7 @@ export const createButton = ({
     const button = createEl("button", twStyle, { text: resolvedText, attributes, props, events });
 
     if (innerHTML) button.innerHTML = innerHTML;
+
     return button;
 };
 
