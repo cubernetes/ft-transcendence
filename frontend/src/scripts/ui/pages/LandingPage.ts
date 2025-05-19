@@ -8,6 +8,7 @@ import { layoutStore } from "../../modules/layout/layout.store";
 import { createEl, replaceChildren } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createContainer } from "../components/Container";
+import { createLanguageButton } from "../layout/LanguageButton";
 import { createLoginForm } from "../layout/LoginForm";
 
 export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
@@ -66,10 +67,13 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         children: [ctaButtonEl],
     });
 
+    // Create Language button
+    const langBtn = createLanguageButton();
+
     const mainCtn = createContainer({
         tag: "main",
         tw: "w-full h-screen relative",
-        children: [videoEl, overlayEl, heroCtn],
+        children: [videoEl, overlayEl, heroCtn, langBtn],
     });
 
     return [mainCtn];
