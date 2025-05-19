@@ -28,7 +28,7 @@ include Makefile.aux
 # The "dev" target is preferred.
 .PHONY: dev-old-compose
 dev-old-compose: check-env
-	$(MAKE) ensure-secret-files
+	$(MAKE) clean-frontend-volume ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
 	@$(call dev-env,build)
 	@$(call dev-env,up --remove-orphans --detach)
@@ -41,7 +41,7 @@ dev-old-compose: check-env
 	@$(call dev-env,watch --no-up)
 
 .PHONY: dev
-dev: check-env ensure-secret-files
+dev: check-env clean-frontend-volume ensure-secret-files
 	@unset -v LOGSTASH_HOST && $(call dev-env, \
 		up                                     \
 		--remove-orphans                       \
@@ -50,7 +50,7 @@ dev: check-env ensure-secret-files
 		$(ARGS))
 
 .PHONY: dev-elk
-dev-elk: check-env ensure-secret-files
+dev-elk: check-env clean-frontend-volume ensure-secret-files
 	@$(call dev-env,     \
 		--profile elk    \
 		up               \
@@ -61,7 +61,7 @@ dev-elk: check-env ensure-secret-files
 
 # Don't depend on check-env (endless waiting), rather fail
 .PHONY: actual-prod
-actual-prod: ensure-secret-files
+actual-prod: clean-frontend-volume ensure-secret-files
 	@$(call prod-env,    \
 		--profile elk	 \
 		up               \
@@ -72,7 +72,7 @@ actual-prod: ensure-secret-files
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod: check-env ensure-secret-files
+prod: check-env clean-frontend-volume ensure-secret-files
 	@unset -v LOGSTASH_HOST && $(call dev-env, \
 		up                                     \
 		--remove-orphans                       \
