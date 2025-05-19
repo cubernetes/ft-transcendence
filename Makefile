@@ -84,9 +84,9 @@ prod: check-env
 down:
 	$(DC) --profile elk down --remove-orphans
 
-# "clean" will remove all volumes and some files (e.g. node_modules), see Makefile.clean
+# "vclean" will remove all volumes, for more info, see Makefile.clean
 .PHONY: re
-re: clean
+re: vclean clean-secrets-folder
 	$(MAKE)
 
 .PHONY: install

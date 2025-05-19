@@ -17,7 +17,6 @@ const upload = async (file: File): Promise<void | string> => {
     const res = await sendApiRequest.post<any, { avatarUrl: string }>(CONST.API.AVATAR, form);
 
     if (res.isErr()) return alert("Upload Fail");
-    if (!res.value) return;
 
     return res.value.avatarUrl;
 };
