@@ -1,10 +1,9 @@
 import { type Route, navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { I18nKey } from "../../modules/locale/locale.translation";
-import { changeLanguage, getText } from "../../modules/locale/locale.utils";
+import { getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createHeading } from "../components/Heading";
-import { createLanguageButton } from "./LanguageButton";
 import { appendUserStatus } from "./UserStatus";
 
 export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
