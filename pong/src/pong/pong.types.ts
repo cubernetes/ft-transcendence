@@ -45,7 +45,6 @@ export type EventMap = {
     "paddle-collision": null;
     "state-update": { state: State };
     "score-update": { scores: [number, number] };
-    "ball-reset": null; // TODO: check if this is useful, not set up on the backend
     "game-end": {
         winner: 0 | 1;
         hits: [number, number];
@@ -68,8 +67,6 @@ export type PongConfig = {
     paddles: [Paddle, Paddle];
     ball: Ball;
     playTo: number;
-    fps: number;
-    resetDelay: number;
     aiMode: boolean;
     aiDifficulty?: AIDifficulty;
 };

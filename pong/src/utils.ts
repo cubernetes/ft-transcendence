@@ -14,35 +14,29 @@ export const safeJsonParse = async <T>(input: string | Response): Promise<Result
     }
 };
 
+const isPlainObj = (v: unknown): v is Record<string, any> =>
+    typeof v === "object" && v !== null && !Array.isArray(v);
+
 export const deepAssign = <T extends Record<string, any>>(
     target: T,
-    source: Partial<T>,
+    src: Partial<T>,
     skipUndefined: boolean = false
 ): T => {
-    if (!source) return target;
+    if (!src) return target;
 
-    for (const key of Object.keys(source)) {
-        const sourceVal = source[key];
-
+    for (const [key, srcVal] of Object.entries(src)) {
         // Skip undefined values if flag is true, perserving original
-        if (skipUndefined && sourceVal === undefined) continue;
+        if (skipUndefined && srcVal === undefined) continue;
 
-        const targetVal = target[key];
+        const targetVal = target[key as keyof T];
 
         // Check if both values are objects (but not null and not arrays)
-        if (
-            sourceVal !== null &&
-            targetVal !== null &&
-            typeof sourceVal === "object" &&
-            typeof targetVal === "object" &&
-            !Array.isArray(sourceVal) &&
-            !Array.isArray(targetVal)
-        ) {
+        if (isPlainObj(srcVal) && isPlainObj(targetVal)) {
             // Recursively merge objects
-            deepAssign(targetVal, sourceVal);
+            deepAssign(targetVal as Record<string, any>, srcVal, skipUndefined);
         } else {
             // Replace value (including arrays or primitives)
-            (target as any)[key] = sourceVal;
+            (target as any)[key] = srcVal;
         }
     }
 

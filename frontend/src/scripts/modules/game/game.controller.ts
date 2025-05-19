@@ -117,7 +117,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         engine.onEvent("paddle-collision", handlePaddleCollision);
         engine.onEvent("score-update", ({ scores }) => handleScoreUpdate(scores));
         engine.onEvent("state-update", ({ state }) => handleStateUpdate(state));
-        engine.onEvent("ball-reset", handleBallReset);
+        // engine.onEvent("ball-reset", handleBallReset);
         // TODO: GET NAME
         // Don't hook this for now because game-end event will be called when going away from page
         // And that breaks the page (why navigation wasn't working)
@@ -132,7 +132,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         registerHandler("paddle-collision", handlePaddleCollision, handlers);
         registerHandler("state-update", ({ state }) => handleStateUpdate(state), handlers);
         registerHandler("score-update", ({ scores }) => handleScoreUpdate(scores), handlers);
-        registerHandler("ball-reset", handleBallReset, handlers);
+        //registerHandler("ball-reset", handleBallReset, handlers);
         // TODO: Get name
         registerHandler(
             "game-end",
@@ -184,12 +184,6 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const handlePaddleCollision = () => {
         if (renderer.sfxEnabled) {
             renderer.audio.hitSound.play();
-        }
-    };
-
-    const handleBallReset = () => {
-        if (renderer.sfxEnabled) {
-            renderer.audio.ballSound.play();
         }
     };
 
