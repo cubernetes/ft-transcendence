@@ -3,9 +3,9 @@ import { Size3D } from "@darrenkuro/pong-core";
 
 const paddleConfig = (scene: Scene, size: Size3D) => {
     const material = new StandardMaterial("paddleMat", scene);
-    material.diffuseColor = new Color3(0, 0.5, 0);
+    material.diffuseColor = Color3.FromHexString("#e1b700");
     material.specularPower = 64;
-    material.emissiveColor = new Color3(0, 0, 1);
+    // material.emissiveColor = new Color3(0, 0, 1);
     material.backFaceCulling = false;
 
     // const paddleMaterial3 = new StandardMaterial("paddleMat3", babylon.scene);
@@ -15,23 +15,23 @@ const paddleConfig = (scene: Scene, size: Size3D) => {
     // paddleMaterial3.backFaceCulling = false;
     // paddleMaterial3.alphaMode = 1;
 
-    material.diffuseColor = new Color3(1, 0, 0);
-
+    const { width, height, depth } = size;
     return {
-        options: { diameterX: size.width, diameterY: size.height, diameterZ: size.depth },
+        options: { width, height, depth },
+        //options: { diameterX: size.width, diameterY: size.height, diameterZ: size.depth },
         material,
-        rotation: Math.PI,
+        //rotation: Math.PI,
     };
 };
 
 export const createPaddle = (name: string, scene: Scene, pos: Vector3, size: Size3D): Mesh => {
     const config = paddleConfig(scene, size);
-    const { options, material, rotation } = config;
+    const { options, material } = config;
 
-    const paddle = MeshBuilder.CreateSphere(name, options, scene);
+    const paddle = MeshBuilder.CreateBox(name, options, scene);
 
     paddle.position = pos;
-    paddle.rotation.x = rotation;
+    //paddle.rotation.x = rotation;
     paddle.material = material;
     return paddle;
 };
