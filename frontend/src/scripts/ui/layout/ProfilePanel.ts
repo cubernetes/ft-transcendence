@@ -1,7 +1,5 @@
 import { PersonalUser } from "@darrenkuro/pong-core";
 import { authStore } from "../../modules/auth/auth.store";
-import { getText } from "../../modules/locale/locale.utils";
-import { createEl } from "../../utils/dom-helper";
 import { createAvatar } from "../components/Avatar";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
@@ -12,14 +10,23 @@ import { createTotpModal } from "./TotpModal";
 import { createUpdateModal } from "./UpdateModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
+    // Get I18N keys needed from constants
+    const { PROFILE, USERNAME, DISPLAY_NAME, PASSWORD, UPDATE, DISABLE, ENABLE, RANK } = CONST.TEXT;
+
+    // Title element
+    const titleEl = createHeading({ text: PROFILE, tw: "text-4xl mt-4" });
+
+    // User avatar element
     const avatarEl = createAvatar({ src: user.avatarUrl });
 
-    const titleEl = createHeading({ text: "your_profile", tw: "text-4xl mt-4" });
+    const LABEL_TW = "whitespace-nowrap";
 
-    const usernameLabel = createParagraph({ text: "USERNAME", tw: "mr-8" });
+    // Username
+    const usernameLabel = createParagraph({ text: USERNAME, tw: LABEL_TW });
     const usernameEl = createParagraph({ text: user.username });
 
-    const displayNameLabel = createParagraph({ text: "DISPLAY_NAME", tw: "mr-8" });
+    // Display name
+    const displayNameLabel = createParagraph({ text: DISPLAY_NAME, tw: LABEL_TW });
     const displayNameEl = createParagraph({ text: user.displayName, tw: "cursor-pointer" });
     displayNameEl.onclick = () => createUpdateModal("displayName");
     const unsubscribeAuth = authStore.subscribe(
@@ -27,53 +34,57 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     );
     displayNameEl.addEventListener("destory", unsubscribeAuth);
 
-    const passwordLabel = createParagraph({ text: "PASSWORD", tw: "mr-8" });
+    // Password
+    const passwordLabel = createParagraph({ text: PASSWORD, tw: LABEL_TW });
     const passwordBtn = createButton({
-        text: "UPDATE",
+        text: UPDATE,
         tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
         click: () => createUpdateModal("password"),
     });
 
-    const totpLabel = createParagraph({ text: "2FA", tw: "mr-8" });
+    // 2FA
+    const totpLabel = createParagraph({ text: "2FA", tw: LABEL_TW });
     const totpOnEl = createButtonGroup({
-        texts: ["UPDATE", "DISABLE"],
+        texts: [UPDATE, DISABLE],
         cbs: [() => createTotpModal("update"), () => createTotpModal("disable")],
         twBtn: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpOffEl = createButton({
-        text: "ENABLE",
+        text: ENABLE,
         click: () => createTotpModal("setup"),
         tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpEl = user.totpEnabled ? totpOnEl : totpOffEl;
 
-    const rankLabel = createParagraph({ text: "RANK", tw: "mr-8" });
+    // Rank
+    const rankLabel = createParagraph({ text: RANK, tw: LABEL_TW });
     const rankEl = createParagraph({ text: String(user.rank) });
 
+    // Containers for styling
     const labelCtn = createContainer({
-        tw: "flex-col w-full bg-blue-300",
+        tw: "flex-col w-full",
         children: [usernameLabel, displayNameLabel, passwordLabel, totpLabel, rankLabel],
     });
 
     const contentCtn = createContainer({
-        tw: "flex-col w-full bg-yellow-300",
+        tw: "flex-col w-full",
         children: [usernameEl, displayNameEl, passwordBtn, totpEl, rankEl],
     });
 
     const settingCtn = createContainer({
-        tw: "flex mx-auto bg-green-300",
+        tw: "flex mx-auto",
         children: [labelCtn, contentCtn],
     });
 
     // Create left container to include infos and settings
     const leftCtn = createContainer({
-        tw: "w-3/5 flex-col bg-red-300",
+        tw: "w-3/5 flex-col",
         children: [titleEl, settingCtn],
     });
 
     // Create right container to include avartar
     const rightCtn = createContainer({
-        tw: "w-2/5 flex justify-center bg-blue-300",
+        tw: "w-2/5 flex justify-center",
         children: [avatarEl],
     });
 

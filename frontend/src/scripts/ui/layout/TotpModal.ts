@@ -1,4 +1,4 @@
-import { TotpSetupPayload, TotpSetupResponse } from "@darrenkuro/pong-core";
+import { TotpSetupPayload } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { sendApiRequest } from "../../utils/api";
 import { appendChildren, createEl } from "../../utils/dom-helper";

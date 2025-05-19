@@ -1,4 +1,4 @@
-import { LanguageOpts, SUPPORTED_LANGS, localeStore } from "./locale.store";
+import { LanguageOpts, localeStore } from "./locale.store";
 import { I18nKey, TEXT_KEYS, TEXT_MAP } from "./locale.translation";
 
 export const isValidKey = (x: unknown): x is I18nKey => {
@@ -33,5 +33,4 @@ export const translate = <E extends HTMLElement>(
 
         cb(el, key);
     });
-    // Add extrapolate template
 };
