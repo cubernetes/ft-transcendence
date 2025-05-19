@@ -28,7 +28,7 @@ WORKDIR /frontend/
 EXPOSE 8080
 EXPOSE 8443
 
-VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/"]
+VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/", "/frontend/uploads/"]
 
 USER caddy
 
