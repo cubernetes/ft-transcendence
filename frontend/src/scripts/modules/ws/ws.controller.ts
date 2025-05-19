@@ -25,7 +25,6 @@ const registerGameControllers = (conn: WebSocket) => {
         ({ playerNames }) => {
             gameStore.update({
                 isPlaying: true,
-                isWaiting: false,
                 playerNames,
             });
         },
