@@ -11,6 +11,7 @@ import type {
     StaticSound,
     StreamingSound,
 } from "@babylonjs/core";
+import type { EthereumProvider } from "@metamask/providers";
 import type { earcut } from "earcut";
 import { AdvancedDynamicTexture } from "@babylonjs/gui";
 
@@ -27,7 +28,7 @@ declare global {
     const log: typeof logger;
 
     interface Window {
-        ethereum?: any; // TODO: shouldn't use any if it can be helped?
+        ethereum?: EthereumProvider;
         CONST: typeof CONSTANTS;
         log: typeof logger;
     }
