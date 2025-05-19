@@ -32,13 +32,9 @@ const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
     let route = (dest in ROUTES ? dest : CONST.ROUTE.DEFAULT) as Route;
 
-    // Check auth state for protected routes
-    if (PROTECTED_ROUTES.includes(route)) {
-        const authState = authStore.get();
-        // Go to default page if not logged in
-        if (!authState.isAuthenticated) {
-            route = CONST.ROUTE.DEFAULT;
-        }
+    // Check auth state for protected routes and go to default page if not logged in
+    if (PROTECTED_ROUTES.includes(route) && !authStore.get().isAuthenticated) {
+        route = CONST.ROUTE.DEFAULT;
     }
 
     // Clean up game session when route changes, this probably belongs somewhere else
