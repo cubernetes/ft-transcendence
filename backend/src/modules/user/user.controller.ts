@@ -38,7 +38,7 @@ export const createUserController = (app: FastifyInstance) => {
 
         // Validate password, send back 401 error if failed
         const verifyPassword = await app.authService.comparePassword(password, passwordHash);
-        if (!verifyPassword) return reply.err("INVALID_PASSWORD");
+        if (!verifyPassword) return reply.err("PASSWORD_INVALID");
 
         // Check 2FA
         if (totpEnabled) {
@@ -50,7 +50,7 @@ export const createUserController = (app: FastifyInstance) => {
 
             // Verify TOTP token
             const verifyToken = app.authService.verifyTotpToken(totpSecret, totpToken);
-            if (!verifyToken) return reply.err("INVALID_TOTP_TOKEN");
+            if (!verifyToken) return reply.err("TOKEN_INVALID");
         }
 
         // Password and 2FA have been verified, send cookies
@@ -62,6 +62,35 @@ export const createUserController = (app: FastifyInstance) => {
     const logout: RouteHandlerMethod = async (_, reply) => {
         const { cookieName } = app.config;
         reply.clearCookie(cookieName);
+
+        reply.ok({});
+    };
+
+    type DisplayNameCb = ZodHandler<{ body: typeof userSchemas.displayNameBody }>;
+    const displayName: DisplayNameCb = async ({ body }, req, reply) => {
+        const { displayName } = body;
+        const tryUpdateUser = await app.userService.update(req.userId, { displayName });
+        if (tryUpdateUser.isErr()) return reply.err(tryUpdateUser.error);
+
+        reply.ok({});
+    };
+
+    type PasswordCb = ZodHandler<{ body: typeof userSchemas.passwordBody }>;
+    const password: PasswordCb = async ({ body }, req, reply) => {
+        const tryGetUser = await app.userService.findById(req.userId);
+        if (tryGetUser.isErr()) return reply.err(tryGetUser.error);
+
+        const { passwordHash } = tryGetUser.value;
+        const { oldPassword, newPassword } = body;
+
+        const verifyPassword = await app.authService.comparePassword(oldPassword, passwordHash);
+        if (!verifyPassword) return reply.err("PASSWORD_INVALID");
+
+        const newPasswordHash = await app.authService.hashPassword(newPassword);
+        const tryUpdateUser = await app.userService.update(req.userId, {
+            passwordHash: newPasswordHash,
+        });
+        if (tryUpdateUser.isErr()) return reply.err(tryUpdateUser.error);
 
         reply.ok({});
     };
@@ -120,5 +149,22 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok(tryMapUser.value);
     };
 
-    return { register, login, logout, leaderboard, info, me };
+    const avatar: RouteHandlerMethod = async (req, reply) => {
+        const app = req.server;
+
+        const data = await req.file();
+
+        if (!data) return; //TODO: fill in; this validation should be done with zod or something at a higher level?
+
+        const tryUpload = await app.userService.upload(data, req.username);
+        if (tryUpload.isErr()) return reply.err(tryUpload.error);
+
+        const avatarUrl = tryUpload.value.replace("frontend/dist/", ""); // TODO: clean up
+        app.log.debug(`avatar URL: ${tryUpload.value}`);
+        await app.userService.update(req.userId, { avatarUrl });
+
+        reply.ok({ avatarUrl });
+    };
+
+    return { register, login, logout, displayName, password, leaderboard, info, me, avatar };
 };

@@ -1,3 +1,8 @@
+import {
+    DISPLAY_NAME_MIN_LENGTH,
+    PASSWORD_MIN_LENGTH,
+    USERNAME_MIN_LENGTH,
+} from "@darrenkuro/pong-core";
 import { LanguageOpts } from "./locale.store";
 
 // TODO: Check if everything here should all be lower case and let component or translate to handle capitalization for different needs
@@ -10,7 +15,9 @@ export const TEXT_MAP = {
         de: "zv-Transzendenz",
         fr: "qd-transcendance",
         es: "cd-transcendencia",
-    }, // Not sure if this makes sense to translate, for instance, ft- stans for forty-four, does that work with other languages?
+    },
+    // Not sure if this makes sense to translate title
+    // especially when I am thinking in the context or potentially adding non-alphabetic languages such as Chinese or Japanese
     PLAY: { en: "Play", de: "Spielen", fr: "Jouer", es: "Jugar" },
     HOME: { en: "Home", de: "Startseite", fr: "Accueil", es: "Inicio" },
     LEADERBOARD: { en: "Leaderboard", de: "Bestenliste", fr: "Classement", es: "Clasificación" },
@@ -30,6 +37,12 @@ export const TEXT_MAP = {
         fr: "Copied", // TRANSLATION_NEEDED
         es: "Copied", // TRANSLATION_NEEDED
     },
+    UPLOAD: {
+        en: "Upload",
+        de: "Upload", // TRANSLATION_NEEDED
+        fr: "Upload", // TRANSLATION_NEEDED
+        es: "Upload", // TRANSLATION_NEEDED
+    },
 
     // User
     USERNAME: {
@@ -45,6 +58,8 @@ export const TEXT_MAP = {
         es: "Nombre para mostrar",
     },
     PASSWORD: { en: "Password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" },
+    OLD_PASSWORD: { en: "Old password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" }, // TRANSLATION_NEEDED
+    NEW_PASSWORD: { en: "New password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" }, // TRANSLATION_NEEDED
     CONFIRM_PASSWORD: {
         en: "Confirm password",
         de: "Passwort bestätigen",
@@ -182,6 +197,92 @@ export const TEXT_MAP = {
         es: "Número de jugadores", // TODO: Check if stil correct
     },
 
+    // Server error codes
+    USER_NOT_FOUND: {
+        en: "User not found",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    USERNAME_REQUIRED: {
+        en: "Username is required",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    USERNAME_TAKEN: {
+        en: "Username taken",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    USERNAME_TOO_SHORT: {
+        en: `Username needs to be at least ${USERNAME_MIN_LENGTH} characters long`,
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    DISPLAY_NAME_TOO_SHORT: {
+        en: `Display name needs to be at least ${DISPLAY_NAME_MIN_LENGTH} characters long`,
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_REQUIRED: {
+        en: "Password is required",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_INVALID: {
+        en: "Invalid password",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_TOO_SHORT: {
+        en: `Password needs to be at least ${PASSWORD_MIN_LENGTH} characters long`,
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    PASSWORD_MATCH_ERROR: {
+        en: "Passwords do not match",
+        de: "Passwörter stimmen nicht überein.",
+        fr: "Les mots de passe ne correspondent pas.",
+        es: "Las contraseñas no coinciden.",
+    },
+    TOKEN_REQUIRED: {
+        en: "TOTP token is required",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    TOKEN_LENGTH_ERROR: {
+        en: "TOTP token must be 6 characters",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    TOKEN_INVALID: {
+        en: "TOTP token is invalid",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    LOBBY_NOT_FOUND: {
+        en: "Lobby not found",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+    LOBBY_FULL: {
+        en: "Lobby is full",
+        de: "Username taken", // TRANSLATION_NEEDED
+        fr: "Username taken", // TRANSLATION_NEEDED
+        es: "Username taken", // TRANSLATION_NEEDED
+    },
+
     // Error CODE map to msg, probaly need refactor, do not need to be one to one with english
     FETCH_ERROR: {
         en: "Fail to fetch {URL}",
@@ -196,22 +297,10 @@ export const TEXT_MAP = {
         es: "Initialization error", // TRANSLATION_NEEDED
     },
     LOGIN_ERROR: {
-        en: "Login fialed. Please check your credentials.",
+        en: "Login failed. Please check your credentials.",
         de: "Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Anmeldeinformationen.",
         fr: "Échec de la connexion. Veuillez vérifier vos identifiants.",
         es: "Error al iniciar sesión. Verifique sus credenciales.",
-    },
-    USERNAME_TAKEN: {
-        en: "Username taken.",
-        de: "Username taken.", // TRANSLATION_NEEDED
-        fr: "Username taken.", // TRANSLATION_NEEDED
-        es: "Username taken.", // TRANSLATION_NEEDED
-    },
-    PASSWORD_NOT_MATCH: {
-        en: "Passwords do not match.",
-        de: "Passwörter stimmen nicht überein.",
-        fr: "Les mots de passe ne correspondent pas.",
-        es: "Las contraseñas no coinciden.",
     },
     PLAYER_NAMES_REQUIRED: {
         en: "Please enter names for all players.",
@@ -237,8 +326,6 @@ export const TEXT_MAP = {
         fr: "Veuillez sélectionner une difficulté.",
         es: "Por favor, seleccione una dificultad.",
     },
-    // Temporary, to be deleted later
-    LANG: { en: "Language: EN", de: "Sprache: DE", fr: "Langue: FR", es: "Idioma: ES" },
 } as const satisfies Record<string, Record<LanguageOpts, string>>;
 
 export type I18nKey = keyof typeof TEXT_MAP;
@@ -253,90 +340,66 @@ export const TEXT = TEXT_KEYS.reduce(
     {} as Record<I18nKey, I18nKey>
 );
 
-// failed_generate_chart: "Failed to generate chart.",
-// game: "Game",
-// game_id: "Game ID",
-// games_played: "Games Played",
-// not_enough_data: "Not enough data to generate chart.",
-// player_names_required: "Please enter names for all players. No duplicates allowed.",
-// player_number: "Player Number",
-// please_enter_name: "Please enter a name for Player",
-// play_ai: "Play AI",
-// profile_picture: "Player Profile Picture",
-// select_Difficulty: "Please select a difficulty.",
-// select_player_amount: "Please select an amount of players.",
-// start_tournament: "Start Tournament",
-// tournament_mode: "Tournament Mode",
-// TOTP: "TOTP",
-// wins: "Wins",
-// your_profile: "Your Profile",
-
-export const TEXT_EN = {
-    ai: "AI",
-    chooseMode: "Choose Game Mode",
-    confirm_password: "Confirm Password",
-    create_lobby: "Create Lobby",
-    create_tournament: "Create a tournament",
-    difficulty: "Difficulty",
-    display_name: "Display Name",
-    easy: "Easy",
-    enter_names: "Enter player names:",
-    failed_generate_chart: "Failed to generate chart.",
-    failed_query: "Failed to query user data.",
-    game: "Game",
-    game_id: "Game ID",
-    games_played: "Games Played",
-    hard: "Hard",
-    home: "Home",
-    initialize_controller: "Game controller not initialized.",
-    join_lobby: "Join Lobby",
-    lang: "Language: EN",
-    leaderboard: "Leaderboard",
-    local: "Local",
-    login: "Login",
-    login_failed: "Login failed. Please check your credentials.",
-    logout: "Logout",
-    medium: "Medium",
-    name_player: "Name Player ",
-    not_enough_data: "Not enough data to generate chart.",
-    online: "Online",
-    passw_not_match: "Passwords do not match.",
-    password: "Password",
-    player_names_required: "Please enter names for all players. No duplicates allowed.",
-    player_number: "Player Number",
-    please_enter_name: "Please enter a name for Player",
-    play_ai: "Play AI",
-    profile: "Profile",
-    profile_picture: "Player Profile Picture",
-    quickplay: "Quickplay",
-    rank: "Rank",
-    register: "Register",
-    register_failed: "Registration failed. Please try again.",
-    setup: "Setup",
-    setup_ai: "AI-Mode",
-    setup_choose_mode: "Choose Game Mode", // duplicate
-    setup_local: "Local", // duplicate
-    setup_online: "Play Online",
-    setup_play: "Play",
-    setup_play_local: "Play Local",
-    setup_tournament_mode: "Tournament Mode",
-    select_Difficulty: "Please select a difficulty.",
-    select_player_amount: "Please select an amount of players.",
-    start_tournament: "Start Tournament",
-    title: "ft-transcendence",
-    tournament_mode: "Tournament Mode",
-    TOTP: "TOTP",
-    username: "Username",
-    wins: "Wins",
-    your_profile: "Your Profile",
-    your_stats: "Your Stats:",
-} as const;
-
-// English translation will be the only source of truth, all other languages must have same keys
-//export type I18nKey = keyof typeof TEXT_EN;
-
-// Refactor like this later maybe, key-first might be a better structure,
-// during development especially, easier to add
+// export const TEXT_EN = {
+//     ai: "AI",
+//     chooseMode: "Choose Game Mode",
+//     confirm_password: "Confirm Password",
+//     create_lobby: "Create Lobby",
+//     create_tournament: "Create a tournament",
+//     difficulty: "Difficulty",
+//     display_name: "Display Name",
+//     easy: "Easy",
+//     enter_names: "Enter player names:",
+//     failed_generate_chart: "Failed to generate chart.",
+//     failed_query: "Failed to query user data.",
+//     game: "Game",
+//     game_id: "Game ID",
+//     games_played: "Games Played",
+//     hard: "Hard",
+//     home: "Home",
+//     initialize_controller: "Game controller not initialized.",
+//     join_lobby: "Join Lobby",
+//     lang: "Language: EN",
+//     leaderboard: "Leaderboard",
+//     local: "Local",
+//     login: "Login",
+//     login_failed: "Login failed. Please check your credentials.",
+//     logout: "Logout",
+//     medium: "Medium",
+//     name_player: "Name Player ",
+//     not_enough_data: "Not enough data to generate chart.",
+//     online: "Online",
+//     passw_not_match: "Passwords do not match.",
+//     password: "Password",
+//     player_names_required: "Please enter names for all players. No duplicates allowed.",
+//     player_number: "Player Number",
+//     please_enter_name: "Please enter a name for Player",
+//     play_ai: "Play AI",
+//     profile: "Profile",
+//     profile_picture: "Player Profile Picture",
+//     quickplay: "Quickplay",
+//     rank: "Rank",
+//     register: "Register",
+//     register_failed: "Registration failed. Please try again.",
+//     setup: "Setup",
+//     setup_ai: "AI-Mode",
+//     setup_choose_mode: "Choose Game Mode", // duplicate
+//     setup_local: "Local", // duplicate
+//     setup_online: "Play Online",
+//     setup_play: "Play",
+//     setup_play_local: "Play Local",
+//     setup_tournament_mode: "Tournament Mode",
+//     select_Difficulty: "Please select a difficulty.",
+//     select_player_amount: "Please select an amount of players.",
+//     start_tournament: "Start Tournament",
+//     title: "ft-transcendence",
+//     tournament_mode: "Tournament Mode",
+//     TOTP: "TOTP",
+//     username: "Username",
+//     wins: "Wins",
+//     your_profile: "Your Profile",
+//     your_stats: "Your Stats:",
+// } as const;
 
 // export const TEXTS = {
 //     en: TEXT_EN,

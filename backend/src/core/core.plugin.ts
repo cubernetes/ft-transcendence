@@ -3,6 +3,7 @@ import fp from "fastify-plugin";
 import cookies from "@fastify/cookie";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
+import fastifyMultipart from "@fastify/multipart";
 import apiPlugin from "./api/api.plugin.ts";
 import authPlugin from "./auth/auth.plugin.ts";
 import configPlugin from "./config/config.plugin.ts";
@@ -13,17 +14,14 @@ const corePlugin = async (app: FastifyInstance) => {
     // Register configs, check integrity of the env variables
     await app.register(configPlugin);
 
-    await app.register(cors, { origin: app.config.corsOrigin });
+    const { corsOrigin, jwtSecret, cookieName, uploadMaxSize } = app.config;
+
+    await app.register(cors, { origin: corsOrigin });
 
     // Register jwt plugin
-    await app.register(jwt, {
-        secret: app.config.jwtSecret,
-        cookie: {
-            cookieName: app.config.cookieName,
-            signed: false,
-        },
-    });
+    await app.register(jwt, { secret: jwtSecret, cookie: { cookieName, signed: false } });
 
+    await app.register(fastifyMultipart, { limits: { fileSize: uploadMaxSize } });
     await app.register(cookies);
     await app.register(dbPlugin);
     await app.register(authPlugin);

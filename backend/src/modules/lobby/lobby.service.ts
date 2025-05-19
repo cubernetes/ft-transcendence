@@ -40,7 +40,7 @@ export const createLobbyService = (app: FastifyInstance) => {
         if (lobbyMap.has(userId)) return err("ALREADY_IN_LOBBY");
 
         const session = sessionMap.get(lobbyId);
-        if (!session) return err("NOT_FOUND");
+        if (!session) return err("LOBBY_NOT_FOUND");
 
         const { players, playerNames } = session;
         if (players.length >= 2) return err("LOBBY_FULL");
@@ -68,7 +68,7 @@ export const createLobbyService = (app: FastifyInstance) => {
         return ok(lobbyId);
     };
 
-    const leave = (userId: number): Result<LobbyId, ErrorCode> => {
+    const leave = (userId: number): Result<void, ErrorCode> => {
         const lobbyId = lobbyMap.get(userId);
         if (!lobbyId) return err("NOT_IN_LOBBY");
 
@@ -76,20 +76,26 @@ export const createLobbyService = (app: FastifyInstance) => {
         if (!session) return err("CORRUPTED_DATA");
 
         const { players, playerNames } = session;
-        const index = players.findIndex((p) => p === userId);
+        const isHost = players.findIndex((p) => p === userId) === 0;
 
         // If host leaves, kick the guest, for now
-        if (index === 0) {
-            app.wsService.send(players[1], { type: "lobby-remove", payload: null });
+        if (isHost) {
             lobbyMap.delete(userId);
             lobbyMap.delete(players[1]);
             sessionMap.delete(lobbyId);
+
+            app.wsService.broadcast(players, { type: "lobby-remove", payload: null });
         } else {
-            lobbyMap.delete(userId);
-            players.splice(1, 1);
+            // Remove player 1 by name first
             playerNames.splice(1, 1);
+
+            sendUpdate(lobbyId);
+
+            // Remove player 1 from backend memory
+            players.splice(1, 1);
+            lobbyMap.delete(userId);
         }
-        return ok(lobbyId);
+        return ok();
     };
 
     const getSessionByUserId = (userId: number): Result<GameSession, ErrorCode> => {
@@ -104,24 +110,28 @@ export const createLobbyService = (app: FastifyInstance) => {
 
     const sendUpdate = (lobbyId: string): Result<void, ErrorCode> => {
         const session = sessionMap.get(lobbyId);
-        if (!session) return err("NOT_FOUND");
+        if (!session) return err("SERVER_ERROR");
 
         const { engine, players, playerNames } = session;
         const config = engine.getConfig();
 
-        if (players[0]) {
-            app.wsService.send(players[0], {
-                type: "lobby-update",
-                payload: { config, playerNames, host: true },
-            });
-        }
+        app.wsService.send(players[0], {
+            type: "lobby-update",
+            payload: { config, playerNames, host: true },
+        });
 
-        if (players[1]) {
-            app.wsService.send(players[1], {
-                type: "lobby-update",
-                payload: { config, playerNames, host: false },
-            });
-        }
+        app.wsService.send(
+            players[1],
+            playerNames[1]
+                ? {
+                      type: "lobby-update",
+                      payload: { config, playerNames, host: false },
+                  }
+                : {
+                      type: "lobby-remove",
+                      payload: null,
+                  }
+        );
 
         return ok();
     };

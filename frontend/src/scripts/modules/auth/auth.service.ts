@@ -1,29 +1,18 @@
-import type { ErrorCode, LoginBody, LoginResponse, RegisterBody } from "@darrenkuro/pong-core";
+import type { ErrorCode, LoginBody, LoginPayload, RegisterBody } from "@darrenkuro/pong-core";
 import { Result, err, ok } from "neverthrow";
+import { navigateTo } from "../../global/router";
 import { sendApiRequest } from "../../utils/api";
+import { establishSocketConn } from "../ws/ws.service";
 import { authStore, emptyAuthState } from "./auth.store";
 
 /**
  * @returns boolean true - success; false - totp required
  */
 export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, ErrorCode>> => {
-    const result = await sendApiRequest.post<LoginBody, LoginResponse>(
-        `${CONST.API.USER}/login`,
-        payload
-    );
+    const res = await sendApiRequest.post<LoginBody, LoginPayload>(CONST.API.LOGIN, payload);
+    if (res.isErr()) return err(res.error);
 
-    if (result.isErr()) {
-        return err(result.error);
-    }
-
-    // Will never reach this becuase result will return Error when success is off
-    // However it is difficult to come up with good type guard or ways to please ts
-    // TODO: FIX
-    if (!result.value.success) {
-        return err("UNKNOWN_ERROR");
-    }
-
-    const { data } = result.value;
+    const data = res.value;
 
     if (data.totpEnabled) {
         const { username, password } = payload;
@@ -38,24 +27,18 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
             displayName,
             tempAuthString: null,
         });
+
+        establishSocketConn();
+        navigateTo(CONST.ROUTE.HOME);
         return ok(true);
     }
 };
 
 export const tryRegister = async (payload: RegisterBody): Promise<Result<void, ErrorCode>> => {
-    const result = await sendApiRequest.post<RegisterBody, LoginResponse>(
-        `${CONST.API.USER}/register`,
-        payload
-    );
+    const res = await sendApiRequest.post<RegisterBody, LoginPayload>(CONST.API.REGISTER, payload);
+    if (res.isErr()) return err(res.error);
 
-    if (result.isErr()) return err(result.error);
-
-    // Will never reach this becuase result will return Error when success is off
-    // However it is difficult to come up with good type guard or ways to please ts
-    // TODO: FIX
-    if (!result.value.success) return err("UNKNOWN_ERROR");
-
-    const { username, displayName } = result.value.data;
+    const { username, displayName } = res.value;
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,
@@ -63,6 +46,9 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
         displayName,
         tempAuthString: null,
     });
+
+    establishSocketConn();
+    navigateTo(CONST.ROUTE.HOME);
     return ok();
 };
 
@@ -74,20 +60,15 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         return err("UNKNOWN_ERROR");
     }
 
-    const result = await sendApiRequest.post<LoginBody, LoginResponse>(`${CONST.API.USER}/login`, {
+    const res = await sendApiRequest.post<LoginBody, LoginPayload>(CONST.API.LOGIN, {
         username,
         password: tempAuthString,
         totpToken,
     });
 
-    if (result.isErr()) return err(result.error);
+    if (res.isErr()) return err(res.error);
 
-    // Will never reach this becuase result will return Error when success is off
-    // However it is difficult to come up with good type guard or ways to please ts
-    // TODO: FIX
-    if (!result.value.success) return err("UNKNOWN_ERROR");
-
-    const { displayName } = result.value.data;
+    const { displayName } = res.value;
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,
@@ -95,6 +76,8 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         displayName,
         tempAuthString: null,
     });
+    establishSocketConn();
+    navigateTo(CONST.ROUTE.HOME);
     return ok();
 };
 
@@ -102,6 +85,6 @@ export const logout = () => {
     log.debug("Logging out...");
 
     // Remove cookies
-    sendApiRequest.post(`${CONST.API.USER}/logout`);
+    sendApiRequest.post(CONST.API.LOGOUT);
     authStore.set(emptyAuthState);
 };

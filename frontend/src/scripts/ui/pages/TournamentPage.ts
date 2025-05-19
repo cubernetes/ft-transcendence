@@ -1,4 +1,3 @@
-import { showPageElements } from "../../modules/layout/layout.service";
 import { tournamentStore } from "../../modules/tournament/tournament.store";
 import { connectBlockchain } from "../../modules/tournament/tournament.ui";
 import {

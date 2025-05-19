@@ -32,30 +32,28 @@ const createShadowButton = (grid: Grid, engine: Engine) => {
         button.height = "35px";
         button.color = "white";
         button.cornerRadius = 20;
-        button.background = "gray";
-    };
-
-    // Callback for the button
-    const buttonHandler = (button: Button, engine: Engine) => {
-        if (engine.shadowsEnabled) {
-            engine.shadowsEnabled = false;
-            engine.shadowGenerator.getShadowMap()?.renderList?.splice(0);
-            //button.textBlock!.text = "Shadows";
-            button.background = "gray";
-        } else {
-            engine.shadowsEnabled = true;
-            engine.shadowGenerator.addShadowCaster(engine.leftPaddle);
-            engine.shadowGenerator.addShadowCaster(engine.rightPaddle);
-            engine.shadowGenerator.addShadowCaster(engine.ball);
-            //shadowButton.textBlock!.text = "Shadows";
-            button.background = "blue";
-        }
+        button.background = engine.shadowsEnabled ? "blue" : "gray";
     };
 
     // Create shadow button and add it to grid
     const button = Button.CreateSimpleButton("shadowToggle", "Shadows");
     styleShadowButton(button);
-    button.onPointerUpObservable.add(() => buttonHandler(button, engine));
+    button.onPointerUpObservable.add(() => {
+        if (engine.shadowsEnabled) {
+            engine.shadowsEnabled = false;
+            localStorage.setItem(CONST.KEY.SHADOWS, "0");
+
+            engine.shadowGenerator.getShadowMap()?.renderList?.splice(0);
+
+            button.background = "gray";
+        } else {
+            engine.shadowsEnabled = true;
+            localStorage.setItem(CONST.KEY.SHADOWS, "1");
+
+            engine.castShadow();
+            button.background = "blue";
+        }
+    });
     grid.addControl(button, 0, 2);
 };
 
@@ -68,7 +66,6 @@ const styleSoundButton = (button: Button) => {
     button.width = "60px";
     button.color = "white";
     button.cornerRadius = 20;
-    button.background = "green";
 
     button.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
 };
@@ -77,12 +74,15 @@ const styleSoundButton = (button: Button) => {
 const createSFXButton = (grid: Grid, engine: Engine) => {
     const buttonSFX = Button.CreateSimpleButton("sfx", "SFX");
     styleSoundButton(buttonSFX);
+    buttonSFX.background = engine.sfxEnabled ? "green" : "red";
     buttonSFX.onPointerUpObservable.add(() => {
-        if (engine.soundsEnabled) {
-            engine.soundsEnabled = false;
+        if (engine.sfxEnabled) {
+            engine.sfxEnabled = false;
+            localStorage.setItem(CONST.KEY.SFX, "0");
             buttonSFX.background = "red";
         } else {
-            engine.soundsEnabled = true;
+            engine.sfxEnabled = true;
+            localStorage.setItem(CONST.KEY.SFX, "1");
             buttonSFX.background = "green";
         }
     });
@@ -90,25 +90,23 @@ const createSFXButton = (grid: Grid, engine: Engine) => {
 };
 
 /** Create the music toggle button */
-const createMusicButton = (grid: Grid, audio: AudioEngineV2) => {
-    const buttonHandler = (button: Button, audio: AudioEngineV2) => {
-        if (!audio.bgMusic) {
-            return log.error("Background music not attached on engine");
-        }
-
-        const { bgMusic } = audio;
-        if (bgMusic.state === SoundState.Started) {
-            bgMusic.pause();
-            button.background = "red";
-        } else {
-            bgMusic.play();
-            button.background = "green";
-        }
-    };
-
+const createMusicButton = (grid: Grid, engine: Engine) => {
     const button = Button.CreateSimpleButton("bgMusic", "Music");
     styleSoundButton(button);
-    button.onPointerUpObservable.add(() => buttonHandler(button, audio));
+    button.background = engine.bgmEnabled ? "green" : "red";
+    button.onPointerUpObservable.add(() => {
+        if (engine.bgmEnabled) {
+            engine.bgmEnabled = false;
+            engine.audio.bgMusic.pause();
+            localStorage.setItem(CONST.KEY.BGM, "0");
+            button.background = "red";
+        } else {
+            engine.bgmEnabled = true;
+            engine.audio.bgMusic.play();
+            localStorage.setItem(CONST.KEY.BGM, "1");
+            button.background = "green";
+        }
+    });
     grid.addControl(button, 0, 4);
 };
 
@@ -156,7 +154,7 @@ export const createControls = (engine: Engine): AdvancedDynamicTexture => {
     // Create control elements
     createShadowButton(grid, engine);
     createSFXButton(grid, engine);
-    createMusicButton(grid, engine.audio);
+    createMusicButton(grid, engine);
     createVolumePanel(grid, engine.audio);
 
     return controls;

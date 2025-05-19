@@ -25,7 +25,7 @@ include Makefile.aux
 # The "dev" target is preferred.
 .PHONY: dev-old-compose
 dev-old-compose: check-env
-	$(MAKE) clean-frontend-volume ensure-secret-files
+	$(MAKE) ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
 	@$(call dev-env,build)
 	@$(call dev-env,up --remove-orphans --detach)
@@ -39,7 +39,7 @@ dev-old-compose: check-env
 
 .PHONY: dev
 dev: check-env
-	$(MAKE) clean-frontend-volume ensure-secret-files
+	$(MAKE) ensure-secret-files
 	@$(call dev-env,     \
 		up               \
 		--remove-orphans \
@@ -49,7 +49,7 @@ dev: check-env
 
 .PHONY: dev-elk
 dev-elk: check-env
-	$(MAKE) clean-frontend-volume ensure-secret-files
+	$(MAKE) ensure-secret-files
 	@$(call dev-env,     \
 		--profile elk    \
 		up               \
@@ -60,7 +60,7 @@ dev-elk: check-env
 
 # Don't depend on check-env (endless waiting), rather fail
 .PHONY: actual-prod
-actual-prod: clean-frontend-volume ensure-secret-files
+actual-prod: ensure-secret-files
 	@$(call prod-env,    \
 		--profile elk	 \
 		up               \
@@ -72,7 +72,7 @@ actual-prod: clean-frontend-volume ensure-secret-files
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
 prod: check-env
-	$(MAKE) clean-frontend-volume ensure-secret-files
+	$(MAKE) ensure-secret-files
 	@$(call dev-env,     \
 		up               \
 		--remove-orphans \
@@ -84,9 +84,9 @@ prod: check-env
 down:
 	$(DC) --profile elk down --remove-orphans
 
-# "clean" will remove all volumes and some files (e.g. node_modules), see Makefile.clean
+# "vclean" will remove all volumes, for more info, see Makefile.clean
 .PHONY: re
-re: clean
+re: vclean clean-secrets-folder
 	$(MAKE)
 
 .PHONY: install

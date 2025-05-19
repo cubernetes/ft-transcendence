@@ -1,4 +1,4 @@
-import type { GetMeResponse } from "@darrenkuro/pong-core";
+import type { GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createStatus } from "../../ui/components/Status";
@@ -25,10 +25,10 @@ export const emptyAuthState = {
 };
 
 export const initAuthState = async (): Promise<AuthState> => {
-    const result = await sendApiRequest.get<GetMeResponse>(`${CONST.API.USER}/me`);
-    if (result.isErr() || !result.value.success) return emptyAuthState;
+    const result = await sendApiRequest.get<GetMePayload>(CONST.API.ME);
+    if (result.isErr()) return emptyAuthState;
 
-    const { username, displayName } = result.value.data;
+    const { username, displayName } = result.value;
     return {
         isAuthenticated: true,
         totpRequired: false,
@@ -52,8 +52,7 @@ authStore.subscribe(async (state) => {
         const { statusEl, showErr } = createStatus();
         tokenForm.appendChild(statusEl);
         tokenForm.addEventListener("submit", async (evt) => {
-            // Very important, to prevent reload
-            evt.preventDefault();
+            evt.preventDefault(); // Prevent reload
 
             const tryLogin = await tryLoginWithTotp();
             if (tryLogin.isErr()) return showErr(tryLogin.error);
@@ -69,8 +68,4 @@ authStore.subscribe(async (state) => {
         closeSocketConn();
         return;
     }
-
-    // Redirect to home and open socket connection once successfully authenticated
-    navigateTo(CONST.ROUTE.HOME);
-    establishSocketConn();
 });

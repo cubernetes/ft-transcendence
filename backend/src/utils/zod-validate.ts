@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { ZodError, ZodTypeAny, z } from "zod";
-import { ApiError } from "./api-response.ts";
+import { ZodTypeAny, z } from "zod";
+import { ErrorCode, errorCodeEnum } from "@darrenkuro/pong-core";
 
 type ZodTarget = "body" | "query" | "params" | "headers";
 type SchemaMap = Partial<Record<ZodTarget, ZodTypeAny>>;
@@ -15,6 +15,8 @@ export type ZodHandler<S extends SchemaMap> = (
     reply: FastifyReply
 ) => void | Promise<void>;
 
+const isValidError = (v: unknown): v is ErrorCode => errorCodeEnum.safeParse(v).success;
+
 /**
  * Middleware to validate data for the request (params, body, query, headers) using Zod.
  * Each validated part is passed to the handler as a `data` object with named keys.
@@ -27,34 +29,23 @@ export const withZod =
     async (req: FastifyRequest, reply: FastifyReply) => {
         const parsed: Partial<Record<keyof Schemas, unknown>> = {};
 
-        const summarizeZodError = (error: ZodError): string => {
-            if (error.issues.length === 0) return "Validation failed";
-
-            return error.issues.map((i) => i.message).join("; ");
-        };
-
         for (const key of Object.keys(schemas) as (keyof Schemas)[]) {
             const schema = schemas[key] as ZodTypeAny;
             const data = req[key as ZodTarget];
 
-            // Handle when field doesn't exist at all
-            if (!data) {
-                const err = new ApiError(
-                    "VALIDATION_ERROR",
-                    400,
-                    `Missing required ${String(key)}`
-                );
-                err.send(reply);
+            // Handle when field doesn't exist at all, should never happen
+            if (!data) return reply.err("VALIDATION_ERROR");
+
+            const res = schema.safeParse(data);
+
+            if (!res.success) {
+                // Only return the first issue
+                const msg = res.error.issues[0].message;
+
+                return reply.err(isValidError(msg) ? msg : "VALIDATION_ERROR");
             }
 
-            const result = schema.safeParse(data);
-
-            if (!result.success) {
-                const err = new ApiError("VALIDATION_ERROR", 400, summarizeZodError(result.error));
-                return err.send(reply);
-            }
-
-            parsed[key] = result.data;
+            parsed[key] = res.data;
         }
 
         return cb(parsed as InferSchemaMap<Schemas>, req, reply);

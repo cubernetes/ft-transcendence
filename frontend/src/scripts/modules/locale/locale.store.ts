@@ -36,7 +36,7 @@ export const localeStore = createStore<LocaleState>(initLocaleState());
 localeStore.subscribe(() => {
     const { I18N_TEXT, I18N_INPUT, I18N_ALT, I18N_VARS } = CONST.ATTR;
 
-    // Translate textContent
+    // Translate text content
     translate<HTMLElement>(I18N_TEXT, (el, key) => {
         const varsAttr = el.getAttribute(I18N_VARS);
         const vars = varsAttr ? JSON.parse(varsAttr) : undefined;

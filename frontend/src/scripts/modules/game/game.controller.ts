@@ -168,27 +168,27 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         // TODO: duplicate code
         const scorePos = new Vector3(0, 1, defaultGameConfig.board.size.depth / 2 + 0.5);
         createScore(renderer, scores, scorePos);
-        if (renderer.soundsEnabled) {
+        if (renderer.sfxEnabled) {
             renderer.audio.ballSound.play();
         }
         pulseLight(renderer.directionalLight, renderer.scene);
     };
 
     const handleWallCollision = () => {
-        if (renderer.soundsEnabled) {
+        if (renderer.sfxEnabled) {
             renderer.audio.ballSound.play();
         }
         pulseBall(renderer.ballMat, renderer.scene);
     };
 
     const handlePaddleCollision = () => {
-        if (renderer.soundsEnabled) {
+        if (renderer.sfxEnabled) {
             renderer.audio.hitSound.play();
         }
     };
 
     const handleBallReset = () => {
-        if (renderer.soundsEnabled) {
+        if (renderer.sfxEnabled) {
             renderer.audio.ballSound.play();
         }
     };
@@ -217,7 +217,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const startRenderer = (config: PongConfig) => {
         renderer.scene = createScene(renderer, config);
-        if (renderer.soundsEnabled) renderer.audio.bgMusic.play();
+        if (renderer.bgmEnabled) renderer.audio.bgMusic.play();
+        if (renderer.shadowsEnabled) renderer.castShadow();
 
         renderer.runRenderLoop(() => renderer.scene.render());
 

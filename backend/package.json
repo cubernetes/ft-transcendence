@@ -17,6 +17,7 @@
         "@fastify/cookie": "^11.0.2",
         "@fastify/cors": "^11.0.0",
         "@fastify/jwt": "^9.0.4",
+        "@fastify/multipart": "^9.0.3",
         "@fastify/swagger": "^9.4.2",
         "@fastify/swagger-ui": "^5.2.2",
         "@fastify/websocket": "^11.0.2",

@@ -22,7 +22,7 @@ const loginRouteSchema = {
         201: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
-        404: zodToJsonSchema(apiError("NOT_FOUND")),
+        404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };

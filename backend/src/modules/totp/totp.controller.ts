@@ -17,7 +17,7 @@ const verifyTotp = async (
     if (!secret) return err("SERVER_ERROR"); // Never // Conflict! user already has totpsecret but pinging this route again
 
     const verified = app.authService.verifyTotpToken(secret, token);
-    if (!verified) return err("INVALID_TOTP_TOKEN");
+    if (!verified) return err("TOKEN_INVALID");
 
     return ok(user);
 };

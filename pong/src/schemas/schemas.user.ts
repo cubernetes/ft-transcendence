@@ -11,22 +11,54 @@ const jwtPayload = z.object({
     exp: z.number(),
 });
 
+export const USERNAME_MIN_LENGTH = 4;
+export const DISPLAY_NAME_MIN_LENGTH = 4;
+export const PASSWORD_MIN_LENGTH = 8;
+
 export type RegisterBody = z.infer<typeof registerBody>;
 const registerBody = z
     .object({
-        username: z.string().min(3, "Username must be at least 3 characters long"),
-        displayName: z.string().min(3, "Display name must be at least 3 characters long"),
-        password: z.string().min(8, "Password must be at least 8 characters long"),
-        confirmPassword: z.string().min(8, "Confirm password must be at least 8 characters long"),
+        username: z
+            .string({ required_error: "USERNAME_REQUIRED" })
+            .min(USERNAME_MIN_LENGTH, "USERNAME_TOO_SHORT"),
+        displayName: z
+            .string({ required_error: "DISPLAY_NAME_REQUIRED" })
+            .min(DISPLAY_NAME_MIN_LENGTH, "DISPLAY_NAME_TOO_SHORT"),
+        password: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
+        confirmPassword: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
     })
-    .refine((data) => data.password === data.confirmPassword, "Passwords do not match");
+    .refine((data) => data.password === data.confirmPassword, "PASSWORD_MATCH_ERROR");
 
 export type LoginBody = z.infer<typeof loginBody>;
 const loginBody = z.object({
-    username: z.string({ required_error: "Username is required" }),
-    password: z.string({ required_error: "Password is required" }),
-    totpToken: z.string().length(6, "Token must be 6 characters").optional(),
+    username: z.string({ required_error: "USERNAME_REQUIRED" }),
+    password: z.string({ required_error: "PASSWORD_REQUIRED" }),
+    totpToken: z.string().length(6, "TOKEN_LENGTH_ERROR").optional(),
 });
+
+export type DisplayNameBody = z.infer<typeof displayNameBody>;
+const displayNameBody = z.object({
+    displayName: z
+        .string({ required_error: "DISPLAY_NAME_REQUIRED" })
+        .min(DISPLAY_NAME_MIN_LENGTH, "DISPLAY_NAME_TOO_SHORT"),
+});
+
+export type PasswordBody = z.infer<typeof passwordBody>;
+const passwordBody = z
+    .object({
+        oldPassword: z.string({ required_error: "PASSWORD_REQUIRED" }),
+        newPassword: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
+        confirmPassword: z
+            .string({ required_error: "PASSWORD_REQUIRED" })
+            .min(PASSWORD_MIN_LENGTH, "PASSWORD_TOO_SHORT"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, "PASSWORD_MATCH_ERROR");
 
 export type LeaderboardParams = z.infer<typeof leaderboardParams>;
 const leaderboardParams = z.object({ n: z.coerce.number().int().gt(0) });
@@ -40,7 +72,7 @@ const loginPayload = z.object({
 });
 
 export type InfoParams = z.infer<typeof infoParams>;
-const infoParams = z.object({ username: z.string({ required_error: "Username is required" }) });
+const infoParams = z.object({ username: z.string({ required_error: "USERNAME_REQUIRED" }) });
 
 export type PublicUser = z.infer<typeof publicUser>;
 const publicUser = z.object({
@@ -75,6 +107,8 @@ export const userSchemas = {
     jwtPayload,
     registerBody,
     loginBody,
+    displayNameBody,
+    passwordBody,
     leaderboardParams,
     infoParams,
     getInfoPayload,

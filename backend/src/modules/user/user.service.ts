@@ -1,10 +1,13 @@
 import type { UserInsert, UserRecord } from "../../core/db/db.types.ts";
 import type { FastifyInstance } from "fastify";
+import { MultipartFile } from "@fastify/multipart";
 import { Result, err, ok } from "neverthrow";
 import { count, desc, eq } from "drizzle-orm";
+import { writeFile } from "fs/promises";
+import { extname, join } from "path";
 import { ErrorCode, PersonalUser, PublicUser } from "@darrenkuro/pong-core";
 import { users } from "../../core/db/db.schema.ts";
-import { errUniqueConstraintOn } from "../../utils/api-response.ts";
+import { errUniqueConstraintOn } from "../../core/db/db.utils.ts";
 import { getDynamicFields, hideFieldsPersonal, hideFieldsPublic } from "./user.utils.ts";
 
 export const createUserService = (app: FastifyInstance) => {
@@ -31,7 +34,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.id, id));
             const user = result[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {
@@ -45,7 +48,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.username, username));
             const user = result[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {
@@ -59,7 +62,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users).where(eq(users.id, id));
             const user = result[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user.username);
         } catch (error) {
@@ -86,7 +89,7 @@ export const createUserService = (app: FastifyInstance) => {
             const updated = await db.update(users).set(data).where(eq(users.id, id)).returning();
             const user = updated[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {
@@ -102,13 +105,34 @@ export const createUserService = (app: FastifyInstance) => {
             const deleted = await db.delete(users).where(eq(users.id, id)).returning();
             const user = deleted[0];
 
-            if (!user) return err("NOT_FOUND");
+            if (!user) return err("USER_NOT_FOUND");
 
             return ok(user);
         } catch (error) {
             app.log.debug({ error }, "Failed to remove user");
             return err("SERVER_ERROR");
         }
+    };
+
+    const upload = async (
+        file: MultipartFile,
+        username: string
+    ): Promise<Result<string, ErrorCode>> => {
+        const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+        const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
+        if (!ALLOWED_TYPES.includes(file.mimetype)) return err("UNKNOWN_ERROR"); // TODO: correct error type
+
+        const ext = extname(file.filename);
+        const filename = `${username}${ext}`; // Every user will have one, will overwrite
+        const filepath = join(app.config.uploadDir, filename);
+
+        const buffer = await file.toBuffer();
+        if (buffer.length > MAX_SIZE) return err("UNKNOWN_ERROR"); // TODO: correct error type
+
+        app.log.debug(`${filepath} type: ${ext}`);
+        await writeFile(filepath, buffer);
+        return ok(filepath);
     };
 
     const getCount = async (): Promise<Result<number, ErrorCode>> => {
@@ -156,6 +180,7 @@ export const createUserService = (app: FastifyInstance) => {
         findAll,
         update,
         remove,
+        upload,
         getCount,
         getRankByUsername,
         toPublicUser,

@@ -8,7 +8,9 @@ wss.on("connection", (_) => {
     console.log(`Browser connected for live reload at port ${port}`);
 });
 
-chokidar.watch("dist").on("change", (_) => {
+chokidar.watch("dist").on("change", (path) => {
+    if (path.includes("uploads")) return; // Ignore upload folder
+
     wss.clients.forEach((client) => {
         if (client.readyState === 1) {
             client.send("reload");

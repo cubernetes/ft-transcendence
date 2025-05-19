@@ -1,4 +1,5 @@
 import { navigateTo } from "../../global/router";
+import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
 import { sendGameStart } from "../../modules/ws/ws.service";
 import { sendApiRequest } from "../../utils/api";
@@ -13,6 +14,9 @@ import { createStatus } from "../components/Status";
 
 export const createLobbyPage = (): UIComponent => {
     const { lobbyId, lobbyHost, playerNames, playTo } = gameStore.get();
+
+    log.debug("Create lobby page");
+    log.debug(gameStore.get());
 
     const titleEl = createHeading({ text: "Lobby" });
     const lineHr = createEl("hr", "border-t-2 border-dotted border-white mb-6");
@@ -42,13 +46,13 @@ export const createLobbyPage = (): UIComponent => {
     // Players
     // TODO: add avatar maybe
     const player1P = createParagraph({
-        text: playerNames[0],
+        text: playerNames[0] == "" ? authStore.get().displayName! : playerNames[0],
         id: CONST.ID.LOBBY_P1,
         tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-white p-2 w-full mr-2",
     });
 
     const player2P = createParagraph({
-        text: playerNames[1] ?? "Waiting",
+        text: !playerNames[1] || playerNames[1] == "" ? "Waiting" : playerNames[1],
         id: CONST.ID.LOBBY_P2,
         tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-gray-200 p-2 w-full ml-2",
     });
@@ -77,7 +81,7 @@ export const createLobbyPage = (): UIComponent => {
     });
 
     const updateBtnCb = async () => {
-        const tryUpdate = await sendApiRequest.post(`${CONST.API.LOBBY}/update`, {
+        const tryUpdate = await sendApiRequest.post(CONST.API.UPDATE_LOBBY, {
             playTo: Number(playToInput.value),
         });
         if (tryUpdate.isErr()) return showErr(tryUpdate.error);
@@ -97,7 +101,7 @@ export const createLobbyPage = (): UIComponent => {
     };
 
     const leaveBtnCb = () => {
-        sendApiRequest.post(`${CONST.API.LOBBY}/leave`);
+        sendApiRequest.post(CONST.API.LEAVE);
         navigateTo("play");
     };
 
@@ -131,6 +135,9 @@ export const createLobbyPage = (): UIComponent => {
 
     const unsubscribeGameStore = gameStore.subscribe(
         ({ lobbyId, playerNames, playTo, isPlaying, controller }) => {
+            log.debug("GameStore subscriber in lobby!");
+            log.debug(gameStore.get());
+
             player1P.textContent = playerNames[0];
             player2P.textContent = playerNames[1] ?? "Waiting";
 
@@ -143,6 +150,11 @@ export const createLobbyPage = (): UIComponent => {
         }
     );
 
-    container.addEventListener("destory", unsubscribeGameStore);
+    container.addEventListener("destory", () => {
+        unsubscribeGameStore();
+
+        // Always leave when route away from lobby page
+        sendApiRequest.post(CONST.API.LEAVE);
+    });
     return [container];
 };
