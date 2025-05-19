@@ -1,3 +1,4 @@
+import { showPageElements } from "../../modules/layout/layout.service";
 import { tournamentStore } from "../../modules/tournament/tournament.store";
 import { connectBlockchain } from "../../modules/tournament/tournament.ui";
 import {
@@ -5,7 +6,6 @@ import {
     winnerVisualization,
 } from "../../modules/tournament/tournament.ui";
 import { appendChildren, createEl } from "../../utils/dom-helper";
-import { createStatus } from "../components/Status";
 
 export const createTournamentPage = async (): Promise<HTMLElement[]> => {
     const { controller, round, tournamentId } = tournamentStore.get();
