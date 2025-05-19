@@ -14,27 +14,30 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
 
     const data = res.value;
 
+    // Check if user has TOTP enabled first
     if (data.totpEnabled) {
         const { username, password } = payload;
         authStore.update({ totpRequired: true, username, tempAuthString: password });
         return ok(false);
-    } else {
-        const { username, displayName } = data;
-        if (!username || !displayName) return err("SERVER_ERROR");
-
-        authStore.set({
-            isAuthenticated: true,
-            totpRequired: false,
-            username,
-            displayName,
-            tempAuthString: null,
-        });
-
-        establishSocketConn();
-        navigateTo(CONST.ROUTE.HOME);
-
-        return ok(true);
     }
+
+    // TOTP was not enabled and res is successful, user logged in
+    const { username, displayName } = data;
+    if (!username || !displayName) return err("SERVER_ERROR");
+
+    authStore.set({
+        isAuthenticated: true,
+        totpRequired: false,
+        username,
+        displayName,
+        tempAuthString: null,
+    });
+
+    // Establish socket connection and navigate to home page
+    establishSocketConn();
+    navigateTo(CONST.ROUTE.HOME);
+
+    return ok(true);
 };
 
 export const tryRegister = async (payload: RegisterBody): Promise<Result<void, ErrorCode>> => {
