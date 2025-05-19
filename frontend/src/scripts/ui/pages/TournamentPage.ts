@@ -5,30 +5,61 @@ import {
     winnerVisualization,
 } from "../../modules/tournament/tournament.ui";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createStatus } from "../components/Status";
 
 export const createTournamentPage = async (): Promise<HTMLElement[]> => {
-    // showPageElements(); -> shouldn't have side effects
     const { controller, round, tournamentId } = tournamentStore.get();
-    const pageContainer = createEl("div", "tournament-page-container");
+    const pageContainer = createEl("div", "p-6 flex flex-col items-center gap-8");
 
-    // TODO: Should never throw, return the error html el instead
-    if (!controller) throw new Error("initialize_controller");
+    showPageElements();
 
-    const tournamentIdEl = createEl("div", "text-center text-2xl font-bold", {
-        text: `Tournament ID: ${tournamentId}`,
+    // Header Section
+    const headerSection = createEl("div", "w-full text-center");
+    const title = createEl("h1", "text-4xl font-bold mb-2", {
+        text: "🏆 Tournament Bracket",
     });
-    pageContainer.appendChild(tournamentIdEl);
+    const tournamentIdEl = createEl("p", "text-lg text-gray-600", {
+        text: `Tournament ID: ${tournamentId || "Unknown"}`,
+    });
+    appendChildren(headerSection, [title, tournamentIdEl]);
 
-    const tree = controller.getTournamentTree();
-    if (!tree) throw new Error("tournament_tree_not_found");
-
-    if (round === "Final") {
-        const winner = controller.getFinalWinner();
-        if (winner)
-            appendChildren(pageContainer, [await connectBlockchain(), winnerVisualization(winner)]);
+    // Error Handling
+    if (!controller) {
+        const errorEl = createEl("p", "text-lg text-red-600 font-semibold", {
+            text: "Unable to launch the tournament. Please try again later.",
+        });
+        appendChildren(pageContainer, [headerSection, errorEl]);
+        return [pageContainer];
     }
 
-    appendChildren(pageContainer, [tree, restartTournamentButton()]);
+    // Bracket Section
+    const tree = controller.getTournamentTree();
+    const bracketSection = createEl("section", "w-full");
+    if (!tree) {
+        const fallback = createEl("p", "text-center text-gray-500", {
+            text: "Tournament tree could not be loaded.",
+        });
+        bracketSection.appendChild(fallback);
+    } else {
+        bracketSection.appendChild(tree);
+    }
+
+    // Winner Section
+    const winnerSection = createEl("section", "w-full flex flex-col items-center gap-4");
+    if (round === "Final") {
+        const winner = controller.getFinalWinner();
+        if (winner) {
+            const winnerEl = winnerVisualization(winner);
+            const blockchainControls = await connectBlockchain();
+            appendChildren(winnerSection, [winnerEl, blockchainControls]);
+        }
+    }
+
+    // Controls Section
+    const controlSection = createEl("section", "w-full flex justify-center");
+    controlSection.appendChild(restartTournamentButton());
+
+    appendChildren(pageContainer, [headerSection, bracketSection, winnerSection, controlSection]);
 
     return [pageContainer];
 };
