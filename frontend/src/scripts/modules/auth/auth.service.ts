@@ -27,6 +27,7 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
             displayName,
             tempAuthString: null,
         });
+
         establishSocketConn();
         navigateTo(CONST.ROUTE.HOME);
         return ok(true);
@@ -45,6 +46,9 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
         displayName,
         tempAuthString: null,
     });
+
+    establishSocketConn();
+    navigateTo(CONST.ROUTE.HOME);
     return ok();
 };
 
