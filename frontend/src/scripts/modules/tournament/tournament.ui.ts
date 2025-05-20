@@ -97,7 +97,7 @@ export const winnerVisualization = (winnerName: string): HTMLElement => {
     const winnerContainer = createEl("div", "flex flex-col items-center gap-2 mt-6");
 
     const winnerText = createEl("h1", "text-4xl font-bold text-center text-green-700", {
-        text: `🏆 Winner: ${winnerName}`,
+        text: `🥇 Winner: ${winnerName}`,
     });
 
     appendChildren(winnerContainer, [winnerText]);
