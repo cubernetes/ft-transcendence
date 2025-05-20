@@ -9,14 +9,13 @@ export const createGameController = (app: FastifyInstance) => {
         if (tryGetSession.isErr()) return app.log.error(tryGetSession.error);
 
         const session = tryGetSession.value;
-        const { engine, players, playerNames } = session;
+        const { players, playerNames } = session;
 
         // Guard against wrong number of players
         if (players.length !== 2) return app.log.error("Fail to start game: wrong player count");
 
-        // Register event handlers and start the engine
+        // Register event handlers
         app.gameService.registerCbHandlers(session);
-        engine.start();
 
         // Notify the guest player
         app.wsService.send(players[1], { type: "game-start", payload: { playerNames } });
@@ -36,5 +35,12 @@ export const createGameController = (app: FastifyInstance) => {
         engine.setInput(index, payload.action);
     };
 
-    return { start, action };
+    const ready = (conn: WebSocket, _: Payloads["renderer-ready"]): void => {
+        // Try to get game session
+        const { userId } = conn;
+        const trySetReady = app.lobbyService.setReady(userId!);
+        if (trySetReady.isErr()) return app.log.error(trySetReady.error);
+    };
+
+    return { start, action, ready };
 };

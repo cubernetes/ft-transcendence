@@ -4,14 +4,19 @@ import type {
     OutgoingMessageType as Type,
 } from "@darrenkuro/pong-core";
 import { defaultGameConfig, safeJsonParse } from "@darrenkuro/pong-core";
-import { createParagraph } from "../../ui/components/Paragraph";
+import { navigateTo } from "../../global/router";
 import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
 
 const registerGeneralHandlers = (conn: WebSocket) => {
     conn.onopen = () => log.info("WebSocket connection established");
 
-    conn.onclose = () => log.info("WebSocket connection closed");
+    conn.onclose = () => {
+        log.info("WebSocket connection closed");
+
+        // Server dropped, sync client
+        navigateTo(CONST.ROUTE.DEFAULT);
+    };
 
     conn.onerror = (e) =>
         log.error(`Socket error: ${e instanceof ErrorEvent ? e.message : "unknown"}`);
@@ -62,6 +67,8 @@ const registerGameControllers = (conn: WebSocket) => {
         // Try to get message type, payload, and guard against empty type
         const { type, payload } = tryParseMessage.value;
         if (!type) return log.error(`Fail to handle socket message: type is null`);
+
+        log.debug(`Message received over socket: ${type}`, payload);
 
         // Try to get the handler for message type and guard against handler doens't exist
         const handler = wsStore.get().handlers.get(type);

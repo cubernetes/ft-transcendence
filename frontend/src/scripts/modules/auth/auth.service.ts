@@ -33,8 +33,6 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
         tempAuthString: null,
     });
 
-    // Establish socket connection and navigate to home page
-    establishSocketConn();
     navigateTo(CONST.ROUTE.HOME);
 
     return ok(true);
@@ -86,7 +84,6 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         displayName,
         tempAuthString: null,
     });
-    establishSocketConn();
     navigateTo(CONST.ROUTE.HOME);
     return ok();
 };

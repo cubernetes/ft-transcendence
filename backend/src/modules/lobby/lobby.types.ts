@@ -9,4 +9,5 @@ export type GameSession = {
     engine: PongEngine;
     players: number[];
     playerNames: string[];
+    playerReady: boolean[];
 };

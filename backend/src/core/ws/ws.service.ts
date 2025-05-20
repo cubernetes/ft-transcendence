@@ -25,7 +25,7 @@ export const createWsService = (app: FastifyInstance) => {
         const conn = conns.get(id);
         if (!conn) return err("Can't find socket by id");
 
-        app.log.debug(`Send socket message to user ${id}: ${JSON.stringify(message)}`);
+        // app.log.debug(`Send socket message to user ${id}: ${JSON.stringify(message)}`);
         conn.send(JSON.stringify(message));
         return ok();
     };

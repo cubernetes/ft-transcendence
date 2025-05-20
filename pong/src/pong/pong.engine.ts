@@ -140,17 +140,6 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
         }
     };
 
-    const checkWins = () => {
-        if (scores.some((n) => n >= config.playTo)) {
-            stop();
-            emit("game-end", {
-                winner: scores[0] > scores[1] ? 0 : 1,
-                hits: [...hits],
-                state: getState(),
-            });
-        }
-    };
-
     // #endregion
 
     const clampAngleRatio = () => {
@@ -197,7 +186,12 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
         checkPaddleCollision(0);
         checkPaddleCollision(1);
         detectScore();
-        checkWins();
+
+        // Check if a player has won
+        if (scores.some((n) => n >= config.playTo)) {
+            stop();
+            return ok();
+        }
 
         emit("state-update", { state: getState() });
 
@@ -227,7 +221,7 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
     };
 
     const stop = (): Result<void, ErrorCode> => {
-        //if (status === "ended") return err("GAME_STATUS_ERROR");
+        if (status === "ended") return err("GAME_STATUS_ERROR");
         if (!interval) return err("CORRUPTED_DATA");
 
         clearInterval(interval);

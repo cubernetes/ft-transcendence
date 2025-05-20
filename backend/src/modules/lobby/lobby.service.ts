@@ -29,8 +29,9 @@ export const createLobbyService = (app: FastifyInstance) => {
         const engine = createPongEngine(cfg);
         const players = [userId];
         const playerNames = [name];
+        const playerReady = [false, false];
 
-        sessionMap.set(lobbyId, { createdAt, engine, players, playerNames });
+        sessionMap.set(lobbyId, { createdAt, engine, players, playerNames, playerReady });
         lobbyMap.set(userId, lobbyId);
 
         return ok(lobbyId);
@@ -114,6 +115,7 @@ export const createLobbyService = (app: FastifyInstance) => {
 
         const { engine, players, playerNames } = session;
         const config = engine.getConfig();
+        app.log.debug("what");
 
         app.wsService.send(players[0], {
             type: "lobby-update",
@@ -136,5 +138,20 @@ export const createLobbyService = (app: FastifyInstance) => {
         return ok();
     };
 
-    return { create, join, update, leave, getSessionByUserId, sendUpdate };
+    const setReady = (userId: number): Result<void, ErrorCode> => {
+        const lobbyId = lobbyMap.get(userId);
+        if (!lobbyId) return err("NOT_IN_LOBBY");
+
+        const session = sessionMap.get(lobbyId);
+        if (!session) return err("CORRUPTED_DATA");
+
+        const { engine, players, playerReady } = session;
+        const idx = players.findIndex((p) => p === userId);
+        playerReady[idx] = true;
+
+        if (playerReady.every((b) => b === true)) engine.start();
+        return ok();
+    };
+
+    return { create, join, update, leave, getSessionByUserId, sendUpdate, setReady };
 };

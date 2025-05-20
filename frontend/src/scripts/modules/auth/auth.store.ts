@@ -5,7 +5,7 @@ import { createStatus } from "../../ui/components/Status";
 import { createTotpTokenForm } from "../../ui/layout/TotpModal";
 import { sendApiRequest } from "../../utils/api";
 import { replaceChildren } from "../../utils/dom-helper";
-import { closeSocketConn } from "../ws/ws.service";
+import { closeSocketConn, establishSocketConn } from "../ws/ws.service";
 import { tryLoginWithTotp } from "./auth.service";
 
 type AuthState = {
@@ -66,4 +66,6 @@ authStore.subscribe(async (state) => {
         navigateTo(CONST.ROUTE.DEFAULT);
         return;
     }
+
+    establishSocketConn();
 });

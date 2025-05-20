@@ -12,7 +12,7 @@ import {
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";
 import { registerHandler } from "../ws/ws.controller";
-import { sendGameAction } from "../ws/ws.service";
+import { sendGameAction, sendRendererReady } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
 import { gameStore } from "./game.store";
@@ -118,30 +118,25 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         engine.onEvent("paddle-collision", handlePaddleCollision);
         engine.onEvent("score-update", ({ scores }) => handleScoreUpdate(scores));
         engine.onEvent("state-update", ({ state }) => handleStateUpdate(state));
-        // engine.onEvent("ball-reset", handleBallReset);
-        // TODO: GET NAME
-        // Don't hook this for now because game-end event will be called when going away from page
-        // And that breaks the page (why navigation wasn't working)
-        engine.onEvent("game-end", (evt) => handleEndGame(mode, evt.winner, evt.state));
+        engine.onEvent("game-end", ({ winner, state }) => handleEndGame(mode, winner, state));
     };
 
     const attachOnlineSocketEvents = () => {
         const { isConnected, handlers } = wsStore.get();
-        if (!isConnected) return log.error("Socket is not connected when attaching events");
+        if (!isConnected) return log.error("Fail to attach events: no live socket");
 
         registerHandler("wall-collision", handleWallCollision, handlers);
         registerHandler("paddle-collision", handlePaddleCollision, handlers);
         registerHandler("state-update", ({ state }) => handleStateUpdate(state), handlers);
         registerHandler("score-update", ({ scores }) => handleScoreUpdate(scores), handlers);
-        //registerHandler("ball-reset", handleBallReset, handlers);
-        // TODO: Get name
         registerHandler(
             "game-end",
-            (evt) => handleEndGame("online", evt.winner, evt.state),
+            ({ winner, state }) => handleEndGame("online", winner, state),
             handlers
         );
     };
 
+    // TODO: move chunk of this to objects.ball
     const updateBall = (newBall: Ball) => {
         const { scene } = renderer;
         if (!scene) return log.warn("Fail to update ball: no active scene");
@@ -281,10 +276,11 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         gameStore.update({ isPlaying: true });
     };
 
+    // Actively start online game (host)
     const startOnlineGame = (config: PongConfig) => {
         attachOnlineControl();
         attachOnlineSocketEvents();
-        startRenderer(config); // then send renderer-ready
+        startRenderer(config).then(sendRendererReady);
     };
 
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {

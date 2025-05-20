@@ -10,6 +10,7 @@ const gamePlugin = async (app: FastifyInstance) => {
 
     app.wsService.registerHandler("game-start", controller.start);
     app.wsService.registerHandler("game-action", controller.action);
+    app.wsService.registerHandler("renderer-ready", controller.ready);
 };
 
 export default fp(gamePlugin, {

@@ -1,6 +1,6 @@
 {
     "name": "@darrenkuro/pong-core",
-    "version": "1.2.26",
+    "version": "1.2.27",
     "description": "Shared types and Pong engine for ft-transcendence project",
     "type": "module",
     "exports": {
