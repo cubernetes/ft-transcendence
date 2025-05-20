@@ -19,7 +19,7 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
         const roundColumn = createEl("div", "flex flex-col items-center gap-12");
         log.debug("Round: ", round);
         const roundTitle = createEl("h3", "text-xl font-semibold", {
-            text: round,
+            text: determineRound(roundMatches),
         });
         roundColumn.appendChild(roundTitle);
 
