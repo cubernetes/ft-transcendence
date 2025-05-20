@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import inquirer from "inquirer";
+import readline from "readline";
 import gameManager from "../game/GameManager";
 import { clearToken, getToken, setToken } from "../utils/auth";
 import { cleanup } from "../utils/cleanup";
@@ -16,14 +17,14 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
             {
                 type: "list",
                 name: "action",
-                message: "Remote Game Options:",
+                message: errorMsg ? chalk.red(errorMsg) : "Remote Game Options:",
                 choices: [
                     new inquirer.Separator(),
                     { name: chalk.magenta("➕  Create Lobby"), value: "create" },
                     new inquirer.Separator(),
                     { name: chalk.magenta("🔗  Join Lobby"), value: "join" },
                     new inquirer.Separator(),
-                    { name: chalk.yellow("🔑  Show Saved Token"), value: "show-token" }, // <-- Added
+                    { name: chalk.yellow("🔑  Show Saved Token"), value: "show-token" },
                     new inquirer.Separator(),
                     { name: chalk.red("🚪  Logout"), value: "logout" },
                     new inquirer.Separator(),
@@ -34,11 +35,9 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
 
         switch (action) {
             case "create":
-                await createLobby();
-                return; // promptRemotePlayMenu();
+                return createLobby();
             case "join":
-                await joinLobby();
-                return promptRemotePlayMenu();
+                return joinLobby();
             case "show-token":
                 console.log(chalk.yellowBright("\nSaved Token:\n"));
                 console.log(token ? chalk.white(token) : chalk.red("No token saved."));
@@ -47,8 +46,7 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
                 ]);
                 return promptRemotePlayMenu();
             case "logout":
-                await logout();
-                return promptRemotePlayMenu();
+                return logout();
             case "back":
             default:
                 return mainMenu();
@@ -130,18 +128,30 @@ export async function createLobby(): Promise<void> {
 
 async function lobbyOwnerMenu(lobbyId: string) {
     const wsManager = gameManager.getWSManager();
+    let latestLobbyUpdate: any = null;
+    let promptMsg = `Lobby ${chalk.yellowBright.bold(lobbyId)} - What would you like to do?`;
 
-    async function showMenu() {
+    function onLobbyUpdate() {
+        latestLobbyUpdate = gameManager.getRemoteConfig();
+        showLobbyUpdate(latestLobbyUpdate);
+        readline.cursorTo(process.stdout, 0, 27);
+    }
+
+    wsManager.on("lobby-update", onLobbyUpdate);
+
+    try {
+        printTitle("LOBBY MENU");
+        latestLobbyUpdate = gameManager.getRemoteConfig();
+        showLobbyUpdate(latestLobbyUpdate);
+
         while (true) {
-            printTitle("LOBBY MENU");
-            const lobbyUpdate = gameManager.getRemoteConfig();
-            showLobbyUpdate(lobbyUpdate);
-
+            readline.cursorTo(process.stdout, 0, 21);
+            readline.clearLine(process.stdout, 0);
             const { action } = await inquirer.prompt([
                 {
                     type: "list",
                     name: "action",
-                    message: `Lobby ${chalk.yellowBright.bold(lobbyId)} - What would you like to do?`,
+                    message: promptMsg,
                     choices: [
                         new inquirer.Separator(),
                         { name: chalk.magenta("⚙️  Adjust Settings"), value: "settings" },
@@ -153,12 +163,19 @@ async function lobbyOwnerMenu(lobbyId: string) {
                 },
             ]);
 
+            promptMsg = `Lobby ${chalk.yellowBright.bold(lobbyId)} - What would you like to do?`;
+
             if (action === "settings") {
-                console.log(chalk.yellow("⚙️  Settings adjustment not implemented yet."));
-                // TODO: Settings logic here
+                await lobbySettingsMenu(lobbyId, latestLobbyUpdate);
+                readline.cursorTo(process.stdout, 0, 22);
+                readline.clearLine(process.stdout, 0);
             } else if (action === "start") {
-                console.log(chalk.green("🚀 Starting the game..."));
-                // TODO: Start game logic here
+                latestLobbyUpdate = gameManager.getRemoteConfig();
+                const playerNames: string[] = latestLobbyUpdate?.playerNames || [];
+                if (playerNames.length < 2 || !playerNames[0] || !playerNames[1]) {
+                    promptMsg = `Lobby ${chalk.yellowBright.bold(lobbyId)} -  🚫 ${chalk.red.italic("You need two players in the lobby to start the game!")}`;
+                    continue;
+                }
                 await gameManager.start1PRemote();
                 break;
             } else if (action === "leave") {
@@ -169,24 +186,48 @@ async function lobbyOwnerMenu(lobbyId: string) {
                         Cookie: `token=${token}`,
                     },
                 });
-                break;
+                return promptRemotePlayMenu("You have left the lobby.");
             }
+            showLobbyUpdate(latestLobbyUpdate);
         }
+    } catch (err) {
+        // console.error(chalk.red("An error occurred in the lobby menu:"), err);
+        await promptRemotePlayMenu("An error occurred in the lobby. Returning to menu.");
+        return; // Prevent further execution
+    } finally {
+        wsManager.off("lobby-update", onLobbyUpdate);
     }
+}
 
-    function onLobbyUpdate() {
-        showMenu();
-    }
+async function lobbySettingsMenu(lobbyId: string, latestLobbyUpdate: any) {
+    let config = latestLobbyUpdate?.config || {};
+    let currentWinPoints = config.playTo || 5;
 
-    wsManager.on("lobby-update", onLobbyUpdate);
+    const { winPoints } = await inquirer.prompt([
+        {
+            type: "number",
+            name: "winPoints",
+            message: `Set Win Points (current: ${currentWinPoints}):`,
+            default: currentWinPoints,
+            validate: (input: number) =>
+                input > 0 && input < 22 ? true : "Enter a number between 1 and 21",
+        },
+    ]);
 
-    await showMenu();
-
-    wsManager.off("lobby-update", onLobbyUpdate);
+    const token = getToken();
+    await fetch(`${API_URL}/lobby/update`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Cookie: `token=${token}`,
+        },
+        body: JSON.stringify({
+            playTo: winPoints,
+        }),
+    });
 }
 
 export async function joinLobby(): Promise<void> {
-    // Internal helper for retry/back prompt
     async function promptRetryOrBack(message: string): Promise<boolean> {
         console.error(chalk.red(message));
         const { action } = await inquirer.prompt([
@@ -278,9 +319,52 @@ export async function joinLobby(): Promise<void> {
                 }
             }
 
-            printTitle("GAME LOBBY");
-            console.log(chalk.green("✅ Successfully joined the lobby!"));
-            console.log(chalk.yellow("Waiting for the host to start the game..."));
+            const wsManager = gameManager.getWSManager();
+            let latestLobbyUpdate: any = null;
+            let gameStarted = false;
+
+            function onLobbyUpdate() {
+                latestLobbyUpdate = gameManager.getRemoteConfig();
+                showLobbyUpdate(latestLobbyUpdate);
+                readline.cursorTo(process.stdout, 0, 27);
+            }
+
+            wsManager.on("lobby-update", onLobbyUpdate);
+            wsManager.once("game-start", () => {
+                gameStarted = true;
+            });
+            wsManager.once("lobby-remove", () => {
+                return promptRemotePlayMenu("You have been removed from the lobby.");
+            });
+
+            printTitle("LOBBY JOINED");
+            latestLobbyUpdate = gameManager.getRemoteConfig();
+            showLobbyUpdate(latestLobbyUpdate);
+
+            while (true) {
+                readline.cursorTo(process.stdout, 0, 21);
+                const { action } = await inquirer.prompt([
+                    {
+                        type: "list",
+                        name: "action",
+                        message: "Waiting for host... What would you like to do?",
+                        choices: [{ name: chalk.red("🚪  Leave Lobby"), value: "leave" }],
+                    },
+                ]);
+                if (gameStarted) break;
+                if (action === "leave") {
+                    await fetch(`${API_URL}/lobby/leave`, {
+                        method: "POST",
+                        headers: {
+                            Cookie: `token=${token}`,
+                        },
+                    });
+                    wsManager.off("lobby-update", onLobbyUpdate);
+                    return promptRemotePlayMenu("You have left the lobby.");
+                }
+            }
+
+            wsManager.off("lobby-update", onLobbyUpdate);
             await gameManager.join1PRemote();
             return;
         } catch (err) {
@@ -328,7 +412,6 @@ export async function handleServerLogin(): Promise<void> {
             return promptRemotePlayMenu("Login failed. Please try again.");
         }
 
-        // console.log(chalk.green("✅ Login successful!"));
         gameManager.setWSActive(true);
         await promptRemotePlayMenu();
     } catch (err: any) {
@@ -344,12 +427,11 @@ export async function handleServerLogin(): Promise<void> {
 export async function logout(): Promise<void> {
     clearToken();
     console.log(chalk.green("✅ Logged out successfully."));
+    return promptRemotePlayMenu();
 }
 
 async function loginToServer(username: string, password: string): Promise<boolean> {
     try {
-        // console.log(chalk.blue("Attempting login with username:", username));
-
         const response = await fetch(`${API_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -359,15 +441,12 @@ async function loginToServer(username: string, password: string): Promise<boolea
             }),
         });
 
-        // console.log(chalk.blue("Login response status:", response.status));
-
         if (!response.ok) {
             const errorText = await response.text();
             console.error(chalk.red(`❌ Login failed: ${response.status} - ${errorText}`));
             return false;
         }
 
-        // Extract the token from the set-cookie header
         const setCookieHeader = response.headers.get("set-cookie");
         if (setCookieHeader) {
             const tokenMatch = setCookieHeader.match(/token=([^;]+)/);
