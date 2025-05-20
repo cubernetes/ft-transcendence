@@ -27,8 +27,7 @@ include Makefile.aux
 # This target is needed for legacy docker compose versions where there is no `--watch` flag for `docker compose up`.
 # The "dev" target is preferred.
 .PHONY: dev-old-compose
-dev-old-compose: check-env
-	$(MAKE) clean-frontend-volume ensure-secret-files
+dev-old-compose: check-env clean-frontend-volume ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
 	@$(call dev-env,build)
 	@$(call dev-env,up --remove-orphans --detach)
