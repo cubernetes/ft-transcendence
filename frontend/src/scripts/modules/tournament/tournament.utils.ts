@@ -27,7 +27,7 @@ export const determineRound = (matches: MatchState[]): Round => {
     } else if (matchCount > 2) {
         return "Quarter";
     }
-    return null;
+    return undefined;
 };
 
 export const roundCompleted = (matches: MatchState[][] | null): boolean => {
