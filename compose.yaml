@@ -27,6 +27,7 @@ services:
         volumes:
             - "caddy-data:/frontend/.local/share/caddy/"
             - "frontend:/frontend/dist/:ro"
+            - "user-upload:/frontend/uploads/:ro"
         environment:
             <<: *env-caddy-backend
             HTTP_DOMAINS: "${HTTP_DOMAINS:-http://localhost}"
@@ -88,7 +89,7 @@ services:
             LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
         volumes:
             - "drizzle:/backend/drizzle/"
-            - "frontend:/frontend/dist/"
+            - "user-upload:/backend/uploads/"
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         depends_on:
             vault:
@@ -247,6 +248,7 @@ volumes:
     vault-storage:
     caddy-data:
     drizzle:
+    user-upload:
     frontend:
     elasticsearch-data:
     elasticsearch-certs: # New volume for certificates

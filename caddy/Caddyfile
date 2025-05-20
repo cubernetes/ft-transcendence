@@ -30,6 +30,11 @@
 		try_files {path} /index.html
 		file_server
 	}
+	handle_path /uploads/* {
+		import waf
+		root * /frontend/uploads
+		file_server
+	}
 	handle_path /api/* {
 		import waf
 		reverse_proxy backend:{$BACKEND_PORT}
