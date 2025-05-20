@@ -108,18 +108,16 @@ export class WebSocketManager extends EventEmitter {
                     gameManager.renderRemoteState(message.payload.state);
                     break;
                 case "waiting-for-opponent":
-                    console.log("Waiting for opponent...");
+                    // console.log("Waiting for opponent...");
                     break;
                 case "ball-reset":
-                    console.log("Resetting ball");
+                    // console.log("Resetting ball");
                     break;
                 case "lobby-update":
-                    printTitle("GAME LOBBY");
                     gameManager.setRemoteConfig(message.payload);
                     this.emit("lobby-update", message.payload);
                     break;
                 case "lobby-remove":
-                    console.log(chalk.red("❌ You have been removed from the lobby."));
                     this.emit("lobby-remove");
                     break;
                 default:
