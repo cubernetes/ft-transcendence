@@ -19,6 +19,10 @@ clean-vault: down
 clean-db: down
 	$(call rm-volume,drizzle)
 
+.PHONY: clean-upload
+clean-upload: down
+	$(call rm-volume,user-upload)
+
 .PHONY: clean-elk
 clean-elk: down
 	$(call rm-volume,elasticsearch-data)
@@ -34,7 +38,7 @@ clean-caddy: down
 ### not suitable for production, obviously
 .PHONY: vclean
 vclean: down
-	$(MAKE) clean-frontend-volume clean-vault clean-db clean-elk clean-caddy
+	$(MAKE) clean-frontend-volume clean-vault clean-db clean-upload clean-elk clean-caddy
 	$(D) system prune --force
 
 # Clean various files/folders
