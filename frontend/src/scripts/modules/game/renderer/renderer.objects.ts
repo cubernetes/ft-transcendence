@@ -22,9 +22,9 @@ export const createObjects = (engine: Engine, config: PongConfig) => {
     engine.ball = createBall(engine, scene, ballPos, ballRadius);
 
     // Create paddles
-    const leftPaddlePos = new Vector3(-config.paddles[0].pos.x / 2 + 0.5, 0.5, 0); // TODO: Check correct value
+    const leftPaddlePos = new Vector3(-config.board.size.width / 2 + 0.5, 0.5, 0); // TODO: Check correct value
     const leftPaddleSize = config.paddles[0].size;
-    const rightPaddlePos = new Vector3(config.paddles[1].pos.x / 2 - 0.5, 0.5, 0); // TODO: Check correct value
+    const rightPaddlePos = new Vector3(config.board.size.width / 2 - 0.5, 0.5, 0); // TODO: Check correct value
     const rightPaddleSize = config.paddles[1].size;
     engine.leftPaddle = createPaddle("leftPaddle", scene, leftPaddlePos, leftPaddleSize);
     engine.rightPaddle = createPaddle("rightPaddle", scene, rightPaddlePos, rightPaddleSize);

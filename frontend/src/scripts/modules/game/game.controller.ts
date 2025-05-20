@@ -18,7 +18,7 @@ import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
 import { gameStore } from "./game.store";
 import { createScore } from "./objects/objects.score";
-import { pulseBall, pulseLight } from "./renderer/renderer.animations";
+import { pulseBall, pulseLight, slideInCamera } from "./renderer/renderer.animations";
 import { showGameOver } from "./renderer/renderer.event";
 import { createScene } from "./renderer/renderer.scene";
 
@@ -211,7 +211,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const resizeListener = () => renderer.resize();
 
-    const startRenderer = (config: PongConfig) => {
+    const startRenderer = async (config: PongConfig) => {
         renderer.scene = createScene(renderer, config);
         if (renderer.bgmEnabled) renderer.audio.bgMusic.play();
         if (renderer.shadowsEnabled) renderer.castShadow();
@@ -222,6 +222,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
         // Initial scale
         requestAnimationFrame(() => renderer.resize());
+
+        await slideInCamera(renderer.camera, renderer.scene);
     };
 
     /** Destroy the current game session */
@@ -251,8 +253,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
             attachLocalControl();
         }
         attachLocalEngineEvents(mode);
-        engine.start(); // get config
-        startRenderer(config); // send config to renderer instead of using default
+        startRenderer(config).then(engine.start);
 
         gameStore.update({ isPlaying: true });
     };
