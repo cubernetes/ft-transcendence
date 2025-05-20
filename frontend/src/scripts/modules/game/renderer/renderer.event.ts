@@ -8,7 +8,11 @@ import {
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Control, TextBlock } from "@babylonjs/gui";
 
-export const showGameOver = (scene: Scene, camera: ArcRotateCamera, winner: string): void => {
+// showCountdown here
+
+export const showGameOver = (scene: Scene, winner: string): void => {
+    const camera = scene.activeCamera! as ArcRotateCamera;
+
     // Create full-screen fade plane
     const fadePlane = MeshBuilder.CreatePlane("fade", { size: 100 }, scene);
     fadePlane.position.z = camera.radius - 1;

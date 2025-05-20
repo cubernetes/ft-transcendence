@@ -42,21 +42,22 @@ declare global {
 
 declare module "@babylonjs/core" {
     interface Engine {
-        shadowsEnabled: boolean;
+        shadowsEnabled: boolean; // TODO: compare to the one in light
         bgmEnabled: boolean;
         sfxEnabled: boolean;
         audio: AudioEngineV2;
-        shadowGenerator: ShadowGenerator;
-        directionalLight: DirectionalLight;
-        controls: AdvancedDynamicTexture;
-        camera: ArcRotateCamera;
-        scene: Scene;
-        ball: Mesh;
-        leftPaddle: Mesh;
-        rightPaddle: Mesh;
-        score: Mesh;
-        ballMat: PBRMaterial;
-        castShadow: () => void;
+        scene?: Scene;
+
+        // shadowGenerator: ShadowGenerator;
+        // directionalLight: DirectionalLight;
+        // controls: AdvancedDynamicTexture;
+        // camera: ArcRotateCamera;
+        // shadowObjs: Mesh[];
+        // ball: Mesh;
+        // leftPaddle: Mesh;
+        // rightPaddle: Mesh;
+        // score: Mesh;
+        // ballMat: PBRMaterial;
     }
 
     interface AudioEngineV2 {

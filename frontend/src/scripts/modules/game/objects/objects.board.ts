@@ -8,7 +8,7 @@ import {
     Texture,
     Vector3,
 } from "@babylonjs/core";
-import { Size3D, defaultGameConfig } from "@darrenkuro/pong-core";
+import { PongConfig, Size3D, defaultGameConfig } from "@darrenkuro/pong-core";
 
 const boardConfig = (scene: Scene, size: Size3D) => {
     const material = new StandardMaterial("board", scene);
@@ -62,15 +62,13 @@ const createMiddleline = (scene: Scene): Mesh => {
     return middleLine;
 };
 
-export const createBoard = (scene: Scene, pos: Vector3, size: Size3D) => {
-    const config = boardConfig(scene, size);
-
-    const { name, options } = config;
+export const createBoard = (scene: Scene, config: PongConfig) => {
+    const { name, options, material } = boardConfig(scene, config.board.size);
     const board = MeshBuilder.CreateGround(name, options, scene);
 
     // board.position.y = -0.5; // reset later??
-    board.material = config.material;
-    board.position = pos;
+    board.material = material;
+    board.position = new Vector3(0, -0.5, 0);
     board.receiveShadows = true;
 
     createMiddleline(scene);

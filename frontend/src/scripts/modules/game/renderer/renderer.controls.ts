@@ -1,4 +1,4 @@
-import { AudioEngineV2, Engine, SoundState } from "@babylonjs/core";
+import { AudioEngineV2, Engine } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
     Button,
@@ -8,6 +8,7 @@ import {
     StackPanel,
     TextBlock,
 } from "@babylonjs/gui";
+import { toggleShadows } from "./renderer.light";
 
 // #region: Control components
 /** Set the column and the row definition of the grid */
@@ -18,10 +19,8 @@ const scaleGrid = (grid: Grid) => {
     grid.addColumnDefinition(0.1);
     grid.addColumnDefinition(0.1);
     grid.addColumnDefinition(0.2);
-    grid.addRowDefinition(0.07);
-    grid.addRowDefinition(0.25);
-    grid.addRowDefinition(0.25);
-    grid.addRowDefinition(0.25);
+    grid.addRowDefinition(0.07); // Control panel ratio
+    grid.addRowDefinition(0.93); // Empty
 };
 
 /** Create the shadow toggle button */
@@ -39,20 +38,8 @@ const createShadowButton = (grid: Grid, engine: Engine) => {
     const button = Button.CreateSimpleButton("shadowToggle", "Shadows");
     styleShadowButton(button);
     button.onPointerUpObservable.add(() => {
-        if (engine.shadowsEnabled) {
-            engine.shadowsEnabled = false;
-            localStorage.setItem(CONST.KEY.SHADOWS, "0");
-
-            engine.shadowGenerator.getShadowMap()?.renderList?.splice(0);
-
-            button.background = "gray";
-        } else {
-            engine.shadowsEnabled = true;
-            localStorage.setItem(CONST.KEY.SHADOWS, "1");
-
-            engine.castShadow();
-            button.background = "blue";
-        }
+        toggleShadows(engine);
+        button.background = engine.shadowsEnabled ? "blue" : "gray";
     });
     grid.addControl(button, 0, 2);
 };

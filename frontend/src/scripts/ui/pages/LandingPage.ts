@@ -8,6 +8,7 @@ import { layoutStore } from "../../modules/layout/layout.store";
 import { createEl, replaceChildren } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createContainer } from "../components/Container";
+import { createErrorModal } from "../layout/ErrorModal";
 import { createLanguageButton } from "../layout/LanguageButton";
 import { createLoginForm } from "../layout/LoginForm";
 
@@ -38,9 +39,11 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
             // Initilize game components here so browser doesn't warn need user gesture
             // TODO: This is a problem, if flashes still
-            createRenderer(canvas).then((renderer) => {
+            createRenderer(canvas).then((res) => {
+                if (res.isErr()) return createErrorModal(res.error);
+
                 const engine = createPongEngine();
-                const controller = createGameController(renderer, engine);
+                const controller = createGameController(res.value, engine);
 
                 gameStore.update({ controller });
             });

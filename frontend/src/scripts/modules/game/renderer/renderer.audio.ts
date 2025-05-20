@@ -1,3 +1,4 @@
+import { Result, err, ok } from "neverthrow";
 import {
     type AudioEngineV2,
     CreateAudioEngineAsync,
@@ -13,7 +14,7 @@ type SoundConfig = {
     options: Record<string, unknown>;
 };
 
-const bgMusicConfig: SoundConfig = {
+const bgmConfig: SoundConfig = {
     name: "bgMusic",
     src: `${CONST.DIR.AUDIO}/neon-gaming.mp3`,
     options: { loop: true, autoplay: false, volume: 0.5 },
@@ -42,8 +43,16 @@ const ballSoundConfig: SoundConfig = {
     src: `${CONST.DIR.AUDIO}/tatata.mp3`,
     options: { maxInstances: 2, playbackRate: 1.5, spatialEnabled: true },
 };
-
 // #endregion
+
+const checkAudioAvailable = async (url: string): Promise<boolean> => {
+    try {
+        const res = await fetch(url, { method: "HEAD" });
+        return res.ok;
+    } catch {
+        return false;
+    }
+};
 
 /** Create a static sound on the engine */
 const createSound = async (
@@ -54,13 +63,25 @@ const createSound = async (
     return sound;
 };
 
-export const createAudioEngine = async () => {
+export const createAudioEngine = async (): Promise<Result<AudioEngineV2, string>> => {
+    // Check all sounds are available on the server
+    const srcs = [
+        bgmConfig.src,
+        hitSoundConfig.src,
+        bounceSoundConfig.src,
+        blopSoundConfig.src,
+        ballSoundConfig.src,
+    ];
+    for (const s of srcs) {
+        const ifExists = await checkAudioAvailable(s);
+        if (!ifExists) return err(`Fail to create audio engine: sound ${s} doesn't exist`);
+    }
+
     const engine = await CreateAudioEngineAsync();
     await engine.unlockAsync();
-    // Audio ungine should be unlocked when there is a user gesture, should be in game page
 
     // Attach background music to audio engine
-    const { name, src, options } = bgMusicConfig;
+    const { name, src, options } = bgmConfig;
     engine.bgMusic = await CreateStreamingSoundAsync(name, src, options, engine);
 
     // Attach static sounds to audio engine
@@ -69,5 +90,5 @@ export const createAudioEngine = async () => {
     engine.blopSound = await createSound(engine, blopSoundConfig);
     engine.ballSound = await createSound(engine, ballSoundConfig);
 
-    return engine;
+    return ok(engine);
 };

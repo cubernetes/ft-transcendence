@@ -81,6 +81,21 @@ const ID = {
     FOOTER: "footer-ctn",
 };
 
+// Names for renderer objects
+const NAME = {
+    CAMERA: "camera",
+    DLIGHT: "directional-light",
+    HLIGHT: "hemispheric-light",
+    BALL: "ball",
+    LPADDLE: "left-paddle",
+    RPADDLE: "right-paddle",
+    SCORE: "score-print",
+
+    // Material
+    MAT_BALL: "ball-material",
+    MAT_TRAIL: "trail-material",
+};
+
 // Attribute keys for HTML elements
 const ATTR = {
     I18N_TEXT: "data-i18n-key", // Key in props indicating textContext needs translation
@@ -121,6 +136,7 @@ export const CONSTANTS = {
     KEY,
     CLASS,
     ID,
+    NAME,
     ATTR,
     CTRL,
     TEXT,

@@ -1,4 +1,4 @@
-import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
+import { DirectionalLight, Engine, Quaternion, Scene, Vector3 } from "@babylonjs/core";
 import {
     Ball,
     GameMode,
@@ -9,17 +9,18 @@ import {
     Position3D,
     defaultGameConfig,
 } from "@darrenkuro/pong-core";
-import { navigateTo } from "../../global/router";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";
 import { registerHandler } from "../ws/ws.controller";
-import { sendGameAction, sendGameStart } from "../ws/ws.service";
+import { sendGameAction } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
 import { gameStore } from "./game.store";
-import { createScore } from "./objects/objects.score";
-import { pulseBall, pulseLight, slideInCamera } from "./renderer/renderer.animations";
+import { pulseBall } from "./objects/objects.ball";
+import { updateScore } from "./objects/objects.score";
+import { slideInCamera } from "./renderer/renderer.camera";
 import { showGameOver } from "./renderer/renderer.event";
+import { handleShadows, pulseLight } from "./renderer/renderer.light";
 import { createScene } from "./renderer/renderer.scene";
 
 /** Renderer will be hidden behind controller and controller is the user interface */
@@ -142,10 +143,14 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const updateBall = (newBall: Ball) => {
-        const { x, z } = renderer.ball.position;
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update ball: no active scene");
+
+        const ball = scene.getMeshByName(CONST.NAME.BALL)!;
+        const { x, z } = ball.position;
         const oldBallPos = { x, z };
         // Set new position
-        renderer.ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);
+        ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);
 
         // Rotation: movement in XZ-plane
         const dx = newBall.pos.x - oldBallPos.x;
@@ -156,29 +161,47 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
         // Convert angle and axis to quaternion
         const q = Quaternion.RotationAxis(axis, angle);
-        renderer.ball.rotationQuaternion = q.multiply(renderer.ball.rotationQuaternion!);
+        ball.rotationQuaternion = q.multiply(ball.rotationQuaternion!);
     };
 
-    const updateLeftPaddle = ({ x, y, z }: Position3D) => renderer.leftPaddle.position.set(x, y, z);
+    const updateLeftPaddle = ({ x, y, z }: Position3D) => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update left paddle: no active scene");
 
-    const updateRightPaddle = ({ x, y, z }: Position3D) =>
-        renderer.rightPaddle.position.set(x, y, z);
+        const paddle = scene.getMeshByName(CONST.NAME.LPADDLE)!;
+        paddle.position.set(x, y, z);
+    };
+
+    const updateRightPaddle = ({ x, y, z }: Position3D) => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update right paddle: no active scene");
+
+        const paddle = scene.getMeshByName(CONST.NAME.RPADDLE)!;
+        paddle.position.set(x, y, z);
+    };
 
     const handleScoreUpdate = (scores: [number, number]) => {
-        // TODO: duplicate code
-        const scorePos = new Vector3(0, 1, defaultGameConfig.board.size.depth / 2 + 0.5);
-        createScore(renderer, scores, scorePos);
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update score: no active scene");
+
+        updateScore(scene, scores);
+
         if (renderer.sfxEnabled) {
             renderer.audio.ballSound.play();
         }
-        pulseLight(renderer.directionalLight, renderer.scene);
+
+        pulseLight(scene);
     };
 
     const handleWallCollision = () => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to handle wall collision: no active scene");
+
         if (renderer.sfxEnabled) {
             renderer.audio.ballSound.play();
         }
-        pulseBall(renderer.ballMat, renderer.scene);
+
+        pulseBall(scene);
     };
 
     const handlePaddleCollision = () => {
@@ -187,10 +210,14 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         }
     };
 
-    const handleEndGame = async (mode: GameMode, winner: number, state: PongState) => {
+    const handleEndGame = async (mode: GameMode, winnerIdx: number, state: PongState) => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to handle end game: no active scene");
+
         const { playerNames } = gameStore.get();
-        const winnerName = playerNames[winner];
-        showGameOver(renderer.scene, renderer.camera, winnerName);
+        const winnerName = playerNames[winnerIdx];
+        showGameOver(scene, winnerName);
+
         if (mode === "tournament") {
             const { controller } = tournamentStore.get();
             if (!controller) return log.error("Tournament controller not found");
@@ -199,11 +226,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 navigateTo("tournament", true);
             }, 2000);
         }
-        // Dispose stuff right away? Probably not..
     };
 
     const handleStateUpdate = (state: PongState) => {
-        // log.debug(state);
         updateBall(state.ball);
         updateLeftPaddle(state.paddles[0].pos);
         updateRightPaddle(state.paddles[1].pos);
@@ -212,18 +237,16 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const resizeListener = () => renderer.resize();
 
     const startRenderer = async (config: PongConfig) => {
-        renderer.scene = createScene(renderer, config);
+        const scene = createScene(renderer, config);
+        renderer.scene = scene;
+
         if (renderer.bgmEnabled) renderer.audio.bgMusic.play();
-        if (renderer.shadowsEnabled) renderer.castShadow();
-
-        renderer.runRenderLoop(() => renderer.scene.render());
-
         window.addEventListener("resize", resizeListener);
-
-        // Initial scale
+        renderer.runRenderLoop(() => scene.render());
         requestAnimationFrame(() => renderer.resize());
+        handleShadows(renderer);
 
-        await slideInCamera(renderer.camera, renderer.scene);
+        await slideInCamera(scene);
     };
 
     /** Destroy the current game session */
@@ -261,7 +284,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     const startOnlineGame = (config: PongConfig) => {
         attachOnlineControl();
         attachOnlineSocketEvents();
-        startRenderer(config);
+        startRenderer(config); // then send renderer-ready
     };
 
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
@@ -269,17 +292,10 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         hideRouter();
         showCanvas();
 
-        switch (mode) {
-            case "local":
-            case "tournament":
-            case "ai":
-                startLocalGame(mode, config);
-                break;
-            case "online":
-                startOnlineGame(config);
-                break;
-            default:
-        }
+        if (mode === "online") return startOnlineGame(config);
+
+        // Handle local, AI, or tournament game
+        startLocalGame(mode, config);
     };
 
     return {

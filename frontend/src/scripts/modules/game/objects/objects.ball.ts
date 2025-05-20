@@ -1,4 +1,5 @@
 import {
+    Animation,
     Color3,
     Engine,
     Mesh,
@@ -11,6 +12,7 @@ import {
     TrailMesh,
     Vector3,
 } from "@babylonjs/core";
+import { PongConfig } from "@darrenkuro/pong-core";
 
 const ballConfig = (scene: Scene, radius: number) => {
     const material = new PBRMaterial("ballMat", scene);
@@ -37,29 +39,51 @@ const ballConfig = (scene: Scene, radius: number) => {
     trailMaterial.alpha = 0.5;
 
     return {
-        name: "ball",
+        name: CONST.NAME.BALL,
         options: { diameter: radius * 2 },
         material,
         trailMaterial,
     };
 };
 
-export const createBall = (engine: Engine, scene: Scene, pos: Vector3, radius: number): Mesh => {
-    const config = ballConfig(scene, radius);
-    const { name, options, material, trailMaterial } = config;
+export const createBall = (scene: Scene, config: PongConfig): Mesh => {
+    const radius = config.ball.r;
+    const { name, options, material, trailMaterial } = ballConfig(scene, radius);
     const ball = MeshBuilder.CreateSphere(name, options, scene);
 
-    ball.position = pos;
+    const { x, y, z } = config.ball.pos;
+    ball.position = new Vector3(x, y, z);
+
     ball.rotationQuaternion = Quaternion.Identity();
     ball.material = material;
 
-    engine.ballMat = material;
-    engine.audio.hitSound.spatial.attach(ball);
-    engine.audio.bounceSound.spatial.attach(ball);
-    engine.audio.blopSound.spatial.attach(ball);
-    engine.audio.ballSound.spatial.attach(ball);
+    //engine.ballMat = material;
 
     const trail = new TrailMesh("ballTrail", ball, scene, radius, 30);
     trail.material = trailMaterial;
     return ball;
+};
+
+export const pulseBall = (scene: Scene) => {
+    const material = scene.getMaterialByName(CONST.NAME.MAT_BALL)! as PBRMaterial;
+    if (!material.animations) {
+        material.animations = []; // Initialize if null
+    }
+
+    let anim = material.animations.find((anim) => anim.name === "glow");
+
+    if (!anim) {
+        anim = new Animation("glow", "emissiveColor", 60, Animation.ANIMATIONTYPE_COLOR3);
+
+        anim.setKeys([
+            { frame: 0, value: Color3.Black() },
+            { frame: 3, value: new Color3(0, 0.7, 0.5) },
+            { frame: 6, value: new Color3(0.7, 0, 0.5) },
+            { frame: 10, value: Color3.Black() },
+        ]);
+
+        material.animations.push(anim);
+    }
+
+    scene.beginAnimation(material, 0, 10, false);
 };
