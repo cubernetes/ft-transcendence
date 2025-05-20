@@ -1,13 +1,17 @@
 import { MatchState, Round, tournamentStore } from "../../modules/tournament/tournament.store";
+import { determineRound } from "../../modules/tournament/tournament.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 
 export const buildTournamentTree = (matches: MatchState[][], round: Round): HTMLElement => {
+    //TODO: Correctly implement translation.
+    const { NO_TOURNAMENT, TOURNAMENT_GAME_COMPLETED, TOURNAMENT_GAME_PENDING, WINNER, START } =
+        CONST.TEXT;
     const bracketContainer = createEl("div", "relative w-full overflow-x-auto");
 
     if (!matches || matches.length === 0 || !round) {
         const emptyMessage = createEl("p", "text-center text-gray-500", {
-            text: "Tournament not started or no matches yet.",
+            text: NO_TOURNAMENT,
         });
         bracketContainer.appendChild(emptyMessage);
         return bracketContainer;
@@ -38,8 +42,8 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
             });
 
             const playButton = createButton({
-                text: "Start",
-                tw: "text-xs px-2 py-1 mt-2",
+                text: START,
+                tw: "text-xs bg-gray-100 px-2 py-1 mt-2 hover:bg-gray-400",
                 click: () => {
                     const { controller } = tournamentStore.get();
                     if (controller) {

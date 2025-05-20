@@ -59,7 +59,7 @@ export const createTournamentPage = async (): Promise<HTMLElement[]> => {
     const controlSection = createEl("section", "w-full flex justify-center");
     controlSection.appendChild(restartTournamentButton());
 
-    appendChildren(pageContainer, [headerSection, bracketSection, winnerSection, controlSection]);
+    appendChildren(pageContainer, [controlSection, headerSection, bracketSection, winnerSection]);
 
     return [pageContainer];
 };

@@ -10,18 +10,19 @@ import { createButton } from "../../ui/components/Button";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 
 export const connectBlockchain = async (): Promise<HTMLElement> => {
+    const { WALLET_CONNECT_ERROR, WALLET_CONNECT, GET_TOURNAMENT, RECORD_TOURNAMENT } = CONST.TEXT;
     const { publicClient, walletClient } = await setupWallet();
     if (!publicClient || !walletClient) {
         log.error("Failed to initialize public or wallet client");
         return createEl("div", "text-red-500 font-semibold text-center", {
-            text: "❌ Wallet not detected. Please install a wallet like MetaMask.",
+            text: WALLET_CONNECT_ERROR,
         });
     }
 
     let account: `0x${string}` | undefined;
 
     const connectButton = createButton({
-        text: "🔌 Connect Wallet",
+        text: WALLET_CONNECT,
         tw: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition disabled:opacity-50",
         click: async () => {
             account = await connectWallet(walletClient);
@@ -34,7 +35,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
     });
 
     const readButton = createButton({
-        text: "📖 Get Tournament History",
+        text: GET_TOURNAMENT,
         tw: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-2 rounded-xl border transition hidden",
         click: async () => {
             const gameId = BigInt(tournamentStore.get().tournamentId || "0");
@@ -44,7 +45,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
     });
 
     const writeButton = createButton({
-        text: "📝 Record Game",
+        text: RECORD_TOURNAMENT,
         tw: "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl transition hidden",
         click: async () => {
             if (!account || !walletClient) {
@@ -76,12 +77,13 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
 };
 
 export const restartTournamentButton = (): HTMLButtonElement => {
+    const { RESTART_TOURNAMENT } = CONST.TEXT;
     const { controller } = tournamentStore.get();
     if (!controller) {
         throw new Error("initialize_controller");
     }
     const restartButton = createButton({
-        text: "🔁 Start Another Tournament",
+        text: RESTART_TOURNAMENT,
         tw: "bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl transition",
         click: () => {
             controller.resetTournament();
