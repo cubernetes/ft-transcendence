@@ -13,7 +13,7 @@ type ScoreConfig = {
 
 const scoreConfig = async (): Promise<Result<ScoreConfig, Error>> => {
     // TODO: change this
-    const font = await (await fetch(`${CONST.DIR.ASSET}/Montserrat_Regular.json`)).json();
+    const font = await (await fetch(`${CONST.DIR.FONTS}/Montserrat_Regular.json`)).json();
     if (!font) {
         return err(new Error("Failed to load font data"));
     }
