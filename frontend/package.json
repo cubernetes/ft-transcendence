@@ -28,6 +28,7 @@
     "devDependencies": {
         "@babylonjs/inspector": "^8.0.1",
         "@metamask/providers": "^22.1.0",
+        "@types/chart.js": "^2.9.41",
         "@types/jwt-decode": "^2.2.1",
         "chokidar": "^4.0.3",
         "concurrently": "^9.1.2",
