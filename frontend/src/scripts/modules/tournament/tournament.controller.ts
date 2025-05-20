@@ -70,6 +70,11 @@ export const createTournamentController = (allPlayers: string[]) => {
             log.error("Not enough players for the match.");
             return;
         }
+        const winner = matches[matches.length - 1][gameId].winner;
+        if (winner) {
+            log.error("Game already played.");
+            return;
+        }
         gameStore.update({ playerNames });
         controller.startGame("tournament", {
             ...defaultGameConfig,
