@@ -1,3 +1,4 @@
+import { Result, err, ok } from "neverthrow";
 import { MatchState, Round } from "./tournament.store";
 
 export const generateRoundMatches = (players: string[]): MatchState[] => {
@@ -12,22 +13,18 @@ export const generateRoundMatches = (players: string[]): MatchState[] => {
     while (playerPool.length > 1) {
         const player1 = playerPool.splice(Math.floor(Math.random() * playerPool.length), 1)[0];
         const player2 = playerPool.splice(Math.floor(Math.random() * playerPool.length), 1)[0];
-        matches.push({ players: [player1, player2], winner: null });
+        matches.push({ gameId: generateUniqueId(), players: [player1, player2], winner: null });
     }
 
     return matches;
 };
 
-export const determineRound = (matches: MatchState[]): Round => {
+export const determineRound = (matches: MatchState[]): Result<Round, Error> => {
     const matchCount = matches.length;
-    if (matchCount === 1) {
-        return "Final";
-    } else if (matchCount === 2) {
-        return "Semi";
-    } else if (matchCount > 2) {
-        return "Quarter";
-    }
-    return null;
+    if (matchCount === 1) return ok("Final");
+    else if (matchCount === 2) return ok("Semi");
+    else if (matchCount > 2) return ok("Quarter");
+    else return err(new Error("Failed to determine round"));
 };
 
 export const roundCompleted = (matches: MatchState[][] | null): boolean => {
@@ -37,8 +34,6 @@ export const roundCompleted = (matches: MatchState[][] | null): boolean => {
 
     const currentRoundMatches = matches[matches.length - 1];
 
-    log.debug("Current Round Matches: ", currentRoundMatches);
-
     if (!currentRoundMatches || currentRoundMatches.length === 0) {
         return false;
     }
@@ -46,6 +41,15 @@ export const roundCompleted = (matches: MatchState[][] | null): boolean => {
     return currentRoundMatches.every((match) => match.winner !== null);
 };
 
-export const generateUniqueTournamentId = (): number => {
+export const generateUniqueId = (): number => {
     return Date.now() * 1000 + Math.floor(Math.random() * 1000);
+};
+
+export const findMatchById = (matches: MatchState[][], id: number): MatchState | null => {
+    for (const round of matches) {
+        for (const match of round) {
+            if (match.gameId === id) return match;
+        }
+    }
+    return null;
 };

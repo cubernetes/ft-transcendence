@@ -75,8 +75,15 @@ export const TEXT_MAP = {
         fr: "User avatar", // TRANSLATION_NEEDED
         es: "User avatar", // TRANSLATION_NEEDED
     },
+    GAMES_PLAYED: {
+        en: "Played Games",
+        de: "Gespielte Spiele",
+        fr: "Played Games",
+        es: "Played Games",
+    }, // TRANSLATION_NEEDED
     RANK: { en: "Rank", de: "Rang", fr: "Rang", es: "Rango" },
     WINS: { en: "Wins", de: "Siege", fr: "Victoires", es: "Victorias" },
+    LOSSES: { en: "Losses", de: "Niederlagen", fr: "Victoires", es: "Victorias" }, // TRANSLATION_NEEDED
     UPDATE: {
         en: "Update",
         de: "Update", // TRANSLATION_NEEDED
@@ -196,7 +203,66 @@ export const TEXT_MAP = {
         fr: "Nombre de joueurs", // TODO: Check if still correct
         es: "Número de jugadores", // TODO: Check if stil correct
     },
-
+    COMPLETED: {
+        en: "Completed",
+        de: "Turnier starten", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    PENDING: {
+        en: "Pending",
+        de: "Turnier starten", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    WINNER: {
+        en: "Winner",
+        de: "Gewinner",
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    START: {
+        en: "Start",
+        de: "Starten",
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    TOURNAMENT_BRACKET: {
+        en: "Tournament Bracket",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    WALLET_CONNECT: {
+        en: "🔌 Store Results on the Blockchain",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    GET_TOURNAMENT: {
+        en: "📖 Get Tournament History",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    RECORD_TOURNAMENT: {
+        en: "📝 Record Game",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    RESTART_TOURNAMENT: {
+        en: "🔁 Start Another Tournament",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    CHART_PERFROMANCE: {
+        en: "Pong Game Performance",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
     // Server error codes
     USER_NOT_FOUND: {
         en: "User not found",
@@ -325,6 +391,24 @@ export const TEXT_MAP = {
         de: "Wähle eine Schwierigkeit.",
         fr: "Veuillez sélectionner une difficulté.",
         es: "Por favor, seleccione una dificultad.",
+    },
+    NO_TOURNAMENT: {
+        en: "No tournament started.",
+        de: "Kein Tournament wurde gestarted.",
+        fr: "No tournament started.", // TRANSLATION_NEEDED
+        es: "No tournament started.", // TRANSLATION_NEEDED
+    },
+    WALLET_CONNECT_ERROR: {
+        en: "❌ Wallet not detected. Please install a wallet like MetaMask.",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    GET_TOURNAMENT_ERROR: {
+        en: "Unable to get tournament history.",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
 } as const satisfies Record<string, Record<LanguageOpts, string>>;
 

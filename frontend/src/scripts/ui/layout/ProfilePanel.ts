@@ -11,7 +11,19 @@ import { createUpdateModal } from "./UpdateModal";
 
 export const createProfilePanel = (user: PersonalUser): UIComponent => {
     // Get I18N keys needed from constants
-    const { PROFILE, USERNAME, DISPLAY_NAME, PASSWORD, UPDATE, DISABLE, ENABLE, RANK } = CONST.TEXT;
+    const {
+        PROFILE,
+        USERNAME,
+        DISPLAY_NAME,
+        PASSWORD,
+        UPDATE,
+        DISABLE,
+        ENABLE,
+        RANK,
+        GAMES_PLAYED,
+        WINS,
+        LOSSES,
+    } = CONST.TEXT;
 
     // Title element
     const titleEl = createHeading({ text: PROFILE, tw: "text-4xl mt-4" });
@@ -56,6 +68,18 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     });
     const totpEl = user.totpEnabled ? totpOnEl : totpOffEl;
 
+    // Games played
+    const gamesLabel = createParagraph({ text: GAMES_PLAYED, tw: LABEL_TW });
+    const gamesEl = createParagraph({ text: String(user.totalGames) });
+
+    // Wins
+    const winsLabel = createParagraph({ text: WINS, tw: LABEL_TW });
+    const winsEl = createParagraph({ text: String(user.wins) });
+
+    // Losses
+    const lossesLabel = createParagraph({ text: LOSSES, tw: LABEL_TW });
+    const lossesEl = createParagraph({ text: String(user.losses) });
+
     // Rank
     const rankLabel = createParagraph({ text: RANK, tw: LABEL_TW });
     const rankEl = createParagraph({ text: String(user.rank) });
@@ -63,12 +87,30 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     // Containers for styling
     const labelCtn = createContainer({
         tw: "flex-col w-full",
-        children: [usernameLabel, displayNameLabel, passwordLabel, totpLabel, rankLabel],
+        children: [
+            usernameLabel,
+            displayNameLabel,
+            passwordLabel,
+            totpLabel,
+            gamesLabel,
+            winsLabel,
+            lossesLabel,
+            rankLabel,
+        ],
     });
 
     const contentCtn = createContainer({
         tw: "flex-col w-full",
-        children: [usernameEl, displayNameEl, passwordBtn, totpEl, rankEl],
+        children: [
+            usernameEl,
+            displayNameEl,
+            passwordBtn,
+            totpEl,
+            gamesEl,
+            winsEl,
+            lossesEl,
+            rankEl,
+        ],
     });
 
     const settingCtn = createContainer({

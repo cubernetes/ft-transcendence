@@ -1,13 +1,16 @@
 import { MatchState, Round, tournamentStore } from "../../modules/tournament/tournament.store";
+import { determineRound } from "../../modules/tournament/tournament.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 
-export const buildTournamentTree = (matches: MatchState[][], round: Round): HTMLElement => {
+export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
+    //TODO: Correctly implement translations for all elements.
+    const { NO_TOURNAMENT, START } = CONST.TEXT;
     const bracketContainer = createEl("div", "relative w-full overflow-x-auto");
 
-    if (!matches || matches.length === 0 || !round) {
+    if (!matches || matches.length === 0) {
         const emptyMessage = createEl("p", "text-center text-gray-500", {
-            text: "Tournament not started or no matches yet.",
+            text: NO_TOURNAMENT,
         });
         bracketContainer.appendChild(emptyMessage);
         return bracketContainer;
@@ -17,13 +20,13 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
 
     matches.forEach((roundMatches) => {
         const roundColumn = createEl("div", "flex flex-col items-center gap-12");
-        log.debug("Round: ", round);
+        const roundResult = determineRound(roundMatches);
         const roundTitle = createEl("h3", "text-xl font-semibold", {
-            text: round,
+            text: roundResult.isOk() ? roundResult.value : "Unknown Round",
         });
         roundColumn.appendChild(roundTitle);
 
-        roundMatches.forEach((match, matchIdx) => {
+        roundMatches.forEach((match) => {
             const matchContainer = createEl(
                 "div",
                 "match-container border p-4 rounded-lg shadow-md bg-white text-center w-40"
@@ -38,13 +41,13 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
             });
 
             const playButton = createButton({
-                text: "Start",
-                tw: "text-xs px-2 py-1 mt-2",
+                text: START,
+                tw: "text-xs bg-gray-100 px-2 py-1 mt-2 hover:bg-gray-400",
                 click: () => {
                     const { controller } = tournamentStore.get();
                     if (controller) {
                         log.debug("Starting match...");
-                        controller.startMatch(matchIdx);
+                        controller.startMatch(match.gameId);
                     } else {
                         log.debug("Controller not found in tournament store");
                     }

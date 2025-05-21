@@ -92,6 +92,10 @@ const createLocalPanel = (ctn: UIContainer): UIComponent => {
 
     const playerLabel = createParagraph({ text: ENTER_PLAYER_NAMES });
     const localP1 = createInput({ ph: NAME_PLAYER, i18nVars: { i: 1 } });
+    const { displayName } = authStore.get();
+    if (displayName) {
+        localP1.value = displayName;
+    }
     const localP2 = createInput({ ph: NAME_PLAYER, i18nVars: { i: 2 } });
     const playersSection = createEl("div", "flex flex-col space-y-4 w-full", {
         children: [playerLabel, localP1, localP2],

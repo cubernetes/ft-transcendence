@@ -12,11 +12,7 @@ import { createLanguageButton } from "../layout/LanguageButton";
 import { createLoginForm } from "../layout/LoginForm";
 
 export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
-    // Create music and video element
-    const musicEl = createEl("audio", "", {
-        attributes: { src: `${CONST.DIR.AUDIO}/main.mp3` },
-        props: { loop: true, volume: 0.4 },
-    });
+    // Create video element
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: { src: `${CONST.DIR.VIDEO}/pong_simulation.webm` },
         props: { autoplay: true, loop: true, muted: true },
@@ -56,8 +52,6 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
                 const loginFormEl = await createLoginForm(ctaButtonEl);
                 replaceChildren(heroCtn, loginFormEl);
             });
-
-            musicEl.play();
         },
     });
 

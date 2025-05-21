@@ -200,8 +200,10 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         if (mode === "tournament") {
             const { controller } = tournamentStore.get();
             if (!controller) return log.error("Tournament controller not found");
-
             await controller.handleEndTournamentMatch(winnerName, state);
+            setTimeout(() => {
+                navigateTo("tournament", true);
+            }, 2000);
         }
         // Dispose stuff right away? Probably not..
     };
