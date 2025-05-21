@@ -403,6 +403,12 @@ export const TEXT_MAP = {
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
+    GET_TOURNAMENT_ERROR: {
+        en: "Unable to get tournament history.",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
 } as const satisfies Record<string, Record<LanguageOpts, string>>;
 
 export type I18nKey = keyof typeof TEXT_MAP;
