@@ -263,9 +263,15 @@ export const TEXT_MAP = {
         fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
-    CHART_PERFROMANCE: {
-        en: "Pong Game Performance",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
+    STATS_CHART: {
+        en: "Stats Chart",
+        de: "Statistiken", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    MATCH_HISTORY: {
+        en: "Match History",
+        de: "Statistiken", // TRANSLATION_NEEDED
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
