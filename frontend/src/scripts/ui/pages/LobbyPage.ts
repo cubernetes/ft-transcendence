@@ -86,7 +86,7 @@ export const createLobbyPage = (): UIComponent => {
         });
         if (tryUpdate.isErr()) return showErr(tryUpdate.error);
 
-        showOk("Successfully updated");
+        showOk("Successfully updated"); // TODO: Translation
     };
 
     const startBtnCb = () => {
@@ -105,8 +105,9 @@ export const createLobbyPage = (): UIComponent => {
         navigateTo("play");
     };
 
+    const { UPDATE, START, LEAVE } = CONST.TEXT;
     const ctaBtnGrp = createButtonGroup({
-        texts: ["update", "start", "leave"],
+        texts: [UPDATE, START, LEAVE],
         cbs: [updateBtnCb, startBtnCb, leaveBtnCb],
         twBtn: "text-xl p-2 shadow-md",
         twCtn: "flex justify-evenly items-center mt-4",

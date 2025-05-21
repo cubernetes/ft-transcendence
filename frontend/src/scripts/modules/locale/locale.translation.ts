@@ -178,6 +178,12 @@ export const TEXT_MAP = {
         fr: "Rejoindre un salon",
         es: "Unirse a la sala",
     },
+    LEAVE: {
+        en: "Leave",
+        de: "Leave-de", // TRANSLATION_NEEDED
+        fr: "Leave-fr", // TRANSLATION_NEEDED
+        es: "Leave-es", // TRANSLATION_NEEDED
+    },
 
     TOURNAMENT: {
         en: "Tournament",

@@ -82,8 +82,10 @@ export const createLobbyService = (app: FastifyInstance) => {
         // Check if a player left the game as it is ongoing
         const state = engine.getState();
         if (state.status === "ongoing") {
-            // Manually stop the engine and send game-end to remaining player (winner)
+            // Manually stop the engine
             engine.stop();
+
+            // Set the remaining (the other) player as the winner
             const winnerIdx: 1 | 0 = userIdx === 0 ? 1 : 0;
             const payload = { state, hits: engine.getHits(), winner: winnerIdx };
             app.wsService.send(players[winnerIdx], {

@@ -74,6 +74,8 @@ const ID = {
     LOBBY_P2: "lobby-p2",
     CFG_PLAYTO: "cfg-playto",
     USER_STATUS: "user-status",
+    MODAL_OVERLAY: "modal-overlay",
+    MODAL_CTN: "modal-ctn",
     ROOT: "app",
     HEADER: "header-ctn",
     CANVAS: "rendering-canvas",

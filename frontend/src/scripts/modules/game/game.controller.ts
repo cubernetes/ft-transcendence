@@ -10,6 +10,8 @@ import {
     defaultGameConfig,
 } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
+import { createButton } from "../../ui/components/Button";
+import { createModal } from "../../ui/components/Modal";
 import { sendApiRequest } from "../../utils/api";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";
@@ -219,12 +221,26 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
             const { controller } = tournamentStore.get();
             if (!controller) return log.error("Tournament controller not found");
             await controller.handleEndTournamentMatch(winnerName, state);
-            setTimeout(() => {
-                navigateTo("tournament", true);
-            }, 2000);
         }
 
         gameStore.update({ status: "ended" });
+        setTimeout(() => {
+            const leaveBtn = createButton({
+                text: CONST.TEXT.LEAVE,
+                tw: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition disabled:opacity-50",
+                click: () => {
+                    const dest = mode === "tournament" ? "tournament" : CONST.ROUTE.HOME;
+                    closeModal();
+                    navigateTo(dest, true);
+                },
+            });
+
+            const closeModal = createModal({
+                children: [leaveBtn],
+                tw: "bg-transparent",
+                exitable: false,
+            });
+        }, 2000);
     };
 
     const handleStateUpdate = (state: PongState) => {

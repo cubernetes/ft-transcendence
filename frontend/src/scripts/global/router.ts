@@ -50,7 +50,10 @@ const renderRoute = async (dest: string) => {
 
 /** Navigate to route, default to do nothing if it's already in the route unless force is true */
 export const navigateTo = (dest: Route, force: boolean = false) => {
+    // Ensure games and modals are closed
     gameStore.get().controller?.endGame();
+    document.getElementById(CONST.ID.MODAL_OVERLAY)?.remove();
+    document.getElementById(CONST.ID.MODAL_CTN)?.remove();
 
     const path = `/${dest}`;
 
@@ -62,7 +65,10 @@ export const navigateTo = (dest: Route, force: boolean = false) => {
 };
 
 export const handlePopState = () => {
+    // Ensure games and modals are closed
     gameStore.get().controller?.endGame();
+    document.getElementById(CONST.ID.MODAL_OVERLAY)?.remove();
+    document.getElementById(CONST.ID.MODAL_CTN)?.remove();
 
     // Remove slash
     const dest = location.pathname.slice(1);
