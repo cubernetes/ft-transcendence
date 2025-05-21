@@ -1,5 +1,8 @@
+import { getText, isValidKey } from "../modules/locale/locale.utils";
+
 type ElementParams = {
     text?: string;
+    i18nVars?: Record<string, string | number>;
     attributes?: Record<string, string>;
     props?: Record<string, any>;
     events?: Record<string, EventListener>;
@@ -16,43 +19,27 @@ export const createEl = <T extends keyof HTMLElementTagNameMap>(
     tag: T,
     className: string = "",
     {
-        text,
-        attributes,
-        props,
-        events,
-        children,
+        text = "",
+        i18nVars = {},
+        attributes = {},
+        props = {},
+        events = {},
+        children = [],
     }: ElementParams & { style?: Partial<CSSStyleDeclaration> } = {}
 ): HTMLElementTagNameMap[T] => {
     const el = document.createElement(tag);
     el.className = className;
 
-    if (text) {
-        el.textContent = text;
-    }
+    // Handle translation
+    const isI18nKey = isValidKey(text);
+    el.textContent = isI18nKey ? getText(text, i18nVars) : text;
+    if (isI18nKey) el.setAttribute(CONST.ATTR.I18N_TEXT, text);
+    if (i18nVars) el.setAttribute(CONST.ATTR.I18N_VARS, JSON.stringify(i18nVars));
 
-    if (attributes) {
-        for (const [key, value] of Object.entries(attributes)) {
-            el.setAttribute(key, value);
-        }
-    }
-
-    if (props) {
-        for (const [key, value] of Object.entries(props)) {
-            (el as any)[key] = value;
-        }
-    }
-
-    if (events) {
-        for (const [event, handler] of Object.entries(events)) {
-            el.addEventListener(event, handler);
-        }
-    }
-
-    if (children) {
-        for (const child of children) {
-            el.appendChild(child);
-        }
-    }
+    Object.entries(attributes).forEach(([key, value]) => el.setAttribute(key, value));
+    Object.entries(props).forEach(([key, value]) => ((el as any)[key] = value));
+    Object.entries(events).forEach(([event, handler]) => el.addEventListener(event, handler));
+    children.forEach((child) => el.appendChild(child));
 
     return el;
 };

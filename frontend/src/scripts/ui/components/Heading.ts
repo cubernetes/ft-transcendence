@@ -15,10 +15,8 @@ type Opts = { text: string; tw?: string; tag?: "h1" | "h2" | "h3" };
 export const createHeading = ({ text, tw = "", tag = "h2" }: Opts): HTMLHeadingElement => {
     const BASE_TW = "text-4xl font-bold mb-4 text-center text-black";
 
-    const resolvedText = isValidKey(text) ? getText(text) : text;
-    const attributes = isValidKey(text) ? { [CONST.ATTR.I18N_TEXT]: text } : undefined;
     const twStyle = twMerge(BASE_TW, tw);
-    const title = createEl(tag, twStyle, { text: resolvedText, attributes });
+    const title = createEl(tag, twStyle, { text });
 
     return title;
 };

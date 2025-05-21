@@ -23,13 +23,16 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
     if (setupResult.isErr()) {
         return createEl("div", "text-red-500 font-semibold text-center", {
             text: WALLET_CONNECT_ERROR,
+            i18nVars: { icon: "❌" },
         });
     }
+
     const { publicClient, walletClient } = setupResult.value;
     let account: Result<`0x${string}`, Error> = err(new Error("Not connected yet"));
 
     const connectButton = createButton({
         text: WALLET_CONNECT,
+        i18nVars: { icon: "🔌" },
         tw: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition disabled:opacity-50",
         click: async () => {
             account = await connectWallet(walletClient);
@@ -43,6 +46,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
 
     const readButton = createButton({
         text: GET_TOURNAMENT,
+        i18nVars: { icon: "📖" },
         tw: "bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-2 rounded-xl border transition hidden",
         click: async () => {
             const gameId = BigInt(tournamentStore.get().tournamentId || "0");
@@ -59,6 +63,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
 
     const writeButton = createButton({
         text: RECORD_TOURNAMENT,
+        i18nVars: { icon: "📝" },
         tw: "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl transition hidden",
         click: async () => {
             if (account.isErr() || !walletClient) {
@@ -95,6 +100,7 @@ export const restartTournamentButton = (): HTMLButtonElement => {
 
     const restartButton = createButton({
         text: RESTART_TOURNAMENT,
+        i18nVars: { icon: "🔁" },
         tw: "bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl transition",
         click: () => {
             controller!.resetTournament(); // Safe due to the disabled check below

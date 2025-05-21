@@ -47,7 +47,7 @@ export const createAvatar = ({ src, tw = "" }: Opts): HTMLElement => {
             "opacity-0 transition-opacity duration-150",
             "group-hover:opacity-100 pointer-events-none",
         ].join(" "),
-        { text: getText("UPLOAD"), attributes: { [CONST.ATTR.I18N_TEXT]: "UPLOAD" } }
+        { text: CONST.TEXT.UPLOAD }
     );
 
     const ctn = createContainer({

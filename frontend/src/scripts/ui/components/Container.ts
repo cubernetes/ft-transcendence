@@ -12,10 +12,10 @@ export const createContainer = ({ tw = "", tag = "div", children, id }: Opts): H
     // Default tailwind style to be applied, additional styles will be merged
     const BASE_TW = "relative text-center";
     const twStyle = twMerge(BASE_TW, tw);
-    const attributes = id ? { id } : undefined;
 
     // mx-auto, flex, w-full
-    const container = createEl(tag, twStyle, { children, attributes });
+    const container = createEl(tag, twStyle, { children });
 
+    if (id) container.setAttribute("id", id);
     return container;
 };
