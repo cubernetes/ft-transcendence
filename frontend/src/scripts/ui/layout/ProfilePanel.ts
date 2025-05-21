@@ -21,6 +21,8 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
         ENABLE,
         RANK,
         GAMES_PLAYED,
+        WINS,
+        LOSSES,
     } = CONST.TEXT;
 
     // Title element
@@ -70,6 +72,14 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const gamesLabel = createParagraph({ text: GAMES_PLAYED, tw: LABEL_TW });
     const gamesEl = createParagraph({ text: String(user.totalGames) });
 
+    // Wins
+    const winsLabel = createParagraph({ text: WINS, tw: LABEL_TW });
+    const winsEl = createParagraph({ text: String(user.wins) });
+
+    // Losses
+    const lossesLabel = createParagraph({ text: LOSSES, tw: LABEL_TW });
+    const lossesEl = createParagraph({ text: String(user.losses) });
+
     // Rank
     const rankLabel = createParagraph({ text: RANK, tw: LABEL_TW });
     const rankEl = createParagraph({ text: String(user.rank) });
@@ -83,13 +93,24 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
             passwordLabel,
             totpLabel,
             gamesLabel,
+            winsLabel,
+            lossesLabel,
             rankLabel,
         ],
     });
 
     const contentCtn = createContainer({
         tw: "flex-col w-full",
-        children: [usernameEl, displayNameEl, passwordBtn, totpEl, gamesEl, rankEl],
+        children: [
+            usernameEl,
+            displayNameEl,
+            passwordBtn,
+            totpEl,
+            gamesEl,
+            winsEl,
+            lossesEl,
+            rankEl,
+        ],
     });
 
     const settingCtn = createContainer({

@@ -83,6 +83,7 @@ export const TEXT_MAP = {
     }, // TRANSLATION_NEEDED
     RANK: { en: "Rank", de: "Rang", fr: "Rang", es: "Rango" },
     WINS: { en: "Wins", de: "Siege", fr: "Victoires", es: "Victorias" },
+    LOSSES: { en: "Losses", de: "Niederlagen", fr: "Victoires", es: "Victorias" }, // TRANSLATION_NEEDED
     UPDATE: {
         en: "Update",
         de: "Update", // TRANSLATION_NEEDED
