@@ -1,3 +1,4 @@
+import { Result, err, ok } from "neverthrow";
 import { navigateTo } from "../../global/router";
 import {
     connectWallet,
@@ -10,23 +11,29 @@ import { createButton } from "../../ui/components/Button";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 
 export const connectBlockchain = async (): Promise<HTMLElement> => {
-    const { WALLET_CONNECT_ERROR, WALLET_CONNECT, GET_TOURNAMENT, RECORD_TOURNAMENT } = CONST.TEXT;
-    const { publicClient, walletClient } = await setupWallet();
-    if (!publicClient || !walletClient) {
-        log.error("Failed to initialize public or wallet client");
+    const {
+        WALLET_CONNECT_ERROR,
+        WALLET_CONNECT,
+        GET_TOURNAMENT,
+        RECORD_TOURNAMENT,
+        GET_TOURNAMENT_ERROR,
+    } = CONST.TEXT;
+    const setupResult = await setupWallet();
+
+    if (setupResult.isErr()) {
         return createEl("div", "text-red-500 font-semibold text-center", {
             text: WALLET_CONNECT_ERROR,
         });
     }
-
-    let account: `0x${string}` | undefined;
+    const { publicClient, walletClient } = setupResult.value;
+    let account: Result<`0x${string}`, Error> = err(new Error("Not connected yet"));
 
     const connectButton = createButton({
         text: WALLET_CONNECT,
         tw: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition disabled:opacity-50",
         click: async () => {
             account = await connectWallet(walletClient);
-            if (account) {
+            if (account.isOk()) {
                 connectButton.classList.add("hidden");
                 readButton.classList.remove("hidden");
                 writeButton.classList.remove("hidden");
@@ -40,7 +47,13 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
         click: async () => {
             const gameId = BigInt(tournamentStore.get().tournamentId || "0");
             const result = await readLocalContract(publicClient, "getAllGameIds", [gameId]);
-            log.info("Game Got:", result);
+            if (result.isErr()) {
+                return createEl("p", "text-red-500 font-semibold text-center", {
+                    text: GET_TOURNAMENT_ERROR,
+                });
+            }
+            const tournamentData = result.value;
+            log.info("Tournament data:", tournamentData);
         },
     });
 
@@ -48,11 +61,11 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
         text: RECORD_TOURNAMENT,
         tw: "bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl transition hidden",
         click: async () => {
-            if (!account || !walletClient) {
+            if (account.isErr() || !walletClient) {
                 log.info("No account connected");
                 return;
             }
-
+            const address = account.value;
             const tournamentData = tournamentStore.get();
             const gameId = BigInt(tournamentStore.get().tournamentId || "0");
             try {
@@ -60,7 +73,7 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
                     publicClient,
                     walletClient,
                     "addTournamentHistory",
-                    account,
+                    address,
                     gameId,
                     tournamentData.matches
                 );
