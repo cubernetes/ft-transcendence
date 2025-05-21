@@ -3,13 +3,12 @@ import { determineRound } from "../../modules/tournament/tournament.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 
-export const buildTournamentTree = (matches: MatchState[][], round: Round): HTMLElement => {
-    //TODO: Correctly implement translation.
-    const { NO_TOURNAMENT, TOURNAMENT_GAME_COMPLETED, TOURNAMENT_GAME_PENDING, WINNER, START } =
-        CONST.TEXT;
+export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
+    //TODO: Correctly implement translations for all elements.
+    const { NO_TOURNAMENT, START } = CONST.TEXT;
     const bracketContainer = createEl("div", "relative w-full overflow-x-auto");
 
-    if (!matches || matches.length === 0 || !round) {
+    if (!matches || matches.length === 0) {
         const emptyMessage = createEl("p", "text-center text-gray-500", {
             text: NO_TOURNAMENT,
         });
@@ -21,9 +20,9 @@ export const buildTournamentTree = (matches: MatchState[][], round: Round): HTML
 
     matches.forEach((roundMatches) => {
         const roundColumn = createEl("div", "flex flex-col items-center gap-12");
-        log.debug("Round: ", round);
+        const roundResult = determineRound(roundMatches);
         const roundTitle = createEl("h3", "text-xl font-semibold", {
-            text: determineRound(roundMatches),
+            text: roundResult.isOk() ? roundResult.value : "Unknown Round",
         });
         roundColumn.appendChild(roundTitle);
 

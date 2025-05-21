@@ -1,4 +1,5 @@
 import { MatchState, Round } from "./tournament.store";
+import { Result, err, ok } from "neverthrow";
 
 export const generateRoundMatches = (players: string[]): MatchState[] => {
     if (!players || players.length < 2) {
@@ -18,16 +19,12 @@ export const generateRoundMatches = (players: string[]): MatchState[] => {
     return matches;
 };
 
-export const determineRound = (matches: MatchState[]): Round => {
+export const determineRound = (matches: MatchState[]): Result<Round, Error> => {
     const matchCount = matches.length;
-    if (matchCount === 1) {
-        return "Final";
-    } else if (matchCount === 2) {
-        return "Semi";
-    } else if (matchCount > 2) {
-        return "Quarter";
-    }
-    return undefined;
+    if (matchCount === 1) return ok("Final");
+    else if (matchCount === 2) return ok("Semi");
+    else if (matchCount > 2) return ok("Quarter");
+    else return err(new Error("Failed to determine round"));
 };
 
 export const roundCompleted = (matches: MatchState[][] | null): boolean => {
@@ -36,8 +33,6 @@ export const roundCompleted = (matches: MatchState[][] | null): boolean => {
     }
 
     const currentRoundMatches = matches[matches.length - 1];
-
-    log.debug("Current Round Matches: ", currentRoundMatches);
 
     if (!currentRoundMatches || currentRoundMatches.length === 0) {
         return false;

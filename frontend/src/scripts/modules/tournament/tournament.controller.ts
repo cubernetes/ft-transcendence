@@ -23,9 +23,9 @@ export const createTournamentController = (allPlayers: string[]) => {
         const newMatches = [...(matches ?? []), roundMatches];
 
         const partialUpdate: Partial<TournamentState> = {
-            round: nextRound,
             matches: newMatches,
             activePlayers: [],
+            ...(nextRound.isOk() && { round: nextRound.value }),
         };
 
         tournamentStore.update(partialUpdate);
@@ -116,7 +116,6 @@ export const createTournamentController = (allPlayers: string[]) => {
     const resetTournament = () => {
         tournamentStore.set({
             tournamentId: tournamentStore.get().tournamentId,
-            round: undefined,
             matches: [],
             current_match: null,
             activePlayers: [],
@@ -125,9 +124,9 @@ export const createTournamentController = (allPlayers: string[]) => {
     };
 
     const getTournamentTree = () => {
-        const { matches, round } = tournamentStore.get();
+        const { matches } = tournamentStore.get();
         if (!matches) throw new Error("No matches found in tournament store.");
-        return buildTournamentTree(matches, round);
+        return buildTournamentTree(matches);
     };
 
     const controller = {
