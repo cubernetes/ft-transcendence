@@ -44,3 +44,43 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
 
     return [toggleContainer, contentContainer];
 };
+
+const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
+    const playerName = authStore.get().username;
+
+    if (!games.length) {
+        return [
+            createEl("p", "text-gray-500 text-center", { text: "No match history available." }),
+        ];
+    }
+
+    const reversedGames = [...games].reverse();
+
+    const headers = ["Date", "Opponent", "Result", "Score"];
+    const rows = reversedGames.map((game) => {
+        const isPlayer1 = game.player1Username === playerName;
+        const opponent = isPlayer1 ? game.player2Username : game.player1Username;
+        const playerScore = isPlayer1 ? game.player1Score : game.player2Score;
+        const opponentScore = isPlayer1 ? game.player2Score : game.player1Score;
+        const result =
+            playerScore > opponentScore ? "Won" : playerScore < opponentScore ? "Lost" : "Draw";
+
+        return {
+            date: new Date(game.finishedAt).toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            }),
+            opponent,
+            result,
+            score: `${playerScore} - ${opponentScore}`,
+        };
+    });
+
+    const table = createTable(headers, ["date", "opponent", "result", "score"], rows);
+
+    return [table];
+};
