@@ -9,6 +9,7 @@ import {
     Position3D,
     defaultGameConfig,
 } from "@darrenkuro/pong-core";
+import { navigateTo } from "../../global/router";
 import { sendApiRequest } from "../../utils/api";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";

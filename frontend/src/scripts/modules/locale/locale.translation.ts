@@ -289,12 +289,7 @@ export const TEXT_MAP = {
         fr: "Game over-fr", // TRANSLATION_NEEDED
         es: "Game over-es", // TRANSLATION_NEEDED
     },
-    WINNER: {
-        en: "Winner",
-        de: "Winner-de", // TRANSLATION_NEEDED
-        fr: "Winner-fr", // TRANSLATION_NEEDED
-        es: "Winner-es", // TRANSLATION_NEEDED
-    },
+
     // Server error codes
     USER_NOT_FOUND: {
         en: "User not found",
