@@ -202,13 +202,13 @@ export const TEXT_MAP = {
         fr: "Nombre de joueurs", // TODO: Check if still correct
         es: "Número de jugadores", // TODO: Check if stil correct
     },
-    TOURNAMENT_GAME_COMPLETED: {
+    COMPLETED: {
         en: "Completed",
         de: "Turnier starten", // TRANSLATION_NEEDED
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
-    TOURNAMENT_GAME_PENDING: {
+    PENDING: {
         en: "Pending",
         de: "Turnier starten", // TRANSLATION_NEEDED
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
