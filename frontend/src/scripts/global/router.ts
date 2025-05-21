@@ -8,7 +8,7 @@ import { createLobbyPage } from "../ui/pages/LobbyPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
-import { replaceChildren } from "../utils/dom-helper";
+import { dispatchEventDown, replaceChildren } from "../utils/dom-helper";
 
 const ROUTES = {
     landing: createLandingPage,
@@ -48,14 +48,25 @@ const renderRoute = async (dest: string) => {
     showRouter();
 };
 
-/** Navigate to route, default to do nothing if it's already in the route unless force is true */
-export const navigateTo = (dest: Route, force: boolean = false) => {
-    // Ensure modals are closed
+const resetState = () => {
+    // Ensure modal overlay is closed if one is open
     document.getElementById(CONST.ID.MODAL_OVERLAY)?.remove();
-    document.getElementById(CONST.ID.MODAL_CTN)?.remove();
 
+    // Ensure modal container is closed properly if one is open
+    const modalCtn = document.getElementById(CONST.ID.MODAL_CTN);
+    if (modalCtn) {
+        dispatchEventDown(modalCtn, new Event("destory"));
+        modalCtn.remove();
+    }
+
+    // Ensure game is purged if one is ongoing
     const { controller, isPlaying } = gameStore.get();
     if (isPlaying) controller?.endGame();
+};
+
+/** Navigate to route, default to do nothing if it's already in the route unless force is true */
+export const navigateTo = (dest: Route, force: boolean = false) => {
+    resetState();
 
     const path = `/${dest}`;
 
@@ -67,12 +78,7 @@ export const navigateTo = (dest: Route, force: boolean = false) => {
 };
 
 export const handlePopState = () => {
-    // Ensure modals are closed
-    document.getElementById(CONST.ID.MODAL_OVERLAY)?.remove();
-    document.getElementById(CONST.ID.MODAL_CTN)?.remove();
-
-    const { controller, isPlaying } = gameStore.get();
-    if (isPlaying) controller?.endGame();
+    resetState();
 
     // Remove slash
     const dest = location.pathname.slice(1);

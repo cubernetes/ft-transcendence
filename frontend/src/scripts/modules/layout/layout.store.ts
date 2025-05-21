@@ -50,9 +50,6 @@ layoutStore.subscribe((state) => {
 
         // Attach pop state handler
         window.addEventListener("popstate", handlePopState);
-        window.addEventListener("beforeunload", () => {
-            gameStore.get().controller?.endGame();
-        });
 
         // Navigate To default page
         // TODO: Should try to get the location.pathname, i.e quickplay

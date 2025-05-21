@@ -1,8 +1,7 @@
-import { DirectionalLight, Engine, Quaternion, Scene, Vector3 } from "@babylonjs/core";
+import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
 import {
     Ball,
     GameMode,
-    Paddle,
     PongConfig,
     PongEngine,
     PongState,
@@ -213,6 +212,9 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         const { scene } = renderer;
         if (!scene) return log.warn("Fail to handle end game: no active scene");
 
+        scene.stopAnimation(scene.activeCamera);
+        countdownController.abort();
+
         const { playerNames } = gameStore.get();
         const winnerName = playerNames[winnerIdx];
         showGameOver(scene, winnerName);
@@ -252,6 +254,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const resizeListener = () => renderer.resize();
 
+    let countdownController: AbortController;
+
     const startRenderer = async () => {
         const { scene } = renderer;
         if (!scene) return log.error("Fail to start renderer: no active scene");
@@ -264,7 +268,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         handleShadows(renderer);
 
         await slideInCamera(scene);
-        await showCountdown(scene);
+        countdownController = new AbortController();
+        await showCountdown(scene, countdownController.signal);
     };
 
     /** Destroy the current game session */
