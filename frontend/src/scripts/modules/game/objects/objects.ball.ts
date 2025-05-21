@@ -15,7 +15,7 @@ import {
 import { PongConfig } from "@darrenkuro/pong-core";
 
 const ballConfig = (scene: Scene, radius: number) => {
-    const material = new PBRMaterial("ballMat", scene);
+    const material = new PBRMaterial(CONST.NAME.MAT_BALL, scene);
     // pbr.environmentIntensity = 0.25;
 
     material.albedoColor = new Color3(1, 0.2, 0.6);

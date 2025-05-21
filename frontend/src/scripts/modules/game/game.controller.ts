@@ -23,7 +23,7 @@ import { gameStore } from "./game.store";
 import { pulseBall } from "./objects/objects.ball";
 import { updateScore } from "./objects/objects.score";
 import { slideInCamera } from "./renderer/renderer.camera";
-import { showGameOver } from "./renderer/renderer.event";
+import { showCountdown, showGameOver } from "./renderer/renderer.event";
 import { handleShadows, pulseLight } from "./renderer/renderer.light";
 import { createScene } from "./renderer/renderer.scene";
 
@@ -263,6 +263,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         handleShadows(renderer);
 
         await slideInCamera(scene);
+        await showCountdown(scene);
     };
 
     /** Destroy the current game session */

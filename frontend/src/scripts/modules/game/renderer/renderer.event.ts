@@ -9,7 +9,25 @@ import {
 import { AdvancedDynamicTexture, Control, TextBlock } from "@babylonjs/gui";
 import { getText } from "../../locale/locale.utils";
 
-// showCountdown here
+export const showCountdown = async (scene: Scene): Promise<void> => {
+    const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("countdownUI", true, scene);
+
+    const countdownText = new TextBlock();
+    countdownText.color = "white";
+    countdownText.fontSize = 96;
+    countdownText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+    countdownText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+    advancedTexture.addControl(countdownText);
+
+    const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+    for (let count = 3; count > 0; count--) {
+        countdownText.text = count.toString();
+        await delay(1000); // wait 1 second
+    }
+
+    advancedTexture.dispose(); // Clean up UI
+};
 
 export const showGameOver = (scene: Scene, winner: string): void => {
     const camera = scene.activeCamera! as ArcRotateCamera;
