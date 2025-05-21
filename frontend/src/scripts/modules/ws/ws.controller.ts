@@ -35,7 +35,7 @@ const registerGeneralHandlers = (conn: WebSocket) => {
 const registerGameControllers = (conn: WebSocket) => {
     const { handlers } = wsStore.get();
     const { controller } = gameStore.get();
-    if (!controller) return log.error("INITIALIZATION_ERROR");
+    if (!controller) return log.error("Fail to register socket handler: no game controller");
 
     registerHandler(
         "game-start",
@@ -54,6 +54,7 @@ const registerGameControllers = (conn: WebSocket) => {
     registerHandler(
         "lobby-update",
         ({ config, playerNames, host }) => {
+            log.debug("receive: lobby-update");
             gameStore.update({ playTo: config.playTo, playerNames });
         },
         handlers

@@ -24,9 +24,23 @@ export const createWsService = (app: FastifyInstance) => {
 
     const send = (id: number, message: OutgoingMessage<OutType>): Result<void, string> => {
         const conn = conns.get(id);
-        if (!conn) return err("Can't find sockets by id");
+        if (!conn) {
+            app.log.error(`can't find sockets by id ${id}`);
+            return err(`can't find sockets by id ${id}`);
+        }
 
-        // app.log.debug(`Send socket message to user ${id}: ${JSON.stringify(message)}`);
+        if (conn.readyState !== WebSocket.OPEN) {
+            app.log.error(`user socket ${id} ready state error`);
+            return err(`user socket ${id} ready state error`);
+        }
+
+        const { type } = message;
+        const LOG_TYPE = ["game-start", "lobby-update", "lobby-remove", "game-end"];
+
+        if (LOG_TYPE.includes(type)) {
+            app.log.info({ type }, `send socket message to user ${id}`);
+        }
+
         conn.send(JSON.stringify(message));
         return ok();
     };
@@ -36,15 +50,20 @@ export const createWsService = (app: FastifyInstance) => {
     };
 
     const addConnection = (conn: WebSocket) => {
+        app.log.debug("adding socket connection...");
+
+        // If user already try to connect with another socket, close the old one
         const oldConn = conns.get(conn.userId!);
-        // If user already logged in from another browswer or tab, close it
         if (oldConn) oldConn.close(CLOSING_CODE.MULTI_CLIENT);
 
         conns.set(conn.userId!, conn);
+        app.log.debug({ conns: Array.from(conns.keys()) }, "active connections");
     };
 
     const removeConnection = (conn: WebSocket) => {
+        app.log.debug("removing socket connection...");
         conns.delete(conn.userId!);
+        app.log.debug({ conns: Array.from(conns.keys()) }, "active connections");
     };
 
     return {

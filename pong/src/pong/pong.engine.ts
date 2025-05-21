@@ -178,6 +178,7 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
     const getState = (): State => structuredClone({ status, scores, ball, paddles });
     const getHits = () => structuredClone(hits); // TODO: be included in state and don't send it separately
     const getConfig = (): PongConfig => structuredClone(config);
+    const setStatus = (input: Status) => (status = input);
 
     const tick = (): Result<void, ErrorCode> => {
         if (status !== "ongoing") return err("GAME_STATUS_ERROR");
@@ -228,11 +229,12 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
 
     const stop = (): Result<void, ErrorCode> => {
         if (status === "ended") return err("GAME_STATUS_ERROR");
-        if (!interval) return err("CORRUPTED_DATA");
-
-        clearInterval(interval);
-        interval = null;
         status = "ended";
+
+        if (interval) {
+            clearInterval(interval);
+            interval = null;
+        }
 
         return ok();
     };
@@ -270,5 +272,16 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
         return ok();
     };
 
-    return { start, pause, stop, onEvent, setInput, reset, getConfig, getState, getHits };
+    return {
+        start,
+        pause,
+        stop,
+        onEvent,
+        setInput,
+        reset,
+        getConfig,
+        getState,
+        getHits,
+        setStatus,
+    };
 };

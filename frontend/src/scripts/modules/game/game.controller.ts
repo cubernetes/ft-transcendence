@@ -230,6 +230,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 tw: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition disabled:opacity-50",
                 click: () => {
                     const dest = mode === "tournament" ? "tournament" : CONST.ROUTE.HOME;
+                    endGame();
                     closeModal();
                     navigateTo(dest, true);
                 },
@@ -294,6 +295,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         attachOnlineControl();
         attachOnlineSocketEvents();
         startRenderer().then(sendRendererReady);
+
+        gameStore.update({ isPlaying: true, mode: "online", status: "ongoing" });
     };
 
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {

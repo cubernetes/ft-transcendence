@@ -38,7 +38,7 @@ export const UserInputSchema = z.enum(["up", "down", "stop"]);
 
 export type GameMode = "local" | "online" | "ai" | "tournament";
 
-export type Status = "waiting" | "paused" | "ongoing" | "ended";
+export type Status = "waiting" | "paused" | "ongoing" | "ended" | "rendering";
 
 export type EventMap = {
     "wall-collision": null;

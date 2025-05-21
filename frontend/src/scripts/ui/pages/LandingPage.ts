@@ -43,15 +43,16 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
                 const engine = createPongEngine();
                 const controller = createGameController(res.value, engine);
 
+                // TODO: Move this and make this better! damn bad style made me look for this bug for hours
                 gameStore.update({ controller });
-            });
 
-            initAuthState().then(async (state) => {
-                authStore.set(state);
-                if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
+                initAuthState().then(async (state) => {
+                    authStore.set(state);
+                    if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
 
-                const loginFormEl = await createLoginForm(ctaButtonEl);
-                replaceChildren(heroCtn, loginFormEl);
+                    const loginFormEl = await createLoginForm(ctaButtonEl);
+                    replaceChildren(heroCtn, loginFormEl);
+                });
             });
         },
     });

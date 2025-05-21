@@ -2,6 +2,7 @@ import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
 import { sendGameStart } from "../../modules/ws/ws.service";
+import { wsStore } from "../../modules/ws/ws.store";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
 import { createCopyButton } from "../components/Button";
@@ -15,8 +16,9 @@ import { createStatus } from "../components/Status";
 export const createLobbyPage = (): UIComponent => {
     const { lobbyId, lobbyHost, playerNames, playTo } = gameStore.get();
 
-    log.debug("Create lobby page");
+    log.debug("Create lobby page???");
     log.debug(gameStore.get());
+    log.debug(wsStore.get());
 
     const titleEl = createHeading({ text: "Lobby" });
     const lineHr = createEl("hr", "border-t-2 border-dotted border-white mb-6");
@@ -46,7 +48,7 @@ export const createLobbyPage = (): UIComponent => {
     // Players
     // TODO: add avatar maybe
     const player1P = createParagraph({
-        text: playerNames[0] == "" ? authStore.get().displayName! : playerNames[0],
+        text: lobbyHost ? authStore.get().displayName! : playerNames[0],
         id: CONST.ID.LOBBY_P1,
         tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-white p-2 w-full mr-2",
     });
@@ -144,8 +146,8 @@ export const createLobbyPage = (): UIComponent => {
     container.addEventListener("destory", () => {
         unsubscribeGameStore();
 
-        // // Always leave when route away from lobby page
-        // sendApiRequest.post(CONST.API.LEAVE);
+        // Always leave when route away from lobby page
+        sendApiRequest.post(CONST.API.LEAVE);
     });
     return [container];
 };

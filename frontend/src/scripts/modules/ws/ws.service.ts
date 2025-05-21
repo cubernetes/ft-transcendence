@@ -3,6 +3,7 @@ import type {
     IncomingMessageType as Type,
     UserInput,
 } from "@darrenkuro/pong-core";
+import { gameStore } from "../game/game.store";
 import { registerControllers } from "./ws.controller";
 import { wsStore } from "./ws.store";
 
@@ -52,6 +53,9 @@ export const sendRendererReady = () => {
     const { isConnected, conn } = wsStore.get();
     if (!isConnected || !conn || conn.readyState !== WebSocket.OPEN)
         return log.error("Fail to send renderer-ready: socket error");
+
+    // Don't send if already quit the game
+    if (!gameStore.get().isPlaying) return;
 
     send(conn, { type: "renderer-ready", payload: null });
 };

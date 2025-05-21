@@ -50,6 +50,8 @@ export const createLobbyService = (app: FastifyInstance) => {
         playerNames.push(name);
         lobbyMap.set(userId, lobbyId);
 
+        app.log.debug({ session }, `session data after after user ${userId} join`);
+
         return ok(lobbyId);
     };
 
@@ -70,6 +72,11 @@ export const createLobbyService = (app: FastifyInstance) => {
     };
 
     const leave = (userId: number): Result<void, ErrorCode> => {
+        app.log.debug(
+            { lobbyMap: Array.from(lobbyMap), sessionMap: Array.from(sessionMap) },
+            `uesr ${userId} trying to leave...`
+        );
+
         const lobbyId = lobbyMap.get(userId);
         if (!lobbyId) return err("NOT_IN_LOBBY");
 
@@ -81,7 +88,8 @@ export const createLobbyService = (app: FastifyInstance) => {
 
         // Check if a player left the game as it is ongoing
         const state = engine.getState();
-        if (state.status === "ongoing") {
+        const { status } = state; // Need to make sure that it is not a ref
+        if (status === "ongoing" || status === "rendering") {
             // Manually stop the engine
             engine.stop();
 
@@ -93,28 +101,40 @@ export const createLobbyService = (app: FastifyInstance) => {
                 payload,
             });
             app.gameService.saveGame(session, payload);
-            return ok();
-        }
 
-        const isHost = userIdx === 0;
-
-        // If host leaves, kick the guest, for now
-        if (isHost) {
             lobbyMap.delete(userId);
-            lobbyMap.delete(players[1]);
-            sessionMap.delete(lobbyId);
+            // DO NOT TOUCH ID, need for winning count
+            sessionMap.get(lobbyId)!.playerNames[userIdx] = "";
+        } else if (status === "waiting") {
+            const isHost = userIdx === 0;
 
-            app.wsService.broadcast(players, { type: "lobby-remove", payload: null });
-        } else {
-            // Remove player 1 by name first
-            playerNames.splice(1, 1);
+            // If host leaves, kick the guest, for now
+            if (isHost) {
+                lobbyMap.delete(userId);
+                lobbyMap.delete(players[1]);
+                sessionMap.delete(lobbyId);
 
-            sendUpdate(lobbyId);
+                app.wsService.broadcast(players, { type: "lobby-remove", payload: null });
+            } else {
+                players.splice(1, 1);
+                playerNames.splice(1, 1);
+                lobbyMap.delete(userId);
 
-            // Remove player 1 from backend memory
-            players.splice(1, 1);
+                sendUpdate(lobbyId);
+            }
+        } else if (status === "ended") {
             lobbyMap.delete(userId);
+            const { playerNames } = sessionMap.get(lobbyId)!;
+            playerNames[userIdx] = "";
+
+            if (playerNames.every((p) => p === "")) {
+                sessionMap.delete(lobbyId);
+            }
         }
+        app.log.debug(
+            { lobbyMap: Array.from(lobbyMap), sessionMap: Array.from(sessionMap) },
+            `after leaving...`
+        );
         return ok();
     };
 
@@ -135,23 +155,19 @@ export const createLobbyService = (app: FastifyInstance) => {
         const { engine, players, playerNames } = session;
         const config = engine.getConfig();
 
+        app.log.debug({ players, playerNames }, "sending updates");
+
         app.wsService.send(players[0], {
             type: "lobby-update",
             payload: { config, playerNames, host: true },
         });
 
-        app.wsService.send(
-            players[1],
-            playerNames[1]
-                ? {
-                      type: "lobby-update",
-                      payload: { config, playerNames, host: false },
-                  }
-                : {
-                      type: "lobby-remove",
-                      payload: null,
-                  }
-        );
+        if (!players[1]) return ok();
+
+        app.wsService.send(players[1], {
+            type: "lobby-update",
+            payload: { config, playerNames, host: false },
+        });
 
         return ok();
     };
@@ -163,11 +179,27 @@ export const createLobbyService = (app: FastifyInstance) => {
         const session = sessionMap.get(lobbyId);
         if (!session) return err("CORRUPTED_DATA");
 
-        const { engine, players, playerReady } = session;
+        const { engine, players, playerNames, playerReady } = session;
         const idx = players.findIndex((p) => p === userId);
         playerReady[idx] = true;
 
+        // TODO: handle timeout?
         if (playerReady.every((b) => b === true)) engine.start();
+
+        if (playerNames.some((n) => n === "")) {
+            // Someone quit already
+            // TODO: refactor, duplicate code and horrible structure
+            const winner: 0 | 1 = playerNames[0] === "" ? 1 : 0;
+            const payload = { state: engine.getState(), hits: engine.getHits(), winner };
+            app.wsService.send(players[winner], {
+                type: "game-end",
+                payload,
+            });
+            app.gameService.saveGame(session, payload);
+
+            lobbyMap.delete(userId);
+            sessionMap.delete(lobbyId);
+        }
         return ok();
     };
 

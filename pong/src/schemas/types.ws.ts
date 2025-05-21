@@ -4,12 +4,7 @@ export const CLOSING_CODE = {
     MULTI_CLIENT: 4000,
 };
 
-export type IncomingMessageType =
-    | "game-start"
-    | "game-action"
-    | "game-quit"
-    | "lobby-update"
-    | "renderer-ready";
+export type IncomingMessageType = "game-start" | "game-action" | "lobby-update" | "renderer-ready";
 
 export type OutgoingMessageType = keyof EventMap | "game-start" | "lobby-update" | "lobby-remove";
 
