@@ -109,5 +109,21 @@ const CTRL = {
     ALL: [...L_UP, ...L_DOWN, ...R_UP, ...R_DOWN], // All paddle control keys
 };
 
+// Contract address for the GameHistory contract deployed on Holesky testnet
+const FUJI_ADDRESS = "66532bC8c0A4996Ae1BeB5e9b68A55f3014B28a2";
+const HOLESKY_ADDRESS = "feefE87429c5dAC98009D663f62F05499bDAD2AD";
+
 /** Constants will be attached globally, can be accessed via `CONST` */
-export const CONSTANTS = { DIR, API, ROUTE, KEY, CLASS, ID, ATTR, CTRL, TEXT };
+export const CONSTANTS = {
+    DIR,
+    API,
+    ROUTE,
+    KEY,
+    CLASS,
+    ID,
+    ATTR,
+    CTRL,
+    TEXT,
+    FUJI_ADDRESS,
+    HOLESKY_ADDRESS,
+};

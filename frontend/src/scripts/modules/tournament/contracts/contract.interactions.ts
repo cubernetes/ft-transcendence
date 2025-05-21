@@ -10,7 +10,6 @@ import {
 import { avalancheFuji, holesky } from "viem/chains";
 import { MatchState } from "../tournament.store";
 import { CONTRACT_ABI } from "./contracts.abi";
-import { FUJI_ADDRESS } from "./contracts.constants";
 
 export const readLocalContract = async (
     publicClient: PublicClient,
@@ -18,7 +17,7 @@ export const readLocalContract = async (
     args: any[]
 ) => {
     return publicClient.readContract({
-        address: FUJI_ADDRESS,
+        address: `0x${CONST.FUJI_ADDRESS}`,
         abi: CONTRACT_ABI,
         functionName,
         args,
@@ -46,7 +45,7 @@ export const writeLocalContract = async (
     }));
 
     const { request } = await publicClient.simulateContract({
-        address: FUJI_ADDRESS,
+        address: `0x${CONST.FUJI_ADDRESS}`,
         abi: CONTRACT_ABI,
         functionName,
         args: [gameId, gameResults],

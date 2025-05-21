@@ -203,7 +203,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
             await controller.handleEndTournamentMatch(winnerName, state);
             setTimeout(() => {
                 navigateTo("tournament", true);
-            }, 5000);
+            }, 2000);
         }
         // Dispose stuff right away? Probably not..
     };
