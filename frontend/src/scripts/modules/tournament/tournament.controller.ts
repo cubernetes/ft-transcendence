@@ -4,8 +4,9 @@ import { gameStore } from "../game/game.store";
 import { TournamentState, tournamentStore } from "./tournament.store";
 import {
     determineRound,
+    findMatchById,
     generateRoundMatches,
-    generateUniqueTournamentId,
+    generateUniqueId,
     roundCompleted,
 } from "./tournament.utils";
 
@@ -33,7 +34,7 @@ export const createTournamentController = (allPlayers: string[]) => {
 
     const startTournament = () => {
         tournamentStore.update({
-            tournamentId: generateUniqueTournamentId(),
+            tournamentId: generateUniqueId(),
             activePlayers: allPlayers,
         });
         createNextRound();
@@ -57,25 +58,31 @@ export const createTournamentController = (allPlayers: string[]) => {
 
     const startMatch = (gameId: number) => {
         const { controller } = gameStore.get();
-        if (!controller) {
-            throw new Error("initialize_controller");
-        }
+        if (!controller) throw new Error("initialize_controller");
+
         const { matches } = tournamentStore.get();
-        if (!matches || matches.length === 0) {
+        if (!matches) {
             log.error("No matches found in tournament store.");
             return;
         }
-        const playerNames = matches[matches.length - 1][gameId].players;
-        if (!playerNames || playerNames.length < 2) {
+
+        const match = findMatchById(matches, gameId);
+        if (!match) {
+            log.error("Match not found for ID:", gameId);
+            return;
+        }
+
+        if (!match.players || match.players.length < 2) {
             log.error("Not enough players for the match.");
             return;
         }
-        const winner = matches[matches.length - 1][gameId].winner;
-        if (winner) {
+
+        if (match.winner) {
             log.error("Game already played.");
             return;
         }
-        gameStore.update({ playerNames });
+
+        gameStore.update({ playerNames: match.players });
         controller.startGame("tournament", {
             ...defaultGameConfig,
             playTo: 3,

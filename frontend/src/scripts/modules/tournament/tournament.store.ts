@@ -6,6 +6,7 @@ export type Round = "Quarter" | "Semi" | "Final";
 export type TournamentController = ReturnType<typeof createTournamentController>;
 
 export type MatchState = {
+    gameId: number;
     players: [string, string];
     winner: string | null;
     score?: [number, number];

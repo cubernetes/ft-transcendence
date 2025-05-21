@@ -1,5 +1,5 @@
-import { MatchState, Round } from "./tournament.store";
 import { Result, err, ok } from "neverthrow";
+import { MatchState, Round } from "./tournament.store";
 
 export const generateRoundMatches = (players: string[]): MatchState[] => {
     if (!players || players.length < 2) {
@@ -13,7 +13,7 @@ export const generateRoundMatches = (players: string[]): MatchState[] => {
     while (playerPool.length > 1) {
         const player1 = playerPool.splice(Math.floor(Math.random() * playerPool.length), 1)[0];
         const player2 = playerPool.splice(Math.floor(Math.random() * playerPool.length), 1)[0];
-        matches.push({ players: [player1, player2], winner: null });
+        matches.push({ gameId: generateUniqueId(), players: [player1, player2], winner: null });
     }
 
     return matches;
@@ -41,6 +41,15 @@ export const roundCompleted = (matches: MatchState[][] | null): boolean => {
     return currentRoundMatches.every((match) => match.winner !== null);
 };
 
-export const generateUniqueTournamentId = (): number => {
+export const generateUniqueId = (): number => {
     return Date.now() * 1000 + Math.floor(Math.random() * 1000);
+};
+
+export const findMatchById = (matches: MatchState[][], id: number): MatchState | null => {
+    for (const round of matches) {
+        for (const match of round) {
+            if (match.gameId === id) return match;
+        }
+    }
+    return null;
 };

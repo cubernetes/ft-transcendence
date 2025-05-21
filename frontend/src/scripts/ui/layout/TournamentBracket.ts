@@ -26,7 +26,7 @@ export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
         });
         roundColumn.appendChild(roundTitle);
 
-        roundMatches.forEach((match, matchIdx) => {
+        roundMatches.forEach((match) => {
             const matchContainer = createEl(
                 "div",
                 "match-container border p-4 rounded-lg shadow-md bg-white text-center w-40"
@@ -47,7 +47,7 @@ export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
                     const { controller } = tournamentStore.get();
                     if (controller) {
                         log.debug("Starting match...");
-                        controller.startMatch(matchIdx);
+                        controller.startMatch(match.gameId);
                     } else {
                         log.debug("Controller not found in tournament store");
                     }
