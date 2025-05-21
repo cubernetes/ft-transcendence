@@ -27,6 +27,7 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
 
     conn.on("close", () => {
         app.wsService.removeConnection(conn);
+        app.lobbyService.leave(conn.userId!);
         app.log.info(`WebSocket connection closed for player ${conn.userId}`);
     });
 };

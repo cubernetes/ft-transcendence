@@ -37,9 +37,6 @@ const renderRoute = async (dest: string) => {
         route = CONST.ROUTE.DEFAULT;
     }
 
-    // Clean up game session when route changes, this probably belongs somewhere else
-    gameStore.update({ isPlaying: false });
-
     // Create the appropriate page as an array of HTMLElement
     const createPage = ROUTES[route];
     const pageElements = await createPage();
@@ -53,6 +50,8 @@ const renderRoute = async (dest: string) => {
 
 /** Navigate to route, default to do nothing if it's already in the route unless force is true */
 export const navigateTo = (dest: Route, force: boolean = false) => {
+    gameStore.get().controller?.endGame();
+
     const path = `/${dest}`;
 
     // Alread in this route, do nothing unless it's the first route
@@ -63,6 +62,8 @@ export const navigateTo = (dest: Route, force: boolean = false) => {
 };
 
 export const handlePopState = () => {
+    gameStore.get().controller?.endGame();
+
     // Remove slash
     const dest = location.pathname.slice(1);
 

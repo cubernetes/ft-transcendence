@@ -9,6 +9,7 @@ import {
     Position3D,
     defaultGameConfig,
 } from "@darrenkuro/pong-core";
+import { sendApiRequest } from "../../utils/api";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";
 import { registerHandler } from "../ws/ws.controller";
@@ -221,6 +222,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 navigateTo("tournament", true);
             }, 2000);
         }
+
+        gameStore.update({ status: "ended" });
     };
 
     const handleStateUpdate = (state: PongState) => {
@@ -231,11 +234,12 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const resizeListener = () => renderer.resize();
 
-    const startRenderer = async (config: PongConfig) => {
-        const scene = createScene(renderer, config);
-        renderer.scene = scene;
+    const startRenderer = async () => {
+        const { scene } = renderer;
+        if (!scene) return log.error("Fail to start renderer: no active scene");
 
         if (renderer.bgmEnabled) renderer.audio.bgMusic.play();
+
         window.addEventListener("resize", resizeListener);
         renderer.runRenderLoop(() => scene.render());
         requestAnimationFrame(() => renderer.resize());
@@ -246,16 +250,11 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     /** Destroy the current game session */
     const destroy = () => {
-        log.debug("Game controller destroy triggered");
-        hideCanvas();
-
         // Destroy renderer related stuff
         disposeScene(renderer);
         renderer.stopRenderLoop();
 
         // Reset engine
-        // When navigating with back and forward button, engine cannot emit game over
-        // need new logic, maybe add "quit" to differentiate
         engine.stop();
 
         // Remove event listeners
@@ -265,37 +264,59 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const startLocalGame = (mode: GameMode, config: PongConfig) => {
         engine.reset(config);
-        if (mode === "ai") {
-            attachAiControl();
-        } else {
-            attachLocalControl();
-        }
+        mode === "ai" ? attachAiControl() : attachLocalControl();
         attachLocalEngineEvents(mode);
-        startRenderer(config).then(engine.start);
+        startRenderer().then(engine.start);
 
-        gameStore.update({ isPlaying: true });
+        gameStore.update({ isPlaying: true, mode, status: "ongoing" });
     };
 
     // Actively start online game (host)
-    const startOnlineGame = (config: PongConfig) => {
+    const startOnlineGame = () => {
         attachOnlineControl();
         attachOnlineSocketEvents();
-        startRenderer(config).then(sendRendererReady);
+        startRenderer().then(sendRendererReady);
     };
 
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
+        renderer.scene = createScene(renderer, config);
+
         hidePageElements();
         hideRouter();
         showCanvas();
 
-        if (mode === "online") return startOnlineGame(config);
-
-        // Handle local, AI, or tournament game
-        startLocalGame(mode, config);
+        mode === "online" ? startOnlineGame() : startLocalGame(mode, config);
     };
 
-    return {
-        destroy,
-        startGame,
+    // Frontend handling of leaving game
+    const endGame = () => {
+        // User try to end the game when it is onging
+        // if (status && status !== "ended") {
+        //     const msg =
+        //         mode === "online"
+        //             ? "You will lose the current game, are you sure you want to leave?"
+        //             : "The current game will be discarded, are you sure you want to leave?";
+        //     const confirmed = confirm(msg);
+        //     if (!confirmed) return false;
+
+        //     if (mode === "online") sendApiRequest.post(CONST.API.LEAVE);
+        // }
+
+        hideCanvas();
+        destroy();
+
+        sendApiRequest.post(CONST.API.LEAVE);
+
+        // Reset game store
+        gameStore.update({
+            isPlaying: false,
+            mode: null,
+            status: null,
+            playerNames: ["", ""],
+            lobbyId: "",
+            lobbyHost: false,
+        });
     };
+
+    return { startGame, endGame };
 };

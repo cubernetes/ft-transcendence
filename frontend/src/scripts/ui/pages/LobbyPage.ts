@@ -133,22 +133,18 @@ export const createLobbyPage = (): UIComponent => {
         children: [titleEl, lineHr, infoEl, lobbyIdCtn, playerCtn, configCtn, ctaBtnGrp, statusEl],
     });
 
-    const unsubscribeGameStore = gameStore.subscribe(
-        ({ lobbyId, playerNames, playTo, isPlaying, controller }) => {
-            log.debug("GameStore subscriber in lobby!");
-            log.debug(gameStore.get());
+    const unsubscribeGameStore = gameStore.subscribe(({ lobbyId, playerNames, playTo }) => {
+        log.debug("GameStore subscriber in lobby!");
+        log.debug(gameStore.get());
 
-            player1P.textContent = playerNames[0];
-            player2P.textContent = playerNames[1] ?? "Waiting";
+        player1P.textContent = playerNames[0];
+        player2P.textContent = playerNames[1] ?? "Waiting";
 
-            playToInput.value = String(playTo);
+        playToInput.value = String(playTo);
 
-            // When host leave, lobby is removed
-            if (!lobbyId) navigateTo(CONST.ROUTE.HOME);
-
-            if (isPlaying) controller?.startGame("online");
-        }
-    );
+        // When host leave, lobby is removed
+        if (!lobbyId) navigateTo(CONST.ROUTE.HOME);
+    });
 
     container.addEventListener("destory", () => {
         unsubscribeGameStore();

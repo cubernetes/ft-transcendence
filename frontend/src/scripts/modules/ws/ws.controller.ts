@@ -16,7 +16,7 @@ const registerGeneralHandlers = (conn: WebSocket) => {
 
         // Server dropped, sync client
         wsStore.update({ isConnected: false, conn: null });
-        navigateTo(CONST.ROUTE.DEFAULT);
+        navigateTo(CONST.ROUTE.DEFAULT, true);
     };
 
     conn.onerror = (e) =>
@@ -25,14 +25,19 @@ const registerGeneralHandlers = (conn: WebSocket) => {
 
 const registerGameControllers = (conn: WebSocket) => {
     const { handlers } = wsStore.get();
+    const { controller } = gameStore.get();
+    if (!controller) return log.error("INITIALIZATION_ERROR");
 
     registerHandler(
         "game-start",
         ({ playerNames }) => {
             gameStore.update({
                 isPlaying: true,
-                playerNames,
+                mode: "online",
+                status: "ongoing",
+                playerNames, // TODO: clean this up, not needed anymore
             });
+            controller.startGame("online");
         },
         handlers
     );

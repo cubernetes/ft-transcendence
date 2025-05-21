@@ -176,6 +176,7 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
     // -----------------------
 
     const getState = (): State => structuredClone({ status, scores, ball, paddles });
+    const getHits = () => structuredClone(hits); // TODO: be included in state and don't send it separately
     const getConfig = (): PongConfig => structuredClone(config);
 
     const tick = (): Result<void, ErrorCode> => {
@@ -189,6 +190,11 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
 
         // Check if a player has won
         if (scores.some((n) => n >= config.playTo)) {
+            emit("game-end", {
+                winner: scores[0] > scores[1] ? 0 : 1,
+                hits: [...hits],
+                state: getState(),
+            });
             stop();
             return ok();
         }
@@ -228,11 +234,6 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
         interval = null;
         status = "ended";
 
-        emit("game-end", {
-            winner: scores[0] > scores[1] ? 0 : 1,
-            hits: [...hits],
-            state: getState(),
-        });
         return ok();
     };
 
@@ -269,5 +270,5 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
         return ok();
     };
 
-    return { start, pause, stop, onEvent, setInput, reset, getConfig };
+    return { start, pause, stop, onEvent, setInput, reset, getConfig, getState, getHits };
 };

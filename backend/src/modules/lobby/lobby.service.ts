@@ -76,8 +76,25 @@ export const createLobbyService = (app: FastifyInstance) => {
         const session = sessionMap.get(lobbyId);
         if (!session) return err("CORRUPTED_DATA");
 
-        const { players, playerNames } = session;
-        const isHost = players.findIndex((p) => p === userId) === 0;
+        const { players, playerNames, engine } = session;
+        const userIdx = players.findIndex((p) => p === userId);
+
+        // Check if a player left the game as it is ongoing
+        const state = engine.getState();
+        if (state.status === "ongoing") {
+            // Manually stop the engine and send game-end to remaining player (winner)
+            engine.stop();
+            const winnerIdx: 1 | 0 = userIdx === 0 ? 1 : 0;
+            const payload = { state, hits: engine.getHits(), winner: winnerIdx };
+            app.wsService.send(players[winnerIdx], {
+                type: "game-end",
+                payload,
+            });
+            app.gameService.saveGame(session, payload);
+            return ok();
+        }
+
+        const isHost = userIdx === 0;
 
         // If host leaves, kick the guest, for now
         if (isHost) {
@@ -115,7 +132,6 @@ export const createLobbyService = (app: FastifyInstance) => {
 
         const { engine, players, playerNames } = session;
         const config = engine.getConfig();
-        app.log.debug("what");
 
         app.wsService.send(players[0], {
             type: "lobby-update",
