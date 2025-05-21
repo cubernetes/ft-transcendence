@@ -3,20 +3,29 @@ import type {
     OutgoingMessage as Message,
     OutgoingMessageType as Type,
 } from "@darrenkuro/pong-core";
-import { defaultGameConfig, safeJsonParse } from "@darrenkuro/pong-core";
+import { CLOSING_CODE, defaultGameConfig, safeJsonParse } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
+import { createModal } from "../../ui/components/Modal";
+import { createParagraph } from "../../ui/components/Paragraph";
 import { gameStore } from "../game/game.store";
 import { wsStore } from "./ws.store";
 
 const registerGeneralHandlers = (conn: WebSocket) => {
     conn.onopen = () => log.info("WebSocket connection established");
 
-    conn.onclose = () => {
-        log.info("WebSocket connection closed");
-
-        // Server dropped, sync client
+    conn.onclose = (evt) => {
+        log.info(`WebSocket connection closed, code: ${evt.code}`);
         wsStore.update({ isConnected: false, conn: null });
+
+        // Navigate to landing page to ensure data integrity
         navigateTo(CONST.ROUTE.DEFAULT, true);
+
+        if (evt.code === CLOSING_CODE.MULTI_CLIENT) {
+            const noticeEl = createParagraph({
+                text: "User can only log in a single tab",
+            });
+            createModal({ children: [noticeEl] });
+        }
     };
 
     conn.onerror = (e) =>
@@ -52,13 +61,15 @@ const registerGameControllers = (conn: WebSocket) => {
 
     registerHandler(
         "lobby-remove",
-        () =>
+        () => {
             gameStore.update({
                 lobbyId: "",
                 lobbyHost: false,
                 playerNames: ["", ""],
                 playTo: defaultGameConfig.playTo,
-            }),
+            });
+            navigateTo(CONST.ROUTE.HOME);
+        },
         handlers
     );
 

@@ -1,7 +1,7 @@
 import type { IncomingMessage, IncomingMessageType } from "@darrenkuro/pong-core";
 import type { FastifyRequest } from "fastify";
 import type { WebSocket } from "fastify";
-import { safeJsonParse } from "@darrenkuro/pong-core";
+import { CLOSING_CODE, safeJsonParse } from "@darrenkuro/pong-core";
 
 export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
     const app = req.server;
@@ -25,9 +25,11 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
         handler(conn, msg.value.payload);
     });
 
-    conn.on("close", () => {
-        app.wsService.removeConnection(conn);
-        app.lobbyService.leave(conn.userId!);
+    conn.on("close", (code) => {
         app.log.info(`WebSocket connection closed for player ${conn.userId}`);
+        app.lobbyService.leave(conn.userId!);
+
+        // Only remove connection if it's not server initiated closing
+        if (code !== CLOSING_CODE.MULTI_CLIENT) app.wsService.removeConnection(conn);
     });
 };

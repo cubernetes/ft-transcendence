@@ -37,8 +37,6 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         click: () => {
             const { canvas } = layoutStore.get();
 
-            // Initilize game components here so browser doesn't warn need user gesture
-            // TODO: This is a problem, if flashes still
             createRenderer(canvas).then((res) => {
                 if (res.isErr()) return createErrorModal(res.error);
 

@@ -1,5 +1,9 @@
 import { EventMap, PongConfig, UserInput } from "../pong/pong.types";
 
+export const CLOSING_CODE = {
+    MULTI_CLIENT: 4000,
+};
+
 export type IncomingMessageType =
     | "game-start"
     | "game-action"
