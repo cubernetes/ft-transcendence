@@ -151,7 +151,9 @@ const createAiPanel = (ctn: UIContainer): UIComponent => {
         const selected = difficultyGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
         if (!selected) return showErr(DIFFICULTY_REQUIRED);
 
-        const aiDifficulty = selected.textContent!.toUpperCase() as AIDifficulty;
+        const aiDifficulty = selected
+            .getAttribute(CONST.ATTR.I18N_TEXT)!
+            .toUpperCase() as AIDifficulty;
 
         const { controller } = gameStore.get();
         if (!controller) return showErr(INIT_ERROR);

@@ -278,6 +278,8 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         disposeScene(renderer);
         renderer.stopRenderLoop();
 
+        renderer.audio.bgMusic.stop();
+
         // Reset engine
         engine.stop();
 

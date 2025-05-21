@@ -47,17 +47,6 @@ declare module "@babylonjs/core" {
         sfxEnabled: boolean;
         audio: AudioEngineV2;
         scene?: Scene;
-
-        // shadowGenerator: ShadowGenerator;
-        // directionalLight: DirectionalLight;
-        // controls: AdvancedDynamicTexture;
-        // camera: ArcRotateCamera;
-        // shadowObjs: Mesh[];
-        // ball: Mesh;
-        // leftPaddle: Mesh;
-        // rightPaddle: Mesh;
-        // score: Mesh;
-        // ballMat: PBRMaterial;
     }
 
     interface AudioEngineV2 {
