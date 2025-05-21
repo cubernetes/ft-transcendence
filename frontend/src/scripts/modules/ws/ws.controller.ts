@@ -15,6 +15,7 @@ const registerGeneralHandlers = (conn: WebSocket) => {
         log.info("WebSocket connection closed");
 
         // Server dropped, sync client
+        wsStore.update({ isConnected: false, conn: null });
         navigateTo(CONST.ROUTE.DEFAULT);
     };
 

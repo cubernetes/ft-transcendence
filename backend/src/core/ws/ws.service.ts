@@ -7,7 +7,7 @@ import type {
 import type { FastifyInstance, WebSocket } from "fastify";
 import { Result, err, ok } from "neverthrow";
 
-export const createWsService = (app: FastifyInstance) => {
+export const createWsService = (_: FastifyInstance) => {
     const conns = new Map<number, WebSocket>();
 
     type MessageHandler<T extends InType> = (conn: WebSocket, payload: Payloads[T]) => void;
