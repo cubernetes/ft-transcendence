@@ -92,17 +92,22 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
 export const restartTournamentButton = (): HTMLButtonElement => {
     const { RESTART_TOURNAMENT } = CONST.TEXT;
     const { controller } = tournamentStore.get();
-    if (!controller) {
-        throw new Error("initialize_controller");
-    }
+
     const restartButton = createButton({
         text: RESTART_TOURNAMENT,
         tw: "bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl transition",
         click: () => {
-            controller.resetTournament();
+            controller!.resetTournament(); // Safe due to the disabled check below
             navigateTo("play");
         },
     });
+
+    if (!controller) {
+        restartButton.disabled = true;
+        restartButton.title = "Controller not available";
+        restartButton.classList.add("opacity-50", "cursor-not-allowed");
+    }
+
     return restartButton;
 };
 

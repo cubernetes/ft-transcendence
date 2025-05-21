@@ -58,7 +58,7 @@ export const createTournamentController = (allPlayers: string[]) => {
 
     const startMatch = (gameId: number) => {
         const { controller } = gameStore.get();
-        if (!controller) throw new Error("initialize_controller");
+        if (!controller) return;
 
         const { matches } = tournamentStore.get();
         if (!matches) {
@@ -132,8 +132,8 @@ export const createTournamentController = (allPlayers: string[]) => {
 
     const getTournamentTree = () => {
         const { matches } = tournamentStore.get();
-        if (!matches) throw new Error("No matches found in tournament store.");
-        return buildTournamentTree(matches);
+        // Inside the buildTournamentTree function, empty matches are handled.
+        return buildTournamentTree(matches!);
     };
 
     const controller = {
