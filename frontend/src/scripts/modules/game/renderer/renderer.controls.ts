@@ -8,6 +8,7 @@ import {
     StackPanel,
     TextBlock,
 } from "@babylonjs/gui";
+import { getText } from "../../locale/locale.utils";
 import { toggleShadows } from "./renderer.light";
 
 // #region: Control components
@@ -35,7 +36,7 @@ const createShadowButton = (grid: Grid, engine: Engine) => {
     };
 
     // Create shadow button and add it to grid
-    const button = Button.CreateSimpleButton("shadowToggle", "Shadows");
+    const button = Button.CreateSimpleButton("shadowToggle", getText(CONST.TEXT.SHADOWS));
     styleShadowButton(button);
     button.onPointerUpObservable.add(() => {
         toggleShadows(engine);
@@ -78,7 +79,7 @@ const createSFXButton = (grid: Grid, engine: Engine) => {
 
 /** Create the music toggle button */
 const createMusicButton = (grid: Grid, engine: Engine) => {
-    const button = Button.CreateSimpleButton("bgMusic", "Music");
+    const button = Button.CreateSimpleButton("bgMusic", getText(CONST.TEXT.MUSIC));
     styleSoundButton(button);
     button.background = engine.bgmEnabled ? "green" : "red";
     button.onPointerUpObservable.add(() => {
@@ -104,7 +105,7 @@ const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
     grid.addControl(panelVol, 0, 6);
 
     const header = new TextBlock();
-    header.text = "Volume: 50 %";
+    header.text = `${getText(CONST.TEXT.VOLUME)}: 50 %`;
     header.fontSize = 16;
     header.fontStyle = "italic";
     header.fontFamily = "Calibri";
@@ -123,7 +124,7 @@ const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
     slider2.displayThumb = false;
     // slider2.blur;
     slider2.onValueChangedObservable.add(function (value) {
-        header.text = "Volume: " + (value | 0) + " %";
+        header.text = `${getText(CONST.TEXT.VOLUME)}: ` + (value | 0) + " %";
         engine.volume = value / 100;
     });
     panelVol.addControl(slider2);

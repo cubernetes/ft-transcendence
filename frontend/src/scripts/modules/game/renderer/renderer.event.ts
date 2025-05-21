@@ -7,6 +7,7 @@ import {
     StandardMaterial,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Control, TextBlock } from "@babylonjs/gui";
+import { getText } from "../../locale/locale.utils";
 
 // showCountdown here
 
@@ -42,7 +43,7 @@ export const showGameOver = (scene: Scene, winner: string): void => {
 
     // GAME OVER text
     const gameOverText = new TextBlock();
-    gameOverText.text = "GAME OVER";
+    gameOverText.text = getText(CONST.TEXT.GAME_OVER);
     gameOverText.color = "red";
     gameOverText.fontSize = 72;
     gameOverText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
@@ -50,7 +51,7 @@ export const showGameOver = (scene: Scene, winner: string): void => {
 
     // Winner text
     const winnerText = new TextBlock();
-    winnerText.text = `Winner: ${winner}`;
+    winnerText.text = `${getText(CONST.TEXT.WINNER)}: ${winner}`;
     winnerText.color = "white";
     winnerText.fontSize = 36;
     winnerText.top = "80px";

@@ -263,6 +263,38 @@ export const TEXT_MAP = {
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
+
+    // Game options
+    SHADOWS: {
+        en: "Shadows",
+        de: "Shadows-de", // TRANSLATION_NEEDED
+        fr: "Shadows-fr", // TRANSLATION_NEEDED
+        es: "Shadows-es", // TRANSLATION_NEEDED
+    },
+    MUSIC: {
+        en: "Music",
+        de: "Music-de", // TRANSLATION_NEEDED
+        fr: "Music-fr", // TRANSLATION_NEEDED
+        es: "Music-es", // TRANSLATION_NEEDED
+    },
+    VOLUME: {
+        en: "Volume",
+        de: "Volume-de", // TRANSLATION_NEEDED
+        fr: "Volume-fr", // TRANSLATION_NEEDED
+        es: "Volume-es", // TRANSLATION_NEEDED
+    },
+    GAME_OVER: {
+        en: "Game over",
+        de: "Game over-de", // TRANSLATION_NEEDED
+        fr: "Game over-fr", // TRANSLATION_NEEDED
+        es: "Game over-es", // TRANSLATION_NEEDED
+    },
+    WINNER: {
+        en: "Winner",
+        de: "Winner-de", // TRANSLATION_NEEDED
+        fr: "Winner-fr", // TRANSLATION_NEEDED
+        es: "Winner-es", // TRANSLATION_NEEDED
+    },
     // Server error codes
     USER_NOT_FOUND: {
         en: "User not found",
