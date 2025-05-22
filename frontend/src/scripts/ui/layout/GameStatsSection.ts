@@ -2,47 +2,66 @@ import { Chart, registerables } from "chart.js";
 import { PublicGame } from "@darrenkuro/pong-core";
 import { authStore } from "../../modules/auth/auth.store";
 import { createEl } from "../../utils/dom-helper";
-import { createButton } from "../components/Button";
+import { createButtonGroup } from "../components/ButtonGroup";
 import { createTable } from "../components/Table";
 
 Chart.register(...registerables);
 
 export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => {
-    const { STATS_CHART, MATCH_HISTORY } = CONST.TEXT;
+    const { STATS_CHART, MATCH_HISTORY, FRIENDS } = CONST.TEXT;
     const chartSection = createGameStatsChart(games);
     const historySection = createMatchHistoryList(games);
+    const friendSection = createFriendList();
 
     const toggleContainer = createEl("div", "flex justify-center gap-4 mb-4 mt-4");
     const contentContainer = createEl("div", "w-full");
 
-    const chartBtn = createButton({
-        text: STATS_CHART,
-        tw: "px-4 py-2 border rounded transition",
-        click: () => showChart(),
+    const toggleGroup = createButtonGroup({
+        texts: [STATS_CHART, MATCH_HISTORY, FRIENDS],
+        cbs: [
+            () => showElement(chartSection),
+            () => showElement(historySection),
+            () => showElement(friendSection),
+        ],
+        twBtnSpecific: ["rounded-l-md", "rounded-r-md"],
+        twSelected: "bg-purple-600 text-white",
+        twBtn: "px-4 py-2 border rounded transition",
+        twCtn: "justify-center mb-4",
+        defaultSelected: 0,
     });
 
-    const historyBtn = createButton({
-        text: MATCH_HISTORY,
-        tw: "px-4 py-2 border rounded transition",
-        click: () => showHistory(),
-    });
-
-    const showChart = () => {
-        contentContainer.replaceChildren(...chartSection);
-        chartBtn.classList.add("bg-purple-600", "text-white");
-        historyBtn.classList.remove("bg-purple-600", "text-white");
+    const showElement = (element: UIComponent) => {
+        contentContainer.replaceChildren(...element);
     };
 
-    const showHistory = () => {
-        contentContainer.replaceChildren(...historySection);
-        historyBtn.classList.add("bg-purple-600", "text-white");
-        chartBtn.classList.remove("bg-purple-600", "text-white");
-    };
-
-    toggleContainer.append(chartBtn, historyBtn);
-    showChart(); // Default
+    toggleContainer.append(toggleGroup);
+    showElement(chartSection); // Default
 
     return [toggleContainer, contentContainer];
+};
+
+const createFriendList = (): HTMLElement[] => {
+    const playerName = authStore.get().username;
+    //TODO: Use the below to check if player has friends.
+    if (playerName) {
+        return [
+            createEl("p", "text-gray-500 text-center", {
+                text: "No friends in your friend list. Add some!",
+            }),
+        ];
+    }
+    const headers = ["Friend Username", "Games Played", "Rank", "Status"];
+    const row = [
+        {
+            friendUsername: playerName,
+            gamesPlayed: 0,
+            rank: "N/A",
+            status: "Online",
+        },
+    ];
+    const table = createTable(headers, ["friendUsername", "gamesPlayed", "rank", "status"], row);
+
+    return [table];
 };
 
 const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
@@ -50,7 +69,9 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
 
     if (!games.length) {
         return [
-            createEl("p", "text-gray-500 text-center", { text: "No match history available." }),
+            createEl("p", "text-gray-500 text-center", {
+                text: "No game data available. Play some games onlin games!",
+            }),
         ];
     }
 
@@ -98,6 +119,13 @@ const mapGame = (game: PublicGame) => {
 };
 
 export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
+    if (!games.length) {
+        return [
+            createEl("p", "text-gray-500 text-center", {
+                text: "No game data. Play some games on 'Online' mode!",
+            }),
+        ];
+    }
     const data = [...games].reverse().map((game, index) => {
         const mapped = mapGame(game);
         if (!mapped) return null;
