@@ -2,6 +2,8 @@
 
 #set -vx
 
+: "${STOREPASS:?Missing STOREPASS}"
+
 # Healthcheck background service (because only this process has access to the environment
 # and an external healthcheck would need access to those, which is not intended)
 TERM=linux setsid -f watch -xtcn5 curl \
@@ -19,7 +21,6 @@ TRUSTSTORE_PATH="/usr/share/logstash/jdk/lib/security/cacerts"
 
 KEYTOOL="/usr/share/logstash/jdk/bin/keytool"
 # Default truststore password
-STOREPASS="generic_password"
 
 if [ ! -f "$CA_CERT_PATH" ]; then
   echo "CA certificate not found at $CA_CERT_PATH"
