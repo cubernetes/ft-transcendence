@@ -2,12 +2,12 @@ import chalk from "chalk";
 import readline from "readline";
 import { PongConfig } from "@darrenkuro/pong-core";
 
-// Function to print lobby info / updates from line 14
+// Function to print lobby info / updates from line 16
 export function showLobbyUpdate(payload) {
     const config: PongConfig = payload.config ? payload.config : payload;
     const playerNames: string[] = payload.playerNames ? payload.playerNames : [];
 
-    let line = 14;
+    let line = 16;
 
     readline.cursorTo(process.stdout, 0, line++);
     readline.clearLine(process.stdout, 0);
@@ -38,6 +38,4 @@ export function showLobbyUpdate(payload) {
             `    2. ` + chalk.hex("#FFA500").italic("... waiting for other player ...") + "\n"
         );
     }
-
-    // readline.cursorTo(process.stdout, 0, 27);
 }

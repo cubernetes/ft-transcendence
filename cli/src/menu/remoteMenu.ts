@@ -136,7 +136,7 @@ async function lobbyOwnerMenu(lobbyId: string) {
     function onLobbyUpdate() {
         latestLobbyUpdate = gameManager.getRemoteConfig();
         showLobbyUpdate(latestLobbyUpdate);
-        readline.cursorTo(process.stdout, 0, 27);
+        readline.cursorTo(process.stdout, 0, 29);
     }
 
     wsManager.on("lobby-update", onLobbyUpdate);
@@ -147,7 +147,7 @@ async function lobbyOwnerMenu(lobbyId: string) {
         showLobbyUpdate(latestLobbyUpdate);
 
         while (true) {
-            readline.cursorTo(process.stdout, 0, 21);
+            readline.cursorTo(process.stdout, 0, 23);
             readline.clearLine(process.stdout, 0);
             const { action } = await inquirer.prompt([
                 {
@@ -169,7 +169,7 @@ async function lobbyOwnerMenu(lobbyId: string) {
 
             if (action === "settings") {
                 await lobbySettingsMenu(latestLobbyUpdate);
-                readline.cursorTo(process.stdout, 0, 22);
+                readline.cursorTo(process.stdout, 0, 24);
                 readline.clearLine(process.stdout, 0);
             } else if (action === "start") {
                 latestLobbyUpdate = gameManager.getRemoteConfig();
@@ -335,7 +335,7 @@ export async function joinLobby(): Promise<void> {
             function onLobbyUpdate() {
                 latestLobbyUpdate = gameManager.getRemoteConfig();
                 showLobbyUpdate(latestLobbyUpdate);
-                readline.cursorTo(process.stdout, 0, 27);
+                readline.cursorTo(process.stdout, 0, 29);
             }
             function onGameStart() {
                 wsManager.off("lobby-update", onLobbyUpdate);
@@ -360,7 +360,7 @@ export async function joinLobby(): Promise<void> {
             showLobbyUpdate(latestLobbyUpdate);
 
             while (true) {
-                readline.cursorTo(process.stdout, 0, 21);
+                readline.cursorTo(process.stdout, 0, 23);
                 const { action } = await inquirer.prompt([
                     {
                         type: "list",
@@ -448,6 +448,7 @@ export async function handleServerLogin(): Promise<void> {
 
 export async function logout(): Promise<void> {
     clearToken();
+    gameManager.setDisplayName?.(null);
     console.log(chalk.green("✅ Logged out successfully."));
     return promptRemotePlayMenu();
 }
