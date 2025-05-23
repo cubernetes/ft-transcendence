@@ -103,7 +103,7 @@ See [vault/README.md](./vault/README.md)
 |               |       Database        |                      SQLite                       |  0.5  |      100%       |
 |               |      Blockchain       |               Avalanche + Solidity                |   1   |       95%       |                  Only works with dummy data ATM                  |
 |     Game      |    Remote Players     |                                                   |   1   |      100%       |                      Not thoroughly tested                       |
-| Cybersecurity |   Secret Management   |         WAF/ModSecurity + HashiCorp Vault         |   1   |       95%       |                   Potentially missing for ELK                    |
+| Cybersecurity |   Secret Management   |         WAF/ModSecurity + HashiCorp Vault         |   1   |      100%       |                   Potentially missing for ELK                    |
 |               |       2FA + JWT       |                                                   |   1   |      100%       |                        Can't disable 2FA                         |
 |    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       80%       |          grokparsefailure + get it working on school PC          |
 |   Graphics    |     3D Techniques     |                    Babylon.js                     |   1   |      100%       |              Not INSANE, but would pass this module              |
