@@ -39,7 +39,7 @@ dev-old-compose: clean-frontend-volume ensure-secret-files
 
 .PHONY: dev
 dev: clean-frontend-volume ensure-secret-files
-	@unset -v LOGSTASH_HOSTNAME && $(call dev-env, \
+	@$(call dev-env, \
 		up                                     \
 		--remove-orphans                       \
 		--build                                \
@@ -70,7 +70,7 @@ actual-prod: clean-frontend-volume ensure-secret-files build-curl-base
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
 prod: clean-frontend-volume ensure-secret-file build-curl-bases
-	@unset -v LOGSTASH_HOSTNAME && $(call dev-env, \
+	@$(call dev-env, \
 		up                                     \
 		--remove-orphans                       \
 		--build                                \
