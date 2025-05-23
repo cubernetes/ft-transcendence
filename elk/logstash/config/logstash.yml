@@ -21,7 +21,7 @@ queue.checkpoint.writes: 1024
 queue.checkpoint.interval: 1000
 
 # Logging settings
-log.level: debug
+log.level: info
 path.logs: /usr/share/logstash/logs
 
 # Performance settings
