@@ -25,4 +25,4 @@ for dashboard in /usr/share/kibana/dashboards/*.ndjson; do
   echo "---"
 done
 
-printf "\nDashboard import completed. Check Kibana UI to verify.\n"
+printf '\n---\n%s\n---\n' "Dashboard import completed. Check Kibana UI to verify."
