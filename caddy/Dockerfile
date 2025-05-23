@@ -41,4 +41,6 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ENV WATCH=0
 
+HEALTHCHECK --interval=10s --timeout=2s --retries=3 --start-period=30s --start-interval=1s CMD ["sh", "-c", "wget --no-verbose --tries=1 --spider http://localhost:12345/caddy_health || exit 1"]
+
 CMD ["sh", "-c", "/usr/bin/caddy run --watch=$WATCH --adapter caddyfile --config /etc/caddy/Caddyfile"]
