@@ -26,6 +26,7 @@ import shlex
 import random
 import string
 import contextlib
+from base64 import b64encode
 
 # Maximum 5 levels of indirection
 PASSES = 5
@@ -95,6 +96,9 @@ def replacement_function(match: re.Match, *, references: bool) -> str:
             print(f'\033\133;91mWARNING\033\133m: Unknown template type: \033\133;93m{template_type}\033\133m, supported types are \033\133;92m{", ".join(character_sets.keys())}\033\133m. Leaving it unmodified', file=sys.stderr, flush=True)
             return raw_match_string
         return ''.join(random.choices(character_set, k=int(template_argument)))
+    elif template_type == 'b64':
+        n_bytes = int(template_argument)
+        return b64encode(random.randbytes(n_bytes)).decode('utf8')
     elif template_type == 'ref':
         if not references:
             return raw_match_string

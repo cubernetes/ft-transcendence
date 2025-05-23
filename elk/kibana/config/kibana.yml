@@ -16,6 +16,6 @@ monitoring.ui.container.elasticsearch.enabled: true
 monitoring.ui.container.logstash.enabled: true
 
 # Security settings
-xpack.encryptedSavedObjects.encryptionKey: "On0wtWLem6X9zPqflgMZLErS0uBAP1TxK2C/61aVtN8="
-xpack.security.encryptionKey: "EwjRVSiLReWe8evzfUuUqkNwHoEU8FKgGvPoak6L/PA="
-xpack.reporting.encryptionKey: "DLJa1ntjYc6SsJvkUa9Kqawqkm+jksn/4pOR9EQOlGQ="
+xpack.encryptedSavedObjects.encryptionKey: "${XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY}"
+xpack.security.encryptionKey: "${XPACK_SECURITY_ENCRYPTIONKEY}"
+xpack.reporting.encryptionKey: "${XPACK_REPORTING_ENCRYPTIONKEY}"
