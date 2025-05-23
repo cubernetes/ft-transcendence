@@ -129,8 +129,6 @@ services:
             - "./.secrets/elasticsearch_vault_token:/run/secrets/elasticsearch_vault_token"
         user: root # Run as root to ensure we can set permissions
         environment: *env-common
-        ports:
-            - "${ELASTICSEARCH_PORT:-9200}:${ELASTICSEARCH_PORT:-9200}"
         networks:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
