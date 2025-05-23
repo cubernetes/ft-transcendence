@@ -109,3 +109,5 @@ env.json:        "ELASTICSEARCH_HOSTS": "https://elasticsearch:{{ref:'elasticsea
 ./elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure "https://localhost:${ELASTICSEARCH_PORT}/_security/user/${KIBANA_USER}" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data '{
 ./elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure -X PUT "https://localhost:${ELASTICSEARCH_PORT}/_ilm/policy/logs" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data "@/usr/share/elasticsearch/config/ilm-policy.json"
 ./elk/elasticsearch/setup-ilm.sh:until curl --silent "http://elasticsearch:${ELASTICSEARCH_PORT}/_cluster/health" | grep -q '"status":"green"\|"status":"yellow"'; do
+vault/README.md:    # `env` will exec itself, so that's fine as well.
+vault/README.md:    # which is also why we have extra qoutes around this: '"\$@"'
