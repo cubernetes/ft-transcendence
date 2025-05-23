@@ -7,8 +7,35 @@ import {
     StandardMaterial,
 } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Control, TextBlock } from "@babylonjs/gui";
+import { getText } from "../../locale/locale.utils";
 
-export const showGameOver = (scene: Scene, camera: ArcRotateCamera, winner: string): void => {
+export const showCountdown = async (scene: Scene, signal: AbortSignal): Promise<void> => {
+    const advancedTexture = AdvancedDynamicTexture.CreateFullscreenUI("countdownUI", true, scene);
+
+    const countdownText = Object.assign(new TextBlock(), {
+        color: "white",
+        fontSize: 96,
+        textHorizontalAlignment: Control.HORIZONTAL_ALIGNMENT_CENTER,
+        verticalAlignment: Control.VERTICAL_ALIGNMENT_CENTER,
+    });
+
+    advancedTexture.addControl(countdownText);
+
+    const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+    for (let count = 3; count > 0; count--) {
+        if (signal.aborted) return advancedTexture.dispose();
+
+        countdownText.text = count.toString();
+        await delay(1000);
+    }
+
+    advancedTexture.dispose();
+};
+
+export const showGameOver = (scene: Scene, winner: string): void => {
+    const camera = scene.activeCamera! as ArcRotateCamera;
+
     // Create full-screen fade plane
     const fadePlane = MeshBuilder.CreatePlane("fade", { size: 100 }, scene);
     fadePlane.position.z = camera.radius - 1;
@@ -38,7 +65,7 @@ export const showGameOver = (scene: Scene, camera: ArcRotateCamera, winner: stri
 
     // GAME OVER text
     const gameOverText = new TextBlock();
-    gameOverText.text = "GAME OVER";
+    gameOverText.text = getText(CONST.TEXT.GAME_OVER);
     gameOverText.color = "red";
     gameOverText.fontSize = 72;
     gameOverText.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
@@ -46,7 +73,7 @@ export const showGameOver = (scene: Scene, camera: ArcRotateCamera, winner: stri
 
     // Winner text
     const winnerText = new TextBlock();
-    winnerText.text = `Winner: ${winner}`;
+    winnerText.text = `${getText(CONST.TEXT.WINNER)}: ${winner}`;
     winnerText.color = "white";
     winnerText.fontSize = 36;
     winnerText.top = "80px";

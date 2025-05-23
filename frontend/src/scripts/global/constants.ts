@@ -74,11 +74,28 @@ const ID = {
     LOBBY_P2: "lobby-p2",
     CFG_PLAYTO: "cfg-playto",
     USER_STATUS: "user-status",
+    MODAL_OVERLAY: "modal-overlay",
+    MODAL_CTN: "modal-ctn",
     ROOT: "app",
     HEADER: "header-ctn",
     CANVAS: "rendering-canvas",
     ROUTER: "router-ctn",
     FOOTER: "footer-ctn",
+};
+
+// Names for renderer objects
+const NAME = {
+    CAMERA: "camera",
+    DLIGHT: "directional-light",
+    HLIGHT: "hemispheric-light",
+    BALL: "ball",
+    LPADDLE: "left-paddle",
+    RPADDLE: "right-paddle",
+    SCORE: "score-print",
+
+    // Material
+    MAT_BALL: "ball-material",
+    MAT_TRAIL: "trail-material",
 };
 
 // Attribute keys for HTML elements
@@ -121,6 +138,7 @@ export const CONSTANTS = {
     KEY,
     CLASS,
     ID,
+    NAME,
     ATTR,
     CTRL,
     TEXT,

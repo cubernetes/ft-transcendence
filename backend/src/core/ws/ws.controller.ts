@@ -1,7 +1,7 @@
 import type { IncomingMessage, IncomingMessageType } from "@darrenkuro/pong-core";
 import type { FastifyRequest } from "fastify";
 import type { WebSocket } from "fastify";
-import { safeJsonParse } from "@darrenkuro/pong-core";
+import { CLOSING_CODE, safeJsonParse } from "@darrenkuro/pong-core";
 
 export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => {
     const app = req.server;
@@ -11,22 +11,29 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
     conn.username = req.username;
     conn.userDisplayName = req.userDisplayName;
 
+    app.log.info(`handle WebSocket connection for player ${conn.userId}`);
     app.wsService.addConnection(conn);
 
     conn.on("message", async (raw: string) => {
         // Try to parse message payload into JSON object
         const msg = await safeJsonParse<IncomingMessage<IncomingMessageType>>(raw.toString());
-        if (msg.isErr()) return app.log.error("Websocket on message failed to parse JSON");
+        if (msg.isErr()) return app.log.error("websocket on message failed to parse JSON");
+
+        const { type, payload } = msg.value;
+        app.log.debug({ type, payload }, `incoming socket message by user ${conn.userId}`);
 
         // Try to get handler for the message type
         const handler = app.wsService.getHandler(msg.value.type);
-        if (!handler) return app.log.error(`Unhandled message type: ${msg.value.type}`);
+        if (!handler) return app.log.error(`unhandled message type: ${msg.value.type}`);
 
         handler(conn, msg.value.payload);
     });
 
-    conn.on("close", () => {
-        app.wsService.removeConnection(conn);
-        app.log.info(`WebSocket connection closed for player ${conn.userId}`);
+    conn.on("close", (code) => {
+        app.log.info(`socket connection closed for player ${conn.userId}`);
+        app.lobbyService.leave(conn.userId!);
+
+        // Only remove connection if it's not server initiated closing
+        if (code !== CLOSING_CODE.MULTI_CLIENT) app.wsService.removeConnection(conn);
     });
 };

@@ -14,24 +14,28 @@ export const tryLogin = async (payload: LoginBody): Promise<Result<boolean, Erro
 
     const data = res.value;
 
+    // Check if user has TOTP enabled first
     if (data.totpEnabled) {
         const { username, password } = payload;
         authStore.update({ totpRequired: true, username, tempAuthString: password });
         return ok(false);
-    } else {
-        const { username, displayName } = data;
-        authStore.set({
-            isAuthenticated: true,
-            totpRequired: false,
-            username,
-            displayName,
-            tempAuthString: null,
-        });
-
-        establishSocketConn();
-        navigateTo(CONST.ROUTE.HOME);
-        return ok(true);
     }
+
+    // TOTP was not enabled and res is successful, user logged in
+    const { username, displayName } = data;
+    if (!username || !displayName) return err("SERVER_ERROR");
+
+    authStore.set({
+        isAuthenticated: true,
+        totpRequired: false,
+        username,
+        displayName,
+        tempAuthString: null,
+    });
+
+    navigateTo(CONST.ROUTE.HOME);
+
+    return ok(true);
 };
 
 export const tryRegister = async (payload: RegisterBody): Promise<Result<void, ErrorCode>> => {
@@ -39,6 +43,8 @@ export const tryRegister = async (payload: RegisterBody): Promise<Result<void, E
     if (res.isErr()) return err(res.error);
 
     const { username, displayName } = res.value;
+    if (!username || !displayName) return err("SERVER_ERROR");
+
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,
@@ -69,6 +75,8 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
     if (res.isErr()) return err(res.error);
 
     const { displayName } = res.value;
+    if (!displayName) return err("SERVER_ERROR");
+
     authStore.set({
         isAuthenticated: true,
         totpRequired: false,
@@ -76,7 +84,6 @@ export const tryLoginWithTotp = async (): Promise<Result<void, ErrorCode>> => {
         displayName,
         tempAuthString: null,
     });
-    establishSocketConn();
     navigateTo(CONST.ROUTE.HOME);
     return ok();
 };

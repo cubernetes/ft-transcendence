@@ -39,7 +39,7 @@ const fetchLeaderboard = async (n: number): Promise<Result<Record<string, unknow
     }
 };
 
-export const createLeaderboardPage = async (): Promise<HTMLElement[]> => {
+export const createLeaderboardPage = async (): Promise<UIComponent> => {
     // Define how many players to be fetched
     const n = 10;
 

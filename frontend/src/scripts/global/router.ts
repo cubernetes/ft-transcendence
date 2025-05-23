@@ -8,7 +8,7 @@ import { createLobbyPage } from "../ui/pages/LobbyPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
-import { replaceChildren } from "../utils/dom-helper";
+import { dispatchEventDown, replaceChildren } from "../utils/dom-helper";
 
 const ROUTES = {
     landing: createLandingPage,
@@ -32,17 +32,10 @@ const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
     let route = (dest in ROUTES ? dest : CONST.ROUTE.DEFAULT) as Route;
 
-    // Check auth state for protected routes
-    if (PROTECTED_ROUTES.includes(route)) {
-        const authState = authStore.get();
-        // Go to default page if not logged in
-        if (!authState.isAuthenticated) {
-            route = CONST.ROUTE.DEFAULT;
-        }
+    // Check auth state for protected routes and go to default page if not logged in
+    if (PROTECTED_ROUTES.includes(route) && !authStore.get().isAuthenticated) {
+        route = CONST.ROUTE.DEFAULT;
     }
-
-    // Clean up game session when route changes, this probably belongs somewhere else
-    gameStore.update({ isPlaying: false });
 
     // Create the appropriate page as an array of HTMLElement
     const createPage = ROUTES[route];
@@ -55,8 +48,26 @@ const renderRoute = async (dest: string) => {
     showRouter();
 };
 
+const resetState = () => {
+    // Ensure modal overlay is closed if one is open
+    document.getElementById(CONST.ID.MODAL_OVERLAY)?.remove();
+
+    // Ensure modal container is closed properly if one is open
+    const modalCtn = document.getElementById(CONST.ID.MODAL_CTN);
+    if (modalCtn) {
+        dispatchEventDown(modalCtn, new Event("destory"));
+        modalCtn.remove();
+    }
+
+    // Ensure game is purged if one is ongoing
+    const { controller, isPlaying } = gameStore.get();
+    if (isPlaying) controller?.endGame();
+};
+
 /** Navigate to route, default to do nothing if it's already in the route unless force is true */
 export const navigateTo = (dest: Route, force: boolean = false) => {
+    resetState();
+
     const path = `/${dest}`;
 
     // Alread in this route, do nothing unless it's the first route
@@ -67,6 +78,8 @@ export const navigateTo = (dest: Route, force: boolean = false) => {
 };
 
 export const handlePopState = () => {
+    resetState();
+
     // Remove slash
     const dest = location.pathname.slice(1);
 

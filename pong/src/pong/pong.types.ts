@@ -38,14 +38,13 @@ export const UserInputSchema = z.enum(["up", "down", "stop"]);
 
 export type GameMode = "local" | "online" | "ai" | "tournament";
 
-export type Status = "waiting" | "paused" | "ongoing" | "ended";
+export type Status = "waiting" | "paused" | "ongoing" | "ended" | "rendering";
 
 export type EventMap = {
     "wall-collision": null;
     "paddle-collision": null;
     "state-update": { state: State };
     "score-update": { scores: [number, number] };
-    "ball-reset": null; // TODO: check if this is useful, not set up on the backend
     "game-end": {
         winner: 0 | 1;
         hits: [number, number];
@@ -68,8 +67,6 @@ export type PongConfig = {
     paddles: [Paddle, Paddle];
     ball: Ball;
     playTo: number;
-    fps: number;
-    resetDelay: number;
     aiMode: boolean;
     aiDifficulty?: AIDifficulty;
 };

@@ -8,6 +8,7 @@ import { layoutStore } from "../../modules/layout/layout.store";
 import { createEl, replaceChildren } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createContainer } from "../components/Container";
+import { createErrorModal } from "../layout/ErrorModal";
 import { createLanguageButton } from "../layout/LanguageButton";
 import { createLoginForm } from "../layout/LoginForm";
 
@@ -36,21 +37,22 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         click: () => {
             const { canvas } = layoutStore.get();
 
-            // Initilize game components here so browser doesn't warn need user gesture
-            // TODO: This is a problem, if flashes still
-            createRenderer(canvas).then((renderer) => {
+            createRenderer(canvas).then((res) => {
+                if (res.isErr()) return createErrorModal(res.error);
+
                 const engine = createPongEngine();
-                const controller = createGameController(renderer, engine);
+                const controller = createGameController(res.value, engine);
 
+                // TODO: Move this and make this better! damn bad style made me look for this bug for hours
                 gameStore.update({ controller });
-            });
 
-            initAuthState().then(async (state) => {
-                authStore.set(state);
-                if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
+                initAuthState().then(async (state) => {
+                    authStore.set(state);
+                    if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
 
-                const loginFormEl = await createLoginForm(ctaButtonEl);
-                replaceChildren(heroCtn, loginFormEl);
+                    const loginFormEl = await createLoginForm(ctaButtonEl);
+                    replaceChildren(heroCtn, loginFormEl);
+                });
             });
         },
     });

@@ -1,4 +1,4 @@
-import { AudioEngineV2, Engine, SoundState } from "@babylonjs/core";
+import { AudioEngineV2, Engine } from "@babylonjs/core";
 import {
     AdvancedDynamicTexture,
     Button,
@@ -8,6 +8,8 @@ import {
     StackPanel,
     TextBlock,
 } from "@babylonjs/gui";
+import { getText } from "../../locale/locale.utils";
+import { toggleShadows } from "./renderer.light";
 
 // #region: Control components
 /** Set the column and the row definition of the grid */
@@ -18,10 +20,8 @@ const scaleGrid = (grid: Grid) => {
     grid.addColumnDefinition(0.1);
     grid.addColumnDefinition(0.1);
     grid.addColumnDefinition(0.2);
-    grid.addRowDefinition(0.07);
-    grid.addRowDefinition(0.25);
-    grid.addRowDefinition(0.25);
-    grid.addRowDefinition(0.25);
+    grid.addRowDefinition(0.07); // Control panel ratio
+    grid.addRowDefinition(0.93); // Empty
 };
 
 /** Create the shadow toggle button */
@@ -36,23 +36,11 @@ const createShadowButton = (grid: Grid, engine: Engine) => {
     };
 
     // Create shadow button and add it to grid
-    const button = Button.CreateSimpleButton("shadowToggle", "Shadows");
+    const button = Button.CreateSimpleButton("shadowToggle", getText(CONST.TEXT.SHADOWS));
     styleShadowButton(button);
     button.onPointerUpObservable.add(() => {
-        if (engine.shadowsEnabled) {
-            engine.shadowsEnabled = false;
-            localStorage.setItem(CONST.KEY.SHADOWS, "0");
-
-            engine.shadowGenerator.getShadowMap()?.renderList?.splice(0);
-
-            button.background = "gray";
-        } else {
-            engine.shadowsEnabled = true;
-            localStorage.setItem(CONST.KEY.SHADOWS, "1");
-
-            engine.castShadow();
-            button.background = "blue";
-        }
+        toggleShadows(engine);
+        button.background = engine.shadowsEnabled ? "blue" : "gray";
     });
     grid.addControl(button, 0, 2);
 };
@@ -91,7 +79,7 @@ const createSFXButton = (grid: Grid, engine: Engine) => {
 
 /** Create the music toggle button */
 const createMusicButton = (grid: Grid, engine: Engine) => {
-    const button = Button.CreateSimpleButton("bgMusic", "Music");
+    const button = Button.CreateSimpleButton("bgMusic", getText(CONST.TEXT.MUSIC));
     styleSoundButton(button);
     button.background = engine.bgmEnabled ? "green" : "red";
     button.onPointerUpObservable.add(() => {
@@ -117,7 +105,7 @@ const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
     grid.addControl(panelVol, 0, 6);
 
     const header = new TextBlock();
-    header.text = "Volume: 50 %";
+    header.text = `${getText(CONST.TEXT.VOLUME)}: 50 %`;
     header.fontSize = 16;
     header.fontStyle = "italic";
     header.fontFamily = "Calibri";
@@ -136,7 +124,7 @@ const createVolumePanel = (grid: Grid, engine: AudioEngineV2) => {
     slider2.displayThumb = false;
     // slider2.blur;
     slider2.onValueChangedObservable.add(function (value) {
-        header.text = "Volume: " + (value | 0) + " %";
+        header.text = `${getText(CONST.TEXT.VOLUME)}: ` + (value | 0) + " %";
         engine.volume = value / 100;
     });
     panelVol.addControl(slider2);

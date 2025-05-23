@@ -31,12 +31,25 @@ export const createGameService = (app: FastifyInstance) => {
 
         engine.onEvent("game-end", async (payload) => {
             app.wsService.broadcast(players, { type: "game-end", payload });
-
-            // Save game data to database
-            const gameData = toNewGame(session, payload);
-            const tryCreateGame = await create(gameData);
-            if (tryCreateGame.isErr()) return app.log.error(tryCreateGame.error);
+            saveGame(session, payload);
         });
+    };
+
+    const saveGame = async (session: GameSession, payload: Payloads["game-end"]): Promise<void> => {
+        const gameData = toNewGame(session, payload);
+        const tryCreateGame = await create(gameData);
+        if (tryCreateGame.isErr()) return app.log.error(tryCreateGame.error);
+
+        const winnerId = session.players[payload.winner];
+        const tryGetWinner = await app.userService.findById(winnerId);
+
+        const loserId = session.players[payload.winner === 0 ? 1 : 0];
+        const tryGetLoser = await app.userService.findById(loserId);
+
+        if (tryGetWinner.isErr() || tryGetLoser.isErr()) return app.log.error("SERVER_ERROR");
+
+        app.userService.update(winnerId, { wins: tryGetWinner.value.wins + 1 });
+        app.userService.update(loserId, { losses: tryGetLoser.value.losses + 1 });
     };
 
     const toNewGame = (session: GameSession, payload: Payloads["game-end"]): GameInsert => {
@@ -110,6 +123,7 @@ export const createGameService = (app: FastifyInstance) => {
 
     return {
         create,
+        saveGame,
         registerCbHandlers,
         getGamesByUsername,
     };

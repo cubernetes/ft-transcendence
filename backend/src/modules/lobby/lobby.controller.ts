@@ -46,8 +46,11 @@ export const createLobbyController = (app: FastifyInstance) => {
 
     const leave: RouteHandlerMethod = (req, reply) => {
         const { userId } = req;
+        const app = req.server;
         const tryLeaveLobby = app.lobbyService.leave(userId);
-        if (tryLeaveLobby.isErr()) return reply.err(tryLeaveLobby.error);
+
+        // Only log warning and do not send error back since this is used as safe guard
+        if (tryLeaveLobby.isErr()) app.log.warn(tryLeaveLobby.error);
 
         return reply.ok({});
     };

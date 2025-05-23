@@ -1,39 +1,29 @@
+import { Result, err, ok } from "neverthrow";
 import { Engine } from "@babylonjs/core";
 import { createAudioEngine } from "./renderer/renderer.audio";
 
-/**
- * Maybe engine should be initilized only once. Canvas element is persisted. So it's less expensive?
- */
-export const createRenderer = async (canvasEl: HTMLCanvasElement): Promise<Engine> => {
-    const engine = new Engine(canvasEl, true);
-    engine.audio = await createAudioEngine();
+export const createRenderer = async (
+    canvasEl: HTMLCanvasElement
+): Promise<Result<Engine, string>> => {
+    // Try to initialize audio engine, which is independent of scene
+    const tryCreateAudioEngine = await createAudioEngine();
+    if (tryCreateAudioEngine.isErr()) return err(tryCreateAudioEngine.error);
+
+    const renderer = new Engine(canvasEl, true);
+    renderer.audio = tryCreateAudioEngine.value;
 
     // Initialize options
-    engine.shadowsEnabled = localStorage.getItem(CONST.KEY.SFX) !== "0"; // Default true
-    engine.sfxEnabled = localStorage.getItem(CONST.KEY.SFX) !== "0"; // Default true
-    engine.bgmEnabled = localStorage.getItem(CONST.KEY.BGM) !== "0"; // Default true
+    const { SHADOWS, SFX, BGM } = CONST.KEY;
+    renderer.shadowsEnabled = localStorage.getItem(SHADOWS) !== "0"; // Default true
+    renderer.sfxEnabled = localStorage.getItem(SFX) !== "0"; // Default true
+    renderer.bgmEnabled = localStorage.getItem(BGM) !== "0"; // Default true
 
-    return engine;
+    return ok(renderer);
 };
 
 export const disposeScene = (engine: Engine) => {
     if (engine.scene) {
         engine.scene.dispose();
+        delete engine.scene;
     }
-};
-
-/** Dispose everything in a renderer engine */
-export const disposeRenderer = (engine: Engine) => {
-    engine.audio.bgMusic.dispose();
-    engine.audio.ballSound.dispose();
-    engine.audio.bounceSound.dispose();
-    engine.audio.blopSound.dispose();
-    engine.audio.hitSound.dispose();
-    engine.audio.dispose();
-
-    engine.scene.dispose();
-
-    engine.controls.dispose();
-    engine.stopRenderLoop();
-    engine.dispose();
 };

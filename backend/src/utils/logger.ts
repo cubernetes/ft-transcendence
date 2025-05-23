@@ -39,7 +39,7 @@ export function toPlain(obj: any) {
     }
 }
 
-const baseLoggerConfig = {
+const elkLoggerConfig = {
     level: process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug"),
     base: {
         hostname: hostname,
@@ -106,6 +106,30 @@ const baseLoggerConfig = {
     },
 };
 
+const devConsoleLoggerConfig: PinoLoggerOptions = {
+    level: "debug",
+    base: undefined,
+    transport: {
+        target: "pino-pretty",
+        options: {
+            colorize: true,
+            translateTime: "HH:MM:ss Z",
+            ignore: "pid,hostname,reqId,responseTime",
+        },
+    },
+    serializers: {
+        err: formatError,
+        req: (req: any) => ({
+            method: req.method,
+            url: req.url,
+            body: req.body,
+        }),
+        res: (res: any) => ({
+            statusCode: res.statusCode,
+        }),
+    },
+};
+
 // Get logger configuration with appropriate transports
 const getLoggerConfig = (): PinoLoggerOptions => {
     // Always include the console transport for local visibility
@@ -121,16 +145,16 @@ const getLoggerConfig = (): PinoLoggerOptions => {
     // Add ELK transport if LOGSTASH_HOST is defined
     if (process.env.LOGSTASH_HOST) {
         return {
-            ...baseLoggerConfig,
+            ...elkLoggerConfig,
             transport: {
                 targets: [
                     {
                         ...consoleTransport,
-                        level: baseLoggerConfig.level,
+                        level: elkLoggerConfig.level,
                     },
                     {
                         target: "pino-socket",
-                        level: baseLoggerConfig.level,
+                        level: elkLoggerConfig.level,
                         options: {
                             mode: "tcp",
                             address: process.env.LOGSTASH_HOST,
@@ -145,10 +169,12 @@ const getLoggerConfig = (): PinoLoggerOptions => {
     }
 
     // If no LOGSTASH_HOST, just use console transport
-    return {
-        ...baseLoggerConfig,
-        transport: consoleTransport,
-    };
+    return process.env.NODE_ENV === "production"
+        ? {
+              ...elkLoggerConfig,
+              transport: consoleTransport,
+          }
+        : devConsoleLoggerConfig;
 };
 
 export const loggerConfig = getLoggerConfig();

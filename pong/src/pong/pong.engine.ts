@@ -14,172 +14,193 @@ import {
     UserInput,
 } from "./pong.types";
 
-export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
-    const config: PongConfig = cfg;
+/** Angle threshold in radians – avoid trajectories that are too steep */
+const MIN_X_ANGLE = Math.PI / 6; // ±30° from the horizontal
+
+/** Minimal acos – avoid trajectories that are too vertical */
+const MIN_X_RATIO = 0.25; // ~ 75°
+
+/** Max acos – avoid trajectories that are too flat */
+const MAX_X_RATIO = 0.9; // ~ 25°
+
+const RESET_DELAY = 1500;
+const FPS = 60;
+
+export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
+    // Deep clone default then merge overrides
+    const config: PongConfig = deepAssign<PongConfig>(
+        structuredClone(defaultGameConfig),
+        cfg,
+        true
+    );
+
+    // Fully own internal states
+    const scores: [number, number] = [0, 0];
+    const hits: [number, number] = [0, 0];
+    const userInputs: [UserInput, UserInput] = ["stop", "stop"];
+
+    const paddles = [...config.paddles].map((p) => deepAssign({}, p, true)) as [Paddle, Paddle];
+    const ball = deepAssign({}, config.ball, true) as Ball;
+
+    let tickRate = 1000 / FPS;
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let status: Status = "waiting";
+
+    // #region >>>> Event system -------------------------------------------------------------
     const listeners: { [K in keyof EventMap]: Set<EventCb<K>> } = {
         "wall-collision": new Set(),
         "paddle-collision": new Set(),
         "score-update": new Set(),
         "state-update": new Set(),
-        "ball-reset": new Set(),
         "game-end": new Set(),
     };
-    const scores: [number, number] = [0, 0];
-    const hits: [number, number] = [0, 0];
-    const userInputs: [UserInput, UserInput] = ["stop", "stop"];
-    const paddles: [Paddle, Paddle] = [...config.paddles]; // Use value instead of ref
-    const ball: Ball = { ...config.ball }; // Use value instead of ref
-    let tickRate = 1000 / config.fps;
-    let interval: ReturnType<typeof setInterval> | null = null;
-    let status: Status = "waiting";
 
     const emit = <K extends keyof EventMap>(type: K, payload: EventMap[K]) => {
-        listeners[type]?.forEach((cb) => cb(payload));
+        listeners[type].forEach((cb) => cb(payload));
     };
 
     const onEvent = <K extends keyof EventMap>(type: K, cb: EventCb<K>) => {
         listeners[type].add(cb);
     };
+    // #endregion
 
-    const movePaddle = (i: 0 | 1, direction: UserInput): Result<void, ErrorCode> => {
-        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
+    // #region >>>> Movement helpers ---------------------------------------------------------
+    const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
 
+    const movePaddle = (i: 0 | 1, input: UserInput) => {
         const paddle = paddles[i];
+        const lim = config.board.size.depth / 2 - paddle.size.depth / 2;
 
-        const { board } = config;
-        const topLimit = board.size.depth / 2 - paddle.size.depth / 2;
-        const bottomLimit = -board.size.depth / 2 + paddle.size.depth / 2;
-        if (direction === "up") {
-            paddle.pos.z = Math.min(paddle.pos.z + paddle.speed, topLimit);
-        } else if (direction === "down") {
-            paddle.pos.z = Math.max(paddle.pos.z - paddle.speed, bottomLimit);
-        }
-
-        return ok();
+        if (input === "up") paddle.pos.z = clamp(paddle.pos.z + paddle.speed, -lim, lim);
+        if (input === "down") paddle.pos.z = clamp(paddle.pos.z - paddle.speed, -lim, lim);
     };
 
-    const moveBall = (): Result<void, ErrorCode> => {
-        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
-
+    const moveBall = () => {
         ball.pos.x += ball.vec.x;
-        ball.pos.y += ball.vec.y;
         ball.pos.z += ball.vec.z;
 
-        const { board } = config;
-        const topLimit = board.size.depth / 2 - ball.r;
-        const bottomLimit = -board.size.depth / 2 + ball.r;
-
-        // Check collision with top and bottom walls
-        if (ball.pos.z >= topLimit || ball.pos.z <= bottomLimit) {
-            ball.vec.z = -ball.vec.z;
+        const lim = config.board.size.depth / 2 - ball.r;
+        if (Math.abs(ball.pos.z) > lim) {
+            ball.vec.z *= -1;
+            clampAngleRatio();
+            // Snap inside bounds so it won't get stuck
+            ball.pos.z = clamp(ball.pos.z, -lim, lim);
             emit("wall-collision", null);
         }
-        return ok();
+    };
+    // #endregion
+
+    // #region >>>> Collision detection helpers ----------------------------------------------
+    const collidesCircleRect = (ball: Ball, p: Paddle): boolean => {
+        const hx = p.size.width / 2;
+        const hz = p.size.depth / 2;
+        const dx = Math.abs(ball.pos.x - p.pos.x) - hx;
+        const dz = Math.abs(ball.pos.z - p.pos.z) - hz;
+
+        // Clamp to zero => distance from rect surface
+        const closestX = Math.max(dx, 0);
+        const closestZ = Math.max(dz, 0);
+
+        // If the squared distance from the circle center to the rect ≤ r², they overlap
+        return closestX * closestX + closestZ * closestZ <= ball.r * ball.r;
     };
 
-    const detectCollisions = (): Result<void, ErrorCode> => {
-        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
+    const checkPaddleCollision = (idx: 0 | 1): boolean => {
+        const p = paddles[idx];
 
-        const { pos } = ball;
-        const p = paddles;
+        if (!collidesCircleRect(ball, p)) return false;
 
-        // TODO: after paddle collsion, the ball should probably be pushed out a little
-        //       so that it wouldn't get caught in the paddle, known error, fix later
-        // TODO: Check and clean up this logic
-        if (
-            pos.x <= p[0].pos.x + p[0].size.width / 2 + ball.r &&
-            pos.x >= p[0].pos.x - p[0].size.width / 2 - ball.r &&
-            pos.z <= p[0].pos.z + p[0].size.depth / 2 + ball.r &&
-            pos.z >= p[0].pos.z - p[0].size.depth / 2 - ball.r
-        ) {
-            ball.vec.x = -ball.vec.x;
-            hits[0]++;
-            emit("paddle-collision", null);
-        }
+        // Collision confirmed – reflect and nudge the ball out so it can't stick
+        ball.vec.x *= -1;
+        clampAngleRatio();
 
-        if (
-            pos.x >= p[1].pos.x - p[1].size.width / 2 - ball.r &&
-            pos.x <= p[1].pos.x + p[1].size.width / 2 + ball.r &&
-            pos.z <= p[1].pos.z + p[1].size.depth / 2 + ball.r &&
-            pos.z >= p[1].pos.z - p[1].size.depth / 2 - ball.r
-        ) {
-            ball.vec.x = -ball.vec.x;
-            hits[1]++;
-            emit("paddle-collision", null);
-        }
-        return ok();
+        ball.pos.x =
+            idx === 0
+                ? p.pos.x + p.size.width / 2 + ball.r + 0.1
+                : p.pos.x - p.size.width / 2 - ball.r - 0.1;
+        hits[idx]++;
+        emit("paddle-collision", null);
+        return true;
     };
 
-    const detectOutOfBounds = (): Result<void, ErrorCode> => {
-        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
+    // #endregion
 
-        const { pos } = ball;
-        const { board } = config;
-        if (pos.x < -board.size.width / 2) {
+    // #region
+    const detectScore = () => {
+        const half = config.board.size.width / 2;
+        if (ball.pos.x < -half) {
             scores[1]++;
-            emit("score-update", { scores });
             resetBall();
-        } else if (pos.x > board.size.width / 2) {
+            emit("score-update", { scores: [...scores] });
+        }
+        if (ball.pos.x > half) {
             scores[0]++;
-            emit("score-update", { scores });
             resetBall();
+            emit("score-update", { scores: [...scores] });
         }
-
-        return ok();
     };
 
-    const resetBall = (): Result<void, ErrorCode> => {
-        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
+    // #endregion
 
+    const clampAngleRatio = () => {
+        const speed = ball.speed;
+        const absVx = Math.abs(ball.vec.x);
+        if (!speed) return;
+
+        let ratio = absVx / speed;
+        if (ratio < MIN_X_RATIO || ratio > MAX_X_RATIO) {
+            ratio = clamp(ratio, MIN_X_RATIO, MAX_X_RATIO);
+            const newVx = speed * ratio;
+            const newVz = Math.sqrt(speed * speed - newVx * newVx);
+            ball.vec.x = Math.sign(ball.vec.x) * newVx;
+            ball.vec.z = Math.sign(ball.vec.z) * newVz;
+        }
+    };
+
+    const randomizeDirection = () => {
+        let angle: number;
+        do {
+            angle = Math.random() * 2 * Math.PI;
+        } while (Math.abs(Math.cos(angle)) < Math.cos(MIN_X_ANGLE));
+
+        ball.vec.x = ball.speed * Math.cos(angle);
+        ball.vec.z = ball.speed * Math.sin(angle);
+    };
+
+    const resetBall = () => {
         ball.pos = { x: 0, y: 0, z: 0 };
-        ball.vec = { x: 0, y: 0, z: 0 }; // Stop the ball temporarily
-
-        // Probably should be handled by a config var
-        setTimeout(() => {
-            // Randomize ball direction
-            // TODO: This direction shouldn't be too vertical
-            // Also, when the angle become generally too vertical, maybe turn back so it doesn't get stuck for too long?
-            const randomAngle = Math.random() * Math.PI * 2;
-            ball.vec.x = ball.speed * Math.cos(randomAngle);
-            ball.vec.z = ball.speed * Math.sin(randomAngle);
-
-            // Ensures the ball to move at intended speed
-            const speedFactor = ball.speed / Math.sqrt(ball.vec.x ** 2 + ball.vec.z ** 2);
-            ball.vec.x *= speedFactor;
-            ball.vec.z *= speedFactor;
-        }, config.resetDelay);
-        return ok();
+        ball.vec = { x: 0, y: 0, z: 0 };
+        setTimeout(randomizeDirection, RESET_DELAY);
     };
 
-    const checkWins = (): Result<void, ErrorCode> => {
-        if (status !== "ongoing") return err("GAME_STATUS_ERROR");
+    // -----------------------
 
-        const state = getState();
-
-        if (scores.some((n) => n >= config.playTo)) {
-            stop();
-            status = "ended";
-            emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state });
-        }
-
-        return ok();
-    };
-
-    const getState = (): State => ({ status, scores, ball, paddles });
-
-    const getConfig = (): PongConfig => config;
+    const getState = (): State => structuredClone({ status, scores, ball, paddles });
+    const getHits = () => structuredClone(hits); // TODO: be included in state and don't send it separately
+    const getConfig = (): PongConfig => structuredClone(config);
+    const setStatus = (input: Status) => (status = input);
 
     const tick = (): Result<void, ErrorCode> => {
         if (status !== "ongoing") return err("GAME_STATUS_ERROR");
 
         userInputs.forEach((input, i) => movePaddle(i as 0 | 1, input));
         moveBall();
-        detectCollisions();
-        detectOutOfBounds();
-        checkWins();
+        checkPaddleCollision(0);
+        checkPaddleCollision(1);
+        detectScore();
 
-        const state = getState();
-        emit("state-update", { state });
+        // Check if a player has won
+        if (scores.some((n) => n >= config.playTo)) {
+            emit("game-end", {
+                winner: scores[0] > scores[1] ? 0 : 1,
+                hits: [...hits],
+                state: getState(),
+            });
+            stop();
+            return ok();
+        }
+
+        emit("state-update", { state: getState() });
 
         return ok();
     };
@@ -208,14 +229,13 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
 
     const stop = (): Result<void, ErrorCode> => {
         if (status === "ended") return err("GAME_STATUS_ERROR");
-        if (!interval) return err("CORRUPTED_DATA");
-
         status = "ended";
-        clearInterval(interval);
-        interval = null;
 
-        const state = getState();
-        emit("game-end", { winner: scores[0] > scores[1] ? 0 : 1, hits, state });
+        if (interval) {
+            clearInterval(interval);
+            interval = null;
+        }
+
         return ok();
     };
 
@@ -252,5 +272,16 @@ export const createPongEngine = (cfg: PongConfig = defaultGameConfig) => {
         return ok();
     };
 
-    return { start, pause, stop, onEvent, setInput, reset, getConfig };
+    return {
+        start,
+        pause,
+        stop,
+        onEvent,
+        setInput,
+        reset,
+        getConfig,
+        getState,
+        getHits,
+        setStatus,
+    };
 };

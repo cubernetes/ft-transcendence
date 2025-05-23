@@ -2,7 +2,6 @@ import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
 import {
     Ball,
     GameMode,
-    Paddle,
     PongConfig,
     PongEngine,
     PongState,
@@ -10,16 +9,21 @@ import {
     defaultGameConfig,
 } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
+import { createButton } from "../../ui/components/Button";
+import { createModal } from "../../ui/components/Modal";
+import { sendApiRequest } from "../../utils/api";
 import { hideCanvas, hidePageElements, hideRouter, showCanvas } from "../layout/layout.service";
 import { tournamentStore } from "../tournament/tournament.store";
 import { registerHandler } from "../ws/ws.controller";
-import { sendGameAction, sendGameStart } from "../ws/ws.service";
+import { sendGameAction, sendRendererReady } from "../ws/ws.service";
 import { wsStore } from "../ws/ws.store";
 import { disposeScene } from "./game.renderer";
 import { gameStore } from "./game.store";
-import { createScore } from "./objects/objects.score";
-import { pulseBall, pulseLight } from "./renderer/renderer.animations";
-import { showGameOver } from "./renderer/renderer.event";
+import { pulseBall } from "./objects/objects.ball";
+import { updateScore } from "./objects/objects.score";
+import { slideInCamera } from "./renderer/renderer.camera";
+import { showCountdown, showGameOver } from "./renderer/renderer.event";
+import { handleShadows, pulseLight } from "./renderer/renderer.light";
 import { createScene } from "./renderer/renderer.scene";
 
 /** Renderer will be hidden behind controller and controller is the user interface */
@@ -117,35 +121,34 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         engine.onEvent("paddle-collision", handlePaddleCollision);
         engine.onEvent("score-update", ({ scores }) => handleScoreUpdate(scores));
         engine.onEvent("state-update", ({ state }) => handleStateUpdate(state));
-        engine.onEvent("ball-reset", handleBallReset);
-        // TODO: GET NAME
-        // Don't hook this for now because game-end event will be called when going away from page
-        // And that breaks the page (why navigation wasn't working)
-        engine.onEvent("game-end", (evt) => handleEndGame(mode, evt.winner, evt.state));
+        engine.onEvent("game-end", ({ winner, state }) => handleEndGame(mode, winner, state));
     };
 
     const attachOnlineSocketEvents = () => {
         const { isConnected, handlers } = wsStore.get();
-        if (!isConnected) return log.error("Socket is not connected when attaching events");
+        if (!isConnected) return log.error("Fail to attach events: no live socket");
 
         registerHandler("wall-collision", handleWallCollision, handlers);
         registerHandler("paddle-collision", handlePaddleCollision, handlers);
         registerHandler("state-update", ({ state }) => handleStateUpdate(state), handlers);
         registerHandler("score-update", ({ scores }) => handleScoreUpdate(scores), handlers);
-        registerHandler("ball-reset", handleBallReset, handlers);
-        // TODO: Get name
         registerHandler(
             "game-end",
-            (evt) => handleEndGame("online", evt.winner, evt.state),
+            ({ winner, state }) => handleEndGame("online", winner, state),
             handlers
         );
     };
 
+    // TODO: move chunk of this to objects.ball
     const updateBall = (newBall: Ball) => {
-        const { x, z } = renderer.ball.position;
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update ball: no active scene");
+
+        const ball = scene.getMeshByName(CONST.NAME.BALL)!;
+        const { x, z } = ball.position;
         const oldBallPos = { x, z };
         // Set new position
-        renderer.ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);
+        ball.position.set(newBall.pos.x, newBall.pos.y, newBall.pos.z);
 
         // Rotation: movement in XZ-plane
         const dx = newBall.pos.x - oldBallPos.x;
@@ -156,29 +159,47 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
         // Convert angle and axis to quaternion
         const q = Quaternion.RotationAxis(axis, angle);
-        renderer.ball.rotationQuaternion = q.multiply(renderer.ball.rotationQuaternion!);
+        ball.rotationQuaternion = q.multiply(ball.rotationQuaternion!);
     };
 
-    const updateLeftPaddle = ({ x, y, z }: Position3D) => renderer.leftPaddle.position.set(x, y, z);
+    const updateLeftPaddle = ({ x, y, z }: Position3D) => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update left paddle: no active scene");
 
-    const updateRightPaddle = ({ x, y, z }: Position3D) =>
-        renderer.rightPaddle.position.set(x, y, z);
+        const paddle = scene.getMeshByName(CONST.NAME.LPADDLE)!;
+        paddle.position.set(x, y, z);
+    };
+
+    const updateRightPaddle = ({ x, y, z }: Position3D) => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update right paddle: no active scene");
+
+        const paddle = scene.getMeshByName(CONST.NAME.RPADDLE)!;
+        paddle.position.set(x, y, z);
+    };
 
     const handleScoreUpdate = (scores: [number, number]) => {
-        // TODO: duplicate code
-        const scorePos = new Vector3(0, 1, defaultGameConfig.board.size.depth / 2 + 0.5);
-        createScore(renderer, scores, scorePos);
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to update score: no active scene");
+
+        updateScore(scene, scores);
+
         if (renderer.sfxEnabled) {
             renderer.audio.ballSound.play();
         }
-        pulseLight(renderer.directionalLight, renderer.scene);
+
+        pulseLight(scene);
     };
 
     const handleWallCollision = () => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to handle wall collision: no active scene");
+
         if (renderer.sfxEnabled) {
             renderer.audio.ballSound.play();
         }
-        pulseBall(renderer.ballMat, renderer.scene);
+
+        pulseBall(scene);
     };
 
     const handlePaddleCollision = () => {
@@ -187,29 +208,45 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         }
     };
 
-    const handleBallReset = () => {
-        if (renderer.sfxEnabled) {
-            renderer.audio.ballSound.play();
-        }
-    };
+    const handleEndGame = async (mode: GameMode, winnerIdx: number, state: PongState) => {
+        const { scene } = renderer;
+        if (!scene) return log.warn("Fail to handle end game: no active scene");
 
-    const handleEndGame = async (mode: GameMode, winner: number, state: PongState) => {
+        scene.stopAnimation(scene.activeCamera);
+        countdownController.abort();
+
         const { playerNames } = gameStore.get();
-        const winnerName = playerNames[winner];
-        showGameOver(renderer.scene, renderer.camera, winnerName);
+        const winnerName = playerNames[winnerIdx];
+        showGameOver(scene, winnerName);
+
         if (mode === "tournament") {
             const { controller } = tournamentStore.get();
             if (!controller) return log.error("Tournament controller not found");
             await controller.handleEndTournamentMatch(winnerName, state);
-            setTimeout(() => {
-                navigateTo("tournament", true);
-            }, 2000);
         }
-        // Dispose stuff right away? Probably not..
+
+        gameStore.update({ status: "ended" });
+        setTimeout(() => {
+            const leaveBtn = createButton({
+                text: CONST.TEXT.LEAVE,
+                tw: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition disabled:opacity-50",
+                click: () => {
+                    const dest = mode === "tournament" ? "tournament" : CONST.ROUTE.HOME;
+                    endGame();
+                    closeModal();
+                    navigateTo(dest, true);
+                },
+            });
+
+            const closeModal = createModal({
+                children: [leaveBtn],
+                tw: "bg-transparent",
+                exitable: false,
+            });
+        }, 2000);
     };
 
     const handleStateUpdate = (state: PongState) => {
-        // log.debug(state);
         updateBall(state.ball);
         updateLeftPaddle(state.paddles[0].pos);
         updateRightPaddle(state.paddles[1].pos);
@@ -217,31 +254,33 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const resizeListener = () => renderer.resize();
 
-    const startRenderer = (config: PongConfig) => {
-        renderer.scene = createScene(renderer, config);
-        if (renderer.bgmEnabled) renderer.audio.bgMusic.play();
-        if (renderer.shadowsEnabled) renderer.castShadow();
+    let countdownController: AbortController;
 
-        renderer.runRenderLoop(() => renderer.scene.render());
+    const startRenderer = async () => {
+        const { scene } = renderer;
+        if (!scene) return log.error("Fail to start renderer: no active scene");
+
+        if (renderer.bgmEnabled) renderer.audio.bgMusic.play();
 
         window.addEventListener("resize", resizeListener);
-
-        // Initial scale
+        renderer.runRenderLoop(() => scene.render());
         requestAnimationFrame(() => renderer.resize());
+        handleShadows(renderer);
+
+        await slideInCamera(scene);
+        countdownController = new AbortController();
+        await showCountdown(scene, countdownController.signal);
     };
 
     /** Destroy the current game session */
     const destroy = () => {
-        log.debug("Game controller destroy triggered");
-        hideCanvas();
-
         // Destroy renderer related stuff
         disposeScene(renderer);
         renderer.stopRenderLoop();
 
+        renderer.audio.bgMusic.stop();
+
         // Reset engine
-        // When navigating with back and forward button, engine cannot emit game over
-        // need new logic, maybe add "quit" to differentiate
         engine.stop();
 
         // Remove event listeners
@@ -251,44 +290,61 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
 
     const startLocalGame = (mode: GameMode, config: PongConfig) => {
         engine.reset(config);
-        if (mode === "ai") {
-            attachAiControl();
-        } else {
-            attachLocalControl();
-        }
+        mode === "ai" ? attachAiControl() : attachLocalControl();
         attachLocalEngineEvents(mode);
-        engine.start(); // get config
-        startRenderer(config); // send config to renderer instead of using default
+        startRenderer().then(engine.start);
 
-        gameStore.update({ isPlaying: true });
+        gameStore.update({ isPlaying: true, mode, status: "ongoing" });
     };
 
-    const startOnlineGame = (config: PongConfig) => {
+    // Actively start online game (host)
+    const startOnlineGame = () => {
         attachOnlineControl();
         attachOnlineSocketEvents();
-        startRenderer(config);
+        startRenderer().then(sendRendererReady);
+
+        gameStore.update({ isPlaying: true, mode: "online", status: "ongoing" });
     };
 
     const startGame = (mode: GameMode, config: PongConfig = defaultGameConfig) => {
+        renderer.scene = createScene(renderer, config);
+
         hidePageElements();
         hideRouter();
         showCanvas();
 
-        switch (mode) {
-            case "local":
-            case "tournament":
-            case "ai":
-                startLocalGame(mode, config);
-                break;
-            case "online":
-                startOnlineGame(config);
-                break;
-            default:
-        }
+        mode === "online" ? startOnlineGame() : startLocalGame(mode, config);
     };
 
-    return {
-        destroy,
-        startGame,
+    // Frontend handling of leaving game
+    const endGame = () => {
+        // User try to end the game when it is onging
+        // if (status && status !== "ended") {
+        //     const msg =
+        //         mode === "online"
+        //             ? "You will lose the current game, are you sure you want to leave?"
+        //             : "The current game will be discarded, are you sure you want to leave?";
+        //     const confirmed = confirm(msg);
+        //     if (!confirmed) return false;
+
+        //     if (mode === "online") sendApiRequest.post(CONST.API.LEAVE);
+        // }
+
+        hideCanvas();
+        destroy();
+
+        sendApiRequest.post(CONST.API.LEAVE);
+
+        // Reset game store
+        gameStore.update({
+            isPlaying: false,
+            mode: null,
+            status: null,
+            playerNames: ["", ""],
+            lobbyId: "",
+            lobbyHost: false,
+        });
     };
+
+    return { startGame, endGame };
 };

@@ -1,4 +1,4 @@
-import type { GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
+import type { GetMePayload } from "@darrenkuro/pong-core";
 import { navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createStatus } from "../../ui/components/Status";
@@ -11,8 +11,8 @@ import { tryLoginWithTotp } from "./auth.service";
 type AuthState = {
     isAuthenticated: boolean;
     totpRequired: boolean;
-    username: string | null | undefined;
-    displayName: string | null | undefined;
+    username: string | null;
+    displayName: string | null;
     tempAuthString: string | null;
 };
 
@@ -41,9 +41,7 @@ export const initAuthState = async (): Promise<AuthState> => {
 export const authStore = createStore<AuthState>(emptyAuthState);
 
 authStore.subscribe(async (state) => {
-    log.debug("AuthStore subscriber trigged");
-
-    // Replace login form with totp modal if totp is being required
+    // Replace login form with totp modal if totp is required
     if (state.totpRequired) {
         const el = document.getElementById(CONST.ID.LOGIN_FORM);
         if (!el) return log.error("Fail to find login form: auth store, totpRequired");
@@ -62,10 +60,12 @@ authStore.subscribe(async (state) => {
         return;
     }
 
-    // Redirect to default page and close socket connection once logged out
+    // Close socket connection and redirect to default page once logged out
     if (!state.isAuthenticated) {
-        navigateTo(CONST.ROUTE.DEFAULT);
         closeSocketConn();
+        navigateTo(CONST.ROUTE.DEFAULT);
         return;
     }
+
+    establishSocketConn();
 });

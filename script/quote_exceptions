@@ -32,3 +32,5 @@ cli/src/WebSocketManager.ts:        // console.log(`[SEND] ${response}`);
 # Other exceptions
 vault/README.md:    # `env` will exec itself, so that's fine as well.
 vault/README.md:    # which is also why we have extra qoutes around this: '"\$@"'
+./vault/README.md:    # `env` will exec itself, so that's fine as well.
+./vault/README.md:    # which is also why we have extra qoutes around this: '"\$@"'

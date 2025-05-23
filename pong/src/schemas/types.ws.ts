@@ -1,6 +1,10 @@
 import { EventMap, PongConfig, UserInput } from "../pong/pong.types";
 
-export type IncomingMessageType = "game-start" | "game-action" | "lobby-update";
+export const CLOSING_CODE = {
+    MULTI_CLIENT: 4000,
+};
+
+export type IncomingMessageType = "game-start" | "game-action" | "lobby-update" | "renderer-ready";
 
 export type OutgoingMessageType = keyof EventMap | "game-start" | "lobby-update" | "lobby-remove";
 
@@ -8,8 +12,10 @@ export type MessageType = IncomingMessageType | OutgoingMessageType;
 
 export type IncomingMessagePayloads = {
     "game-start": null;
-    "lobby-update": { playTo: number };
+    "game-quit": null;
     "game-action": { action: UserInput };
+    "lobby-update": { playTo: number };
+    "renderer-ready": null;
 };
 
 export type OutgoingMessagePayloads = EventMap & {

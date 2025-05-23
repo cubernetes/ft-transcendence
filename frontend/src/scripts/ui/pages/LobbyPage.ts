@@ -2,6 +2,7 @@ import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { gameStore } from "../../modules/game/game.store";
 import { sendGameStart } from "../../modules/ws/ws.service";
+import { wsStore } from "../../modules/ws/ws.store";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
 import { createCopyButton } from "../components/Button";
@@ -15,8 +16,9 @@ import { createStatus } from "../components/Status";
 export const createLobbyPage = (): UIComponent => {
     const { lobbyId, lobbyHost, playerNames, playTo } = gameStore.get();
 
-    log.debug("Create lobby page");
+    log.debug("Create lobby page???");
     log.debug(gameStore.get());
+    log.debug(wsStore.get());
 
     const titleEl = createHeading({ text: "Lobby" });
     const lineHr = createEl("hr", "border-t-2 border-dotted border-white mb-6");
@@ -46,7 +48,7 @@ export const createLobbyPage = (): UIComponent => {
     // Players
     // TODO: add avatar maybe
     const player1P = createParagraph({
-        text: playerNames[0] == "" ? authStore.get().displayName! : playerNames[0],
+        text: lobbyHost ? authStore.get().displayName! : playerNames[0],
         id: CONST.ID.LOBBY_P1,
         tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-white p-2 w-full mr-2",
     });
@@ -86,7 +88,7 @@ export const createLobbyPage = (): UIComponent => {
         });
         if (tryUpdate.isErr()) return showErr(tryUpdate.error);
 
-        showOk("Successfully updated");
+        showOk("Successfully updated"); // TODO: Translation
     };
 
     const startBtnCb = () => {
@@ -105,8 +107,9 @@ export const createLobbyPage = (): UIComponent => {
         navigateTo("play");
     };
 
+    const { UPDATE, START, LEAVE } = CONST.TEXT;
     const ctaBtnGrp = createButtonGroup({
-        texts: ["update", "start", "leave"],
+        texts: [UPDATE, START, LEAVE],
         cbs: [updateBtnCb, startBtnCb, leaveBtnCb],
         twBtn: "text-xl p-2 shadow-md",
         twCtn: "flex justify-evenly items-center mt-4",
@@ -133,22 +136,12 @@ export const createLobbyPage = (): UIComponent => {
         children: [titleEl, lineHr, infoEl, lobbyIdCtn, playerCtn, configCtn, ctaBtnGrp, statusEl],
     });
 
-    const unsubscribeGameStore = gameStore.subscribe(
-        ({ lobbyId, playerNames, playTo, isPlaying, controller }) => {
-            log.debug("GameStore subscriber in lobby!");
-            log.debug(gameStore.get());
+    const unsubscribeGameStore = gameStore.subscribe(({ playerNames, playTo }) => {
+        player1P.textContent = playerNames[0];
+        player2P.textContent = playerNames[1] ?? "Waiting";
 
-            player1P.textContent = playerNames[0];
-            player2P.textContent = playerNames[1] ?? "Waiting";
-
-            playToInput.value = String(playTo);
-
-            // When host leave, lobby is removed
-            if (!lobbyId) navigateTo(CONST.ROUTE.HOME);
-
-            if (isPlaying) controller?.startGame("online");
-        }
-    );
+        playToInput.value = String(playTo);
+    });
 
     container.addEventListener("destory", () => {
         unsubscribeGameStore();

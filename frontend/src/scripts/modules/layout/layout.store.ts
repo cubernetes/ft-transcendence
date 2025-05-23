@@ -1,7 +1,9 @@
 import { handlePopState, navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { hydrateHeader } from "../../ui/layout/Header";
+import { sendApiRequest } from "../../utils/api";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { gameStore } from "../game/game.store";
 
 type LayoutState = {
     root: HTMLElement;
@@ -50,7 +52,7 @@ layoutStore.subscribe((state) => {
         window.addEventListener("popstate", handlePopState);
 
         // Navigate To default page
-        // Should try to get the location.pathname, i.e quicplay
+        // TODO: Should try to get the location.pathname, i.e quickplay
         navigateTo(CONST.ROUTE.DEFAULT, true);
     }
 });

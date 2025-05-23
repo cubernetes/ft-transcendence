@@ -9,17 +9,17 @@ export const createGameController = (app: FastifyInstance) => {
         if (tryGetSession.isErr()) return app.log.error(tryGetSession.error);
 
         const session = tryGetSession.value;
-        const { engine, players, playerNames } = session;
+        const { players, playerNames, engine } = session;
 
         // Guard against wrong number of players
-        if (players.length !== 2) return app.log.error("Fail to start game: wrong player count");
+        if (players.length !== 2) return app.log.error("fail to start game: wrong player count");
 
-        // Register event handlers and start the engine
+        // Register event handlers
         app.gameService.registerCbHandlers(session);
-        engine.start();
 
         // Notify the guest player
         app.wsService.send(players[1], { type: "game-start", payload: { playerNames } });
+        engine.setStatus("rendering");
     };
 
     const action = (conn: WebSocket, payload: Payloads["game-action"]): void => {
@@ -32,9 +32,16 @@ export const createGameController = (app: FastifyInstance) => {
         const { engine, players } = tryGetSession.value;
         const index = players.findIndex((p) => p === userId);
 
-        if (index !== 0 && index !== 1) return app.log.error("Fail to set action: wrong index");
+        if (index !== 0 && index !== 1) return app.log.error("fail to set action: wrong index");
         engine.setInput(index, payload.action);
     };
 
-    return { start, action };
+    const ready = (conn: WebSocket, _: Payloads["renderer-ready"]): void => {
+        // Try to get game session
+        const { userId } = conn;
+        const trySetReady = app.lobbyService.setReady(userId!);
+        if (trySetReady.isErr()) return app.log.error(trySetReady.error);
+    };
+
+    return { start, action, ready };
 };

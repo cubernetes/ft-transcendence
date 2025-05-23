@@ -1,7 +1,6 @@
 import type { OutgoingMessageHandler, OutgoingMessageType } from "@darrenkuro/pong-core";
 import { createStore } from "../../global/store";
 
-// What other data should be stored? start time? duration? names?
 type WsState = {
     isConnected: boolean;
     conn: WebSocket | null;

@@ -1,62 +1,46 @@
 import { Result, err, ok } from "neverthrow";
 import { Engine, IFontData, MeshBuilder, Scene, Vector3 } from "@babylonjs/core";
+import { PongConfig } from "@darrenkuro/pong-core";
 
-type ScoreConfig = {
-    name: string;
-    font: IFontData;
-    options: {
-        size: number;
-        resolution: number;
-        depth: number;
+const loadFont = async (url: string): Promise<Result<IFontData, string>> => {
+    try {
+        const res = await fetch(url);
+        if (!res.ok) return err("Fail to load font");
+
+        const json = await res.json();
+        if (!json.glyphs) return err("Missing glyphs in font data");
+
+        return ok(json as IFontData);
+    } catch (error) {
+        return err("Fail to load font");
+    }
+};
+
+const printScore = async (scene: Scene, scores: [number, number], pos: Vector3) => {
+    const tryLoadFont = await loadFont(`${CONST.DIR.FONTS}/Montserrat_Regular.json`);
+    if (tryLoadFont.isErr()) return log.error(tryLoadFont.error);
+
+    const print = `${scores[0]} : ${scores[1]}`;
+    const font = tryLoadFont.value;
+    const options = {
+        size: 2,
+        resolution: 8,
+        depth: 1,
     };
+    const score = MeshBuilder.CreateText(CONST.NAME.SCORE, print, font, options, scene);
+    if (!score) return log.error("Fail to print score: Meshbuilder");
+
+    score.position = pos;
 };
 
-const scoreConfig = async (): Promise<Result<ScoreConfig, Error>> => {
-    // TODO: change this
-    const font = await (await fetch(`${CONST.DIR.FONTS}/Montserrat_Regular.json`)).json();
-    if (!font) {
-        return err(new Error("Failed to load font data"));
-    }
-
-    return ok({
-        name: "scorePrint",
-        font: font,
-        options: {
-            size: 2,
-            resolution: 8,
-            depth: 1,
-        },
-    });
+export const createScore = async (scene: Scene, config: PongConfig) => {
+    const pos = new Vector3(0, 1, config.board.size.depth / 2 + 0.5);
+    printScore(scene, [0, 0], pos);
 };
 
-export const createScore = async (engine: Engine, scores: [number, number], pos: Vector3) => {
-    const { scene } = engine;
-    const config = await scoreConfig();
-
-    if (config.isErr()) {
-        return log.error(config.error.message);
-    }
-
-    const { name, font, options } = config.value;
-
-    const scorePrint = MeshBuilder.CreateText(
-        name,
-        `${scores[0]} : ${scores[1]}`,
-        font,
-        options,
-        scene
-    );
-
-    if (!scorePrint) {
-        return log.error("Score print failed");
-    }
-
-    scorePrint.position = pos;
-
-    // TODO: Change this
-    if (engine.score) {
-        engine.score.dispose();
-        // engine.score = null;
-    }
-    engine.score = scorePrint;
+export const updateScore = async (scene: Scene, scores: [number, number]) => {
+    const oldScore = scene.getMeshByName(CONST.NAME.SCORE)!;
+    const pos = oldScore.position.clone();
+    oldScore.dispose();
+    printScore(scene, scores, pos);
 };

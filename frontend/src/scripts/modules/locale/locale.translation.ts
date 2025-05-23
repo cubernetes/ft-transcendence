@@ -178,6 +178,12 @@ export const TEXT_MAP = {
         fr: "Rejoindre un salon",
         es: "Unirse a la sala",
     },
+    LEAVE: {
+        en: "Leave",
+        de: "Leave-de", // TRANSLATION_NEEDED
+        fr: "Leave-fr", // TRANSLATION_NEEDED
+        es: "Leave-es", // TRANSLATION_NEEDED
+    },
 
     TOURNAMENT: {
         en: "Tournament",
@@ -234,28 +240,28 @@ export const TEXT_MAP = {
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
     WALLET_CONNECT: {
-        en: "🔌 Store Results on the Blockchain",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        en: "{icon} Store Results on the Blockchain",
+        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
+        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
     GET_TOURNAMENT: {
-        en: "📖 Get Tournament History",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        en: "{icon} Get Tournament History",
+        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
+        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
     RECORD_TOURNAMENT: {
-        en: "📝 Record Game",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        en: "{icon} Record Game",
+        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
+        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
     RESTART_TOURNAMENT: {
-        en: "🔁 Start Another Tournament",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        en: "{icon} Start Another Tournament",
+        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
+        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
     CHART_PERFROMANCE: {
         en: "Pong Game Performance",
@@ -263,6 +269,33 @@ export const TEXT_MAP = {
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
+
+    // Game options
+    SHADOWS: {
+        en: "Shadows",
+        de: "Shadows-de", // TRANSLATION_NEEDED
+        fr: "Shadows-fr", // TRANSLATION_NEEDED
+        es: "Shadows-es", // TRANSLATION_NEEDED
+    },
+    MUSIC: {
+        en: "Music",
+        de: "Music-de", // TRANSLATION_NEEDED
+        fr: "Music-fr", // TRANSLATION_NEEDED
+        es: "Music-es", // TRANSLATION_NEEDED
+    },
+    VOLUME: {
+        en: "Volume",
+        de: "Volume-de", // TRANSLATION_NEEDED
+        fr: "Volume-fr", // TRANSLATION_NEEDED
+        es: "Volume-es", // TRANSLATION_NEEDED
+    },
+    GAME_OVER: {
+        en: "Game over",
+        de: "Game over-de", // TRANSLATION_NEEDED
+        fr: "Game over-fr", // TRANSLATION_NEEDED
+        es: "Game over-es", // TRANSLATION_NEEDED
+    },
+
     // Server error codes
     USER_NOT_FOUND: {
         en: "User not found",
@@ -399,10 +432,10 @@ export const TEXT_MAP = {
         es: "No tournament started.", // TRANSLATION_NEEDED
     },
     WALLET_CONNECT_ERROR: {
-        en: "❌ Wallet not detected. Please install a wallet like MetaMask.",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        en: "{icon} Wallet not detected. Please install a wallet like MetaMask.",
+        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
+        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
     GET_TOURNAMENT_ERROR: {
         en: "Unable to get tournament history.",

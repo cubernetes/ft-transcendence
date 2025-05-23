@@ -14,12 +14,9 @@ type Opts = { text: string; tw?: string; id?: string };
 export const createParagraph = ({ text, tw = "", id }: Opts): HTMLElement => {
     const BASE_TW = "text-xl text-black";
 
-    const resolvedText = isValidKey(text) ? getText(text) : text;
-    const attributes = isValidKey(text) ? { [CONST.ATTR.I18N_TEXT]: text } : undefined;
-
     const twStyle = twMerge(BASE_TW, tw);
 
-    const paragraph = createEl("p", twStyle, { text: resolvedText, attributes });
+    const paragraph = createEl("p", twStyle, { text });
     if (id) paragraph.setAttribute("id", id);
 
     return paragraph;

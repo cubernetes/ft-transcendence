@@ -5,6 +5,7 @@ import { createEl } from "../../utils/dom-helper";
 // Structure of the options to be passed in, esay to extend
 type Opts = {
     text?: string;
+    i18nVars?: Record<string, string | number>;
     tw?: string;
     click?: () => void;
     type?: "submit" | "reset";
@@ -19,6 +20,7 @@ type Opts = {
  */
 export const createButton = ({
     text = "",
+    i18nVars,
     tw = "",
     click,
     type,
@@ -30,13 +32,11 @@ export const createButton = ({
     // maybe select-none? dones't seem to be needed, disabled:opacity-50 font-medium transition
     // inline-block
 
-    const resolvedText = isValidKey(text) ? getText(text) : text;
-    const attributes = isValidKey(text) ? { [CONST.ATTR.I18N_TEXT]: text } : undefined;
-    const props = type ? { type } : undefined;
     const twStyle = twMerge(BASE_TW, tw);
+    const props = type ? { type } : undefined;
     const events = click ? { click } : undefined;
 
-    const button = createEl("button", twStyle, { text: resolvedText, attributes, props, events });
+    const button = createEl("button", twStyle, { text, i18nVars, props, events });
 
     if (innerHTML) button.innerHTML = innerHTML;
 

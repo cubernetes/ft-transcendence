@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
-import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
 import { type JwtPayload, TotpSetupPayload, userSchemas } from "@darrenkuro/pong-core";
@@ -10,10 +10,10 @@ export const createAuthService = (app: FastifyInstance) => {
     const { jwt } = app;
     const saltRounds = 10;
 
-    const hashPassword = (password: string): Promise<string> => bcrypt.hash(password, saltRounds);
+    const hashPassword = (password: string): Promise<string> => bcryptjs.hash(password, saltRounds);
 
     const comparePassword = (password: string, hash: string): Promise<boolean> =>
-        bcrypt.compare(password, hash);
+        bcryptjs.compare(password, hash);
 
     // TODO: exp to be defined in jwt plugin; also, maybe use access/refresh token?
     // With saving jwt to cookies, figure out how to handle expiration
