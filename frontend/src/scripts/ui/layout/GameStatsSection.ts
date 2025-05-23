@@ -131,7 +131,7 @@ export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
         if (!mapped) return null;
         return { gameId: index + 1, ...mapped };
     });
-    const chartEl = createEl("canvas", "w-full max-h-[700px]", {
+    const chartEl = createEl("canvas", "w-full max-h-[700px] mx-auto", {
         attributes: { id: "game-stats-chart" },
     });
 
