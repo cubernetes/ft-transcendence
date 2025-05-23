@@ -32,6 +32,7 @@ export class GameManager {
 
     private activeGame: string | null = null;
 
+    private currentLobbyId: string | null = null;
     private remoteGameId: string | null = null;
     private remotePlayerIndex: number | null = null;
     private opponentId: number | null = null;
@@ -90,24 +91,35 @@ export class GameManager {
         if (!this.wsManager) {
             this.wsManager = new WebSocketManager(SERVER_URL);
         }
-        this.wsManager.active = true;
+        this.setWSActive(true);
         this.renderer.updateResolution();
 
-        // Listen for game-start and lobby-remove events
-        const onGameStart = () => {
-            return this.startRemoteGame();
-        };
+        let removedFromLobby = false;
 
-        const onLobbyRemove = () => {
-            console.log("You have been removed from the lobby.");
-            this.wsManager.active = false;
-            return promptRemotePlayMenu("You have left the lobby.");
-        };
+        function onLobbyRemove() {
+            if (!removedFromLobby) {
+                this.setWSActive(false);
+                removedFromLobby = true;
+                this.wsManager.off("game-start", onGameStart);
+                return promptRemotePlayMenu("You have left the lobby.");
+            }
+        }
+        function onGameStart() {
+            this.wsManager.off("lobby-remove", onLobbyRemove);
+            this.startRemoteGame();
+        }
 
         this.wsManager.once("game-start", onGameStart);
         this.wsManager.once("lobby-remove", onLobbyRemove);
 
-        return askLobbyLeave();
+        await askLobbyLeave(this.currentLobbyId);
+
+        if (!removedFromLobby) {
+            this.setWSActive(false);
+            this.wsManager.off("game-start", onGameStart);
+            this.wsManager.off("lobby-remove", onLobbyRemove);
+            return promptRemotePlayMenu("You have left the lobby.");
+        }
     }
 
     async startRemoteGame() {
@@ -144,6 +156,14 @@ export class GameManager {
         this.wsManager.sendGameStart();
 
         this.startRemoteGame();
+    }
+
+    setCurrentLobbyId(lobbyId: string | null) {
+        this.currentLobbyId = lobbyId;
+    }
+
+    getCurrentLobbyId(): string | null {
+        return this.currentLobbyId;
     }
 
     setRemoteGame(gameID: string, opponent: number, playerID: number) {

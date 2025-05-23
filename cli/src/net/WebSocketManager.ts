@@ -93,6 +93,7 @@ export class WebSocketManager extends EventEmitter {
                     this.emit("game-start");
                     break;
                 case "game-end":
+                    this.active = false;
                     gameManager.showRemoteWinner(message.payload.winner);
                     break;
                 case "score-update":
