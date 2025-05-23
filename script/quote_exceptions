@@ -34,3 +34,9 @@ vault/README.md:    # `env` will exec itself, so that's fine as well.
 vault/README.md:    # which is also why we have extra qoutes around this: '"\$@"'
 ./vault/README.md:    # `env` will exec itself, so that's fine as well.
 ./vault/README.md:    # which is also why we have extra qoutes around this: '"\$@"'
+elk/kibana/entrypoint.sh:# eval printf '"%s\n"' "$env_params"
+elk/elasticsearch/entrypoint.sh:# eval printf '"%s\n"' "$env_params"
+elk/logstash/entrypoint.sh:# eval printf '"%s\n"' "$env_params"
+frontend/entrypoint.sh:# eval printf '"%s\n"' "$env_params"
+vault/README.md:    # eval printf '"%s\\n"' "\$env_params"
+caddy/entrypoint.sh:# eval printf '"%s\n"' "$env_params"
