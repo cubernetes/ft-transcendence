@@ -69,7 +69,7 @@ actual-prod: clean-frontend-volume ensure-secret-files build-curl-base
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod: clean-frontend-volume ensure-secret-files build-curl-bases
+prod: clean-frontend-volume ensure-secret-files build-curl-base
 	@$(call dev-env,     \
 		up               \
 		--remove-orphans \
