@@ -32,6 +32,9 @@ export class GameManager {
 
     private activeGame: string | null = null;
 
+    // LOGIN-data:
+    private displayName: string | null = null;
+
     private currentLobbyId: string | null = null;
     private remoteGameId: string | null = null;
     private remotePlayerIndex: number | null = null;
@@ -164,6 +167,14 @@ export class GameManager {
 
     getCurrentLobbyId(): string | null {
         return this.currentLobbyId;
+    }
+
+    setDisplayName(name: string) {
+        this.displayName = name;
+    }
+
+    getDisplayName(): string | null {
+        return this.displayName;
     }
 
     setRemoteGame(gameID: string, opponent: number, playerID: number) {
