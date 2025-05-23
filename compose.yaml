@@ -129,8 +129,6 @@ services:
             - "./.secrets/elasticsearch_vault_token:/run/secrets/elasticsearch_vault_token"
         user: root # Run as root to ensure we can set permissions
         environment: *env-common
-        ports:
-            - "${ELASTICSEARCH_PORT:-9200}:${ELASTICSEARCH_PORT:-9200}"
         networks:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
@@ -150,10 +148,6 @@ services:
             - "logstash-data:/usr/share/logstash/data/"
             - "elasticsearch-certs:/etc/logstash/config/certs/"
             - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
-        ports:
-            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"
-            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/udp"
-            - "${LOGSTASH_API_PORT:-9600}:${LOGSTASH_API_PORT:-9600}"
         environment: *env-common
         networks:
             ft-transcendence-net:
