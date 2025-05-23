@@ -193,17 +193,24 @@ Let's say your service is called `foo`, then the steps would be the following:
     ### Customization Point 1 ###
     FROM foo:1.42.0
 
-    # If the base image doesn't even have a shell, use a multistage build to get one.
+    # Might want to become root, but don't forget to change it back later
+    # USER 0
 
-    # Install and curl or wget and jq (or use stage from above)
-    RUN apk/apt add/install curl/wget jq
+    # If the base image doesn't even have bash, use a multistage build to get one.
+
+    # Install and curl or wget and jq (or use stage from above) and bash to preserve
+    # weird environment variables
+    RUN apk/apt add/install curl/wget jq bash
 
     COPY --chmod=755 <<EOF /entrypoint.sh
-    #!/bin/sh
+    #!/bin/bash
+    #Must be bash since sh (specifically dash) sanitizes all environment variables which are not
+    #valid identifiers (e.g. the case for "bootstrap.memory_lock=true" in elk). Bash passes them through, which
+    #is in line with POSIX.
 
     set -e # exit on any error
     set -u # treat failed expansion as error
-    # set -vx # for debugging
+    #set -vx # for debugging
 
     ### Customization Point 2 ###
     service=foo
@@ -211,57 +218,65 @@ Let's say your service is called `foo`, then the steps would be the following:
     vault_token=\$(cat "/run/secrets/\${service}_vault_token")
     vault_addr=http://vault:8200
 
-    get_all_secrets_as_export_lines () {
-        curl --no-progress-meter --fail --header "X-Vault-Token: \$vault_token" \\
-            "\$vault_addr/v1/secret/data/\$service" |
-            jq --raw-output '
-             .data.data|to_entries[] |
-              "export "
-              + .key
-              + "='\\''"
-              + (if .value | type == "string" then
-                  (
-                   .value |
-                    gsub(
-                     "'\\''";
-                     "'\\''\\\\'\\'''\\''"
-                    )
-                  )
-                 else
-                  .value
-                 end
-                )
-              + "'\\''"
-            '
-
-        # Example output:
-        #  export SIGNING_SECRET='jhAOOUIEUOghhgsqyBzmbpPItieuqHAc'
-        #  export SOME_PASSWORD='937400011625'
+    get_all_secrets_as_env_params () {
+    	curl --no-progress-meter --header "X-Vault-Token: \$vault_token" \\
+    		"\$vault_addr/v1/secret/data/\$service" | jq --raw-output '
+    			[
+    				.data.data | to_entries[] |
+    					"'\\''"
+    					+ .key
+    					+ "="
+    					+ (
+    						if .value | type == "string" then
+    							(
+    								.value |
+    									gsub(
+    										"'\\''";
+    										"'\\''\\\\'\\'''\\''"
+    									)
+    							)
+    						else
+    							.value
+    						end
+    					  )
+    					+ "'\\''"
+    			] | join(" ")
+    		'
     }
 
-    export_lines=\$(get_all_secrets_as_export_lines)
+    env_params=\$(get_all_secrets_as_env_params)
 
     # Print all secrets for logging
-    printf '%s\\n' "\$export_lines"
-
-    # Export all secrets as environment variables
-    eval "\$export_lines"
+    printf "Environment start"
+    eval printf '"%s\\n"' "\$env_params"
+    printf "Environment end"
 
     # Truncate file for good measure
     : > "/run/secrets/\${service}_vault_token"
 
     ### Customization Point 3 ###
     # Don't forget the `"\$@"` at the end to pass arguments!
-    exec <same value as "Entrypoint" key from previous step (watch out for quoting)> "\$@"
-    # common example: exec tini -- "\$@"
-    # https://github.com/krallin/tini
-    # Note that `exec` is REQUIRED to correctly forward signals
+    eval exec env -- "\$env_params" <same value as "Entrypoint" key from previous step (watch out for quoting)> '"\$@"'
+    # Common value for entrypoint: `/bin/tini --` https://github.com/krallin/tini
+    # Note that `exec` is REQUIRED to correctly forward signals.
+    # `env` will exec itself, so that's fine as well.
+    # `eval` is needed because we are constructing params for `env`,
+    # which is also why we have extra qoutes around this: '"\$@"'
     EOF
 
     # No need to set WORKDIR, will be inherited from base image
     # No need to set CMD, will be inherited from base image
     # No need to set any ENV, will be inherited from base image
     # No need to set USER, will be inherited from base image
+
+    # Potentiall a default CMD
+    # CMD ["/usr/local/bin/foo-init.sh"]
+
+    # Potential Healthcheck
+    # HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=60s --start-interval=1s CMD ["curl", "--fail", "http://foo:4242/"]
+
+    # Potentially drop privileges
+    # USER 1000
 
     ENTRYPOINT ["/entrypoint.sh"]
     ```
