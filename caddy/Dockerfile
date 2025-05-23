@@ -33,7 +33,7 @@ VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/", "/frontend/uploads/"
 # Environment wrapper stuff for vault
 RUN apk add --no-cache jq curl bash
 
-COPY --chmod=755 ./entrypoint.sh /entrypoint.sh
+COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 

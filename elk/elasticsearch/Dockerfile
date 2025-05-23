@@ -15,7 +15,14 @@ RUN cd /tmp/ && \
 	make -j && \
 	make install
 
-COPY --chmod=755 ./entrypoint /entrypoint.sh
+COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
+
+COPY --chmod=555 ./config/generate-certs.sh /usr/share/elasticsearch/config/generate-certs.sh
+COPY --chmod=555 ./config/startup.sh        /usr/share/elasticsearch/config/startup.sh
+COPY --chmod=555 ./setup-single-node.sh     /usr/share/elasticsearch/setup-single-node.sh
+
+COPY --chmod=444 ./config/elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
+COPY --chmod=444 ./config/ilm-policy.json /usr/share/elasticsearch/config/ilm-policy.json
 
 CMD ["/usr/share/elasticsearch/config/startup.sh"]
 

@@ -15,7 +15,11 @@ RUN cd /tmp/ && \
 	make -j && \
 	make install
 
-COPY --chmod=755 ./entrypoint.sh /entrypoint.sh
+COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
+
+COPY --chmod=555 ./pipeline/ /usr/share/logstash/pipeline/
+COPY --chmod=444 ./config/logstash.yml /usr/share/logstash/config/logstash.yml
+COPY --chmod=555 ./scripts/import-logstash-ca.sh /usr/local/bin/import-logstash-ca.sh
 
 # No need to set WORKDIR, will be inherited from base image
 # No need to set CMD, will be inherited from base image

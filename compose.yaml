@@ -121,12 +121,6 @@ services:
             - "elasticsearch-data:/usr/share/elasticsearch/data/"
             - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/"
             - "./.secrets/elasticsearch_vault_token:/run/secrets/elasticsearch_vault_token"
-
-            - "./elk/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
-            - "./elk/elasticsearch/config/generate-certs.sh:/usr/share/elasticsearch/config/generate-certs.sh:ro"
-            - "./elk/elasticsearch/config/startup.sh:/usr/share/elasticsearch/config/startup.sh:ro"
-            - "./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json:ro"
-            - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh:ro"
         user: root # Run as root to ensure we can set permissions
         environment: *env-common
         ports:
@@ -148,10 +142,6 @@ services:
             - "logstash-data:/usr/share/logstash/data/"
             - "elasticsearch-certs:/etc/logstash/config/certs/"
             - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
-
-            - "./elk/logstash/pipeline/:/usr/share/logstash/pipeline/:ro"
-            - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
-            - "./elk/logstash/scripts/import-logstash-ca.sh:/usr/local/bin/import-logstash-ca.sh:ro"
         ports:
             - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"
             - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/udp"
@@ -177,10 +167,6 @@ services:
         volumes:
             - "kibana-data:/usr/share/kibana/data"
             - "./.secrets/kibana_vault_token:/run/secrets/kibana_vault_token"
-
-            - "./elk/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro"
-            - "./elk/kibana/dashboards:/usr/share/kibana/dashboards/:ro"
-            - "./elk/kibana/setup-dashboards.sh:/usr/share/kibana/setup-dashboards.sh:ro"
         networks:
             ft-transcendence-net:
                 ipv4_address: &kibana-ip 10.42.42.5

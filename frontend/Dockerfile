@@ -19,6 +19,6 @@ CMD ["sh", "-c", "if [ \"$WATCH\" = \"1\" ]; then npm run build:dev; fi"]
 # Environment wrapper stuff for vault
 RUN apk add --no-cache jq curl bash
 
-COPY --chmod=755 ./entrypoint.sh /entrypoint.sh
+COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

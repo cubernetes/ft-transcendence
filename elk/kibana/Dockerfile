@@ -15,7 +15,11 @@ RUN cd /tmp/ && \
 	make -j && \
 	make install
 
-COPY --chmod=755 ./entrypoint.sh /entrypoint.sh
+COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
+
+COPY --chmod=444 ./config/kibana.yml /usr/share/kibana/config/kibana.yml
+COPY --chmod=555 ./dashboards /usr/share/kibana/dashboards/
+COPY --chmod=555 ./setup-dashboards.sh /usr/share/kibana/setup-dashboards.sh
 
 CMD ["sh", "-xec", ": Healthcheck ; TERM=linux setsid -f watch -xtcn5 curl --no-progress-meter --fail --write-out '%output{/tmp/healthcheck}%{exitcode}' \"http://localhost:${KIBANA_PORT}/api/status\" 1>/dev/null 2>&1 ; /usr/local/bin/kibana-docker & KIBANA_PID=$! ; echo \"Kibana starting with PID $KIBANA_PID\" ; sleep 120 ; /usr/share/kibana/setup-dashboards.sh & wait $KIBANA_PID"]
 
