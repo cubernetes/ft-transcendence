@@ -3,8 +3,8 @@ cluster.name: ft-transcendence-logs
 node.name: single-node
 
 # Network settings
-network.host: 0.0.0.0
-http.port: 9200
+network.host: ${ELASTICSEARCH_HOST}
+http.port: ${ELASTICSEARCH_PORT}
 
 # Discovery settings
 discovery.type: single-node
