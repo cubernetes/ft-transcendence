@@ -14,14 +14,14 @@ endef
 # Kind of ugly we have to do HTTP_DOMAINS and HTTPS_DOMAINS here, but inside Caddyfile it's kinda impossible
 # to do conditional logic (prod/dev) and text transformation (addprefix)
 define dev-env
-	[ -n "$(call getenv,DEV_HTTP_PORT)" ]  &&                        \
-	[ -n "$(call getenv,DEV_HTTPS_PORT)" ] &&                        \
-	[ -n "$(call getenv,DEV_DOMAINS)" ]    &&                        \
-	HTTP_PORT="$(call getenv,DEV_HTTP_PORT)"                         \
-	HTTPS_PORT="$(call getenv,DEV_HTTPS_PORT)"                       \
-	DOMAINS="$(call getenv,DEV_DOMAINS)"                             \
-	NODE_ENV="development"                                           \
-	WATCH="1"                                                        \
+	[ -n "$(call getenv,DEV_HTTP_PORT)" ]  &&  \
+	[ -n "$(call getenv,DEV_HTTPS_PORT)" ] &&  \
+	[ -n "$(call getenv,DEV_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(call getenv,DEV_HTTP_PORT)"   \
+	HTTPS_PORT="$(call getenv,DEV_HTTPS_PORT)" \
+	DOMAINS="$(call getenv,DEV_DOMAINS)"       \
+	NODE_ENV="development"                     \
+	WATCH="1"                                  \
 	HTTP_DOMAINS="$(addprefix http://,$(call getenv-makefile,DEV_DOMAINS))"   \
 	HTTPS_DOMAINS="$(addprefix https://,$(call getenv-makefile,DEV_DOMAINS))" \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(call getenv,DEV_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
@@ -32,15 +32,15 @@ endef
 
 # Empty HTTP_DOMAINS for prod, since we want auto redirection to https
 define prod-env
-	[ -n "$(call getenv,PROD_HTTP_PORT)" ]  &&                        \
-	[ -n "$(call getenv,PROD_HTTPS_PORT)" ] &&                        \
-	[ -n "$(call getenv,PROD_DOMAINS)" ]    &&                        \
-	HTTP_PORT="$(call getenv,PROD_HTTP_PORT)"                         \
-	HTTPS_PORT="$(call getenv,PROD_HTTPS_PORT)"                       \
-	DOMAINS="$(call getenv,PROD_DOMAINS)"                             \
-	HTTP_DOMAINS=""                                                   \
-	NODE_ENV="production"                                             \
-	WATCH="0"                                                         \
+	[ -n "$(call getenv,PROD_HTTP_PORT)" ]  &&  \
+	[ -n "$(call getenv,PROD_HTTPS_PORT)" ] &&  \
+	[ -n "$(call getenv,PROD_DOMAINS)" ]    &&  \
+	HTTP_PORT="$(call getenv,PROD_HTTP_PORT)"   \
+	HTTPS_PORT="$(call getenv,PROD_HTTPS_PORT)" \
+	DOMAINS="$(call getenv,PROD_DOMAINS)"       \
+	HTTP_DOMAINS=""                             \
+	NODE_ENV="production"                       \
+	WATCH="0"                                   \
 	HTTPS_DOMAINS="$(addprefix https://,$(call getenv-makefile,PROD_DOMAINS))" \
 	CADDY_EXTRA_GLOBAL_DIRECTIVES="$$(printf %b "$(call getenv,PROD_CADDY_EXTRA_GLOBAL_DIRECTIVES)")" \
 	CADDY_EXTRA_SITE_DIRECTIVES="$$(printf %b "$(call getenv,PROD_CADDY_EXTRA_SITE_DIRECTIVES)")"     \
