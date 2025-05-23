@@ -22,11 +22,12 @@ wait_for_service logstash
 wait_for_service kibana
 wait_for_service backend
 
+echo "Waiting 15 more seconds because kibana healthcheck is currently not working quite right"
+sleep 15
+
 HTTP_PORT=$(docker port caddy | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
 KIBANA_PORT=$(docker port kibana | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
 
-echo "Waiting 15 more seconds because kibana healthcheck is currently not working quite right"
-sleep 15
 echo "Frontend: http://localhost:${HTTP_PORT}"
 echo "OpenAPI:  http://localhost:${HTTP_PORT}/api/docs"
 echo "ELK       http://localhost:${KIBANA_PORT}"
