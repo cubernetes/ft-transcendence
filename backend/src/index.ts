@@ -15,7 +15,7 @@ if (secrets.isErr()) {
 process.env.JWT_SECRET = secrets.value.JWT_SECRET;
 process.env.BACKEND_PORT = secrets.value.BACKEND_PORT;
 process.env.DB_PATH = secrets.value.DB_PATH;
-process.env.LOGSTASH_HOST = secrets.value.LOGSTASH_HOST;
+process.env.LOGSTASH_HOSTNAME = secrets.value.LOGSTASH_HOSTNAME;
 process.env.LOGSTASH_PORT = secrets.value.LOGSTASH_PORT;
 process.env.API_PREFIX = secrets.value.API_PREFIX;
 process.env.HOST = secrets.value.HOST;

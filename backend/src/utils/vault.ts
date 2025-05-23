@@ -10,7 +10,7 @@ export const readVaultOnce = async (
             DB_PATH: string;
             BACKEND_PORT: string;
             LOGSTASH_PORT: string;
-            LOGSTASH_HOST: string;
+            LOGSTASH_HOSTNAME: string;
             HOST: string;
             API_PREFIX: string;
         },
