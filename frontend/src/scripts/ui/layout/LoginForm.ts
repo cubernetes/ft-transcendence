@@ -43,7 +43,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
     const submitBtn = createButton({
         type: "submit",
         text: mode === "login" ? LOGIN : REGISTER,
-        tw: "w-full bg-red-500 text-white",
+        tw: "w-full px-4 py-2 bg-red-500 text-white",
     });
 
     // Create status component
@@ -110,7 +110,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
 
     const quickplayBtn = createButton({
         text: CONST.TEXT.QUICKPLAY,
-        tw: "w-full px-4 py-2 bg-blue-500 text-white rounded-l-md mt-4",
+        tw: "w-full px-4 py-2 bg-blue-500 text-white mt-4 rounded",
         click: () => navigateTo("quickplay"),
     });
 
