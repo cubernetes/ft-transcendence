@@ -2,6 +2,7 @@
 
 #set -vx
 
+: "${LOGSTASH_API_PORT:?Missing LOGSTASH_API_PORT}"
 : "${STOREPASS:?Missing STOREPASS}"
 
 # Healthcheck background service (because only this process has access to the environment

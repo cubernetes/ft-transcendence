@@ -12,18 +12,19 @@ toplevel=$(git rev-parse --show-toplevel)
 cd -- "$toplevel"
 
 grep_for_quotes () {
+	cmt_start='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]'
 	case "$1" in
 		(dquote)
-			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]".*"' ;;
+			grep --color=auto --regexp="$cmt_start"'".*"' ;;
 		(squote)
-			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]'\''.*'\''' ;;
+			grep --color=auto --regexp="$cmt_start"''\''.*'\''' ;;
 		(backtick)
 			# shellcheck disable=SC2016
-			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*`' ;;
+			grep --color=auto --regexp="$cmt_start"'`.*`' ;;
 		(roff_squote)
-			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*'\''' ;;
+			grep --color=auto --regexp="$cmt_start"'`.*'\''' ;;
 		(roff_dquote)
-			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]``.*'\'''\''' ;;
+			grep --color=auto --regexp="$cmt_start"'``.*'\'''\''' ;;
 		(*)
 			die 'Got invalid argument to function grep_for_quotes: "'"%1"'"' ;;
 	esac

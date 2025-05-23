@@ -3,73 +3,20 @@ FROM docker.elastic.co/elasticsearch/elasticsearch:8.17.3
 
 USER 0
 
+COPY --from=ft-transcendence-curl_base --chmod=755 /curl /usr/bin/curl
+
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt update -y && \
-	apt install -y jq libpsl-dev libssl-dev build-essential
+	apt install -y jq
 
-RUN cd /tmp/ && \
-	mkdir curl && cd curl && \
-	curl -L https://curl.se/download/curl-8.13.0.tar.gz | tar xzf - && \
-	cd *curl* && \
-	./configure --with-openssl --disable-shared && \
-	make -j && \
-	make install
+COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 
-COPY --chmod=755 <<EOF /entrypoint.sh
-#!/bin/bash
-#Must be bash since sh (specifically dash) sanitizes all environment variables which are not
-#valid identifiers (e.g. the case for "bootstrap.memory_lock=true"). Bash passes them through, which
-#is in line with POSIX.
+COPY --chmod=555 ./config/generate-certs.sh /usr/share/elasticsearch/config/generate-certs.sh
+COPY --chmod=555 ./config/startup.sh        /usr/share/elasticsearch/config/startup.sh
+COPY --chmod=555 ./setup-single-node.sh     /usr/share/elasticsearch/setup-single-node.sh
 
-set -e # exit on any error
-set -u # treat failed expansion as error
-#set -vx # for debugging
-
-### Customization Point 2 ###
-service=elasticsearch
-
-vault_token=\$(cat "/run/secrets/\${service}_vault_token")
-vault_addr=http://vault:8200
-
-get_all_secrets_as_env_params () {
-	curl --no-progress-meter --header "X-Vault-Token: \$vault_token" \\
-		"\$vault_addr/v1/secret/data/\$service" | jq --raw-output '
-			[
-				.data.data | to_entries[] |
-					"'\\''"
-					+ .key
-					+ "="
-					+ (
-						if .value | type == "string" then
-							(
-								.value |
-									gsub(
-										"'\\''";
-										"'\\''\\\\'\\'''\\''"
-									)
-							)
-						else
-							.value
-						end
-					  )
-					+ "'\\''"
-			] | join(" ")
-		'
-}
-
-env_params=\$(get_all_secrets_as_env_params)
-
-# Print all secrets for logging
-printf "Environment start"
-eval printf '"%s\\n"' "\$env_params"
-printf "Environment end"
-
-# Truncate file for good measure
-: > "/run/secrets/\${service}_vault_token"
-
-### Customization Point 3 ###
-eval exec env -- "\$env_params" /bin/tini -- '"\$@"'
-EOF
+COPY --chmod=444 ./config/elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
+COPY --chmod=444 ./config/ilm-policy.json /usr/share/elasticsearch/config/ilm-policy.json
 
 CMD ["/usr/share/elasticsearch/config/startup.sh"]
 

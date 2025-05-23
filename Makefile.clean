@@ -84,7 +84,7 @@ dockerclean: down
 	$(D) ps --quiet --all | xargs -r $(D) rm -f # non-graceful shutdown because wdgaf
 	$(D) system prune --all --volumes --force   # dangerous
 
-# Remove everything docker related and everything in
+# Remove everything docker related, files, and files that don't belong in the repo (pristine checkout)
 .PHONY: deepclean
 deepclean:
 	@# VERY dangerous command

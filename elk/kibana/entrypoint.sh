@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -e # exit on any error
+set -u # treat failed expansion as error
+#set -vx # for debugging
+
+### Customization Point 2 ###
+service=kibana
+
+vault_token=$(cat "/run/secrets/${service}_vault_token")
+vault_addr=http://vault:${VAULT_API_PORT:-8200}
+
+get_all_secrets_as_env_params () {
+	curl --no-progress-meter --header "X-Vault-Token: $vault_token" \
+		"$vault_addr/v1/secret/data/$service" | jq --raw-output '
+			[
+				.data.data | to_entries[] |
+					"'\''"
+					+ .key
+					+ "="
+					+ (
+						if .value | type == "string" then
+							(
+								.value |
+									gsub(
+										"'\''";
+										"'\''\\'\'''\''"
+									)
+							)
+						else
+							.value
+						end
+					  )
+					+ "'\''"
+			] | join(" ")
+		'
+}
+
+env_params=$(get_all_secrets_as_env_params)
+
+# Print all secrets for logging
+printf "Environment start\n"
+eval printf '"%s\n"' "$env_params"
+printf "Environment end\n"
+
+# Truncate file for good measure
+: > "/run/secrets/${service}_vault_token"
+
+### Customization Point 3 ###
+eval exec env -- "$env_params" /bin/tini -- '"$@"'

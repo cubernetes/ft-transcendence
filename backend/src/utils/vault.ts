@@ -3,7 +3,19 @@ import fs from "fs";
 
 export const readVaultOnce = async (
     path: string
-): Promise<Result<{ JWT_SECRET: string }, Error>> => {
+): Promise<
+    Result<
+        {
+            JWT_SECRET: string;
+            DB_PATH: string;
+            LOGSTASH_PORT: string;
+            LOGSTASH_HOSTNAME: string;
+            HOST: string;
+            API_PREFIX: string;
+        },
+        Error
+    >
+> => {
     const tokenFile = "/run/secrets/backend_vault_token";
     const vaultToken = fs.readFileSync(tokenFile, "utf8").trim();
 

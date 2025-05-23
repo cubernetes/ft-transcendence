@@ -1,11 +1,11 @@
 # Server settings
-server.name: kibana
-server.host: "0.0.0.0"
-server.port: 5601
+server.name: ${KIBANA_HOSTNAME}
+server.host: "${KIBANA_HOST}"
+server.port: ${KIBANA_PORT}
 server.ssl.enabled: false
 
 # Elasticsearch connection
-elasticsearch.hosts: ["https://elasticsearch:9200"]
+elasticsearch.hosts: ["https://elasticsearch:${ELASTICSEARCH_PORT}"]
 elasticsearch.requestTimeout: 30000
 elasticsearch.username: "${KIBANA_USER}"
 elasticsearch.password: "${KIBANA_PASSWORD}"

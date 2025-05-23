@@ -1,6 +1,6 @@
-api.http.host: "0.0.0.0"
+api.http.host: "${LOGSTASH_API_HOST}"
 xpack.monitoring.enabled: true
-xpack.monitoring.elasticsearch.hosts: ["https://elasticsearch:9200"]
+xpack.monitoring.elasticsearch.hosts: ["https://elasticsearch:${ELASTICSEARCH_PORT}"]
 xpack.monitoring.elasticsearch.username: "${LOGSTASH_USER}"
 xpack.monitoring.elasticsearch.password: "${LOGSTASH_PASSWORD}"
 xpack.monitoring.elasticsearch.ssl.verification_mode: full

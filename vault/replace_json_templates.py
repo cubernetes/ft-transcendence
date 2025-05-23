@@ -19,11 +19,12 @@
 # After the alphanumeric (+underscore) template type, there must always be a colon
 # and then a series of digits. Otherwise, no replacement occurs and a warning is printed.
 
+import os
 import re
 import sys
 import json
 import shlex
-import random
+import secrets
 import string
 import contextlib
 from base64 import b64encode
@@ -95,10 +96,12 @@ def replacement_function(match: re.Match, *, references: bool) -> str:
         if not character_set:
             print(f'\033\133;91mWARNING\033\133m: Unknown template type: \033\133;93m{template_type}\033\133m, supported types are \033\133;92m{", ".join(character_sets.keys())}\033\133m. Leaving it unmodified', file=sys.stderr, flush=True)
             return raw_match_string
-        return ''.join(random.choices(character_set, k=int(template_argument)))
+        return ''.join(secrets.choice(character_set) for _ in range(int(template_argument)))
     elif template_type == 'b64':
         n_bytes = int(template_argument)
-        return b64encode(random.randbytes(n_bytes)).decode('utf8')
+        return b64encode(secrets.token_bytes(n_bytes)).decode('utf8')
+    elif template_type == 'env':
+        return os.environ.get(template_argument, '')
     elif template_type == 'ref':
         if not references:
             return raw_match_string

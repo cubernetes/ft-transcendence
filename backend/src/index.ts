@@ -3,11 +3,6 @@ import buildApp from "./utils/app.ts";
 import { devLoggerConfig, prodLoggerConfig } from "./utils/logger.ts";
 import { readVaultOnce } from "./utils/vault.ts";
 
-// Fastify server options, cannot be changed once instance is created
-const appOpts: FastifyServerOptions = {
-    logger: process.env.NODE_ENV === "production" ? prodLoggerConfig : devLoggerConfig,
-};
-
 // Read vault secrets
 const secrets = await readVaultOnce("secret/data/backend");
 
@@ -17,6 +12,16 @@ if (secrets.isErr()) {
 }
 
 process.env.JWT_SECRET = secrets.value.JWT_SECRET;
+process.env.DB_PATH = secrets.value.DB_PATH;
+process.env.LOGSTASH_HOSTNAME = secrets.value.LOGSTASH_HOSTNAME;
+process.env.LOGSTASH_PORT = secrets.value.LOGSTASH_PORT;
+process.env.API_PREFIX = secrets.value.API_PREFIX;
+process.env.HOST = secrets.value.HOST;
+
+// Fastify server options, cannot be changed once instance is created
+const appOpts: FastifyServerOptions = {
+    logger: process.env.NODE_ENV === "production" ? prodLoggerConfig : devLoggerConfig,
+};
 
 // Build app
 const tryBuild = await buildApp(appOpts);

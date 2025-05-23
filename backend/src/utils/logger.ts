@@ -142,8 +142,8 @@ const getLoggerConfig = (): PinoLoggerOptions => {
         },
     };
 
-    // Add ELK transport if LOGSTASH_HOST is defined
-    if (process.env.LOGSTASH_HOST) {
+    // Add ELK transport if LOGSTASH_HOSTNAME is defined
+    if (process.env.LOGSTASH_HOSTNAME) {
         return {
             ...elkLoggerConfig,
             transport: {
@@ -157,7 +157,7 @@ const getLoggerConfig = (): PinoLoggerOptions => {
                         level: elkLoggerConfig.level,
                         options: {
                             mode: "tcp",
-                            address: process.env.LOGSTASH_HOST,
+                            address: process.env.LOGSTASH_HOSTNAME,
                             port: Number(process.env.LOGSTASH_PORT || 5050),
                             enablePipelining: true,
                             //formatLine: (obj: any) => JSON.stringify(obj) + "\n",
@@ -168,7 +168,6 @@ const getLoggerConfig = (): PinoLoggerOptions => {
         };
     }
 
-    // If no LOGSTASH_HOST, just use console transport
     return process.env.NODE_ENV === "production"
         ? {
               ...elkLoggerConfig,
