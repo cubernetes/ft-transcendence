@@ -39,11 +39,11 @@ dev-old-compose: clean-frontend-volume ensure-secret-files
 
 .PHONY: dev
 dev: clean-frontend-volume ensure-secret-files
-	@$(call dev-env, \
-		up                                     \
-		--remove-orphans                       \
-		--build                                \
-		--watch                                \
+	@$(call dev-env,     \
+		up               \
+		--remove-orphans \
+		--build          \
+		--watch          \
 		$(ARGS))
 
 .PHONY: dev-elk
@@ -70,11 +70,11 @@ actual-prod: clean-frontend-volume ensure-secret-files build-curl-base
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
 prod: clean-frontend-volume ensure-secret-file build-curl-bases
-	@$(call dev-env, \
-		up                                     \
-		--remove-orphans                       \
-		--build                                \
-		--detach                               \
+	@$(call dev-env,     \
+		up               \
+		--remove-orphans \
+		--build          \
+		--detach         \
 		$(ARGS))
 
 .PHONY: down
@@ -96,7 +96,7 @@ install:
 test: install
 	npm --prefix=backend test
 
-# Usage: make get-env SERVICE=elasticsearch
+# Usage: `make get-env SERVICE=elasticsearch`
 .PHONY: get-env
 get-env:
 	$(D) exec vault sh -c 'SERVICE=$(SERVICE); wget --header="X-Vault-Token: $$(cat /vault/secret/root_token)" --quiet --output-document=- "$$(cat /tmp/vault_addr)"/v1/secret/data/$$SERVICE | jq --raw-output --color-output .data.data'
