@@ -15,8 +15,8 @@ set -m
 : "${vault_exit_code_file:="$HOME"/vault-server-exit-status}"
 : "${vault_env_json:=/vault/config/env.json}"
 : "${vault_kv_store_path:=secret/}"
-: "${vault_secrets_path:=/vault/secret/}"
-: "${token_exchange_dir:=/run/secrets/}"
+: "${vault_secrets_path:=/vault/secret}"
+: "${token_exchange_dir:=/run/secrets}"
 
 loglevel_to_num () {
 	level=$(printf %s "$1" | tr '[:lower:]' '[:upper:]')
@@ -352,6 +352,11 @@ get_or_recover_vault_secrets () {
 	fi
 }
 
+get_services () {
+	# Ignore those that start with a dot
+	<"$vault_env_json" jq --raw-output 'to_entries[].key' | grep -v -- '^\.'
+}
+
 create_policies () {
 	ensure_env_json
 
@@ -359,7 +364,7 @@ create_policies () {
 		info "Creating new policy for service \033\133;93m%s\033\133m from file \033\133;93m%s\033\133m" "$service" "/vault/policies/${service}.hcl"
 		1>/dev/null vault policy write "$service" "/vault/policies/${service}.hcl" || die "Failed to create policy for service \033\133;93m%s\033\133m" "$service"
 	done <<-EOF
-	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
+	$(get_services)
 	EOF
 }
 
@@ -392,7 +397,7 @@ create_token_roles () {
 			$max_ttl                                        \
 			$token_max_uses
 	done <<-EOF
-	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
+	$(get_services)
 	EOF
 }
 
@@ -405,7 +410,7 @@ create_and_share_client_tokens () {
 		test -s "$token_exchange_dir/${service}_vault_token" || die "File \033\133;93m%s\033\133m is empty!" "$token_exchange_dir/${service}_vault_token"
 		debug "%s token contents: \033\133;93m%s\033\133m" "$service" "$(cat "$token_exchange_dir/${service}_vault_token")"
 	done <<-EOF
-	$(<"$vault_env_json" jq --raw-output 'to_entries[].key')
+	$(get_services)
 	EOF
 }
 

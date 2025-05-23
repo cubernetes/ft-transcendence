@@ -11,14 +11,12 @@ D := docker
 # ./.secrets/${service}_vault_token
 # where ${service} is the same as the JSON root subkeys in ./env.json
 VAULT_TOKEN_EXCHANGE_FILES := \
-	./.secrets/backend_vault_token \
 	./.secrets/elasticsearch_vault_token \
 	./.secrets/logstash_vault_token \
-	./.secrets/kibana_vault_token
-
-# Must be in standard dotenv format
--include .env
-include config.env
+	./.secrets/kibana_vault_token \
+	./.secrets/caddy_vault_token \
+	./.secrets/frontend_vault_token \
+	./.secrets/backend_vault_token
 
 # Helper Makefile
 include Makefile.clean
@@ -27,7 +25,7 @@ include Makefile.aux
 # This target is needed for legacy docker compose versions where there is no `--watch` flag for `docker compose up`.
 # The "dev" target is preferred.
 .PHONY: dev-old-compose
-dev-old-compose: check-env clean-frontend-volume ensure-secret-files
+dev-old-compose: clean-frontend-volume ensure-secret-files
 	@[ -n "$(ARGS)" ] && { printf '\033[31m%s\033[m\n' "ARGS argument not supported for dev-old-compose target (because of --detach option)"; exit 1; }
 	@$(call dev-env,build)
 	@$(call dev-env,up --remove-orphans --detach)
@@ -40,7 +38,7 @@ dev-old-compose: check-env clean-frontend-volume ensure-secret-files
 	@$(call dev-env,watch --no-up)
 
 .PHONY: dev
-dev: check-env clean-frontend-volume ensure-secret-files
+dev: clean-frontend-volume ensure-secret-files
 	@unset -v LOGSTASH_HOST && $(call dev-env, \
 		up                                     \
 		--remove-orphans                       \
@@ -49,7 +47,7 @@ dev: check-env clean-frontend-volume ensure-secret-files
 		$(ARGS))
 
 .PHONY: dev-elk
-dev-elk: check-env clean-frontend-volume ensure-secret-files
+dev-elk: clean-frontend-volume ensure-secret-files
 	@$(call dev-env,     \
 		--profile elk    \
 		up               \
@@ -58,7 +56,7 @@ dev-elk: check-env clean-frontend-volume ensure-secret-files
 		--watch          \
 		$(ARGS))
 
-# Don't depend on check-env (endless waiting), rather fail
+# Don't depend on (endless waiting), rather fail
 .PHONY: actual-prod
 actual-prod: clean-frontend-volume ensure-secret-files
 	@$(call prod-env,    \
@@ -71,7 +69,7 @@ actual-prod: clean-frontend-volume ensure-secret-files
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod: check-env clean-frontend-volume ensure-secret-files
+prod: clean-frontend-volume ensure-secret-files
 	@unset -v LOGSTASH_HOST && $(call dev-env, \
 		up                                     \
 		--remove-orphans                       \

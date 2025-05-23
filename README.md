@@ -2,20 +2,13 @@
 
 > A pong app with a heap of add-on features
 
-- Live demo: [https://ft-transcendence.app](https://ft-transcendence.app)
+- Live demo: [https://ft-transcendence.app](https://ft-transcendence.app:8443) (type `thisisunsafe` to bypass HSTS warning)
 
-## Build and Run
+## Configure & Run
 
-- Ensure `docker` and `docker compose` are working
-- Run `cp .env.example .env`
-- Adjust secrets in `.env`, possibly also in `config.env` if you have port issues
-- Run `make` or `make prod`
-
-## Advanced/Configuration
-
-- [administrative commands regarding app management]
-- [basic steps for configuration]
-- Refer to the [Wiki](https://github.com/cubernetes/ft-transcendence/wiki) for more documentation
+- Ensure docker, docker compose, and make are working
+- Configure environment settings in env.json
+- `make` (without ELK), `make dev-elk` or `make prod`
 
 ## Demo
 

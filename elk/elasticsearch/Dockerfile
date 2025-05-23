@@ -29,7 +29,7 @@ set -u # treat failed expansion as error
 service=elasticsearch
 
 vault_token=\$(cat "/run/secrets/\${service}_vault_token")
-vault_addr=http://vault:8200
+vault_addr=http://vault:${VAULT_API_PORT:-8200}
 
 get_all_secrets_as_env_params () {
 	curl --no-progress-meter --header "X-Vault-Token: \$vault_token" \\
@@ -60,9 +60,9 @@ get_all_secrets_as_env_params () {
 env_params=\$(get_all_secrets_as_env_params)
 
 # Print all secrets for logging
-printf "Environment start"
+printf "Environment start\\n"
 eval printf '"%s\\n"' "\$env_params"
-printf "Environment end"
+printf "Environment end\\n"
 
 # Truncate file for good measure
 : > "/run/secrets/\${service}_vault_token"

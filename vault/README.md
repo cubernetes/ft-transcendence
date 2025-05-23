@@ -5,11 +5,12 @@
 All services that need secrets depend on the Vault service to start up and pass
 the healthcheck. Vault injects a Vault token to each of those services via a
 shared file (bind mount). Once the service has the token, it can make `GET` requests
-to `http://vault:8200/v1/secret/data/$SERVICE_NAME` and extract the secrets from the
-JSON response (`.data.data`). A token can only be used once, since the response should
-contain all the secrets relevant to that service, and it can only read its own secrets
-(enforced via policies and roles). The service may optionally override/truncate
-the file to prevent unwanted access from the host system.
+to `http://vault:${VAULT_API_PORT:-8200}/v1/secret/data/$SERVICE_NAME` and extract
+the secrets from the JSON response (`.data.data`). A token can only be used once,
+since the response should contain all the secrets relevant to that service,
+and it can only read its own secrets (enforced via policies and roles). The
+service may optionally override/truncate the file to prevent unwanted access
+from the host system.
 
 ## How Vault initially starts up
 
@@ -73,6 +74,20 @@ line in `./vault/endpoint.sh` to not print those secrets (then you should set
          maybe_save_secrets
          export_environment
          ensure_unsealed
+```
+
+## I dont want vault to consider an entry in env.json
+
+Just prefix the key with a dot and vault will ignore it/not generate any service tokens,
+policies or roles for it:
+
+```json
+{
+    ".backend": {
+        // <- backend service will be ignored by vault
+        "JWT_SECRET": "{{alnum:64}}"
+    }
+}
 ```
 
 ## I need the secret for a particular service, how do I get it?
@@ -216,7 +231,7 @@ Let's say your service is called `foo`, then the steps would be the following:
     service=foo
 
     vault_token=\$(cat "/run/secrets/\${service}_vault_token")
-    vault_addr=http://vault:8200
+    vault_addr=http://vault:${VAULT_API_PORT:-8200}
 
     get_all_secrets_as_env_params () {
     	curl --no-progress-meter --header "X-Vault-Token: \$vault_token" \\
@@ -247,9 +262,9 @@ Let's say your service is called `foo`, then the steps would be the following:
     env_params=\$(get_all_secrets_as_env_params)
 
     # Print all secrets for logging
-    printf "Environment start"
+    printf "Environment start\\n"
     eval printf '"%s\\n"' "\$env_params"
-    printf "Environment end"
+    printf "Environment end\\n"
 
     # Truncate file for good measure
     : > "/run/secrets/\${service}_vault_token"

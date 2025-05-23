@@ -17,7 +17,7 @@ ES_PID=$!
 
 # Wait for Elasticsearch to start
 i=0
-until echo "Waiting for Elasticsearch to start ($i seconds passed)..."; curl --no-progress-meter --insecure --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --fail "https://localhost:${ELASTICSEARCH_PORT}/_cluster/health"; do
+until echo "Waiting for Elasticsearch to start ($i seconds passed)..."; curl --silent --insecure --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --fail "https://localhost:${ELASTICSEARCH_PORT}/_cluster/health"; do
     sleep 5
 	i=$((i + 5))
 done

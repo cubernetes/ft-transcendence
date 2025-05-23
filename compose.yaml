@@ -2,16 +2,9 @@
 name: ft-transcendence
 
 # https://github.com/docker/compose/pull/5140
-x-env-watch: &env-watch
+x-env-common: &env-common
     WATCH: "${WATCH:-0}"
-
-x-env-caddy-backend: &env-caddy-backend
-    <<: *env-watch
-    BACKEND_PORT: "${BACKEND_PORT:-3000}"
-    DOMAINS: "${DOMAINS:-localhost}"
-
-x-env-files: &env-files
-    - config.env
+    VAULT_API_PORT: "${VAULT_API_PORT:-8200}"
 
 services:
     caddy:
@@ -26,23 +19,30 @@ services:
                 ipv4_address: &caddy-ip 10.42.42.1
         volumes:
             - "caddy-data:/frontend/.local/share/caddy/"
+            - "./.secrets/caddy_vault_token:/run/secrets/caddy_vault_token"
+
             - "frontend:/frontend/dist/:ro"
             - "user-upload:/frontend/uploads/:ro"
         environment:
-            <<: *env-caddy-backend
+            <<: *env-common
+            DOMAINS: "${DOMAINS:-localhost}"
             HTTP_DOMAINS: "${HTTP_DOMAINS:-http://localhost}"
             HTTPS_DOMAINS: "${HTTPS_DOMAINS:-https://localhost}"
             CADDY_EXTRA_GLOBAL_DIRECTIVES: "${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
             CADDY_EXTRA_SITE_DIRECTIVES: "${CADDY_EXTRA_SITE_DIRECTIVES:-}"
         depends_on:
-            - frontend
-            - backend
+            frontend:
+                condition: service_started
+            backend:
+                condition: service_started
+            vault:
+                restart: true
+                condition: service_healthy
         develop:
             watch:
                 - path: "./caddy/Caddyfile"
                   action: sync
                   target: "/etc/caddy/Caddyfile"
-        env_file: *env-files
 
     frontend:
         build: "./frontend/"
@@ -50,9 +50,13 @@ services:
         restart: no
         ports:
             - "${LIVE_RELOAD_PORT:-35729}:${LIVE_RELOAD_PORT:-35729}"
-        environment: *env-watch
+        networks:
+            ft-transcendence-net:
+                ipv4_address: &frontend-ip 10.42.42.6
+        environment: *env-common
         volumes:
             - "frontend:/frontend/dist/"
+            - "./.secrets/frontend_vault_token:/run/secrets/frontend_vault_token"
         develop:
             watch:
                 - path: "./frontend/"
@@ -67,9 +71,11 @@ services:
                 - path: "./frontend/reload-server.js"
                   action: rebuild
                   target: "/frontend/reload-server.js"
-        env_file: *env-files
         depends_on:
             backend:
+                condition: service_healthy
+            vault:
+                restart: true
                 condition: service_healthy
 
     backend:
@@ -80,13 +86,8 @@ services:
             ft-transcendence-net:
                 ipv4_address: &backend-ip 10.42.42.2
         environment:
-            <<: *env-caddy-backend
-            NODE_ENV: "${NODE_ENV:-development}"
-            DB_PATH: "${DB_PATH:-}"
-            LOG_LEVEL: "${LOG_LEVEL:-debug}"
-
-            LOGSTASH_HOST: "${LOGSTASH_HOST:-}"
-            LOGSTASH_PORT: "${LOGSTASH_PORT:-5050}"
+            <<: *env-common
+            DOMAINS: "${DOMAINS:-localhost}"
         volumes:
             - "drizzle:/backend/drizzle/"
             - "user-upload:/backend/uploads/"
@@ -110,7 +111,6 @@ services:
                 - path: "./backend/esbuild.config.js"
                   action: rebuild
                   target: "/backend/esbuild.config.js"
-        env_file: *env-files
 
     elasticsearch:
         profiles: [elk]
@@ -127,8 +127,9 @@ services:
             - "./elk/elasticsearch/config/ilm-policy.json:/usr/share/elasticsearch/config/ilm-policy.json:ro"
             - "./elk/elasticsearch/setup-single-node.sh:/usr/share/elasticsearch/setup-single-node.sh:ro"
         user: root # Run as root to ensure we can set permissions
+        environment: *env-common
         ports:
-            - "9200:9200"
+            - "${ELASTICSEARCH_PORT:-9200}:${ELASTICSEARCH_PORT:-9200}"
         networks:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
@@ -151,9 +152,10 @@ services:
             - "./elk/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro"
             - "./elk/logstash/scripts/import-logstash-ca.sh:/usr/local/bin/import-logstash-ca.sh:ro"
         ports:
-            - "5050:5050/tcp"
-            - "5050:5050/udp"
-            - "9600:9600"
+            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"
+            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/udp"
+            - "${LOGSTASH_API_PORT:-9600}:${LOGSTASH_API_PORT:-9600}"
+        environment: *env-common
         networks:
             ft-transcendence-net:
                 ipv4_address: &logstash-ip 10.42.42.4
@@ -170,7 +172,7 @@ services:
         build: "./elk/kibana/"
         container_name: kibana
         ports:
-            - "5601:5601"
+            - "${KIBANA_PORT:-5601}:${KIBANA_PORT:-5601}"
         volumes:
             - "kibana-data:/usr/share/kibana/data"
             - "./.secrets/kibana_vault_token:/run/secrets/kibana_vault_token"
@@ -181,6 +183,7 @@ services:
         networks:
             ft-transcendence-net:
                 ipv4_address: &kibana-ip 10.42.42.5
+        environment: *env-common
         depends_on:
             elasticsearch:
                 condition: service_healthy
@@ -202,6 +205,7 @@ services:
         extra_hosts:
             backend: *backend-ip
             caddy: *caddy-ip
+            frontend: *frontend-ip
             elasticsearch: *elasticsearch-ip
             logstash: *logstash-ip
             kibana: *kibana-ip
@@ -212,14 +216,16 @@ services:
             - "vault-secret:/vault/secret/"
             - "vault-logs:/vault/logs/"
 
-            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
             - "./.secrets/elasticsearch_vault_token:/run/secrets/elasticsearch_vault_token"
             - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
             - "./.secrets/kibana_vault_token:/run/secrets/kibana_vault_token"
+            - "./.secrets/caddy_vault_token:/run/secrets/caddy_vault_token"
+            - "./.secrets/frontend_vault_token:/run/secrets/frontend_vault_token"
+            - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
 
             - "./env.json:/vault/config/env.json:ro"
         environment:
-            <<: *env-watch
+            <<: *env-common
             LOG_LEVEL: "${VAULT_LOG_LEVEL:-info}"
             SAVE_UNSEAL_KEYS: "${SAVE_UNSEAL_KEYS:-0}"
             SAVE_ROOT_TOKEN: "${SAVE_ROOT_TOKEN:-0}"
@@ -251,7 +257,7 @@ volumes:
     user-upload:
     frontend:
     elasticsearch-data:
-    elasticsearch-certs: # New volume for certificates
+    elasticsearch-certs:
     logstash-data:
     kibana-data:
 
