@@ -8,7 +8,6 @@ export const readVaultOnce = async (
         {
             JWT_SECRET: string;
             DB_PATH: string;
-            BACKEND_PORT: string;
             LOGSTASH_PORT: string;
             LOGSTASH_HOSTNAME: string;
             HOST: string;

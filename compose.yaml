@@ -88,6 +88,7 @@ services:
         environment:
             <<: *env-common
             DOMAINS: "${DOMAINS:-localhost}"
+            BACKEND_PORT: "${BACKEND_PORT:-3000}"
         volumes:
             - "drizzle:/backend/drizzle/"
             - "user-upload:/backend/uploads/"
