@@ -29,10 +29,10 @@ get_all_secrets_as_env_params () {
 
 env_params=$(get_all_secrets_as_env_params)
 
-# Print all secrets for logging
-printf "Environment start\n"
-eval printf '"%s\n"' "$env_params"
-printf "Environment end\n"
+# Print all secrets for logging, should only be done for debugging
+# printf "Environment start\n"
+# eval printf '"%s\n"' "$env_params"
+# printf "Environment end\n"
 
 ### Customization Point 3 ###
 eval exec env -- "$env_params" '"$@"'
