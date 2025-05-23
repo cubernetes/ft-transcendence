@@ -150,10 +150,6 @@ services:
             - "logstash-data:/usr/share/logstash/data/"
             - "elasticsearch-certs:/etc/logstash/config/certs/"
             - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
-        ports:
-            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/tcp"
-            - "${LOGSTASH_PORT:-5050}:${LOGSTASH_PORT:-5050}/udp"
-            - "${LOGSTASH_API_PORT:-9600}:${LOGSTASH_API_PORT:-9600}"
         environment: *env-common
         networks:
             ft-transcendence-net:
