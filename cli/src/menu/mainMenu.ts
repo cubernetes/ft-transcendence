@@ -29,6 +29,11 @@ export function printTitle(subtitle?: string): void {
         const sub = figlet.textSync(subtitle, { font: "Soft" });
         console.log(chalk.cyan(sub));
     }
+    const displayName = gameManager.getDisplayName?.();
+    if (displayName) {
+        console.log(chalk.yellowBright(`\tLogged in as: ${chalk.cyanBright.bold(displayName)}`));
+    }
+    console.log("");
 }
 
 async function promptMainMenu(): Promise<void> {
