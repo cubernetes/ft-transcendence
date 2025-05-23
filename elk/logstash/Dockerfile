@@ -3,17 +3,11 @@ FROM docker.elastic.co/logstash/logstash:8.17.3
 
 USER 0
 
+COPY --from=ft-transcendence-curl_base --chmod=755 /curl /usr/bin/curl
+
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt update -y && \
-	apt install -y jq libpsl-dev libssl-dev build-essential
-
-RUN cd /tmp/ && \
-	mkdir curl && cd curl && \
-	curl -L https://curl.se/download/curl-8.13.0.tar.gz | tar xzf - && \
-	cd *curl* && \
-	./configure --with-openssl --disable-shared && \
-	make -j && \
-	make install
+	apt install -y jq
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 
