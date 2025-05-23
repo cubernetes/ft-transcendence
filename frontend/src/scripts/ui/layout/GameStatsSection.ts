@@ -14,7 +14,7 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
     const friendSection = createFriendList();
 
     const toggleContainer = createEl("div", "flex justify-center gap-4 mb-4 mt-4");
-    const contentContainer = createEl("div", "w-full");
+    const contentContainer = createEl("div", "w-full min-h-[700px] transition-all");
 
     const toggleGroup = createButtonGroup({
         texts: [STATS_CHART, MATCH_HISTORY, FRIENDS],
@@ -131,7 +131,7 @@ export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
         if (!mapped) return null;
         return { gameId: index + 1, ...mapped };
     });
-    const chartEl = createEl("canvas", "w-full h-full", {
+    const chartEl = createEl("canvas", "w-full max-h-[700px]", {
         attributes: { id: "game-stats-chart" },
     });
 
