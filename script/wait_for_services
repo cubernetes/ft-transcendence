@@ -14,7 +14,7 @@ wait_for_service () {
 	echo
 }
 
-start=$(date +%s);
+start=$(date +%s)
 
 wait_for_service vault
 wait_for_service elasticsearch
@@ -22,14 +22,18 @@ wait_for_service logstash
 wait_for_service kibana
 wait_for_service backend
 
+HTTP_PORT=$(docker port caddy | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
+KIBANA_PORT=$(docker port kibana | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
+
 echo "Waiting 15 more seconds because kibana healthcheck is currently not working quite right"
 sleep 15
-echo "Frontend: http://localhost:8080"
-echo "OpenAPI:  http://localhost:8080/api/docs"
-echo "ELK       http://localhost:5601" ;
+echo "Frontend: http://localhost:${HTTP_PORT}"
+echo "OpenAPI:  http://localhost:${HTTP_PORT}/api/docs"
+echo "ELK       http://localhost:${KIBANA_PORT}"
+echo "Run 'make get-env SERVICE=elasticsearch' to get credentials for kibana"
 
-now=$(date +%s);
-min=$(( (now - start) / 60));
-sec=$(( (now - start) % 60));
+now=$(date +%s)
+min=$(( (now - start) / 60))
+sec=$(( (now - start) % 60))
 
 echo "Took ${min}m${sec}s"
