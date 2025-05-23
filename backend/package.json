@@ -21,7 +21,7 @@
         "@fastify/swagger": "^9.4.2",
         "@fastify/swagger-ui": "^5.2.2",
         "@fastify/websocket": "^11.0.2",
-        "bcrypt": "^5.1.1",
+        "bcryptjs": "^3.0.2",
         "better-sqlite3": "^11.8.1",
         "drizzle-orm": "^0.40.0",
         "fastify": "^5.2.1",
@@ -44,7 +44,7 @@
         "@types/tap": "^15.0.12",
         "@types/uuid": "^10.0.0",
         "@types/ws": "^8.18.0",
-        "drizzle-kit": "^0.31.0",
+        "drizzle-kit": "^0.31.1",
         "esbuild": "^0.25.2",
         "nodemon": "^3.1.9",
         "prettier": "^3.5.3",
@@ -52,5 +52,8 @@
         "tsx": "^4.19.3",
         "typescript": "^5.3.3",
         "zod-to-json-schema": "^3.24.4"
+    },
+    "overrides": {
+        "esbuild": "^0.25.2"
     }
 }
