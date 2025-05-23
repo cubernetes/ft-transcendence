@@ -14,6 +14,11 @@ wait_for_service () {
 	echo
 }
 
+wait_for_kibana_dashboards () {
+	# Quits after first match
+	docker compose logs -f kibana | grep -Fqm1 'Dashboard import completed. Check Kibana UI to verify.'
+}
+
 start=$(date +%s)
 
 wait_for_service vault
@@ -21,6 +26,7 @@ wait_for_service elasticsearch
 wait_for_service logstash
 wait_for_service kibana
 wait_for_service backend
+wait_for_kibana_dashboards
 
 echo "Waiting 15 more seconds because kibana healthcheck is currently not working quite right"
 sleep 15
