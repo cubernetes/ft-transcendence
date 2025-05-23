@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { error } from "console";
 import { on } from "events";
 import inquirer from "inquirer";
 import readline from "readline";
@@ -72,8 +73,7 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
 
     switch (action) {
         case "login":
-            await handleServerLogin();
-            break;
+            return handleServerLogin();
         case "register":
             if (await registerUser()) return await handleServerLogin();
             else return await promptRemotePlayMenu("Registration failed. Please try again.");
@@ -425,7 +425,7 @@ export async function handleServerLogin(): Promise<void> {
         console.log(" ");
         const { username, password } = await inquirer.prompt([
             { type: "input", name: "username", message: "Username:" },
-            { type: "password", name: "password", message: "Password:" },
+            { type: "password", name: "password", message: "Password:", mask: "*" },
         ]);
 
         const success = await loginToServer(username, password);
@@ -486,7 +486,9 @@ async function loginToServer(username: string, password: string): Promise<boolea
         const result = await response.json();
 
         if (result.success) {
-            console.log(chalk.green("✅ Login successful! Welcome,", result.data.displayName));
+            if (result.data?.displayName) {
+                gameManager.setDisplayName(result.data.displayName);
+            }
             return true;
         } else {
             console.error(chalk.red("❌ Login failed:", result.error?.message || "Unknown error"));
@@ -500,12 +502,41 @@ async function loginToServer(username: string, password: string): Promise<boolea
 
 async function registerUser(): Promise<boolean> {
     console.log(" ");
-    const { username, password, displayName, confirmPassword } = await inquirer.prompt([
-        { type: "input", name: "username", message: "New username: " },
-        { type: "password", name: "password", message: "New password: " },
-        { type: "input", name: "displayName", message: "Displayed Name: " },
-        { type: "password", name: "confirmPassword", message: "Confirm Password: " },
-    ]);
+    let password = "";
+    let confirmPassword = "";
+    let username = "";
+    let displayName = "";
+    let errorMsg = "";
+
+    while (true) {
+        printTitle("REGISTER");
+        if (errorMsg) {
+            console.log(chalk.red(errorMsg));
+        }
+        const answers = await inquirer.prompt([
+            { type: "input", name: "username", message: "New username: " },
+            {
+                type: "password",
+                name: "password",
+                message: "New password: ",
+                mask: "*",
+                validate: (input: string) =>
+                    input.length >= 8 ? true : "Password must be at least 8 characters.",
+            },
+            { type: "input", name: "displayName", message: "Displayed Name: " },
+            { type: "password", name: "confirmPassword", message: "Confirm Password: ", mask: "*" },
+        ]);
+        username = answers.username;
+        password = answers.password;
+        displayName = answers.displayName;
+        confirmPassword = answers.confirmPassword;
+
+        if (password !== confirmPassword) {
+            errorMsg = "❌ Passwords do not match.";
+            continue;
+        }
+        break;
+    }
 
     const data = {
         username: username,
