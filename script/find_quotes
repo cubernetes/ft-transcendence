@@ -14,16 +14,16 @@ cd -- "$toplevel"
 grep_for_quotes () {
 	case "$1" in
 		(dquote)
-			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]".*"' ;;
+			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]".*"' ;;
 		(squote)
-			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]'\''.*'\''' ;;
+			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]'\''.*'\''' ;;
 		(backtick)
 			# shellcheck disable=SC2016
-			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*`' ;;
+			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*`' ;;
 		(roff_squote)
-			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*'\''' ;;
+			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]`.*'\''' ;;
 		(roff_dquote)
-			grep --color=auto --regexp='\(#\|//\|/\*\|\*/\).*[^=a-zA-Z0-9_]``.*'\'''\''' ;;
+			grep --color=auto --regexp='\(#\|\(^//\|[^:]//\)\|/\*\|\*/\).*[^=a-zA-Z0-9_]``.*'\'''\''' ;;
 		(*)
 			die 'Got invalid argument to function grep_for_quotes: "'"%1"'"' ;;
 	esac

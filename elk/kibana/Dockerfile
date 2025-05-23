@@ -3,9 +3,17 @@ FROM docker.elastic.co/kibana/kibana:8.17.3
 
 USER 0
 
-ADD --chmod=755 https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-amd64 /usr/bin/curl
+RUN export DEBIAN_FRONTEND=noninteractive && \
+	apt update -y && \
+	apt install -y jq libpsl-dev libssl-dev build-essential
 
-RUN export DEBIAN_FRONTEND=noninteractive && apt update -y && apt install -y curl jq
+RUN cd /tmp/ && \
+	mkdir curl && cd curl && \
+	curl -L https://curl.se/download/curl-8.13.0.tar.gz | tar xzf - && \
+	cd *curl* && \
+	./configure --with-openssl --disable-shared && \
+	make -j && \
+	make install
 
 COPY --chmod=755 <<EOF /entrypoint.sh
 #!/bin/sh

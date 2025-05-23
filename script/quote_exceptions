@@ -1,111 +1,34 @@
 # Double Quote Exceptions
-pong/src/types/schemas.api.ts://     z.discriminatedUnion("success", [apiSuccess(data), apiErrorSchema]);
+.githooks/pre-commit:           #printf "\033[33m%s\033[m\n" \
+.githooks/pre-commit:           #       "Not enforcing. This warning will turn into an error in the future."
+frontend/src/scripts/modules/game/game.controller.ts:        // need new logic, maybe add "quit" to differentiate
+frontend/README.md:│  │  ├─ renderer.ts       // ⚒️  Basically the "class" of entire babylonjs engine
+frontend/tsconfig.json:        "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables "allowSyntheticDefaultImports" for type compatibility. */,
+vault/README.md:    #valid identifiers (e.g. the case for "bootstrap.memory_lock=true" in elk). Bash passes them through, which
+vault/README.md:    # Don't forget the `"\$@"` at the end to pass arguments!
+vault/README.md:    # CMD ["/usr/local/bin/foo-init.sh"]
+vault/README.md:    # HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=60s --start-interval=1s CMD ["curl", "--fail", "http://foo:4242/"]
+vault/config.hcl.template:#api_addr      = "http://127.0.0.1:${VAULT_API_PORT}"
+backend/src/modules/lobby/lobby.schema.ts:        // 401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+backend/src/utils/logger.ts:                            //formatLine: (obj: any) => JSON.stringify(obj) + "\n",
 .githooks/pre-commit:	[ "$#" -lt 1 ] && die "format_staged function expects at least 1 extension as an argument"
 script/format_all:	[ "$#" -lt 1 ] && die "format_all function expects at least 1 extension as an argument"
-frontend/src/scripts/index.ts:    // document.addEventListener("DOMContentLoaded", launchSite);
-frontend/src/scripts/index.ts:    // document.addEventListener("beforeunload", );
-frontend/src/scripts/index.ts:    // document.addEventListener("pageshow", );
 frontend/src/scripts/modules/game/objects/objects.paddle.ts:    // const paddleMaterial3 = new StandardMaterial("paddleMat3", babylon.scene);
-frontend/src/scripts/modules/game/renderer/renderer.controls.ts:            //button.textBlock!.text = "Shadows";
-frontend/src/scripts/modules/game/renderer/renderer.controls.ts:            //shadowButton.textBlock!.text = "Shadows";
-frontend/src/scripts/ui/layout/Paddles.ts:    // window.log.debug("Registering paddle listener");
-frontend/src/scripts/ui/layout/Paddles.ts:        // window.log.debug("Destroying paddle listener");
-frontend/src/scripts/ui/pages/TotpSetupPage.ts:                //container.innerHTML = "";
-frontend/src/archive/components.simulation.ts:// } from "@babylonjs/core";
-frontend/src/archive/components.simulation.ts:// import { registerBuiltInLoaders } from "@babylonjs/loaders/dynamic";
-frontend/src/archive/components.simulation.ts://     const container = document.createElement("div");
-frontend/src/archive/components.simulation.ts://     container.className = "w-screen h-screen"; // Set explicit height
-frontend/src/archive/components.simulation.ts://     const gameSection = document.createElement("canvas");
-frontend/src/archive/components.simulation.ts://     gameSection.className = "w-screen h-screen";
-frontend/src/archive/components.simulation.ts://     gameSection.id = "renderCanvas"; // Add an ID for easier reference
-frontend/src/archive/components.simulation.ts://     const playButton = document.createElement("button");
-frontend/src/archive/components.simulation.ts://     playButton.textContent = "Click to Start Game";
-frontend/src/archive/components.simulation.ts://     playButton.className = "container mx-auto";
-frontend/src/archive/components.simulation.ts://     container.addEventListener("destroy", () => {
-frontend/src/archive/components.simulation.ts://         window.log.info("received destroy");
-frontend/src/archive/components.simulation.ts://     playButton.addEventListener("click", () => {
-frontend/src/archive/components.simulation.ts://         window.addEventListener("resize", () => {
-frontend/src/archive/components.simulation.ts://         "ground",
-frontend/src/archive/components.simulation.ts://     const groundMaterial = new StandardMaterial("groundMaterial", scene);
-frontend/src/archive/components.simulation.ts://     const skydome = MeshBuilder.CreateBox("sky", { size, sideOrientation: Mesh.BACKSIDE }, scene);
-frontend/src/archive/components.simulation.ts://     const sky = new BackgroundMaterial("skyMaterial", scene);
-frontend/src/archive/components.simulation.ts://         "px.png",
-frontend/src/archive/components.simulation.ts://         "py.png",
-frontend/src/archive/components.simulation.ts://         "pz.png",
-frontend/src/archive/components.simulation.ts://         "nx.png",
-frontend/src/archive/components.simulation.ts://         "ny.png",
-frontend/src/archive/components.simulation.ts://         "nz.png",
-frontend/src/archive/components.simulation.ts://         "asset task 1",
-frontend/src/archive/components.simulation.ts://         "",
-frontend/src/archive/components.simulation.ts://         "assets/textures/",
-frontend/src/archive/components.simulation.ts://         "aldrich.glb"
-frontend/src/archive/components.simulation.ts://         "asset task 2",
-frontend/src/archive/components.simulation.ts://         "",
-frontend/src/archive/components.simulation.ts://         "dragon.glb"
-frontend/src/archive/components.simulation.ts://         "asset task 3",
-frontend/src/archive/components.simulation.ts://         "",
-frontend/src/archive/components.simulation.ts://         "mythcreature.glb"
-frontend/src/archive/components.simulation.ts://         "asset task 4",
-frontend/src/archive/components.simulation.ts://         "",
-frontend/src/archive/components.simulation.ts://         "mythcreature.glb"
-frontend/src/archive/components.simulation.ts://         "Camera",
-frontend/src/archive/components.simulation.ts://         "middleLine",
-frontend/src/archive/components.simulation.ts://     const middleLineMaterial = new StandardMaterial("middleLine", scene);
-frontend/src/archive/components.simulation.ts://         "board",
-frontend/src/archive/components.simulation.ts://     const boardMaterial = new StandardMaterial("board", scene);
-frontend/src/archive/components.simulation.ts://     const paddleMaterial = new StandardMaterial("paddle", scene);
-frontend/src/archive/components.simulation.ts://         "paddle1",
-frontend/src/archive/components.simulation.ts://         "paddle2",
-frontend/src/archive/components.simulation.ts://         "ball",
-frontend/src/archive/components.simulation.ts://     const ballMaterial = new StandardMaterial("ball", scene);
 frontend/src/styles/styles.css:/*@import "tailwindcss";*/
-vault/README.md:    # common example: exec tini -- "\$@"
 vault/replace_json_templates.py:#   "foo": "{{digit:16}}"
 vault/replace_json_templates.py:#   "foo": "2819465738296500"
-vault/config.hcl:#api_addr      = "http://127.0.0.1:8200"
 cli/src/GameRendering.ts:    // frameBuffer += "\x1b[43m"; // Set background color to green
 cli/src/index.ts:        // console.error("Failed to start remote game!");
 cli/src/utils.ts:// // Utility to convert "x: ..., y: ..., z: ..." → Vec2D using x and z
 cli/src/WebSocketManager.ts:            // console.log("Connected to the server");
 cli/tsconfig.json:        // "target": "ES2020",
-backend/src/modules/game/game.routes.ts://import { createGameSchema, gameIdSchema } from "./game.types.ts";
-backend/src/modules/game/game.routes.ts:// import { withZod } from "../../utils/zod-validate.ts";
-backend/src/modules/game/game.routes.ts:    //app.post("/create", withZod({ body: createGameSchema }, createGameHandler));
-backend/src/modules/game/game.routes.ts:    //app.get("/id/:id", withZod({ params: gameIdSchema }, getGameByIdHandler));
-backend/src/modules/game/game.routes.ts:    //app.get("/all", getAllGamesHandler);
-backend/src/modules/user/__tests__/user.schema.test.ts:// import { test } from "tap";
-backend/src/modules/user/__tests__/user.schema.test.ts:// import { faker } from "@faker-js/faker";
-backend/src/modules/user/__tests__/user.schema.test.ts:// test("registerBodySchema - valid data passes", (t) => {
-backend/src/modules/user/__tests__/user.schema.test.ts://     t.ok(result.success, "Valid user data should pass");
-backend/src/modules/modules.plugin.ts:// import friendPlugin from "./friend/friend.plugin";
-backend/src/modules/modules.plugin.ts://import tournamentPlugin from "./tournament/tournament.plugin.ts";
-backend/src/types.d.ts:// import type { createFriendService } from "./friend/friend.service";
-backend/src/types.d.ts:// import type authRoutes from "./auth/auth.routes";
-backend/src/types.d.ts:// import friendRoutes from "./friend/friend.routes";
 
 # Backtick exceptions
-frontend/src/archive/components.simulation.ts://     groundMaterial.diffuseTexture = new Texture(`${window.cfg.dir.asset}/ground.jpg`, scene);
-frontend/src/archive/components.simulation.ts://     sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.asset}/skybox/`, scene, [
+cli/src/audio.ts:                //     console.warn(`"aplay" exited with code ${code}`);
+cli/src/audio.ts:                //     console.warn(`"aplay" was terminated by signal ${signal}`);
 cli/src/index.ts:            // const serverUrl = `ws://localhost:8080/ws?token=${token}`;
-cli/src/utils.ts://     if (!matches) throw new Error(`Invalid vec3 format: ${vecString}`);
 cli/src/WebSocketManager.ts:        // console.log(`[SEND] ${response}`);
-backend/src/core/config/config.plugin.ts:            ? domains.flatMap((d) => [`https://${d}`, `http://${d}`])
-backend/src/utils/logger.ts://         ballPosition: `x: ${state.ballPosition.x}, y: ${state.ballPosition.y}, z: ${state.ballPosition.z}`,
-backend/src/utils/logger.ts://         paddle1Position: `x: ${state.paddlePosition["player-1"].x}, y: ${state.paddlePosition["player-1"].y}, z: ${state.paddlePosition["player-1"].z}`,
-backend/src/utils/logger.ts://         paddle2Position: `x: ${state.paddlePosition["player-2"].x}, y: ${state.paddlePosition["player-2"].y}, z: ${state.paddlePosition["player-2"].z}`,
-backend/src/utils/logger.ts://         score: `player1: ${state.score.player1}, player2: ${state.score.player2}`,
 
 # Other exceptions
-elk/kibana/setup-dashboards.sh:while ! curl --silent "http://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
-elk/elasticsearch/setup-ilm.sh:until curl --silent "http://elasticsearch:${ELASTICSEARCH_PORT}/_cluster/health" | grep -q '"status":"green"\|"status":"yellow"'; do
-elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure "https://localhost:${ELASTICSEARCH_PORT}/_security/user/${LOGSTASH_USER}" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data '{
-elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure "https://localhost:${ELASTICSEARCH_PORT}/_security/user/${KIBANA_USER}" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data '{
-elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure -X PUT "https://localhost:${ELASTICSEARCH_PORT}/_ilm/policy/logs" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data "@/usr/share/elasticsearch/config/ilm-policy.json"
-elk/kibana/setup-dashboards.sh:while ! curl --no-progress-meter "http://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
-env.json:        "ELASTICSEARCH_HOSTS": "https://elasticsearch:{{ref:'elasticsearch','ELASTICSEARCH_PORT'}}",
-./env.json:        "ELASTICSEARCH_HOSTS": "https://elasticsearch:{{ref:'elasticsearch','ELASTICSEARCH_PORT'}}",
-./elk/kibana/setup-dashboards.sh:while ! curl --no-progress-meter "http://kibana:5601/api/status" | grep -q '"overall":{"level":"available"'; do
-./elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure "https://localhost:${ELASTICSEARCH_PORT}/_security/user/${LOGSTASH_USER}" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data '{
-./elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure "https://localhost:${ELASTICSEARCH_PORT}/_security/user/${KIBANA_USER}" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data '{
-./elk/elasticsearch/setup-single-node.sh:curl --no-progress-meter --insecure -X PUT "https://localhost:${ELASTICSEARCH_PORT}/_ilm/policy/logs" --header 'Content-Type: application/json' --user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" --data "@/usr/share/elasticsearch/config/ilm-policy.json"
-./elk/elasticsearch/setup-ilm.sh:until curl --silent "http://elasticsearch:${ELASTICSEARCH_PORT}/_cluster/health" | grep -q '"status":"green"\|"status":"yellow"'; do
+vault/README.md:    # `env` will exec itself, so that's fine as well.
+vault/README.md:    # which is also why we have extra qoutes around this: '"\$@"'
