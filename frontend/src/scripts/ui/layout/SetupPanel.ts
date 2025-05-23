@@ -82,8 +82,15 @@ const createBasePanel = (ctn: UIContainer): UIComponent => {
 
 const createLocalPanel = (ctn: UIContainer): UIComponent => {
     // Get I18N keys needed from constants
-    const { LOCAL, ENTER_PLAYER_NAMES, PLAY, PLAYER_NAMES_REQUIRED, INIT_ERROR, NAME_PLAYER } =
-        CONST.TEXT;
+    const {
+        LOCAL,
+        ENTER_PLAYER_NAMES,
+        PLAY,
+        PLAYER_NAMES_REQUIRED,
+        INIT_ERROR,
+        NAME_PLAYER,
+        PLAYER_NAMES_DUPLICATE,
+    } = CONST.TEXT;
 
     const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
     const titleEl = createHeading({ text: LOCAL });
@@ -104,7 +111,8 @@ const createLocalPanel = (ctn: UIContainer): UIComponent => {
     const localPlayBtn = createCtaBtn(PLAY, () => {
         const player1 = localP1.value.trim();
         const player2 = localP2.value.trim();
-        if (!player1 || !player2 || player1 === player2) return showErr(PLAYER_NAMES_REQUIRED);
+        if (!player1 || !player2) return showErr(PLAYER_NAMES_REQUIRED);
+        if (player1 === player2) return showErr(PLAYER_NAMES_DUPLICATE);
 
         const { controller } = gameStore.get();
         if (!controller) return showErr(INIT_ERROR);
@@ -121,7 +129,15 @@ const createLocalPanel = (ctn: UIContainer): UIComponent => {
 
 const createAiPanel = (ctn: UIContainer): UIComponent => {
     // Get I18N keys needed from constants
-    const { AI, INIT_ERROR, NAME_PLAYER, PLAY, DIFFICULTY, DIFFICULTY_REQUIRED } = CONST.TEXT;
+    const {
+        AI,
+        INIT_ERROR,
+        NAME_PLAYER,
+        PLAY,
+        DIFFICULTY,
+        DIFFICULTY_REQUIRED,
+        PLAYER_NAMES_REQUIRED,
+    } = CONST.TEXT;
     const { EASY, MEDIUM, HARD } = CONST.TEXT;
 
     const returnBtn = createReturnBtn(ctn, createBasePanel(ctn));
@@ -149,6 +165,7 @@ const createAiPanel = (ctn: UIContainer): UIComponent => {
 
     const aiPlayBtn = createCtaBtn(PLAY, () => {
         const selected = difficultyGrp.querySelector(`.${CONST.CLASS.ACTIVE_BTN}`);
+        if (!aiP1.value.trim()) return showErr(PLAYER_NAMES_REQUIRED);
         if (!selected) return showErr(DIFFICULTY_REQUIRED);
 
         const aiDifficulty = selected
