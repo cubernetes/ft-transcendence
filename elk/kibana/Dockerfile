@@ -15,58 +15,7 @@ RUN cd /tmp/ && \
 	make -j && \
 	make install
 
-COPY --chmod=755 <<EOF /entrypoint.sh
-#!/bin/sh
-
-set -e # exit on any error
-set -u # treat failed expansion as error
-#set -vx # for debugging
-
-### Customization Point 2 ###
-service=kibana
-
-vault_token=\$(cat "/run/secrets/\${service}_vault_token")
-vault_addr=http://vault:${VAULT_API_PORT:-8200}
-
-get_all_secrets_as_env_params () {
-	curl --no-progress-meter --header "X-Vault-Token: \$vault_token" \\
-		"\$vault_addr/v1/secret/data/\$service" | jq --raw-output '
-			[
-				.data.data | to_entries[] |
-					"'\\''"
-					+ .key
-					+ "="
-					+ (
-						if .value | type == "string" then
-							(
-								.value |
-									gsub(
-										"'\\''";
-										"'\\''\\\\'\\'''\\''"
-									)
-							)
-						else
-							.value
-						end
-					  )
-					+ "'\\''"
-			] | join(" ")
-		'
-}
-
-env_params=\$(get_all_secrets_as_env_params)
-
-# Print all secrets for logging
-printf "Environment start\\n"
-eval printf '"%s\\n"' "\$env_params"
-printf "Environment end\\n"
-
-# Truncate file for good measure
-: > "/run/secrets/\${service}_vault_token"
-
-### Customization Point 3 ###
-eval exec env -- "\$env_params" /bin/tini -- '"\$@"'
-EOF
+COPY --chmod=755 ./entrypoint.sh /entrypoint.sh
 
 CMD ["sh", "-xec", ": Healthcheck ; TERM=linux setsid -f watch -xtcn5 curl --no-progress-meter --fail --write-out '%output{/tmp/healthcheck}%{exitcode}' \"http://localhost:${KIBANA_PORT}/api/status\" 1>/dev/null 2>&1 ; /usr/local/bin/kibana-docker & KIBANA_PID=$! ; echo \"Kibana starting with PID $KIBANA_PID\" ; sleep 120 ; /usr/share/kibana/setup-dashboards.sh & wait $KIBANA_PID"]
 
