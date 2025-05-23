@@ -7,7 +7,7 @@ wait_for_service () {
 	[ -n "$service" ] || { echo "Expected 1 argument"; return 1; }
 	i=0
 	while [ ! "$(2>/dev/null docker inspect -f "{{.State.Health.Status}}" "$service")" = "healthy" ]; do
-		printf "\015""Waiting_for_service_${service}_to_start%${i}s" "" | sed -u "s/ /./g; /_/ /g"
+		printf "\015""Waiting_for_service_${service}_to_start%${i}s" "" | sed -u "s/ /./g; s/_/ /g"
 		i=$((i + 1))
 		sleep 0.3
 	done
