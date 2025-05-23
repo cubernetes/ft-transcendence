@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #Must be bash since sh (specifically dash) sanitizes all environment variables which are not
 #valid identifiers (e.g. the case for "bootstrap.memory_lock=true"). Bash passes them through, which
