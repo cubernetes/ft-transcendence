@@ -17,7 +17,7 @@ wait_for_service () {
 wait_for_kibana_dashboards () {
 	# Quits after first match
 	echo "Waiting for kibana to say that dashboards are imported (might take a minute)..."
-	docker compose logs -f kibana | grep -Fqm1 'Dashboard import completed. Check Kibana UI to verify.'
+	docker compose logs -f kibana | stdbuf -i0 -o0 grep -Fqm1 'Dashboard import completed. Check Kibana UI to verify.'
 }
 
 start=$(date +%s)
