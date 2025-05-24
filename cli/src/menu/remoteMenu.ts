@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { clear, log } from "console";
 import inquirer from "inquirer";
 import readline from "readline";
 import gameManager from "../game/GameManager";
@@ -464,50 +465,69 @@ export async function handleServerLogin(): Promise<void> {
 export async function logout(): Promise<void> {
     clearToken();
     gameManager.setDisplayName?.(null);
-    console.log(chalk.green("✅ Logged out successfully."));
+    // console.log(chalk.green("✅ Logged out successfully."));
     return promptRemotePlayMenu();
 }
 
 async function loginToServer(username: string, password: string): Promise<boolean> {
     try {
+        let loginPayload: any = { username, password };
+
         const response = await fetch(`${API_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify(loginPayload),
         });
 
+        // // Print the raw response for debugging
+        // console.log(chalk.blueBright("\n--- Raw Response ---"));
+        // console.log("Status:", response.status);
+        // console.log("Headers:", JSON.stringify([...response.headers], null, 2));
+        // // Wait for user input to continue
+        // await inquirer.prompt([{ type: "input", name: "continue", message: "Press Enter to continue..." }]);
+
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error(chalk.red(`❌ Login failed: ${response.status} - ${errorText}`));
+            let errorText: string;
+            try {
+                const errJson = await response.json();
+                errorText = errJson?.error?.message || JSON.stringify(errJson);
+            } catch {
+                errorText = await response.text();
+            }
+            // console.error(chalk.red(`❌ Login failed: ${response.status} - ${errorText}`));
+            clearToken();
             return false;
         }
 
         const setCookieHeader = response.headers.get("set-cookie");
-        if (setCookieHeader) {
-            const tokenMatch = setCookieHeader.match(/token=([^;]+)/);
-            if (tokenMatch) {
-                const token = tokenMatch[1];
-                setToken(token);
-            } else {
-                console.error(chalk.red("❌ Token not found in set-cookie header."));
-            }
-        } else {
-            console.error(chalk.red("❌ No set-cookie header received."));
+        if (!setCookieHeader) {
+            // console.error(chalk.red("❌ No set-cookie header received."));
+            clearToken();
+            return false;
         }
 
-        const result = await response.json();
+        const tokenMatch = setCookieHeader.match(/token=([^;]+)/);
+        if (!tokenMatch) {
+            // console.error(chalk.red("❌ Token not found in set-cookie header."));
+            clearToken();
+            return false;
+        }
 
-        if (result.success) {
+        setToken(tokenMatch[1]);
+
+        try {
+            const result = await response.json();
             if (result.data?.displayName) {
                 gameManager.setDisplayName(result.data.displayName);
             }
-            return true;
-        } else {
-            console.error(chalk.red("❌ Login failed:", result.error?.message || "Unknown error"));
-            return false;
+        } catch {
+            // Ignore JSON parse errors here
         }
+
+        return true;
     } catch (err) {
         console.error(chalk.red("Login error:", err));
+        clearToken();
         return false;
     }
 }
