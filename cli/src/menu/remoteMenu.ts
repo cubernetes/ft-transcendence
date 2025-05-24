@@ -1,6 +1,4 @@
 import chalk from "chalk";
-import { error } from "console";
-import { on } from "events";
 import inquirer from "inquirer";
 import readline from "readline";
 import gameManager from "../game/GameManager";
@@ -9,6 +7,17 @@ import { cleanup } from "../utils/cleanup";
 import { API_URL } from "../utils/config";
 import { showLobbyUpdate } from "../utils/div";
 import { mainMenu, printTitle } from "./mainMenu";
+
+const LOBBY_ID_LENGTH = 6;
+const ERROR_MESSAGES = {
+    LOBBY_FULL: "❌ This lobby is full! Try joining another lobby.",
+    LOBBY_NOT_FOUND: "❌ Lobby not found. Please check the Lobby ID and try again.",
+    ALREADY_IN_LOBBY: "✅ You are already in a lobby.",
+    INVALID_LOBBY_ID: `❌ Invalid Lobby ID. It must be ${LOBBY_ID_LENGTH} characters.`,
+    LOGIN_REQUIRED: "❌ No token found. Please log in again.",
+    REGISTRATION_FAILED: "Registration failed. Please try again.",
+    NEED_TWO_PLAYERS: "🚫 You need two players in the lobby to start the game!",
+} as const;
 
 export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
     printTitle("REMOTE GAME");
@@ -76,7 +85,7 @@ export async function promptRemotePlayMenu(errorMsg?: string): Promise<void> {
             return handleServerLogin();
         case "register":
             if (await registerUser()) return await handleServerLogin();
-            else return await promptRemotePlayMenu("Registration failed. Please try again.");
+            else return await promptRemotePlayMenu(ERROR_MESSAGES.REGISTRATION_FAILED);
         case "back":
             return mainMenu();
         default:
@@ -88,7 +97,7 @@ export async function createLobby(): Promise<void> {
     try {
         const token = getToken();
         if (!token) {
-            console.error(chalk.red("❌ No token found. Please log in again."));
+            console.error(chalk.red(ERROR_MESSAGES.LOGIN_REQUIRED));
             return;
         }
 
@@ -103,12 +112,7 @@ export async function createLobby(): Promise<void> {
             const errorText = await response.text();
 
             if (response.status === 409 && errorText.includes("ALREADY_IN_LOBBY")) {
-                await fetch(`${API_URL}/lobby/leave`, {
-                    method: "POST",
-                    headers: {
-                        Cookie: `token=${token}`,
-                    },
-                });
+                await leaveLobby(token);
                 return createLobby();
             }
 
@@ -180,13 +184,7 @@ async function lobbyOwnerMenu(lobbyId: string) {
                 }
                 return gameManager.start1PRemote();
             } else if (action === "leave") {
-                const token = getToken();
-                await fetch(`${API_URL}/lobby/leave`, {
-                    method: "POST",
-                    headers: {
-                        Cookie: `token=${token}`,
-                    },
-                });
+                await leaveLobby();
                 wsManager.off("lobby-update", onLobbyUpdate);
                 gameManager.setCurrentLobbyId(null);
                 gameManager.setWSActive(false);
@@ -229,6 +227,43 @@ async function lobbySettingsMenu(latestLobbyUpdate: any) {
     });
 }
 
+async function leaveLobby(token?: string): Promise<void> {
+    const authToken = token || getToken();
+    if (!authToken) return;
+
+    try {
+        await fetch(`${API_URL}/lobby/leave`, {
+            method: "POST",
+            headers: {
+                Cookie: `token=${authToken}`,
+            },
+        });
+    } catch (err) {
+        console.error(chalk.red("Error leaving lobby:"), err);
+    }
+}
+
+function handleJoinError(status: number, errorText: string): string {
+    try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error?.code === "LOBBY_FULL") {
+            return ERROR_MESSAGES.LOBBY_FULL;
+        }
+    } catch {
+        // Not JSON, continue with text-based checks
+    }
+
+    if (status === 404 && errorText.includes("NOT_FOUND")) {
+        return ERROR_MESSAGES.LOBBY_NOT_FOUND;
+    } else if (status === 409 && errorText.includes("ALREADY_IN_LOBBY")) {
+        return ERROR_MESSAGES.ALREADY_IN_LOBBY;
+    } else if (status === 409 && errorText.includes("LOBBY_FULL")) {
+        return ERROR_MESSAGES.LOBBY_FULL;
+    }
+
+    return `Failed to join lobby: ${status} - ${errorText}`;
+}
+
 export async function joinLobby(): Promise<void> {
     async function promptRetryOrBack(message: string): Promise<boolean> {
         console.error(chalk.red(message));
@@ -255,21 +290,21 @@ export async function joinLobby(): Promise<void> {
                 type: "input",
                 name: "lobbyId",
                 message: "Enter Lobby ID to join:",
+                validate: (input: string) => {
+                    if (!input || input.trim().length !== LOBBY_ID_LENGTH) {
+                        return ERROR_MESSAGES.INVALID_LOBBY_ID;
+                    }
+                    return true;
+                },
             },
         ]);
         lobbyId = response.lobbyId;
-
-        if (!lobbyId || lobbyId.trim().length !== 6) {
-            const retry = await promptRetryOrBack("❌ Invalid Lobby ID. It must be 6 characters.");
-            if (!retry) return promptRemotePlayMenu("Lobby join cancelled.");
-            continue;
-        }
 
         try {
             const token = getToken();
 
             if (!token) {
-                console.error(chalk.red("❌ No token found. Please log in again."));
+                console.error(chalk.red(ERROR_MESSAGES.LOGIN_REQUIRED));
                 return;
             }
 
@@ -282,15 +317,11 @@ export async function joinLobby(): Promise<void> {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                if (response.status === 404 && errorText.includes("NOT_FOUND")) {
-                    const retry = await promptRetryOrBack(
-                        "❌ Lobby not found. Please check the Lobby ID and try again."
-                    );
-                    if (!retry) return;
-                    continue;
-                } else if (response.status === 409 && errorText.includes("ALREADY_IN_LOBBY")) {
+                const errorMessage = handleJoinError(response.status, errorText);
+
+                if (response.status === 409 && errorText.includes("ALREADY_IN_LOBBY")) {
                     printTitle("GAME LOBBY");
-                    console.error(chalk.red("✅ You are already in a lobby."));
+                    console.error(chalk.red(ERROR_MESSAGES.ALREADY_IN_LOBBY));
                     const { action } = await inquirer.prompt([
                         {
                             type: "list",
@@ -303,14 +334,9 @@ export async function joinLobby(): Promise<void> {
                             ],
                         },
                     ]);
-                    if (action === "leave") {
-                        await fetch(`${API_URL}/lobby/leave`, {
-                            method: "POST",
-                            headers: {
-                                Cookie: `token=${token}`,
-                            },
-                        });
 
+                    if (action === "leave") {
+                        await leaveLobby(token);
                         console.log(chalk.green("✅ Left the previous lobby."));
                         continue;
                     } else if (action === "join") {
@@ -318,15 +344,14 @@ export async function joinLobby(): Promise<void> {
                     } else {
                         return;
                     }
-                } else {
-                    const retry = await promptRetryOrBack(
-                        `Failed to join lobby: ${response.status} - ${errorText}`
-                    );
-                    if (!retry) return;
-                    continue;
                 }
+
+                const retry = await promptRetryOrBack(errorMessage);
+                if (!retry) return;
+                continue;
             }
 
+            // ### Successfully joined the lobby ###
             const wsManager = gameManager.getWSManager();
             gameManager.setCurrentLobbyId(lobbyId);
             gameManager.setWSActive(true);
@@ -337,18 +362,23 @@ export async function joinLobby(): Promise<void> {
                 showLobbyUpdate(latestLobbyUpdate);
                 readline.cursorTo(process.stdout, 0, 29);
             }
+
             function onGameStart() {
-                wsManager.off("lobby-update", onLobbyUpdate);
-                wsManager.off("lobby-remove", onLobbyRemove);
+                cleanupListeners();
                 return gameManager.join1PRemote();
             }
+
             function onLobbyRemove() {
                 gameManager.setCurrentLobbyId(null);
                 gameManager.setWSActive(false);
+                cleanupListeners();
+                return promptRemotePlayMenu("You have been removed from the lobby.");
+            }
+
+            function cleanupListeners() {
                 wsManager.off("lobby-update", onLobbyUpdate);
                 wsManager.off("game-start", onGameStart);
                 wsManager.off("lobby-remove", onLobbyRemove);
-                return promptRemotePlayMenu("You have been removed from the lobby.");
             }
 
             wsManager.on("lobby-update", onLobbyUpdate);
@@ -369,18 +399,11 @@ export async function joinLobby(): Promise<void> {
                         choices: [{ name: chalk.red("🚪  Leave Lobby"), value: "leave" }],
                     },
                 ]);
+
                 if (action === "leave") {
-                    await fetch(`${API_URL}/lobby/leave`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Cookie: `token=${token}`,
-                        },
-                    });
+                    await leaveLobby(token);
                     gameManager.setCurrentLobbyId(null);
-                    wsManager.off("lobby-update", onLobbyUpdate);
-                    wsManager.off("game-start", onGameStart);
-                    wsManager.off("lobby-remove", onLobbyRemove);
+                    cleanupListeners();
                     return promptRemotePlayMenu("You have left the lobby.");
                 }
             }
@@ -409,15 +432,7 @@ export async function askLobbyLeave(lobbyId: string): Promise<void> {
         },
     ]);
 
-    const token = getToken();
-    await fetch(`${API_URL}/lobby/leave`, {
-        method: "POST",
-        headers: {
-            Cookie: `token=${token}`,
-        },
-    });
-
-    return;
+    await leaveLobby();
 }
 
 export async function handleServerLogin(): Promise<void> {
@@ -458,10 +473,7 @@ async function loginToServer(username: string, password: string): Promise<boolea
         const response = await fetch(`${API_URL}/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                username,
-                password,
-            }),
+            body: JSON.stringify({ username, password }),
         });
 
         if (!response.ok) {
@@ -475,8 +487,7 @@ async function loginToServer(username: string, password: string): Promise<boolea
             const tokenMatch = setCookieHeader.match(/token=([^;]+)/);
             if (tokenMatch) {
                 const token = tokenMatch[1];
-                setToken(token); // Store the token using auth.ts
-                console.log(chalk.green("✅ Token stored successfully:", token));
+                setToken(token);
             } else {
                 console.error(chalk.red("❌ Token not found in set-cookie header."));
             }
@@ -503,10 +514,6 @@ async function loginToServer(username: string, password: string): Promise<boolea
 
 async function registerUser(): Promise<boolean> {
     console.log(" ");
-    let password = "";
-    let confirmPassword = "";
-    let username = "";
-    let displayName = "";
     let errorMsg = "";
 
     while (true) {
@@ -514,6 +521,7 @@ async function registerUser(): Promise<boolean> {
         if (errorMsg) {
             console.log(chalk.red(errorMsg));
         }
+
         const answers = await inquirer.prompt([
             { type: "input", name: "username", message: "New username: " },
             {
@@ -527,42 +535,35 @@ async function registerUser(): Promise<boolean> {
             { type: "input", name: "displayName", message: "Displayed Name: " },
             { type: "password", name: "confirmPassword", message: "Confirm Password: ", mask: "*" },
         ]);
-        username = answers.username;
-        password = answers.password;
-        displayName = answers.displayName;
-        confirmPassword = answers.confirmPassword;
 
-        if (password !== confirmPassword) {
+        if (answers.password !== answers.confirmPassword) {
             errorMsg = "❌ Passwords do not match.";
             continue;
         }
-        break;
-    }
 
-    const data = {
-        username: username,
-        password: password,
-        displayName: displayName,
-        confirmPassword: confirmPassword,
-    };
+        try {
+            const res = await fetch(`${API_URL}/user/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: answers.username,
+                    password: answers.password,
+                    displayName: answers.displayName,
+                    confirmPassword: answers.confirmPassword,
+                }),
+            });
 
-    try {
-        const res = await fetch(`${API_URL}/user/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
+            if (!res.ok) {
+                const errText = await res.text();
+                console.log(chalk.red(`❌ Registration failed: ${res.status} ${errText}`));
+                return false;
+            }
 
-        if (!res.ok) {
-            const errText = "Unknown error";
-            console.log(chalk.red(`❌ Registration failed: ${res.status} ${errText}`));
+            console.log(chalk.green("✅ Registration successful! You can now log in."));
+            return true;
+        } catch (err) {
+            console.error(chalk.red("⚠️ Registration error:"), err);
             return false;
         }
-
-        console.log(chalk.green("✅ Registration successful! You can now log in."));
-        return true;
-    } catch (err) {
-        console.error(chalk.red("⚠️ Registration error:"), err);
-        return false;
     }
 }
