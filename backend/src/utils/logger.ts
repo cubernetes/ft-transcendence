@@ -167,8 +167,8 @@ const getElkLoggerConfig = (): PinoLoggerOptions => {
                 level,
                 options: {
                     mode: "tcp",
-                    address: process.env.LOGSTASH_HOSTNAME,
-                    port: Number(process.env.LOGSTASH_PORT || 5050),
+                    address: LOGSTASH_HOSTNAME,
+                    port: Number(LOGSTASH_PORT || 5050),
                     enablePipelining: true,
                     //formatLine: (obj: any) => JSON.stringify(obj) + "\n",
                 },
