@@ -131,7 +131,7 @@ const devConsoleLoggerConfig: PinoLoggerOptions = {
 };
 
 // Get logger configuration with appropriate transports
-const getLoggerConfig = (): PinoLoggerOptions => {
+export const getLoggerConfig = (): PinoLoggerOptions => {
     // Always include the console transport for local visibility
     const consoleTransport = {
         target: "pino-pretty",
@@ -175,9 +175,3 @@ const getLoggerConfig = (): PinoLoggerOptions => {
           }
         : devConsoleLoggerConfig;
 };
-
-export const loggerConfig = getLoggerConfig();
-
-// For backward compatibility
-export const devLoggerConfig = loggerConfig;
-export const prodLoggerConfig = loggerConfig;

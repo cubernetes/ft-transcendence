@@ -1,6 +1,6 @@
 import type { FastifyServerOptions } from "fastify";
 import buildApp from "./utils/app.ts";
-import { devLoggerConfig, prodLoggerConfig } from "./utils/logger.ts";
+import { getLoggerConfig } from "./utils/logger.ts";
 import { readVaultOnce } from "./utils/vault.ts";
 
 // Read vault secrets
@@ -20,7 +20,7 @@ process.env.HOST = secrets.value.HOST;
 
 // Fastify server options, cannot be changed once instance is created
 const appOpts: FastifyServerOptions = {
-    logger: process.env.NODE_ENV === "production" ? prodLoggerConfig : devLoggerConfig,
+    logger: getLoggerConfig(),
 };
 
 // Build app
