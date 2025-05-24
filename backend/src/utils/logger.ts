@@ -1,9 +1,8 @@
 import type { PinoLoggerOptions } from "fastify/types/logger.ts";
+import net from "net";
 import os from "os";
 import pino from "pino";
 import { ZodError } from "zod";
-
-const hostname = os.hostname();
 
 const formatError = (e: unknown) => {
     if (e instanceof ZodError) {
@@ -28,7 +27,7 @@ const formatError = (e: unknown) => {
 };
 
 // Helper to ensure only plain, serializable objects are logged
-export function toPlain(obj: any) {
+export const toPlain = (obj: any) => {
     if (obj instanceof Error) {
         return formatError(obj);
     }
@@ -37,16 +36,71 @@ export function toPlain(obj: any) {
     } catch {
         return { message: String(obj) };
     }
-}
+};
 
-const elkLoggerConfig = {
-    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === "production" ? "info" : "debug"),
-    base: {
-        hostname: hostname,
+const logstashReachable = (timeoutMs: number = 1000): Promise<boolean> => {
+    return new Promise((resolve) => {
+        const socket = new net.Socket();
+
+        const onFail = () => {
+            socket.destroy();
+            resolve(false);
+        };
+
+        socket.setTimeout(timeoutMs);
+        socket.once("error", onFail);
+        socket.once("timeout", onFail);
+
+        const { LOGSTASH_HOSTNAME, LOGSTASH_PORT } = process.env;
+        if (!LOGSTASH_HOSTNAME || !LOGSTASH_PORT) return onFail();
+
+        socket.connect(Number(LOGSTASH_PORT), LOGSTASH_HOSTNAME, () => {
+            socket.end();
+            resolve(true);
+        });
+    });
+};
+
+const consoleTransport = {
+    target: "pino-pretty",
+    options: {
+        colorize: true,
+        translateTime: "HH:MM:ss Z",
+        ignore: "pid,hostname,reqId,responseTime",
+    },
+};
+
+const getDevLoggerConfig = (): PinoLoggerOptions => {
+    return {
+        level: "debug",
+        transport: consoleTransport,
+        serializers: {
+            err: formatError,
+            req: (req: any) => ({
+                method: req.method,
+                url: req.url,
+                body: req.body,
+            }),
+            res: (res: any) => ({
+                statusCode: res.statusCode,
+            }),
+        },
+    };
+};
+
+const getElkLoggerConfig = (): PinoLoggerOptions => {
+    const { LOGSTASH_HOSTNAME, LOGSTASH_PORT } = process.env;
+    if (!LOGSTASH_HOSTNAME || !LOGSTASH_PORT) return getDevLoggerConfig();
+
+    const level = process.env.NODE_ENV === "production" ? "info" : "debug";
+
+    const base = {
+        hostname: os.hostname(),
         service: "backend",
         env: process.env.NODE_ENV || "development",
-    },
-    serializers: {
+    };
+
+    const serializers = {
         error: formatError,
         // Don't log full request and response objects
         req: (req: any) => ({
@@ -62,10 +116,10 @@ const elkLoggerConfig = {
         res: (res: any) => ({
             statusCode: res.statusCode,
         }),
-    },
-    timestamp: pino.stdTimeFunctions.isoTime,
+    };
+
     // Custom hook to add tags
-    hooks: {
+    const hooks = {
         logMethod(inputArgs: any[], method: (...args: any[]) => any) {
             // Check for context objects in the log message
             if (inputArgs.length >= 2 && typeof inputArgs[0] === "object") {
@@ -103,81 +157,35 @@ const elkLoggerConfig = {
 
             return method.apply(this, inputArgs);
         },
-    },
-};
+    };
 
-const devConsoleLoggerConfig: PinoLoggerOptions = {
-    level: "debug",
-    base: undefined,
-    transport: {
-        target: "pino-pretty",
-        options: {
-            colorize: true,
-            translateTime: "HH:MM:ss Z",
-            ignore: "pid,hostname,reqId,responseTime",
-        },
-    },
-    serializers: {
-        err: formatError,
-        req: (req: any) => ({
-            method: req.method,
-            url: req.url,
-            body: req.body,
-        }),
-        res: (res: any) => ({
-            statusCode: res.statusCode,
-        }),
-    },
+    const transport = {
+        targets: [
+            consoleTransport,
+            {
+                target: "pino-socket",
+                level,
+                options: {
+                    mode: "tcp",
+                    address: LOGSTASH_HOSTNAME,
+                    port: Number(LOGSTASH_PORT || 5050),
+                    enablePipelining: true,
+                    //formatLine: (obj: any) => JSON.stringify(obj) + "\n",
+                },
+            },
+        ],
+    };
+
+    return {
+        timestamp: pino.stdTimeFunctions.isoTime,
+        base,
+        serializers,
+        hooks,
+        transport,
+    };
 };
 
 // Get logger configuration with appropriate transports
-const getLoggerConfig = (): PinoLoggerOptions => {
-    // Always include the console transport for local visibility
-    const consoleTransport = {
-        target: "pino-pretty",
-        options: {
-            colorize: true,
-            translateTime: "HH:MM:ss Z",
-            ignore: "pid,hostname",
-        },
-    };
-
-    // Add ELK transport if LOGSTASH_HOSTNAME is defined
-    if (process.env.LOGSTASH_HOSTNAME) {
-        return {
-            ...elkLoggerConfig,
-            transport: {
-                targets: [
-                    {
-                        ...consoleTransport,
-                        level: elkLoggerConfig.level,
-                    },
-                    {
-                        target: "pino-socket",
-                        level: elkLoggerConfig.level,
-                        options: {
-                            mode: "tcp",
-                            address: process.env.LOGSTASH_HOSTNAME,
-                            port: Number(process.env.LOGSTASH_PORT || 5050),
-                            enablePipelining: true,
-                            //formatLine: (obj: any) => JSON.stringify(obj) + "\n",
-                        },
-                    },
-                ],
-            },
-        };
-    }
-
-    return process.env.NODE_ENV === "production"
-        ? {
-              ...elkLoggerConfig,
-              transport: consoleTransport,
-          }
-        : devConsoleLoggerConfig;
+export const getLoggerConfig = async (): Promise<PinoLoggerOptions> => {
+    return (await logstashReachable()) ? getElkLoggerConfig() : getDevLoggerConfig();
 };
-
-export const loggerConfig = getLoggerConfig();
-
-// For backward compatibility
-export const devLoggerConfig = loggerConfig;
-export const prodLoggerConfig = loggerConfig;
