@@ -107,18 +107,18 @@ export class GameManager {
 
         let removedFromLobby = false;
 
-        function onLobbyRemove() {
+        const onLobbyRemove = () => {
             if (!removedFromLobby) {
                 this.setWSActive(false);
                 removedFromLobby = true;
                 this.wsManager.off("game-start", onGameStart);
                 return promptRemotePlayMenu("You have left the lobby.");
             }
-        }
-        function onGameStart() {
+        };
+        const onGameStart = () => {
             this.wsManager.off("lobby-remove", onLobbyRemove);
             this.startRemoteGame();
-        }
+        };
 
         this.wsManager.once("game-start", onGameStart);
         this.wsManager.once("lobby-remove", onLobbyRemove);
