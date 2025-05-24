@@ -1,4 +1,7 @@
 # Server settings
+server.basePath: /kibana
+#server.publicBaseUrl: http://localhost:8080/kibana
+server.rewriteBasePath: false
 server.name: ${KIBANA_HOSTNAME}
 server.host: "${KIBANA_HOST}"
 server.port: ${KIBANA_PORT}
