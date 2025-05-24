@@ -30,7 +30,7 @@
 // let paddle1: Mesh;
 // let paddle2: Mesh;
 
-// export async function createSimulation(): Promise<HTMLElement> {
+// export async function createSimulation(): Promise<HTMLElement[]> {
 //     const container = document.createElement("div");
 //     container.className = "w-screen h-screen"; // Set explicit height
 
@@ -56,7 +56,7 @@
 //         initialiseGame(gameSection);
 //     });
 
-//     return container;
+//     return [container];
 // }
 
 // async function initialiseGame(gameSection: HTMLCanvasElement) {
@@ -113,7 +113,7 @@
 //     );
 //     ground.position.y = -0.9;
 //     const groundMaterial = new StandardMaterial("groundMaterial", scene);
-//     groundMaterial.diffuseTexture = new Texture(`${window.cfg.dir.asset}/ground.jpg`, scene);
+//     groundMaterial.diffuseTexture = new Texture(`${CONST.DIR.ASSET}/ground.jpg`, scene);
 //     ground.material = groundMaterial;
 //     // Create default lighting
 //     scene.createDefaultLight();
@@ -130,7 +130,7 @@
 //     sky.projectedGroundRadius = 20;
 //     sky.projectedGroundHeight = 3;
 //     skydome.material = sky;
-//     sky.reflectionTexture = new CubeTexture(`${window.cfg.dir.asset}/skybox/`, scene, [
+//     sky.reflectionTexture = new CubeTexture(`${CONST.DIR.ASSET}/skybox/`, scene, [
 //         "px.png",
 //         "py.png",
 //         "pz.png",
@@ -155,19 +155,19 @@
 //     var meshTask2 = assetsManager.addMeshTask(
 //         "asset task 2",
 //         "",
-//         window.cfg.dir.texture,
+//         CONST.DIR.TEXTURE,
 //         "dragon.glb"
 //     );
 //     var meshTask3 = assetsManager.addMeshTask(
 //         "asset task 3",
 //         "",
-//         window.cfg.dir.texture,
+//         CONST.DIR.TEXTURE,
 //         "mythcreature.glb"
 //     );
 //     var meshTask4 = assetsManager.addMeshTask(
 //         "asset task 4",
 //         "",
-//         window.cfg.dir.texture,
+//         CONST.DIR.TEXTURE,
 //         "mythcreature.glb"
 //     );
 
