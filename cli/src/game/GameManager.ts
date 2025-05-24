@@ -199,11 +199,11 @@ export class GameManager {
         this.remotePlayerIndex = playerID;
     }
 
-    setWSActive(acitve: boolean) {
+    setWSActive(active: boolean) {
         if (!this.wsManager) {
             this.wsManager = new WebSocketManager(SERVER_URL);
         }
-        this.wsManager.active = acitve;
+        this.wsManager.active = active;
     }
 
     getWSManager() {
