@@ -94,7 +94,7 @@ export class WebSocketManager extends EventEmitter {
                     break;
                 case "game-end":
                     this.active = false;
-                    gameManager.showRemoteWinner(message.payload.winner);
+                    gameManager.showRemoteWinner(message.payload);
                     break;
                 case "score-update":
                     audioManager.playSoundEffect(SCORE_SOUND);
@@ -109,10 +109,8 @@ export class WebSocketManager extends EventEmitter {
                     gameManager.renderRemoteState(message.payload.state);
                     break;
                 case "waiting-for-opponent":
-                    // console.log("Waiting for opponent...");
                     break;
                 case "ball-reset":
-                    // console.log("Resetting ball");
                     break;
                 case "lobby-update":
                     gameManager.setRemoteConfig(message.payload);

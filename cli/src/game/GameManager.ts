@@ -36,9 +36,13 @@ export class GameManager {
     private displayName: string | null = null;
 
     private currentLobbyId: string | null = null;
+
+    // REMOTE-data:
     private remoteGameId: string | null = null;
     private remotePlayerIndex: number | null = null;
-    private opponentId: number | null = null;
+    private opponentId: string | null = null;
+    private playerNames: string[] = [];
+    // private opponentName: string | null = null;
 
     private default: PongConfig;
     private remoteConfig: PongConfig | null = null;
@@ -52,6 +56,8 @@ export class GameManager {
     start1PLocal(difficulty: AIDifficulty) {
         this.engine.reset({ aiMode: true, aiDifficulty: difficulty });
         this.configEngine();
+
+        this.renderer.setPlayerNames(null);
         this.renderer.updateResolution();
 
         this.cleanupController();
@@ -70,6 +76,8 @@ export class GameManager {
     start2PLocal() {
         this.engine.reset({ aiMode: false });
         this.configEngine();
+
+        this.renderer.setPlayerNames(null);
         this.renderer.updateResolution();
 
         this.cleanupController();
@@ -177,10 +185,18 @@ export class GameManager {
         return this.displayName;
     }
 
-    setRemoteGame(gameID: string, opponent: number, playerID: number) {
+    setPlayerNames(playerNames: string[]) {
+        this.playerNames = playerNames;
+    }
+
+    getPlayerNames(): string[] {
+        return this.playerNames;
+    }
+
+    setRemoteGame(gameID: string, opponent: string, playerID: number) {
         this.remoteGameId = gameID;
-        this.remotePlayerIndex = playerID;
         this.opponentId = opponent;
+        this.remotePlayerIndex = playerID;
     }
 
     setWSActive(acitve: boolean) {
@@ -199,6 +215,10 @@ export class GameManager {
 
     setRemoteConfig(payload: any) {
         this.remoteConfig = payload;
+        if (payload.playerNames && Array.isArray(payload.playerNames)) {
+            this.setPlayerNames(payload.playerNames);
+            this.renderer.setPlayerNames(payload.playerNames);
+        }
     }
 
     getRemoteConfig() {
@@ -206,12 +226,15 @@ export class GameManager {
     }
 
     configEngine() {
+        // this.engine.onEvent("game-start", (evt) => {
+        // });
+
         this.engine.onEvent("game-end", (evt) => {
             // this.wsManager.active = false;
             audioManager.playSoundEffect(SCORE_SOUND);
             audioManager.startMusic(VICTORY_MUSIC);
             this.cleanupController();
-            this.renderer.showWinner(evt.winner).then(() => {
+            this.renderer.showWinner(evt).then(() => {
                 mainMenu();
             });
         });
@@ -241,10 +264,10 @@ export class GameManager {
         this.renderer.render(state);
     }
 
-    showRemoteWinner(winner: number) {
+    showRemoteWinner(payload: any) {
         audioManager.startMusic(VICTORY_MUSIC);
         this.cleanupController();
-        this.renderer.showWinner(winner).then(() => {
+        this.renderer.showWinner(payload, this.playerNames, this.opponentId).then(() => {
             mainMenu();
         });
     }
