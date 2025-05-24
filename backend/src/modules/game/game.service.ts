@@ -5,13 +5,18 @@ import { desc, eq, or } from "drizzle-orm";
 import { ErrorCode, PublicGame } from "@darrenkuro/pong-core";
 import { OutgoingMessagePayloads as Payloads } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
+import { createModuleLogger } from "../../utils/logger.ts";
 import { GameSession } from "../lobby/lobby.types.ts";
 
 export const createGameService = (app: FastifyInstance) => {
     const { db } = app;
+    const logger = createModuleLogger(app.log, "game");
 
     const registerCbHandlers = (session: GameSession): void => {
         const { engine, players } = session;
+
+        // Track previous scores to detect who scored
+        let previousScores: [number, number] = [0, 0];
 
         engine.onEvent("wall-collision", (payload) =>
             app.wsService.broadcast(players, { type: "wall-collision", payload })
@@ -25,9 +30,37 @@ export const createGameService = (app: FastifyInstance) => {
             app.wsService.broadcast(players, { type: "state-update", payload })
         );
 
-        engine.onEvent("score-update", (payload) =>
-            app.wsService.broadcast(players, { type: "score-update", payload })
-        );
+        engine.onEvent("score-update", (payload) => {
+            const currentScores = payload.scores;
+
+            // Determine who scored by comparing with previous scores
+            let scoringPlayer: number = -1;
+            if (currentScores[0] > previousScores[0]) {
+                scoringPlayer = 0;
+            } else if (currentScores[1] > previousScores[1]) {
+                scoringPlayer = 1;
+            }
+
+            if (scoringPlayer >= 0) {
+                logger.info(
+                    {
+                        event_type: "player_scored",
+                        scoring_player_id: players[scoringPlayer],
+                        scoring_player_name: session.playerNames[scoringPlayer],
+                        current_score: `${currentScores[0]}-${currentScores[1]}`,
+                        player1_score: currentScores[0],
+                        player2_score: currentScores[1],
+                        tags: ["game_activity", "scoring"],
+                    },
+                    `${session.playerNames[scoringPlayer]} scored! Score: ${currentScores[0]}-${currentScores[1]}`
+                );
+            }
+
+            // Update previous scores for next comparison
+            previousScores = [...currentScores];
+
+            app.wsService.broadcast(players, { type: "score-update", payload });
+        });
 
         engine.onEvent("game-end", async (payload) => {
             app.wsService.broadcast(players, { type: "game-end", payload });
@@ -50,6 +83,30 @@ export const createGameService = (app: FastifyInstance) => {
 
         app.userService.update(winnerId, { wins: tryGetWinner.value.wins + 1 });
         app.userService.update(loserId, { losses: tryGetLoser.value.losses + 1 });
+
+        // Get game config for additional details
+        const gameConfig = session.engine.getConfig();
+
+        logger.info(
+            {
+                event_type: "game_completed",
+                game_mode: "online",
+                winner_id: winnerId,
+                loser_id: loserId,
+                winner_name: session.playerNames[payload.winner],
+                loser_name: session.playerNames[payload.winner === 0 ? 1 : 0],
+                final_score: `${payload.state.scores[0]}-${payload.state.scores[1]}`,
+                winner_score: payload.state.scores[payload.winner],
+                loser_score: payload.state.scores[payload.winner === 0 ? 1 : 0],
+                game_duration_ms: Date.now() - new Date(session.createdAt).getTime(),
+                total_hits: payload.hits[0] + payload.hits[1],
+                winner_hits: payload.hits[payload.winner],
+                loser_hits: payload.hits[payload.winner === 0 ? 1 : 0],
+                play_to_score: gameConfig.playTo,
+                tags: ["game_activity", "game_outcome", "analytics"],
+            },
+            `Game completed: ${session.playerNames[payload.winner]} defeated ${session.playerNames[payload.winner === 0 ? 1 : 0]} ${payload.state.scores[payload.winner]}-${payload.state.scores[payload.winner === 0 ? 1 : 0]}`
+        );
     };
 
     const toNewGame = (session: GameSession, payload: Payloads["game-end"]): GameInsert => {

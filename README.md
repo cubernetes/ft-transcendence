@@ -98,7 +98,7 @@ See [vault/README.md](./vault/README.md)
 |     Game      |    Remote Players     |                                                   |   1   |      100%       |                      Not thoroughly tested                       |
 | Cybersecurity |   Secret Management   |         WAF/ModSecurity + HashiCorp Vault         |   1   |      100%       |                   Potentially missing for ELK                    |
 |               |       2FA + JWT       |                                                   |   1   |      100%       |                        Can't disable 2FA                         |
-|    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       80%       |          grokparsefailure + get it working on school PC          |
+|    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       90%       |              need to create more Kibana dashboards               |
 |   Graphics    |     3D Techniques     |                    Babylon.js                     |   1   |      100%       |              Not INSANE, but would pass this module              |
 | Accessibility | Browser Compatibility |             Firefox Default + Chrome              |  0.5  |      100%       |                      Not tested thoroughly                       |
 |     Pong      |   Server-side Pong    |                                                   |   1   |      100%       |
@@ -109,7 +109,6 @@ See [vault/README.md](./vault/README.md)
 |     User      |  Standard Management  |           Tedious Albeit Weird Without            |   1   |       85%       |             Frontend implementation missing, see 2FA             |
 |     Game      |     Customization     |                                                   |  0.5  |      100%       |            Some foundations set, but not fleshed out             |
 |               |                       |                  ✅ Committed ✅                  | 14.0  |                 |
-|    Devops     |   Monitoring System   |               Prometheus + Grafana                |  0.5  |       0%        |                    Finish before end of April                    |
 |               |                       |             🟡 Partially Committed 🟡             | 14.5  |                 |
 |     User      | Remote Authentication | Google Sign-in, Simple But Extra API Key Required |   1   |       0%        |
 | Accessibility | Server-side Rendering |                   Ultra-simple                    |  0.5  |       0%        |
