@@ -15,6 +15,11 @@ export class WebSocketManager extends EventEmitter {
     constructor(serverUrl: string) {
         super();
         const jwtToken = getToken();
+        if (!jwtToken) {
+            throw new Error(
+                chalk.red("No JWT token found. Cannot establish WebSocket connection.")
+            );
+        }
         this.#socket = new WebSocket(serverUrl, {
             headers: {
                 cookie: `token=${jwtToken}`,
