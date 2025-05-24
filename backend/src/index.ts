@@ -15,7 +15,7 @@ Object.assign(process.env, secrets.value);
 
 // Fastify server options, cannot be changed once instance is created
 const appOpts: FastifyServerOptions = {
-    logger: getLoggerConfig(),
+    logger: await getLoggerConfig(),
 };
 
 // Build app
