@@ -1,6 +1,5 @@
 import type { PinoLoggerOptions } from "fastify/types/logger.ts";
 import net from "net";
-import os from "os";
 import pino from "pino";
 import { ZodError } from "zod";
 
@@ -163,10 +162,9 @@ const getElkLoggerConfig = (): PinoLoggerOptions => {
     const level = process.env.NODE_ENV === "production" ? "info" : "debug";
 
     const base = {
-        hostname: os.hostname(),
         service: "backend",
-        env: process.env.NODE_ENV || "development",
-        instance_id: `${os.hostname()}_${process.pid}`,
+        environment: process.env.NODE_ENV || "development",
+        instance_id: process.pid,
     };
 
     const serializers = {
@@ -247,11 +245,6 @@ const getElkLoggerConfig = (): PinoLoggerOptions => {
                     if (!obj.tags.includes("error")) {
                         obj.tags.push("error");
                     }
-                }
-
-                // Add timestamp if not present
-                if (!obj.timestamp) {
-                    obj.timestamp = new Date().toISOString();
                 }
             }
 
