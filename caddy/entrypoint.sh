@@ -9,6 +9,7 @@ set -u # treat failed expansion as error
 
 ### Customization Point 2 ###
 export service=caddy
+service_user=caddy
 
 export vault_token=$(cat "/run/secrets/${service}_vault_token")
 export vault_addr=http://vault:${VAULT_API_PORT:-8200}
@@ -16,7 +17,7 @@ export vault_addr=http://vault:${VAULT_API_PORT:-8200}
 # Truncate file for good measure
 : > "/run/secrets/${service}_vault_token"
 
-su -s /bin/bash -c '/bin/bash -s "$@"' caddy bash "$@"<<'!'
+su -s /bin/bash -c '/bin/bash -s "$@"' "$service_user" bash "$@"<<'!'
 set -e
 set -u
 #set -vx # for debugging
