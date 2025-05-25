@@ -26,13 +26,12 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     } = CONST.TEXT;
 
     // Title element
-    const titleEl = createHeading({ text: PROFILE, tw: "text-4xl mt-4" });
+    const titleEl = createHeading({ text: PROFILE, tw: `${CONST.FONT.H5} mt-4` });
 
     // User avatar element
     const avatarEl = createAvatar({ src: user.avatarUrl });
 
-    const LABEL_TW = "whitespace-nowrap";
-
+    const LABEL_TW = "whitespace-nowrap text-left ml-2";
     // Username
     const usernameLabel = createParagraph({ text: USERNAME, tw: LABEL_TW });
     const usernameEl = createParagraph({ text: user.username });
@@ -44,13 +43,13 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const unsubscribeAuth = authStore.subscribe(
         ({ displayName }) => (displayNameEl.textContent = displayName ?? "")
     );
-    displayNameEl.addEventListener("destory", unsubscribeAuth);
+    displayNameEl.addEventListener("destroy", unsubscribeAuth);
 
     // Password
     const passwordLabel = createParagraph({ text: PASSWORD, tw: LABEL_TW });
     const passwordBtn = createButton({
         text: UPDATE,
-        tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
+        tw: "w-full bg-gray-100 hover:bg-gray-400 px-2",
         click: () => createUpdateModal("password"),
     });
 
@@ -59,12 +58,12 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     const totpOnEl = createButtonGroup({
         texts: [UPDATE, DISABLE],
         cbs: [() => createTotpModal("update"), () => createTotpModal("disable")],
-        twBtn: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
+        twBtn: "w-full bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpOffEl = createButton({
         text: ENABLE,
         click: () => createTotpModal("setup"),
-        tw: "w-full text-xl bg-gray-100 hover:bg-gray-400 px-2",
+        tw: "w-full bg-gray-100 hover:bg-gray-400 px-2",
     });
     const totpEl = user.totpEnabled ? totpOnEl : totpOffEl;
 
@@ -86,7 +85,7 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
 
     // Containers for styling
     const labelCtn = createContainer({
-        tw: "flex-col w-full",
+        tw: `${CONST.FONT.BODY_SM} flex-col w-full font-bold`,
         children: [
             usernameLabel,
             displayNameLabel,
@@ -100,7 +99,7 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     });
 
     const contentCtn = createContainer({
-        tw: "flex-col w-full",
+        tw: `${CONST.FONT.BODY_SM} flex-col w-full`,
         children: [
             usernameEl,
             displayNameEl,

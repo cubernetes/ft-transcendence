@@ -4,15 +4,15 @@ import { sendApiRequest } from "../../utils/api";
 import { fetchPlayerData } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
 import { createArcadeWrapper } from "../components/ArcadeWrapper";
-import { createProfilePanel } from "../layout/ProfilePanel";
+import { createStatsToggleSection } from "../layout/GameStatsSection";
 
-export const createProfilePage = async (): Promise<UIComponent> => {
+export const createStatsPage = async (): Promise<UIComponent> => {
     const playerData = await fetchPlayerData();
     if (playerData.isErr()) return []; // TODO: add fetch error component
 
-    const profileSection = createProfilePanel(playerData.value);
-    const main = createEl("main", `container mx-auto p-4 ${CONST.STYLES.CONTAINER}`, {
-        children: [...profileSection],
+    const statsSection = createStatsToggleSection(playerData.value.games);
+    const main = createEl("main", "container mx-auto p-4", {
+        children: [...statsSection],
     });
 
     return createArcadeWrapper([main]);

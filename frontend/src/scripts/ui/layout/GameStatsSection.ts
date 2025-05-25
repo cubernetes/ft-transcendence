@@ -14,8 +14,11 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
     const historySection = createMatchHistoryList(games);
     const friendSection = createFriendList();
 
-    const toggleContainer = createEl("div", "flex justify-center gap-4 mb-4 mt-4");
-    const contentContainer = createEl("div", "w-full min-h-[700px] transition-all");
+    const toggleContainer = createEl(
+        "div",
+        `flex justify-center ${CONST.FONT.BODY_SM} gap-4 mb-4 mt-4`
+    );
+    const contentContainer = createEl("div", "w-full transition-all");
 
     const toggleGroup = createButtonGroup({
         texts: [STATS_CHART, MATCH_HISTORY, FRIENDS],
@@ -61,8 +64,12 @@ const createFriendList = (): HTMLElement[] => {
         },
     ];
     const table = createTable(headers, ["friendUsername", "gamesPlayed", "rank", "status"], row);
-
-    return [table];
+    const tableWrapper = createEl(
+        "div",
+        `w-full max-h-64 overflow-y-auto overflow-x-hidden ${CONST.STYLES.CONTAINER}`
+    );
+    tableWrapper.appendChild(table);
+    return [tableWrapper];
 };
 
 const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
@@ -71,7 +78,7 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
     if (!games.length) {
         return [
             createEl("p", "text-gray-500 text-center", {
-                text: "No game data available. Play some games onlin games!",
+                text: "No game data available. Play some games online games!",
             }),
         ];
     }
@@ -91,8 +98,6 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
                 hour12: true,
             }),
             opponent,
@@ -102,8 +107,12 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
     });
 
     const table = createTable(headers, ["date", "opponent", "result", "score"], rows);
-
-    return [table];
+    const tableWrapper = createEl(
+        "div",
+        `${CONST.STYLES.CONTAINER} w-full max-h-64 overflow-y-auto overflow-x-hidden`
+    );
+    tableWrapper.appendChild(table);
+    return [tableWrapper];
 };
 
 const mapGame = (game: PublicGame) => {
