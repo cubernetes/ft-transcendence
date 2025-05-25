@@ -7,10 +7,6 @@ set -e
 CERTS_DIR="/usr/share/elasticsearch/config/certs"
 KEYSTORE_PASSWORD=${ELASTIC_KEYSTORE_PASS}
 
-# Create certs directory if it doesn't exist and set proper permissions
-chown -R elasticsearch:elasticsearch "$CERTS_DIR"
-chmod -R 770 "$CERTS_DIR"
-
 # Check if certificates already exist
 if [ ! -f "$CERTS_DIR/elastic-certificates.p12" ]; then
     echo "Generating SSL certificates..."
@@ -48,5 +44,4 @@ openssl pkcs12 \
 echo "CA certificate extracted successfully"
 
 # Set proper permissions on generated files
-chown -R elasticsearch:elasticsearch "$CERTS_DIR"
 chmod -R 644 "$CERTS_DIR"/*

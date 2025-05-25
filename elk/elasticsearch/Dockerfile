@@ -18,6 +18,14 @@ COPY --chmod=555 ./setup-single-node.sh     /usr/share/elasticsearch/setup-singl
 COPY --chmod=444 ./config/elasticsearch.yml /usr/share/elasticsearch/config/elasticsearch.yml
 COPY --chmod=444 ./config/ilm-policy.json /usr/share/elasticsearch/config/ilm-policy.json
 
+ARG CERTS_DIR="/usr/share/elasticsearch/config/certs"
+
+RUN mkdir -p -- "$CERTS_DIR" && \
+    chown -R elasticsearch:elasticsearch -- "$CERTS_DIR" && \
+    chmod -R 770 -- "$CERTS_DIR"
+
+VOLUME ["/usr/share/elasticsearch/data/", "/usr/share/elasticsearch/config/certs/"]
+
 CMD ["/usr/share/elasticsearch/config/startup.sh"]
 
 # No need to set WORKDIR, will be inherited from base image
