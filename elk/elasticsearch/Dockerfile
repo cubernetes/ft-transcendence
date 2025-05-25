@@ -1,6 +1,5 @@
 ### Customization Point 1 ###
 FROM docker.elastic.co/elasticsearch/elasticsearch:8.17.3
-
 USER 0
 
 COPY --from=ft-transcendence-curl_base --chmod=755 /curl /usr/bin/curl
@@ -28,5 +27,4 @@ CMD ["/usr/share/elasticsearch/config/startup.sh"]
 # Healthcheck defined in ${REPO_ROOT}/elk/elasticsearch/config/startup.sh
 HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=60s --start-interval=1s CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
 
-USER 1000
 ENTRYPOINT ["/entrypoint.sh"]
