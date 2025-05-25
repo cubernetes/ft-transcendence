@@ -13,6 +13,7 @@ RUN addgroup caddy
 RUN adduser -h /frontend/ -S caddy -G caddy
 
 FROM alpine:3.21.3
+USER 0
 
 COPY --from=builder      /usr/bin/caddy /usr/bin/caddy
 COPY --from=builder      /etc/passwd /etc/passwd
@@ -36,8 +37,6 @@ RUN apk add --no-cache jq curl bash
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-
-USER root
 
 ENV WATCH=0
 

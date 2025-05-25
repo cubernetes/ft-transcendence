@@ -1,6 +1,5 @@
 ### Customization Point 1 ###
 FROM docker.elastic.co/kibana/kibana:8.17.3
-
 USER 0
 
 COPY --from=ft-transcendence-curl_base --chmod=755 /curl /usr/bin/curl
@@ -25,5 +24,4 @@ CMD ["sh", "-xec", ": Healthcheck ; TERM=linux setsid -f watch -xtcn5 curl --no-
 # Healthcheck defined inline in the Dockerfile CMD directive, 7 lines above /\
 HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=60s --start-interval=1s CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
 
-USER 1000
 ENTRYPOINT ["/entrypoint.sh"]

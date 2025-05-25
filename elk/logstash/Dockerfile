@@ -1,6 +1,5 @@
 ### Customization Point 1 ###
 FROM docker.elastic.co/logstash/logstash:8.17.3
-
 USER 0
 
 COPY --from=ft-transcendence-curl_base --chmod=755 /curl /usr/bin/curl
@@ -23,5 +22,4 @@ COPY --chmod=555 ./scripts/import-logstash-ca.sh /usr/local/bin/import-logstash-
 # Healthcheck defined in ${REPO_ROOT}/elk/logstash/scripts/import-logstash-ca.sh
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=60s --start-interval=1s CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
 
-USER 1000
 ENTRYPOINT ["/entrypoint.sh"]
