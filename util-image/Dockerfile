@@ -1,4 +1,4 @@
-FROM alpine:3.21.3
+FROM alpine:3.21.3 AS build
 
 # curl 8.13.0
 RUN apk add --no-cache perl build-base openssl-dev openssl-libs-static
