@@ -1,16 +1,6 @@
-# Cluster settings
-cluster.name: ${cluster.name}
-node.name: ${node.name}
-
 # Network settings
 network.host: ${ELASTICSEARCH_HOST}
 http.port: ${ELASTICSEARCH_PORT}
-
-# Discovery settings
-discovery.type: ${discovery.type}
-
-# Memory settings
-bootstrap.memory_lock: ${bootstrap.memory_lock}
 
 # Security settings
 xpack.security.enabled: true
