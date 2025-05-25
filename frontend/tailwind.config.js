@@ -3,7 +3,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                medieval: ["MedievalSharp"],
+                "press-start": ["'Press Start 2P'", "cursive"],
             },
         },
     },
