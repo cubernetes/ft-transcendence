@@ -1,18 +1,5 @@
 import { Result, err, ok } from "neverthrow";
-import {
-    ApiResponse,
-    ErrorCode,
-    GetMePayload,
-    defaultGameConfig,
-    safeJsonParse,
-} from "@darrenkuro/pong-core";
-
-export const fetchPlayerData = async (): Promise<Result<GetMePayload, ErrorCode>> => {
-    const tryFetch = await sendApiRequest.get<GetMePayload>(CONST.API.ME);
-    if (tryFetch.isErr()) return err(tryFetch.error);
-
-    return ok(tryFetch.value);
-};
+import { ApiResponse, ErrorCode, safeJsonParse } from "@darrenkuro/pong-core";
 
 /**
  * A generic fetch wrapper to send JSON over request body.
