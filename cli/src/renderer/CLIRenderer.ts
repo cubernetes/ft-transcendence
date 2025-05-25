@@ -80,6 +80,13 @@ export class CLIRenderer {
         this.#cacheBorders();
     }
 
+	setBoardSize(width: number, depth: number ): void {
+		this.#gameConf.board.size.width = width;
+		this.#gameConf.board.size.depth = depth;
+		this.#setFieldConfig();
+		this.#cacheBorders();
+	}
+
     setPlayerNames(playerNames: [string, string]): void {
         this.#playerNames = playerNames;
     }

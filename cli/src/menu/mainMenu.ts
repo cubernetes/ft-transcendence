@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import figlet from "figlet";
 import inquirer from "inquirer";
-import { PongConfig } from "@darrenkuro/pong-core";
+import { PongConfig, Size3D } from "@darrenkuro/pong-core";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
 import { cleanup } from "../utils/cleanup";
@@ -48,7 +48,7 @@ async function promptMainMenu(): Promise<void> {
                 new inquirer.Separator(),
                 { name: chalk.magenta("🌐  Remote Game"), value: 2 },
                 new inquirer.Separator(),
-                { name: chalk.magenta("⚙️  Options"), value: 3 },
+                { name: chalk.magenta("⚙️   Options"), value: 3 },
                 new inquirer.Separator(),
                 { name: chalk.red("🚪  Exit"), value: 0 },
             ],
@@ -104,10 +104,88 @@ async function handleMenuSelection(mode: number): Promise<void> {
                         return await handleMenuSelection(1);
                     }
 
-                    gameManager.start1PLocal(difficulty);
+					const { winPoints: winPoints1P, fieldWidth: fieldWidth1P, fieldHeight: fieldHeight1P } = await inquirer.prompt([
+                        {
+                            type: "number",
+                            name: "winPoints",
+                            message: "Points to win (1-21):",
+                            default: 5,
+                            validate: (input: number) =>
+                                input > 0 && input < 22 ? true : "Enter a number between 1 and 21",
+                        },
+                        {
+                            type: "number",
+                            name: "fieldWidth",
+                            message: "Field width (min 20):",
+                            default: 40,
+                            validate: (input: number) =>
+                                input >= 20 ? true : "Minimum width is 20",
+                        },
+                        {
+                            type: "number",
+                            name: "fieldHeight",
+                            message: "Field height (min 10):",
+                            default: 20,
+                            validate: (input: number) =>
+                                input >= 10 ? true : "Minimum height is 10",
+                        },
+                    ]);
+
+					// TODO: Adapt renderer to show different field dimensions!
+
+					// gameManager.setRenderBoardSize(50, 25);
+                    gameManager.start1PLocal({
+                        aiMode: true,
+						aiDifficulty: difficulty,
+						playTo: winPoints1P,
+                        // board: { 
+						// 	size: {
+						// 		width: fieldWidth1P,
+						// 		height: 1,
+						// 		depth: fieldHeight1P
+						// 	} as Size3D,
+						// },
+                    });
                     break;
                 case "2P":
-                    gameManager.start2PLocal();
+					const { winPoints: winPoints2P, fieldWidth: fieldWidth2P, fieldHeight: fieldHeight2P } = await inquirer.prompt([
+                        {
+                            type: "number",
+                            name: "winPoints",
+                            message: "Points to win (1-21):",
+                            default: 5,
+                            validate: (input: number) =>
+                                input > 0 && input < 22 ? true : "Enter a number between 1 and 21",
+                        },
+                        {
+                            type: "number",
+                            name: "fieldWidth",
+                            message: "Field width (min 20):",
+                            default: 40,
+                            validate: (input: number) =>
+                                input >= 20 ? true : "Minimum width is 20",
+                        },
+                        {
+                            type: "number",
+                            name: "fieldHeight",
+                            message: "Field height (min 10):",
+                            default: 20,
+                            validate: (input: number) =>
+                                input >= 10 ? true : "Minimum height is 10",
+                        },
+                    ]);
+
+                    gameManager.start2PLocal({
+						aiMode: false,
+						playTo: winPoints2P,
+                        // board: {
+						// 	size: {
+						// 		width: fieldWidth2P,
+						// 		height: 1,
+						// 		depth: fieldHeight2P
+						// 	} as Size3D,
+						// },
+					});
                     break;
                 case "back":
                 default:

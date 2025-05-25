@@ -55,8 +55,8 @@ export class GameManager {
         this.default = structuredClone(defaultGameConfig);
     }
 
-    start1PLocal(difficulty: AIDifficulty) {
-        this.engine.reset({ aiMode: true, aiDifficulty: difficulty });
+    start1PLocal(input: Partial<PongConfig>) {
+        this.engine.reset(input);
         this.configEngine();
 
         this.renderer.setPlayerNames(null);
@@ -75,8 +75,8 @@ export class GameManager {
         this.controller.start();
     }
 
-    start2PLocal() {
-        this.engine.reset({ aiMode: false });
+    start2PLocal(input: Partial<PongConfig>) {
+        this.engine.reset(input);
         this.configEngine();
 
         this.renderer.setPlayerNames(null);
@@ -233,10 +233,11 @@ export class GameManager {
         return this.remoteConfig || this.default;
     }
 
-    configEngine() {
-        // this.engine.onEvent("game-start", (evt) => {
-        // });
+	setRenderBoardSize(width: number, depth: number) {
+		this.renderer.setBoardSize(width, depth);
+	}
 
+    configEngine() {
         this.engine.onEvent("game-end", (evt) => {
             // this.wsManager.active = false;
             audioManager.playSoundEffect(SCORE_SOUND);
