@@ -95,14 +95,25 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
     tokenForm.addEventListener("submit", async (evt) => {
         evt.preventDefault(); // Prevent reload
 
+        const successEl = createParagraph({
+            text: CONST.TEXT.SUCCESS,
+            tw: "text-white bg-green-600",
+        });
+        const timeoutMs = 2000;
         switch (mode) {
             case "disable":
                 const tryDisable = await sendApiRequest.post(CONST.API.DISABLE_2FA, {
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
                 });
                 if (tryDisable.isErr()) return showErr(tryDisable.error);
-                navigateTo(CONST.ROUTE.HOME);
-                return closeModal();
+
+                closeModal();
+                createModal({
+                    children: [successEl],
+                    tw: "bg-green-600",
+                    exitable: false,
+                });
+                return setTimeout(() => navigateTo(CONST.ROUTE.PROFILE, true), timeoutMs);
             case "setup":
                 const trySetup = await sendApiRequest.post(CONST.API.VERIFY_2FA, {
                     token: (document.getElementById(CONST.ID.TOTP_NEW_TOKEN) as HTMLInputElement)
@@ -110,8 +121,14 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
                 });
 
                 if (trySetup.isErr()) return showErr(trySetup.error);
-                navigateTo(CONST.ROUTE.HOME);
-                return closeModal();
+
+                closeModal();
+                createModal({
+                    children: [successEl],
+                    tw: "bg-green-600",
+                    exitable: false,
+                });
+                return setTimeout(() => navigateTo(CONST.ROUTE.PROFILE, true), timeoutMs);
             case "update":
                 const tryUpdate = await sendApiRequest.post(CONST.API.UPDATE_2FA, {
                     token: (document.getElementById(CONST.ID.TOTP_TOKEN) as HTMLInputElement).value,
@@ -120,8 +137,13 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
                 });
                 if (tryUpdate.isErr()) return showErr(tryUpdate.error);
 
-                navigateTo(CONST.ROUTE.HOME);
-                return closeModal();
+                closeModal();
+                createModal({
+                    children: [successEl],
+                    tw: "bg-green-600",
+                    exitable: false,
+                });
+                return setTimeout(() => navigateTo(CONST.ROUTE.PROFILE, true), timeoutMs);
         }
     });
 };

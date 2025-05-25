@@ -44,6 +44,12 @@ export const TEXT_MAP = {
         fr: "Upload", // TRANSLATION_NEEDED
         es: "Upload", // TRANSLATION_NEEDED
     },
+    SUCCESS: {
+        en: "Success",
+        de: "Success-de", // TRANSLATION_NEEDED
+        fr: "Success-fr", // TRANSLATION_NEEDED
+        es: "Success-es", // TRANSLATION_NEEDED
+    },
 
     // User
     USERNAME: {
