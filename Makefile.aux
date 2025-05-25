@@ -1,14 +1,14 @@
 define getenv
-$$(./vault/replace_json_templates.py <env.json | jq -r '.[".Makefile"]["$(1)"]')
+$$(./vault/replace_json_templates.py <env.json | docker run --rm -i imega/jq -r '.[".Makefile"]["$(1)"]')
 endef
 
 define getenv-makefile
-$(shell ./vault/replace_json_templates.py <env.json | jq -r '.[".Makefile"]["$(1)"]')
+$(shell ./vault/replace_json_templates.py <env.json | docker run --rm -i imega/jq -r '.[".Makefile"]["$(1)"]')
 endef
 
 define compose-env
-$(shell ./vault/replace_json_templates.py <env.json | jq -r '.[".compose"] | to_entries[] | (.key + "='\''" + ( if .value | type == "string" then ( .value | gsub( "'\''"; "'\''\\'\'''\''")) else .value end) + "'\''")') \
-$(shell ./vault/replace_json_templates.py <env.json | jq -r '.[".vault"] | to_entries[] | (.key + "='\''" + ( if .value | type == "string" then ( .value | gsub( "'\''"; "'\''\\'\'''\''")) else .value end) + "'\''")')
+$(shell ./vault/replace_json_templates.py <env.json | docker run --rm -i imega/jq -r '.[".compose"] | to_entries[] | (.key + "='\''" + ( if .value | type == "string" then ( .value | gsub( "'\''"; "'\''\\'\'''\''")) else .value end) + "'\''")') \
+$(shell ./vault/replace_json_templates.py <env.json | docker run --rm -i imega/jq -r '.[".vault"] | to_entries[] | (.key + "='\''" + ( if .value | type == "string" then ( .value | gsub( "'\''"; "'\''\\'\'''\''")) else .value end) + "'\''")')
 endef
 
 # Kind of ugly we have to do HTTP_DOMAINS and HTTPS_DOMAINS here, but inside Caddyfile it's kinda impossible
