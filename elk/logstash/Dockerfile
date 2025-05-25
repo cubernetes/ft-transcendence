@@ -15,6 +15,8 @@ COPY --chmod=555 ./pipeline/ /usr/share/logstash/pipeline/
 COPY --chmod=444 ./config/logstash.yml /usr/share/logstash/config/logstash.yml
 COPY --chmod=555 ./scripts/import-logstash-ca.sh /usr/local/bin/import-logstash-ca.sh
 
+VOLUME ["/usr/share/logstash/data/", "/etc/logstash/config/certs/"]
+
 # No need to set WORKDIR, will be inherited from base image
 # No need to set CMD, will be inherited from base image
 # No need to set any ENV, will be inherited from base image
