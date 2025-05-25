@@ -1,6 +1,7 @@
 import { Result, err, ok } from "neverthrow";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createArcadeWrapper } from "../components/ArcadeWrapper";
+import { createHeading } from "../components/Heading";
 import { createStatus } from "../components/Status";
 import { createTable } from "../components/Table";
 
@@ -45,8 +46,11 @@ export const createLeaderboardPage = async (): Promise<UIComponent> => {
     const n = 10;
 
     const main = createEl("main", "container mx-auto p-4");
-    const section = createEl("section", "bg-white p-6 rounded-lg shadow-md");
-    const title = createEl("h2", "text-2xl font-bold mb-4", { text: "Leaderboard" });
+    const section = createEl("section", "p-6");
+    const title = createHeading({
+        text: "Leaderboard",
+        tw: "font-bold mb-4",
+    });
 
     // createTable(header, data);
     const headers = ["Rank", "Player", "Wins", "Losses"];
@@ -61,7 +65,14 @@ export const createLeaderboardPage = async (): Promise<UIComponent> => {
 
     const table = createTable(headers, columns, players.value);
 
-    appendChildren(section, [title, table]);
+    // Set a max height and make the table scrollable if it overflows
+    const tableWrapper = createEl(
+        "div",
+        "max-h-64 overflow-y-auto w-full border-2 border-white rounded-lg bg-black/50"
+    );
+    tableWrapper.appendChild(table);
+
+    appendChildren(section, [title, tableWrapper]);
     main.appendChild(section);
 
     return createArcadeWrapper([main]);
