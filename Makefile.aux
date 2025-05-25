@@ -57,7 +57,7 @@ endef
 .PHONY: ensure-secret-files
 ensure-secret-files: clean-secrets-folder
 	@mkdir -p ./.secrets/
-	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
+	@touch -- $(VAULT_TOKEN_EXCHANGE_FILES)
 
 .PHONY: build-curl-base
 build-curl-base:
