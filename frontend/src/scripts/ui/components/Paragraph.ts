@@ -12,7 +12,7 @@ type Opts = { text: string; tw?: string; id?: string };
  *           extendable and replacable by this param adding to it
  */
 export const createParagraph = ({ text, tw = "", id }: Opts): HTMLElement => {
-    const BASE_TW = "text-xl text-black";
+    const BASE_TW = `${CONST.FONT.BODY_SM} text-black`;
 
     const twStyle = twMerge(BASE_TW, tw);
 

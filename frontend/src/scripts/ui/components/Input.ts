@@ -24,7 +24,7 @@ export const createInput = ({
     id,
     i18nVars,
 }: Opts): HTMLInputElement => {
-    const BASE_TW = "rounded w-full p-2 border border-gray-300";
+    const BASE_TW = `rounded w-full p-2 border border-gray-300 ${CONST.FONT.BODY_XS}`;
 
     // bg-gray-100 hover:bg-gray-400
     // maybe select-none? dones't seem to be needed, disabled:opacity-50 font-medium transition
