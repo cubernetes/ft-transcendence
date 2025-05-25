@@ -96,18 +96,19 @@ See [vault/README.md](./vault/README.md)
 |               |       Database        |                      SQLite                       |  0.5  |      100%       |
 |               |      Blockchain       |               Avalanche + Solidity                |   1   |       95%       |                  Only works with dummy data ATM                  |
 |     Game      |    Remote Players     |                                                   |   1   |      100%       |                      Not thoroughly tested                       |
-| Cybersecurity |   Secret Management   |         WAF/ModSecurity + HashiCorp Vault         |   1   |      100%       |                   Potentially missing for ELK                    |
-|               |       2FA + JWT       |                                                   |   1   |      100%       |                        Can't disable 2FA                         |
+| Cybersecurity |   Secret Management   |         WAF/ModSecurity + HashiCorp Vault         |   1   |      100%       |
+|               |       2FA + JWT       |                                                   |   1   |      100%       |
 |    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       90%       |              need to create more Kibana dashboards               |
 |   Graphics    |     3D Techniques     |                    Babylon.js                     |   1   |      100%       |              Not INSANE, but would pass this module              |
 | Accessibility | Browser Compatibility |             Firefox Default + Chrome              |  0.5  |      100%       |                      Not tested thoroughly                       |
 |     Pong      |   Server-side Pong    |                                                   |   1   |      100%       |
 |               |      CLI Client       |                                                   |   1   |       95%       | Game engine (not needed for eval), 2FA & JWT integration missing |
-| Accessibility |   Multiple Language   |                   Ultra-simple                    |  0.5  |       95%       |
-|     Algo      |    Stats Dashboard    |                                                   |  0.5  |      100%       |        Backend only stores game history, no frontend code        |
+| Accessibility |   Multiple Language   |                   Ultra-simple                    |  0.5  |       95%       |                 Need to fill in translation last                 |
+|     Algo      |    Stats Dashboard    |                                                   |  0.5  |      100%       |                                                                  |
 |     Algo      |      AI Opponent      |                                                   |   1   |       90%       |       Works, but all levels of difficulties are difficult        |
-|     User      |  Standard Management  |           Tedious Albeit Weird Without            |   1   |       85%       |             Frontend implementation missing, see 2FA             |
-|     Game      |     Customization     |                                                   |  0.5  |      100%       |            Some foundations set, but not fleshed out             |
+|               |                       |              ✅ Finished for eval ✅              | 12.5  |                 |
+|     Game      |     Customization     |                                                   |  0.5  |      100%       |         Arguably there but would feel too little to pass         |
+|     User      |  Standard Management  |           Tedious Albeit Weird Without            |   1   |       85%       |             Missing ability to add and show friends              |
 |               |                       |                  ✅ Committed ✅                  | 14.0  |                 |
 |               |                       |             🟡 Partially Committed 🟡             | 14.5  |                 |
 |     User      | Remote Authentication | Google Sign-in, Simple But Extra API Key Required |   1   |       0%        |
