@@ -65,10 +65,9 @@ export const createLeaderboardPage = async (): Promise<UIComponent> => {
 
     const table = createTable(headers, columns, players.value);
 
-    // Set a max height and make the table scrollable if it overflows
     const tableWrapper = createEl(
         "div",
-        "max-h-64 overflow-y-auto w-full border-2 border-white rounded-lg bg-black/50"
+        `w-full max-h-64 overflow-y-auto overflow-x-hidden ${CONST.STYLES.CONTAINER}`
     );
     tableWrapper.appendChild(table);
 

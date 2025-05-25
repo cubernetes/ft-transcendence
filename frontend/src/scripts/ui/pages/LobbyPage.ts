@@ -133,7 +133,7 @@ export const createLobbyPage = (): UIComponent => {
 
     const container = createContainer({
         tag: "main",
-        tw: "w-full p-8 items-center relative border-2 border-white rounded-lg bg-black/50",
+        tw: `w-full p-8 items-center relative ${CONST.STYLES.CONTAINER}`,
         children: [titleEl, lineHr, infoEl, lobbyIdCtn, playerCtn, configCtn, ctaBtnGrp, statusEl],
     });
 

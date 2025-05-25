@@ -9,7 +9,7 @@ export const appendUserStatus = (container: HTMLElement, username: string) => {
     // TODO: make name clickable to profile page
 
     // User display name
-    const usernameEl = createEl("span", "text-gray-700 text-sm", { text: username });
+    const usernameEl = createEl("span", `text-gray-700 ${CONST.FONT.BODY_XS}`, { text: username });
 
     const langBtn = createLanguageButton("static");
 
@@ -21,7 +21,7 @@ export const appendUserStatus = (container: HTMLElement, username: string) => {
     });
 
     const statusCtn = createContainer({
-        tw: "absolute top-4 right-2 flex items-center justify-between bg-gray-100 rounded p-2 shadow-sm",
+        tw: "absolute top-4 right-2 flex items-center justify-between bg-gray-100 rounded pl-2 pr-2 shadow-sm",
         children: [usernameEl, langBtn, logoutBtn],
     });
 

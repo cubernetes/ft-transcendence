@@ -8,7 +8,7 @@ export const createSetupPage = (): UIComponent => {
     const { router } = layoutStore.get();
     //const paddles = createPaddles(router);
     const setupCtn = createContainer({
-        tw: "w-full p-8 items-center relative border-2 border-white rounded-lg bg-black/50",
+        tw: `w-full p-8 items-center relative ${CONST.STYLES.CONTAINER}`,
         id: CONST.ID.SETUP_CTN, // Not using?
     });
 

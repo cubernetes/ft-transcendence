@@ -319,7 +319,7 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
 
     const joinBtn = createButton({
         text: JOIN,
-        tw: twMerge(TW_BASE_BTN, "ml-4 px-3 py-1 bg-white hover:bg-blue-600 transition-all"),
+        tw: twMerge(TW_BASE_BTN, "mt-4 px-3 py-1 bg-white hover:bg-blue-600 transition-all"),
         click: async () => {
             const lobbyId = lobbyIdInput.value.trim();
             if (!lobbyId) return showErr(LOBBY_ID_REQUIRED);

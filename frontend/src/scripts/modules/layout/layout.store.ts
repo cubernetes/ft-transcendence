@@ -19,9 +19,13 @@ type LayoutState = {
 // It's important to make these stateless because it's root, move states to subscriber
 export const initLayoutState = {
     root: createEl("div"),
-    header: createEl("header", "w-full p-4 text-white flex justify-center items-center z-20", {
-        attributes: { id: CONST.ID.HEADER },
-    }),
+    header: createEl(
+        "header",
+        "w-full p-4 bg-black/50 text-white flex justify-center items-center z-30",
+        {
+            attributes: { id: CONST.ID.HEADER },
+        }
+    ),
     canvas: createEl("canvas", "w-screen h-screen hidden z-20", {
         attributes: { id: CONST.ID.CANVAS },
     }),
