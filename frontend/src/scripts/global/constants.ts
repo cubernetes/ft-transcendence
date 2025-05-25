@@ -6,8 +6,8 @@ const ASSETS_DIR = "./assets";
 
 const DIR = {
     ASSET: ASSETS_DIR,
-    VIDEO: `${ASSETS_DIR}/videos`, // TODO: make consistent
-    AUDIO: `${ASSETS_DIR}/audio`,
+    VIDEO: `${ASSETS_DIR}/videos`,
+    AUDIO: `${ASSETS_DIR}/audios`,
     FONTS: `${ASSETS_DIR}/fonts`,
     TEXTURE: `${ASSETS_DIR}/textures`,
     TILE: `${ASSETS_DIR}/textures/tiles`,
@@ -107,7 +107,6 @@ const ATTR = {
     PLAYER_STATUS: "data-player-status",
 };
 
-// TODO: Move to game controller? Make them customizable?
 // Controls
 const L_UP = ["w"]; // Left player up key
 const L_DOWN = ["s"]; // Left player down key

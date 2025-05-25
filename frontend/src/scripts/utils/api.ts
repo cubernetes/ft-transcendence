@@ -1,5 +1,5 @@
 import { Result, err, ok } from "neverthrow";
-import { ApiResponse, ErrorCode, defaultGameConfig, safeJsonParse } from "@darrenkuro/pong-core";
+import { ApiResponse, ErrorCode, safeJsonParse } from "@darrenkuro/pong-core";
 
 /**
  * A generic fetch wrapper to send JSON over request body.

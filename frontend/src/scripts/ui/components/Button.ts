@@ -1,5 +1,5 @@
 import { twMerge } from "tailwind-merge";
-import { getText, isValidKey } from "../../modules/locale/locale.utils";
+import { getText } from "../../modules/locale/locale.utils";
 import { createEl } from "../../utils/dom-helper";
 
 // Structure of the options to be passed in, esay to extend
@@ -63,35 +63,3 @@ export const createCopyButton = (text: string, tw = ""): HTMLButtonElement => {
 
     return copyBtn;
 };
-
-// TODO: Deprecating this, just need to ensure more everything translation related is set up ok
-// export const createButton = (text: string, tw = "", click?: () => void): HTMLButtonElement => {
-//     const twStyle = twMerge(BASE_TW, tw);
-//     const events = click ? { click } : undefined;
-
-//     const button = createEl("button", twStyle, { text, events });
-//     return button;
-// };
-
-// export class FtButton extends HTMLButtonElement {
-//     private unsubscribeLang!: () => void;
-
-//     constructor() {
-//         super();
-//     }
-
-//     connectedCallback() {
-//         log.debug(`Button connected cb triggered`);
-//         this.unsubscribeLang = languageStore.subscribe(() => {
-//             const key = window.cfg.label.textKey;
-//             this.textContent = getText(this.getAttribute(key) as TextKey);
-//         });
-//     }
-
-//     disconnectedCallback() {
-//         log.debug(`Button disconnected cb triggered`);
-//         this.unsubscribeLang();
-//     }
-// }
-
-// customElements.define("ft-button", FtButton, { extends: "button" });
