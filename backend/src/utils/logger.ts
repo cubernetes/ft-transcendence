@@ -1,6 +1,5 @@
 import type { PinoLoggerOptions } from "fastify/types/logger.ts";
 import net from "net";
-import os from "os";
 import pino from "pino";
 import { ZodError } from "zod";
 
@@ -38,6 +37,68 @@ export const toPlain = (obj: any) => {
     }
 };
 
+// Enhanced logging utilities for different modules
+export const createModuleLogger = (
+    logger: any,
+    moduleName: string,
+    context?: Record<string, any>
+) => {
+    const moduleContext = {
+        module: moduleName,
+        service: "backend",
+        ...context,
+    };
+
+    return {
+        trace: (obj: any, msg?: string) => logger.trace({ ...moduleContext, ...obj }, msg),
+        debug: (obj: any, msg?: string) => logger.debug({ ...moduleContext, ...obj }, msg),
+        info: (obj: any, msg?: string) => logger.info({ ...moduleContext, ...obj }, msg),
+        warn: (obj: any, msg?: string) => logger.warn({ ...moduleContext, ...obj }, msg),
+        error: (obj: any, msg?: string) => logger.error({ ...moduleContext, ...obj }, msg),
+        fatal: (obj: any, msg?: string) => logger.fatal({ ...moduleContext, ...obj }, msg),
+    };
+};
+
+// Performance tracking utility
+export const createPerformanceLogger = (logger: any, operation: string) => {
+    const startTime = Date.now();
+    const context = {
+        operation,
+        module: "performance",
+        startTime: new Date().toISOString(),
+    };
+
+    return {
+        end: (additionalContext?: Record<string, any>) => {
+            const duration = Date.now() - startTime;
+            const logData = {
+                ...context,
+                duration_ms: duration,
+                endTime: new Date().toISOString(),
+                ...additionalContext,
+            };
+
+            if (duration > 1000) {
+                logger.warn(logData, `Slow operation: ${operation} took ${duration}ms`);
+            } else {
+                logger.debug(logData, `Operation completed: ${operation} took ${duration}ms`);
+            }
+        },
+        mark: (checkpoint: string, additionalContext?: Record<string, any>) => {
+            const checkpointTime = Date.now() - startTime;
+            logger.debug(
+                {
+                    ...context,
+                    checkpoint,
+                    checkpoint_time_ms: checkpointTime,
+                    ...additionalContext,
+                },
+                `Performance checkpoint: ${checkpoint} at ${checkpointTime}ms`
+            );
+        },
+    };
+};
+
 const logstashReachable = (timeoutMs: number = 1000): Promise<boolean> => {
     return new Promise((resolve) => {
         const socket = new net.Socket();
@@ -66,7 +127,7 @@ const consoleTransport = {
     options: {
         colorize: true,
         translateTime: "HH:MM:ss Z",
-        ignore: "pid,hostname,reqId,responseTime",
+        ignore: "pid,hostname,reqId,responseTime,module,tags",
     },
 };
 
@@ -77,9 +138,15 @@ const getDevLoggerConfig = (): PinoLoggerOptions => {
         serializers: {
             err: formatError,
             req: (req: any) => ({
+                id: req.id,
                 method: req.method,
                 url: req.url,
-                body: req.body,
+                headers: {
+                    "user-agent": req.headers["user-agent"],
+                    "content-type": req.headers["content-type"],
+                },
+                user_id: req.userId,
+                username: req.username,
             }),
             res: (res: any) => ({
                 statusCode: res.statusCode,
@@ -95,14 +162,13 @@ const getElkLoggerConfig = (): PinoLoggerOptions => {
     const level = process.env.NODE_ENV === "production" ? "info" : "debug";
 
     const base = {
-        hostname: os.hostname(),
         service: "backend",
-        env: process.env.NODE_ENV || "development",
+        environment: process.env.NODE_ENV || "development",
+        instance_id: process.pid,
     };
 
     const serializers = {
         error: formatError,
-        // Don't log full request and response objects
         req: (req: any) => ({
             id: req.id,
             method: req.method,
@@ -110,15 +176,19 @@ const getElkLoggerConfig = (): PinoLoggerOptions => {
             headers: {
                 "user-agent": req.headers["user-agent"],
                 "content-type": req.headers["content-type"],
+                "x-forwarded-for": req.headers["x-forwarded-for"],
             },
             remoteAddress: req.remoteAddress || req.ip,
+            user_id: req.userId,
+            username: req.username,
         }),
         res: (res: any) => ({
             statusCode: res.statusCode,
+            headers: res.headers,
         }),
     };
 
-    // Custom hook to add tags
+    // Enhanced hooks for better log enrichment
     const hooks = {
         logMethod(inputArgs: any[], method: (...args: any[]) => any) {
             // Check for context objects in the log message
@@ -132,23 +202,46 @@ const getElkLoggerConfig = (): PinoLoggerOptions => {
                     obj.tags = [obj.tags];
                 }
 
-                // Add user-related tags
                 const msgStr = String(inputArgs[1] || "").toLowerCase();
-                if (msgStr.includes("user") || obj.req?.url?.includes("/user")) {
+
+                // Enhanced tagging based on module and context
+                if (obj.module) {
+                    obj.tags.push(`module_${obj.module}`);
+                }
+
+                // User-related tags
+                if (
+                    msgStr.includes("user") ||
+                    obj.req?.url?.includes("/user") ||
+                    obj.module === "user"
+                ) {
                     if (!obj.tags.includes("user_activity")) {
                         obj.tags.push("user_activity");
                     }
                 }
 
-                // Add game-related tags
-                if (msgStr.includes("game") || obj.req?.url?.includes("/game")) {
+                // Game-related tags
+                if (
+                    msgStr.includes("game") ||
+                    msgStr.includes("lobby") ||
+                    obj.req?.url?.includes("/game") ||
+                    obj.req?.url?.includes("/lobby") ||
+                    ["game", "lobby"].includes(obj.module)
+                ) {
                     if (!obj.tags.includes("game_activity")) {
                         obj.tags.push("game_activity");
                     }
                 }
 
-                // Tag errors
-                if (obj.level === "error" || obj.level === 50) {
+                // Performance tags
+                if (obj.duration_ms || obj.response_time_ms || obj.operation) {
+                    if (!obj.tags.includes("performance")) {
+                        obj.tags.push("performance");
+                    }
+                }
+
+                // Error tags
+                if (obj.level === "error" || obj.level === 50 || obj.error) {
                     if (!obj.tags.includes("error")) {
                         obj.tags.push("error");
                     }
@@ -170,7 +263,6 @@ const getElkLoggerConfig = (): PinoLoggerOptions => {
                     address: LOGSTASH_HOSTNAME,
                     port: Number(LOGSTASH_PORT || 5050),
                     enablePipelining: true,
-                    //formatLine: (obj: any) => JSON.stringify(obj) + "\n",
                 },
             },
         ],
