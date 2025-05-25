@@ -18,8 +18,9 @@ export vault_addr=http://vault:${VAULT_API_PORT:-8200}
 : > "/run/secrets/${service}_vault_token"
 
 service_user_id=$(id -u -- "$service_user")
+service_user_home=$(su --command='printf %s "$HOME"' --login "$service_user")
 
-exec /execsudo "$service_user_id" "$service_user_id" /bin/bash bash -s "$@"<<'!'
+exec /execsudo -e "HOME=$service_user_home" -e "SHELL=/bin/bash" -e "USER=$service_user" -e "LOGNAME=$service_user" "$service_user_id" "$service_user_id" /bin/bash bash -s "$@"<<'!'
 set -e
 set -u
 #set -vx # for debugging

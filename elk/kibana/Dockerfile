@@ -17,6 +17,8 @@ COPY --chmod=555 ./setup-dashboards.sh /usr/share/kibana/setup-dashboards.sh
 
 CMD ["sh", "-xec", ": Healthcheck ; TERM=linux setsid -f watch -xtcn5 curl --no-progress-meter --fail --write-out '%output{/tmp/healthcheck}%{exitcode}' \"http://localhost:${KIBANA_PORT}/api/status\" 1>/dev/null 2>&1 ; /usr/local/bin/kibana-docker & KIBANA_PID=$! ; echo \"Kibana starting with PID $KIBANA_PID\" ; sleep 120 ; /usr/share/kibana/setup-dashboards.sh & wait $KIBANA_PID"]
 
+VOLUME ["/usr/share/kibana/data/"]
+
 # No need to set WORKDIR, will be inherited from base image
 # No need to set CMD, will be inherited from base image
 # No need to set any ENV, will be inherited from base image

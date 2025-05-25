@@ -1,7 +1,14 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
+
+/* sudo, su, or doas all keep themselves between the parent process and the
+ * child process, making it impossible to wrap init systems such as /bin/tini.
+ * This little program doesn't do that, it properly, plainly calls execve
+ * without forking before.
+ */
 
 extern char **environ;
 
@@ -19,17 +26,40 @@ int runAs(int uid, int gid, char *cmd, char *args[]) {
   return -1;
 }
 
+void usage(char *argv0) {
+  printf("Usage: %s [-e NAME=VALUE] UID GID CMD ARG0 "
+         "[ARGS...]\n\nOptions:\n\t-e NAME=VALUE\tset/change environment "
+         "variable; may be specified multiple times\n",
+         argv0);
+  exit(EXIT_FAILURE);
+}
+
 int main(int argc, char **argv) {
-  if (argc < 5) {
-    printf("Usage: %s UID GID CMD ARG0 [ARGS...]", argv[0]);
-    return EXIT_FAILURE;
+  if (argc < 5)
+    usage(argv[0]);
+
+  int i = 1;
+
+  while (!strcmp(argv[i], "-e")) {
+    if (argv[i + 1] == NULL)
+      usage(argv[0]);
+    char *name = strchr(argv[i + 1], '=');
+    if (name == NULL)
+      usage(argv[0]);
+    *name = 0;
+    char *value = name + 1;
+    if (setenv(name, value, 1) < 0) {
+      perror("setenv");
+      return EXIT_FAILURE;
+    }
+    i += 2;
   }
 
-  int uid = atoi(argv[1]);
-  int gid = atoi(argv[2]);
+  int uid = atoi(argv[i]);
+  int gid = atoi(argv[i + 1]);
 
-  char *cmd = argv[3];
-  char **args = argv + 4;
+  char *cmd = argv[i + 2];
+  char **args = argv + i + 3;
 
   runAs(uid, gid, cmd, args);
 

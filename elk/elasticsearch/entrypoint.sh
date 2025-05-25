@@ -9,7 +9,7 @@ set -u # treat failed expansion as error
 
 ### Customization Point 2 ###
 export service=elasticsearch
-service_user=elasticsearch
+service_user=root # use root for elastic instead (since we use su at some places)
 
 export vault_token=$(cat "/run/secrets/${service}_vault_token")
 export vault_addr=http://vault:${VAULT_API_PORT:-8200}
@@ -17,10 +17,10 @@ export vault_addr=http://vault:${VAULT_API_PORT:-8200}
 # Truncate file for good measure
 : > "/run/secrets/${service}_vault_token"
 
-#service_user_id=$(id -u -- "$service_user")
-service_user_id=0 # use root for elastic instead (since we use su at some places)
+service_user_id=$(id -u -- "$service_user")
+service_user_home=$(su --command='printf %s "$HOME"' --login "$service_user")
 
-exec /execsudo "$service_user_id" "$service_user_id" /bin/bash bash -s "$@"<<'!'
+exec /execsudo -e "HOME=$service_user_home" -e "SHELL=/bin/bash" -e "USER=$service_user" -e "LOGNAME=$service_user" "$service_user_id" "$service_user_id" /bin/bash bash -s "$@"<<'!'
 set -e
 set -u
 #set -vx # for debugging
@@ -49,9 +49,6 @@ unset vault_addr
 # eval printf '"%s\n"' "$env_params"
 # printf "Environment end\n"
 
-echo BEFORE
-pstree -hp
-echo AFTER
 ### Customization Point 3 ###
 eval exec env -- "$env_params" /bin/tini -- '"$@"'
 !

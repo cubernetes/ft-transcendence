@@ -24,12 +24,6 @@ TERM=linux setsid -f watch -xtcn5 curl \
 		"https://localhost:${ELASTICSEARCH_PORT}/_cluster/health" 1>/dev/null 2>&1
 
 
-# Set up permissions for certificates directory
-CERTS_DIR="/usr/share/elasticsearch/config/certs"
-
-chown -R elasticsearch:elasticsearch "$CERTS_DIR"
-chmod -R 770 "$CERTS_DIR"
-
 run_as_elastic () {
 	su  --whitelist-environment="${whitelisted_env}" \
 		--command="${*@Q}" \
