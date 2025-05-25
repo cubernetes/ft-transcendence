@@ -114,7 +114,7 @@ services:
                   target: "/backend/esbuild.config.js"
 
     util-image:
-        build: "./elk/util-image/"
+        build: "./util-image/"
         container_name: util-image
         entrypoint: ["/curl", "--version"]
 

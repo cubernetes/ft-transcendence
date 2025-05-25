@@ -9,6 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt install -y jq psmisc
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
+COPY --from=util-image --chmod=555 /execsudo /execsudo
 
 COPY --chmod=555 ./config/generate-certs.sh /usr/share/elasticsearch/config/generate-certs.sh
 COPY --chmod=555 ./config/startup.sh        /usr/share/elasticsearch/config/startup.sh

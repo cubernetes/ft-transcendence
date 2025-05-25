@@ -9,6 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt install -y jq
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
+COPY --from=util-image --chmod=555 /execsudo /execsudo
 
 COPY --chmod=555 ./pipeline/ /usr/share/logstash/pipeline/
 COPY --chmod=444 ./config/logstash.yml /usr/share/logstash/config/logstash.yml
