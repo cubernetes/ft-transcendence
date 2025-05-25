@@ -19,7 +19,7 @@ export vault_addr=http://vault:${VAULT_API_PORT:-8200}
 
 service_user_id=$(id -u -- "$service_user")
 
-exec /execsudo "$service_user_id" "$service_user_id" /bin/bash bash "$@"<<'!'
+exec /execsudo "$service_user_id" "$service_user_id" /bin/bash bash -s "$@"<<'!'
 set -e
 set -u
 #set -vx # for debugging
