@@ -10,9 +10,9 @@ import { createButton } from "../components/Button";
 import { createContainer } from "../components/Container";
 import { createErrorModal } from "../layout/ErrorModal";
 import { createLanguageButton } from "../layout/LanguageButton";
-import { createLoginForm } from "../layout/LoginForm";
+import { createLoginPage } from "./LoginPage";
 
-export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
+export const createLandingPage: PageRenderer = async (): Promise<UIComponent> => {
     // Create video element
     const videoEl = createEl("video", "w-full h-full object-cover", {
         attributes: { src: `${CONST.DIR.VIDEO}/game.mp4` },
@@ -50,8 +50,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
                     authStore.set(state);
                     if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
 
-                    const loginFormEl = await createLoginForm(ctaButtonEl);
-                    replaceChildren(heroCtn, loginFormEl);
+                    navigateTo("login");
                 });
             });
         },

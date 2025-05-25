@@ -2,31 +2,22 @@ import { navigateTo } from "../../global/router";
 import { tryLogin, tryRegister } from "../../modules/auth/auth.service";
 import { getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl, replaceChildren } from "../../utils/dom-helper";
+import { createArcadeWrapper } from "../components/ArcadeWrapper";
 import { createButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createInput } from "../components/Input";
 import { createStatus } from "../components/Status";
+import { createLanguageButton } from "../layout/LanguageButton";
 
 type AuthMode = "login" | "register";
 
 // TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
-export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTMLElement[]> => {
+export const createLoginPage = async (): Promise<UIComponent> => {
     let mode: AuthMode = "login"; // Default to login
 
-    const wrapper = createEl("div", "relative max-w-md mx-auto p-6 rounded-lg top-1/3", {
+    const wrapper = createEl("div", "relative w-1/2 mx-auto p-6 rounded-lg", {
         attributes: { id: CONST.ID.LOGIN_FORM },
     });
-
-    const exitBtn = createEl(
-        "button",
-        "absolute top-2 right-6 text-red-600 text-2xl font-bold cursor-pointer",
-        {
-            props: { innerHTML: "&times;" },
-            events: {
-                click: () => wrapper.replaceWith(ctaButton),
-            },
-        }
-    );
 
     // Create input elements
     const { USERNAME, DISPLAY_NAME, PASSWORD, CONFIRM_PASSWORD, LOGIN, REGISTER } = CONST.TEXT;
@@ -43,7 +34,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
     const submitBtn = createButton({
         type: "submit",
         text: mode === "login" ? LOGIN : REGISTER,
-        tw: "w-full px-4 py-2 bg-red-500 text-white",
+        tw: `w-full ${CONST.FONT.BODY_SM} px-4 py-2 bg-red-500 text-white`,
     });
 
     // Create status component
@@ -78,7 +69,7 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
         cbs: [() => changeMode("login"), () => changeMode("register")],
         twBtnSpecific: ["rounded-l-md", "rounded-r-md"],
         twSelected: "bg-red-500 text-white",
-        twBtn: "px-4 py-2 bg-gray-300 rounded-none",
+        twBtn: `${CONST.FONT.BODY_SM} px-4 py-2 bg-gray-300 rounded-none`,
         twCtn: "justify-center mb-4",
         defaultSelected: 0,
     });
@@ -110,11 +101,13 @@ export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTM
 
     const quickplayBtn = createButton({
         text: CONST.TEXT.QUICKPLAY,
-        tw: "w-full px-4 py-2 bg-blue-500 text-white mt-4 rounded",
+        tw: `${CONST.FONT.BODY_SM} w-full px-4 py-2 bg-blue-500 text-white mt-4 rounded`,
         click: () => navigateTo("quickplay"),
     });
 
-    appendChildren(wrapper, [exitBtn, modeBtnGrp, authForm, quickplayBtn]);
+    const langBtn = createLanguageButton();
 
-    return [wrapper];
+    appendChildren(wrapper, [modeBtnGrp, authForm, quickplayBtn, langBtn]);
+
+    return createArcadeWrapper([wrapper]);
 };
