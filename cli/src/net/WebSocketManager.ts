@@ -51,11 +51,18 @@ export class WebSocketManager extends EventEmitter {
                 return;
             }
 
-            const message = JSON.stringify({
+            let message = JSON.stringify({
                 type: "game-start",
             });
             this.#socket.send(message);
             console.log("Game start sent!");
+
+            message = JSON.stringify({
+                type: "renderer-ready",
+            });
+			
+			this.#socket.send(message)
+			console.log("Renderer ready sent");
         } catch (error) {
             console.error("Error sending game start: ", error);
         }

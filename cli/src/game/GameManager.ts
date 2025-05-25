@@ -23,6 +23,7 @@ import {
     WALL_SOUND,
 } from "../utils/config";
 import { userOptions } from "../utils/config";
+import { leaveLobby } from "../menu/remoteMenu"
 
 export class GameManager {
     private controller: GameController | null = null;
@@ -33,6 +34,7 @@ export class GameManager {
     private activeGame: string | null = null;
 
     // LOGIN-data:
+	private username: string | null = null;
     private displayName: string | null = null;
 
     private currentLobbyId: string | null = null;
@@ -164,8 +166,6 @@ export class GameManager {
         this.wsManager.active = true;
         this.renderer.updateResolution();
 
-        this.wsManager.sendGameStart();
-
         this.startRemoteGame();
     }
 
@@ -183,6 +183,14 @@ export class GameManager {
 
     getDisplayName(): string | null {
         return this.displayName;
+    }
+
+	setUsername(name: string) {
+        this.username = name;
+    }
+
+    getUsername(): string | null {
+        return this.username;
     }
 
     setPlayerNames(playerNames: string[]) {
@@ -268,6 +276,7 @@ export class GameManager {
         audioManager.startMusic(VICTORY_MUSIC);
         this.cleanupController();
         this.renderer.showWinner(payload, this.playerNames, this.opponentId).then(() => {
+			leaveLobby()
             mainMenu();
         });
     }
