@@ -43,12 +43,12 @@ int main(int argc, char **argv) {
   while (!strcmp(argv[i], "-e")) {
     if (argv[i + 1] == NULL)
       usage(argv[0]);
-    char *name = strchr(argv[i + 1], '=');
-    if (name == NULL)
+    char *name_end = strchr(argv[i + 1], '=');
+    if (name_end == NULL)
       usage(argv[0]);
-    *name = 0;
-    char *value = name + 1;
-    if (setenv(name, value, 1) < 0) {
+    *name_end = 0;
+    char *value = name_end + 1;
+    if (setenv(argv[i + 1], value, 1) < 0) {
       perror("setenv");
       return EXIT_FAILURE;
     }
