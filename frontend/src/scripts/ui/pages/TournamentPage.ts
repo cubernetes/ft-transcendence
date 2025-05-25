@@ -18,13 +18,19 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
 
     showPageElements();
 
+    // Control Section
+    const controlSection = createEl("section", "absolute top-4 left-4", {
+        children: [restartTournamentButton()],
+    });
+    pageContainer.appendChild(controlSection);
+
     // Header Section
-    const headerSection = createEl("div", "w-full text-center");
+    const headerSection = createEl("div", "w-full text-center -mt-2");
 
     const title = createHeading({ text: "🏆 Tournament Bracket", tw: "font-bold" });
     const tournamentIdEl = createParagraph({
         text: `Tournament ID: ${tournamentId || "Unknown"}`,
-        tw: "text-gray-600",
+        tw: `${CONST.FONT.BODY_XXS} text-gray-600 -mt-2`,
     });
 
     appendChildren(headerSection, [title, tournamentIdEl]);
@@ -37,7 +43,7 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
 
     // Bracket Section
     const tree = controller.getTournamentTree();
-    const bracketSection = createEl("section", "w-full flex justify-center");
+    const bracketSection = createEl("section", "w-full flex justify-center -mt-4");
     if (!tree) {
         const fallback = createParagraph({
             text: "Tournament tree could not be loaded.",
@@ -48,6 +54,8 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
         bracketSection.appendChild(tree);
     }
 
+    appendChildren(pageContainer, [headerSection, bracketSection]);
+
     // Winner Section
     const winnerSection = createEl("section", "w-full flex flex-col items-center");
     if (round === "Final") {
@@ -56,14 +64,9 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
             const winnerEl = winnerVisualization(winner);
             const blockchainControls = await connectBlockchain();
             appendChildren(winnerSection, [winnerEl, blockchainControls]);
+            pageContainer.replaceChildren(headerSection, winnerSection, controlSection);
         }
     }
-
-    // Controls Section
-    // const controlSection = createEl("section", "w-full flex justify-center");
-    // controlSection.appendChild(restartTournamentButton());
-
-    appendChildren(pageContainer, [headerSection, bracketSection, winnerSection]);
 
     return createArcadeWrapper([pageContainer]);
 };

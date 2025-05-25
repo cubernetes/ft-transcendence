@@ -89,19 +89,20 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
         },
     });
 
-    const container = createEl("div", "flex flex-col gap-4 items-center mt-4");
+    const container = createEl(
+        "div",
+        `${CONST.FONT.BODY_SM} flex flex-col gap-4 items-center mt-4`
+    );
     appendChildren(container, [connectButton, readButton, writeButton]);
     return container;
 };
 
 export const restartTournamentButton = (): HTMLButtonElement => {
-    const { RESTART_TOURNAMENT } = CONST.TEXT;
     const { controller } = tournamentStore.get();
 
     const restartButton = createButton({
-        text: RESTART_TOURNAMENT,
-        i18nVars: { icon: "🔁" },
-        tw: "bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl transition",
+        text: "🔁",
+        tw: `${CONST.FONT.BODY_XS} bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl transition`,
         click: () => {
             controller!.resetTournament(); // Safe due to the disabled check below
             navigateTo("play");
@@ -120,7 +121,7 @@ export const restartTournamentButton = (): HTMLButtonElement => {
 export const winnerVisualization = (winnerName: string): HTMLElement => {
     const winnerContainer = createEl("div", "flex flex-col items-center gap-2 mt-6");
 
-    const winnerText = createEl("h1", "text-4xl font-bold text-center text-green-700", {
+    const winnerText = createEl("h1", `${CONST.FONT.H5} font-bold text-center text-green-700`, {
         text: `🥇 Winner: ${winnerName}`,
     });
 

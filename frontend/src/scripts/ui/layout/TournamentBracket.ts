@@ -27,7 +27,7 @@ export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
         const roundResult = determineRound(roundMatches);
         const roundTitle = createParagraph({
             text: roundResult.isOk() ? roundResult.value : "Unknown Round",
-            tw: "font-semibold mb-4",
+            tw: "font-semibold mb-1",
         });
         roundColumn.appendChild(roundTitle);
 
@@ -35,7 +35,7 @@ export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
             // Compact match container
             const matchContainer = createEl(
                 "div",
-                "match-container p-2 text-center w-32 border-2 border-white rounded-lg bg-black/50"
+                `match-container p-2 text-center w-32 ${CONST.STYLES.CONTAINER}`
             );
 
             // Highlight winner directly within players
@@ -48,18 +48,18 @@ export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
 
             const players = createEl(
                 "p",
-                `${CONST.FONT.BODY_XXS} player-name font-semibold flex flex-col items-center`
+                `${CONST.FONT.BODY_XXS} player-name text-gray-200 flex flex-col items-center`
             );
 
-            const player1El = createEl("span", `${isWinner1 ? "text-green-800 font-bold" : ""}`, {
-                text: player1,
+            const player1El = createEl("span", `${isWinner1 ? "text-green-600 font-bold" : ""}`, {
+                text: isWinner1 ? `👑 ${player1}` : player1,
             });
-            const player0El = createEl("span", `${isWinner0 ? "text-green-800 font-bold" : ""}`, {
-                text: player0,
+            const player0El = createEl("span", `${isWinner0 ? "text-green-600 font-bold" : ""}`, {
+                text: isWinner0 ? `👑 ${player0}` : player0,
             });
 
             players.appendChild(player1El);
-            players.appendChild(createEl("span", "text-gray-400", { text: "vs" }));
+            players.appendChild(createEl("span", "text-gray-300", { text: "vs" }));
             players.appendChild(player0El);
 
             const playButton = createButton({
