@@ -44,7 +44,8 @@ vclean: down
 # Clean various files/folders
 .PHONY: clean-secrets-folder
 clean-secrets-folder:
-	$(RM) -r ./.secrets/
+	$(RM) -r ./.secrets/ || true
+	@$(RM) -r ./.secrets/ || $(RM) -r ./.secrets/ || $(RM) -r ./.secrets/ || { sleep 1 && $(RM) -r ./.secrets/; } # try a few more times because on iSCSI mounts it seems to fail frequently
 
 .PHONY: clean-backend-files
 clean-backend-files:

@@ -17,7 +17,7 @@ export vault_addr=http://vault:${VAULT_API_PORT:-8200}
 # Truncate file for good measure
 : > "/run/secrets/${service}_vault_token"
 
-su -s /bin/bash -c '/bin/bash -s "$@"' "$service_user" bash "$@"<<'!'
+exec su -s /bin/bash -c '/bin/bash -s "$@"' "$service_user" bash "$@"<<'!'
 set -e
 set -u
 #set -vx # for debugging

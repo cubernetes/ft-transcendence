@@ -17,7 +17,7 @@ export vault_addr=http://vault:${VAULT_API_PORT:-8200}
 # Truncate file for good measure
 : > "/run/secrets/${service}_vault_token"
 
-su -s /bin/bash -c '/bin/bash -s "$@"' "$service_user" bash "$@"<<'!'
+exec su -s /bin/bash -c 'exec /bin/bash -s "$@"' "$service_user" bash "$@"<<'!'
 set -e
 set -u
 #set -vx # for debugging
@@ -46,6 +46,9 @@ unset vault_addr
 # eval printf '"%s\n"' "$env_params"
 # printf "Environment end\n"
 
+echo BEFORE
+pstree -hp
+echo AFTER
 ### Customization Point 3 ###
 eval exec env -- "$env_params" /bin/tini -- '"$@"'
 !

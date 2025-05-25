@@ -6,7 +6,7 @@ COPY --from=ft-transcendence-curl_base --chmod=755 /curl /usr/bin/curl
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt update -y && \
-	apt install -y jq
+	apt install -y jq psmisc
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 
