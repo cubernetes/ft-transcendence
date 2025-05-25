@@ -1,19 +1,7 @@
 import type { CONSTANTS } from "./global/constants";
-import type { FtButton } from "./ui/components/Button";
 import type { logger } from "./utils/logger";
-import type {
-    ArcRotateCamera,
-    DirectionalLight,
-    Mesh,
-    PBRMaterial,
-    Scene,
-    ShadowGenerator,
-    StaticSound,
-    StreamingSound,
-} from "@babylonjs/core";
+import type { AudioEngineV2, Scene, StaticSound, StreamingSound } from "@babylonjs/core";
 import type { EthereumProvider } from "@metamask/providers";
-import type { earcut } from "earcut";
-import { AdvancedDynamicTexture } from "@babylonjs/gui";
 
 declare global {
     const process: {
@@ -29,12 +17,9 @@ declare global {
 
     interface Window {
         ethereum?: EthereumProvider;
-        CONST: typeof CONSTANTS;
-        log: typeof logger;
     }
 
-    // Globally defined types so no need to import
-    // Probably not good practice esp as things grow...
+    // Define some shared types globally for easy access
     type UIComponent = HTMLElement[];
     type UIContainer = HTMLElement;
     type PageRenderer = () => UIComponent | Promise<UIComponent>;
@@ -42,7 +27,7 @@ declare global {
 
 declare module "@babylonjs/core" {
     interface Engine {
-        shadowsEnabled: boolean; // TODO: compare to the one in light
+        shadowsEnabled: boolean;
         bgmEnabled: boolean;
         sfxEnabled: boolean;
         audio: AudioEngineV2;
