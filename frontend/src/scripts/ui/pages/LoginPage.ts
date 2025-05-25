@@ -11,7 +11,6 @@ import { createLanguageButton } from "../layout/LanguageButton";
 
 type AuthMode = "login" | "register";
 
-// TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
 export const createLoginPage = async (): Promise<UIComponent> => {
     let mode: AuthMode = "login"; // Default to login
 

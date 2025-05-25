@@ -19,7 +19,7 @@ export type IncomingMessagePayloads = {
 };
 
 export type OutgoingMessagePayloads = EventMap & {
-    "game-start": { playerNames: string[] }; // TODO: not needed?
+    "game-start": { playerNames: string[] };
     "lobby-update": { config: PongConfig; playerNames: string[]; host: boolean };
     "lobby-remove": null;
 };

@@ -1,8 +1,6 @@
 import { createEl } from "../../utils/dom-helper";
 import { createStatus } from "./Status";
 
-// TODO: This should not return a Result, if it's error still return HTMLElement with error inside
-
 export const createTable = (
     headers: string[],
     columns: string[],

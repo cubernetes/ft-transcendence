@@ -15,8 +15,6 @@ export const createAuthService = (app: FastifyInstance) => {
     const comparePassword = (password: string, hash: string): Promise<boolean> =>
         bcryptjs.compare(password, hash);
 
-    // TODO: exp to be defined in jwt plugin; also, maybe use access/refresh token?
-    // With saving jwt to cookies, figure out how to handle expiration
     const generateJwtToken = (user: UserRecord, exp: string = "1d"): string => {
         const { id, username, displayName } = user;
 

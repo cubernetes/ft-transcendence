@@ -152,7 +152,7 @@ export const createUserService = (app: FastifyInstance) => {
         const orderedByWins = await db
             .select({ username: users.username, wins: users.wins })
             .from(users)
-            .orderBy(desc(users.wins)); // TODO: consider other metrics to break the tie etc.
+            .orderBy(desc(users.wins));
 
         const rank = orderedByWins.findIndex((u) => u.username === username) + 1; // Zero indexed
         return ok(rank);

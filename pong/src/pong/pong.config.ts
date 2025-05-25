@@ -63,5 +63,3 @@ export const configSchema = z.object({
     playTo: z.number().min(1, "Must play to great than 1").max(21, "Must play to less than 21"),
     ball: z.object({ r: z.number() }),
 });
-
-// Customizable config on the frontend? TODO: try one factor first, just playTo

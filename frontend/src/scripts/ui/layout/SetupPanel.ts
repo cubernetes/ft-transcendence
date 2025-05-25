@@ -36,7 +36,6 @@ const createCtaBtn = (text: string, click: () => void, tw = "") =>
         tw: twMerge(TW_BASE_BTN, "w-full mt-4 bg-red-500 text-white hover:bg-red-600", tw),
         click,
     });
-
 // #endregion
 
 // #region: Panels

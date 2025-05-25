@@ -1,5 +1,6 @@
 import { twMerge } from "tailwind-merge";
 import { createEl, replaceChildren } from "../../utils/dom-helper";
+import { createButton } from "./Button";
 import { createContainer } from "./Container";
 
 type Opts = {
@@ -32,15 +33,12 @@ export const createModal = ({ children, tw = "", exitable = true }: Opts) => {
         document.body.removeChild(container);
     };
 
-    // TODO: refactor this
-    const exitBtn = createEl(
-        "button",
-        "top-1 right-2 absolute text-red-600 text-4xl font-bold cursor-pointer z-50",
-        {
-            props: { innerHTML: "&times;" },
-            events: { click: close },
-        }
-    );
+    const exitBtn = createButton({
+        innerHTML: "&times;",
+        click: close,
+        tw: "absolute top-1 right-2 text-red-600 text-4xl font-bold cursor-pointer z-50",
+    });
+
     if (exitable) container.appendChild(exitBtn);
 
     document.body.append(overlayEl, container);

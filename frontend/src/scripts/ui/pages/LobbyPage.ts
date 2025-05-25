@@ -47,7 +47,6 @@ export const createLobbyPage = (): UIComponent => {
     });
 
     // Players
-    // TODO: add avatar maybe
     const player1P = createParagraph({
         text: lobbyHost ? authStore.get().displayName! : playerNames[0],
         id: CONST.ID.LOBBY_P1,
