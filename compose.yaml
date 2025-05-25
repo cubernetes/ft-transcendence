@@ -145,7 +145,7 @@ services:
         container_name: logstash
         volumes:
             - "logstash-data:/usr/share/logstash/data/"
-            - "elasticsearch-certs:/etc/logstash/config/certs/"
+            - "elasticsearch-certs:/etc/logstash/config/certs/:ro"
             - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
         environment: *env-common
         networks:
