@@ -1,6 +1,6 @@
 import { handlePopState, navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
-import { hydrateHeader } from "../../ui/layout/Header";
+import { hydrateMenu } from "../../ui/layout/Menu";
 import { sendApiRequest } from "../../utils/api";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { gameStore } from "../game/game.store";
@@ -11,22 +11,39 @@ type LayoutState = {
     canvas: HTMLCanvasElement;
     router: HTMLDivElement;
     footer: HTMLElement;
+    videoEl: HTMLVideoElement;
+    arcadeImg: HTMLImageElement;
     initialized: boolean;
 };
 
 // It's important to make these stateless because it's root, move states to subscriber
 export const initLayoutState = {
-    root: createEl("div"), // Space holder, will be replaced by #app
-    header: createEl("header", "bg-black/50 p-4 text-white justify-between items-center hidden", {
+    root: createEl("div"),
+    header: createEl("header", "w-full p-4 text-white flex justify-center items-center z-20", {
         attributes: { id: CONST.ID.HEADER },
     }),
-    canvas: createEl("canvas", "w-screen h-screen hidden", {
+    canvas: createEl("canvas", "w-screen h-screen hidden z-20", {
         attributes: { id: CONST.ID.CANVAS },
     }),
-    router: createEl("div", "flex-grow flex items-center justify-center w-full", {
+    router: createEl("div", "flex-grow flex items-center justify-center w-full z-20", {
         attributes: { id: CONST.ID.ROUTER },
     }),
-    footer: createEl("footer", "bg-gray-200 p-4 text-center hidden", {
+    // Arcade image as an absolutely positioned overlay
+    arcadeImg: createEl(
+        "img",
+        "absolute inset-0 mx-auto my-auto z-10 pointer-events-none select-none",
+        {
+            attributes: {
+                src: "/assets/images/arcade.png",
+                style: "max-width:100vw;max-height:100vh;left:0;right:0;top:0;bottom:0;",
+            },
+        }
+    ),
+    // Video as the very back layer
+    videoEl: createEl("video", "absolute inset-0 w-screen h-screen object-cover z-0", {
+        attributes: { src: "/assets/videos/darker.mov", autoplay: "", loop: "", muted: "" },
+    }),
+    footer: createEl("footer", "bg-black/50 text-white p-4 text-center z-20", {
         attributes: { id: CONST.ID.FOOTER },
         children: [createEl("p", "", { text: "© 2025 ft-transcendence" })],
     }),
@@ -37,22 +54,28 @@ export const layoutStore = createStore<LayoutState>(initLayoutState);
 
 // Entry point of the app
 layoutStore.subscribe((state) => {
-    const { root, header, canvas, router, footer } = state;
+    const { root, header, canvas, router, footer, videoEl, arcadeImg } = state;
 
     if (!state.initialized) {
         state.initialized = true;
 
-        // Attach elements to root
-        appendChildren(root, [header, canvas, router, footer]);
+        // Attach elements in correct order for layering
+        appendChildren(root, [
+            videoEl, // z-0
+            arcadeImg, // z-10
+            header, // z-20
+            canvas, // z-20
+            router, // z-20
+            footer, // z-20
+        ]);
 
-        // Hydrate needed states for persisted elements
-        hydrateHeader(header);
+        videoEl.muted = true;
+        videoEl.autoplay = true;
+        videoEl.loop = true;
+        videoEl.playsInline = true;
 
-        // Attach pop state handler
+        hydrateMenu(header);
         window.addEventListener("popstate", handlePopState);
-
-        // Navigate To default page
-        // TODO: Should try to get the location.pathname, i.e quickplay
         navigateTo(CONST.ROUTE.DEFAULT, true);
     }
 });
