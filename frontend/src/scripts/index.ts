@@ -3,7 +3,7 @@ import { CONSTANTS } from "./global/constants";
 import { logger } from "./utils/logger";
 
 // Register global modules and utils; earcut needed for some polygon functions of babylonjs
-Object.assign(window, { earcut, log: logger, CONST: CONSTANTS });
+Object.assign(globalThis, { earcut, log: logger, CONST: CONSTANTS });
 
 // Register WebSocket for live reload for development
 if (process.env.WATCH === "1") {
