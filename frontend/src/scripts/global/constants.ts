@@ -9,6 +9,7 @@ const DIR = {
     VIDEO: `${ASSETS_DIR}/videos`, // TODO: make consistent
     AUDIO: `${ASSETS_DIR}/audio`,
     FONTS: `${ASSETS_DIR}/fonts`,
+    IMAGES: `${ASSETS_DIR}/images`,
     TEXTURE: `${ASSETS_DIR}/textures`,
     TILE: `${ASSETS_DIR}/textures/tiles`,
 };
