@@ -10,9 +10,9 @@ export const hydrateMenu = (headerEl: HTMLElement): HTMLElement => {
     const navList = createEl("ul", `flex ${CONST.FONT.H5} space-x-4`);
     const navKeys: [I18nKey, Route][] = [
         [CONST.TEXT.HOME, CONST.ROUTE.HOME],
-        [CONST.TEXT.PLAY, "play"],
         [CONST.TEXT.LEADERBOARD, "leaderboard"],
         [CONST.TEXT.PROFILE, "profile"],
+        [CONST.TEXT.STATS, "stats"],
     ];
 
     for (const [key, route] of navKeys) {
