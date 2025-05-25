@@ -1,6 +1,7 @@
 import { Chart, registerables } from "chart.js";
 import { PublicGame } from "@darrenkuro/pong-core";
 import { authStore } from "../../modules/auth/auth.store";
+import { localeStore } from "../../modules/locale/locale.store";
 import { createEl } from "../../utils/dom-helper";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createTable } from "../components/Table";
@@ -83,11 +84,10 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
         const opponent = isPlayer1 ? game.player2Username : game.player1Username;
         const playerScore = isPlayer1 ? game.player1Score : game.player2Score;
         const opponentScore = isPlayer1 ? game.player2Score : game.player1Score;
-        const result =
-            playerScore > opponentScore ? "Won" : playerScore < opponentScore ? "Lost" : "Draw";
+        const result = playerScore > opponentScore ? "Won" : "Lost";
 
         return {
-            date: new Date(game.finishedAt).toLocaleString(undefined, {
+            date: new Date(game.finishedAt).toLocaleString(localeStore.get().locale, {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
