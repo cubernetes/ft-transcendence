@@ -1,4 +1,5 @@
 import { layoutStore } from "../../modules/layout/layout.store";
+import { createArcadeWrapper } from "../components/ArcadeWrapper";
 import { createContainer } from "../components/Container";
 import { createPaddles } from "../layout/Paddles";
 import { switchModePanel } from "../layout/SetupPanel";
@@ -12,5 +13,5 @@ export const createSetupPage = (): UIComponent => {
     });
 
     switchModePanel(setupCtn, "base");
-    return [paddles, setupCtn];
+    return createArcadeWrapper([setupCtn]);
 };

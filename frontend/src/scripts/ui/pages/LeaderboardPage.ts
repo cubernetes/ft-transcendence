@@ -1,5 +1,6 @@
 import { Result, err, ok } from "neverthrow";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createArcadeWrapper } from "../components/ArcadeWrapper";
 import { createStatus } from "../components/Status";
 import { createTable } from "../components/Table";
 
@@ -63,5 +64,5 @@ export const createLeaderboardPage = async (): Promise<UIComponent> => {
     appendChildren(section, [title, table]);
     main.appendChild(section);
 
-    return [main];
+    return createArcadeWrapper([main]);
 };

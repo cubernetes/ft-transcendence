@@ -5,6 +5,7 @@ import { sendGameStart } from "../../modules/ws/ws.service";
 import { wsStore } from "../../modules/ws/ws.store";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
+import { createArcadeWrapper } from "../components/ArcadeWrapper";
 import { createCopyButton } from "../components/Button";
 import { createButtonGroup } from "../components/ButtonGroup";
 import { createContainer } from "../components/Container";
@@ -149,5 +150,5 @@ export const createLobbyPage = (): UIComponent => {
         // Always leave when route away from lobby page
         sendApiRequest.post(CONST.API.LEAVE);
     });
-    return [container];
+    return createArcadeWrapper([container]);
 };

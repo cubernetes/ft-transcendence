@@ -6,6 +6,7 @@ import {
     winnerVisualization,
 } from "../../modules/tournament/tournament.ui";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { createArcadeWrapper } from "../components/ArcadeWrapper";
 
 export const createTournamentPage = async (): Promise<HTMLElement[]> => {
     const { controller, round, tournamentId } = tournamentStore.get();
@@ -61,5 +62,5 @@ export const createTournamentPage = async (): Promise<HTMLElement[]> => {
 
     appendChildren(pageContainer, [controlSection, headerSection, bracketSection, winnerSection]);
 
-    return [pageContainer];
+    return createArcadeWrapper([pageContainer]);
 };
