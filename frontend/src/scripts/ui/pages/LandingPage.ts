@@ -15,8 +15,8 @@ import { createLoginForm } from "../layout/LoginForm";
 export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
     // Create video element
     const videoEl = createEl("video", "w-full h-full object-cover", {
-        attributes: { src: `${CONST.DIR.VIDEO}/pong_simulation.webm` },
-        props: { autoplay: true, loop: true, muted: true },
+        attributes: { src: `${CONST.DIR.VIDEO}/game.mp4` },
+        props: { autoplay: true, loop: false, muted: true },
     });
 
     // Create an overlay element
