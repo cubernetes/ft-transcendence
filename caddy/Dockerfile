@@ -35,7 +35,7 @@ VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/", "/frontend/uploads/"
 RUN apk add --no-cache jq curl bash
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
-COPY --from=util-image --chmod=555 /execsudo /execsudo
+COPY --from=ft-transcendence-util-image --chmod=555 /execsudo /execsudo
 
 ENTRYPOINT ["/entrypoint.sh"]
 

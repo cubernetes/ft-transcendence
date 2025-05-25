@@ -9,7 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt install -y jq
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
-COPY --from=util-image --chmod=555 /execsudo /execsudo
+COPY --from=ft-transcendence-util-image --chmod=555 /execsudo /execsudo
 
 COPY --chmod=444 ./config/kibana.yml /usr/share/kibana/config/kibana.yml
 COPY --chmod=555 ./dashboards /usr/share/kibana/dashboards/
