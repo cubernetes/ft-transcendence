@@ -8,13 +8,18 @@ set -u # treat failed expansion as error
 #set -vx # for debugging
 
 ### Customization Point 2 ###
-service=logstash
+export service=logstash
 
-vault_token=$(cat "/run/secrets/${service}_vault_token")
-vault_addr=http://vault:${VAULT_API_PORT:-8200}
+export vault_token=$(cat "/run/secrets/${service}_vault_token")
+export vault_addr=http://vault:${VAULT_API_PORT:-8200}
 
 # Truncate file for good measure
 : > "/run/secrets/${service}_vault_token"
+
+su -s /bin/bash -c '/bin/bash -s "$@"' logstash bash "$@"<<'!'
+set -e
+set -u
+#set -vx # for debugging
 
 get_all_secrets_as_env_params () {
 	curl --no-progress-meter --header "X-Vault-Token: $vault_token" \
@@ -31,6 +36,9 @@ get_all_secrets_as_env_params () {
 }
 
 env_params=$(get_all_secrets_as_env_params)
+unset service
+unset vault_token
+unset vault_addr
 
 # Print all secrets for logging, should only be done for debugging
 # printf "Environment start\n"
@@ -39,3 +47,4 @@ env_params=$(get_all_secrets_as_env_params)
 
 ### Customization Point 3 ###
 eval exec env -- "$env_params" bash -c "'/usr/local/bin/import-logstash-ca.sh && /usr/local/bin/docker-entrypoint'"
+!
