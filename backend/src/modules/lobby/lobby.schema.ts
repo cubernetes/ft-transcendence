@@ -2,7 +2,6 @@ import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 import { apiError, apiSuccess, lobbySchemas } from "@darrenkuro/pong-core";
 
-// TODO: create the correct errors
 const create = {
     tags: ["Lobby"],
     description: "Create a new lobby",

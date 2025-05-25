@@ -5,9 +5,6 @@ import { createContainer } from "../components/Container";
 import { createLanguageButton } from "./LanguageButton";
 
 export const appendUserStatus = (container: HTMLElement, username: string) => {
-    // TODO: Fetch profile pic and display
-    // TODO: make name clickable to profile page
-
     // User display name
     const usernameEl = createEl("span", "text-gray-700 text-sm", { text: username });
 

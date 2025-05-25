@@ -4,7 +4,6 @@ import { appendChildren, createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 
 export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
-    //TODO: Correctly implement translations for all elements.
     const { NO_TOURNAMENT, START } = CONST.TEXT;
     const bracketContainer = createEl("div", "relative w-full overflow-x-auto");
 

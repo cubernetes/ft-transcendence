@@ -43,7 +43,6 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
                 const engine = createPongEngine();
                 const controller = createGameController(res.value, engine);
 
-                // TODO: Move this and make this better! damn bad style made me look for this bug for hours
                 gameStore.update({ controller });
 
                 initAuthState().then(async (state) => {

@@ -37,9 +37,6 @@ const createCtaBtn = (text: string, click: () => void, tw = "") =>
         click,
     });
 
-const createInputEl = (ph: string) =>
-    createInput({ ph, tw: "w-full p-2 bg-gray-100 text-black rounded text-xl" }); // TODO: Check tw
-
 // #endregion
 
 // #region: Panels
@@ -70,7 +67,6 @@ const createBasePanel = (ctn: UIContainer): UIComponent => {
     const basePanel: UIComponent = [titleEl, lineHr, baseBtnGrp];
 
     if (authStore.get().isAuthenticated) {
-        // TODO: Check: Any reason why log in is needed to play tournament?
         const tournamentBtn = createCtaBtn(CREATE_TOURNAMENT, () =>
             switchModePanel(ctn, "tournament")
         );
@@ -212,7 +208,7 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
                     },
                 });
                 return replaceChildren(ctn, [returnBtn, statusEl, devHack]);
-            } // TODO: handle error cleanly
+            }
 
             const { lobbyId } = res.value;
             gameStore.update({ lobbyId, lobbyHost: true });
@@ -221,11 +217,13 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
         "mt-2"
     );
     const joinLobbyBtn = createCtaBtn(JOIN_LOBBY, () => switchModePanel(ctn, "join"));
-    const onlineBtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
-        children: [createLobbyBtn, joinLobbyBtn],
-    }); // TODO: refactor to use the correct function
 
-    return [returnBtn, titleEl, lineHr, onlineBtnGrp];
+    const buttonCtn = createContainer({
+        tw: "flex flex-col space-y-4 items-center mt-4",
+        children: [createLobbyBtn, joinLobbyBtn],
+    });
+
+    return [returnBtn, titleEl, lineHr, buttonCtn];
 };
 
 const createTournamentPanel = (ctn: UIContainer): UIComponent => {

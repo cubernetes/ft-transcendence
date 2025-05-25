@@ -9,7 +9,6 @@ import { createStatus } from "../components/Status";
 
 type AuthMode = "login" | "register";
 
-// TODO:´Language Change button should be visible everywhere - not only in the header (not visible in landing)
 export const createLoginForm = async (ctaButton: HTMLButtonElement): Promise<HTMLElement[]> => {
     let mode: AuthMode = "login"; // Default to login
 

@@ -183,7 +183,6 @@ export const createLobbyService = (app: FastifyInstance) => {
         const idx = players.findIndex((p) => p === userId);
         playerReady[idx] = true;
 
-        // TODO: handle timeout?
         if (playerReady.every((b) => b === true)) engine.start();
 
         if (playerNames.some((n) => n === "")) {

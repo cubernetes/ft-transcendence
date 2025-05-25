@@ -125,5 +125,3 @@ export const createTotpModal = async (mode: Exclude<Mode, "login">): Promise<voi
         }
     });
 };
-
-// TODO: move handler to module probably auth

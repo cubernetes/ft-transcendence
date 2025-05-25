@@ -205,9 +205,9 @@ export const TEXT_MAP = {
     },
     NUMBER_OF_PLAYERS: {
         en: "Number of players",
-        de: "Spieleranzahl", // TODO: Check if still correct
-        fr: "Nombre de joueurs", // TODO: Check if still correct
-        es: "Número de jugadores", // TODO: Check if stil correct
+        de: "Spieleranzahl", // TRANSLATION_NEEDED (check)
+        fr: "Nombre de joueurs", // TRANSLATION_NEEDED (check)
+        es: "Número de jugadores", // TRANSLATION_NEEDED (check)
     },
     COMPLETED: {
         en: "Completed",

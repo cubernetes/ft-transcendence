@@ -44,7 +44,7 @@ const registerGameControllers = (conn: WebSocket) => {
                 isPlaying: true,
                 mode: "online",
                 status: "ongoing",
-                playerNames, // TODO: clean this up, not needed anymore
+                playerNames,
             });
             controller.startGame("online");
         },

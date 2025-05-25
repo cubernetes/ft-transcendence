@@ -176,7 +176,7 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
     // -----------------------
 
     const getState = (): State => structuredClone({ status, scores, ball, paddles });
-    const getHits = () => structuredClone(hits); // TODO: be included in state and don't send it separately
+    const getHits = () => structuredClone(hits);
     const getConfig = (): PongConfig => structuredClone(config);
     const setStatus = (input: Status) => (status = input);
 

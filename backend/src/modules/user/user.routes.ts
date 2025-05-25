@@ -32,11 +32,11 @@ export const userRoutes = async (app: FastifyInstance) => {
     const logoutHandler = logout;
 
     // Display name
-    const displayNameOpts = { preHandler: [app.requireAuth] }; // TODO: schema
+    const displayNameOpts = { preHandler: [app.requireAuth] };
     const displayNameHandler = withZod({ body: displayNameBody }, displayName);
 
     // Password
-    const passwordOpts = { preHandler: [app.requireAuth] }; // TODO: schema
+    const passwordOpts = { preHandler: [app.requireAuth] };
     const passwordHandler = withZod({ body: passwordBody }, password);
 
     // Leaderboard
