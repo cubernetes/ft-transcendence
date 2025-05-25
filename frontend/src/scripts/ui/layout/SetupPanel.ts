@@ -216,7 +216,7 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
 
             const { lobbyId } = res.value;
             gameStore.update({ lobbyId, lobbyHost: true });
-            navigateTo("lobby");
+            navigateTo(CONST.ROUTE.LOBBY);
         },
         "mt-2"
     );
@@ -232,7 +232,7 @@ const createTournamentPanel = (ctn: UIContainer): UIComponent => {
     const { round } = tournamentStore.get();
     if (round) {
         log.warn("Tournament already started. Cannot create a new tournament.");
-        navigateTo("tournament");
+        navigateTo(CONST.ROUTE.TOURNAMENT);
         return [];
     }
 
@@ -298,7 +298,7 @@ const createParticipantPanel = (ctn: UIContainer, length: number): UIComponent =
         const controller = createTournamentController([...players]);
         tournamentStore.update({ controller });
         controller.startTournament();
-        navigateTo("tournament");
+        navigateTo(CONST.ROUTE.TOURNAMENT);
     });
 
     return [returnBtn, title, line, inputsCtn, tournamentStartBtn, statusEl];
@@ -331,7 +331,7 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
             if (tryJoin.isErr()) return showErr(tryJoin.error);
 
             gameStore.update({ lobbyId, lobbyHost: false });
-            navigateTo("lobby");
+            navigateTo(CONST.ROUTE.LOBBY);
         },
     });
 

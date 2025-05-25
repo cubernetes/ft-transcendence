@@ -1,4 +1,5 @@
-import { type Route, navigateTo } from "../../global/router";
+import type { Route } from "../../global/constants";
+import { navigateTo } from "../../global/router";
 import { authStore } from "../../modules/auth/auth.store";
 import { I18nKey } from "../../modules/locale/locale.translation";
 import { getText } from "../../modules/locale/locale.utils";
@@ -6,12 +7,23 @@ import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";
 
 export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
-    const navList = createEl("ul", `flex ${CONST.FONT.H5} space-x-4`);
+    // Title
+    const titleEl = createHeading({
+        text: CONST.TEXT.FT_TRANSCENDENCE,
+        tag: "h1",
+        tw: "text-3xl mb-0 text-left text-white",
+    });
+
+    const { TEXT, ROUTE } = CONST;
+
+    //
+    const navList = createEl("ul", "flex text-xl space-x-4");
     const navKeys: [I18nKey, Route][] = [
-        [CONST.TEXT.PLAY, CONST.ROUTE.HOME],
-        [CONST.TEXT.LEADERBOARD, "leaderboard"],
-        [CONST.TEXT.PROFILE, "profile"],
-        [CONST.TEXT.STATS, "stats"],
+        [TEXT.HOME, ROUTE.HOME],
+        [TEXT.PLAY, ROUTE.PLAY],
+        [TEXT.LEADERBOARD, ROUTE.LEADERBOARD],
+        [TEXT.PROFILE, ROUTE.PROFILE],
+        [TEXT.STATS_CHART, ROUTE.STATS],
     ];
 
     for (const [key, route] of navKeys) {
