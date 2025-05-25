@@ -14,5 +14,5 @@ RUN gcc -static /execsudo.c -o /execsudo
 
 
 FROM scratch
-COPY --from=build /execsudo /execsudo
 COPY --from=build /usr/local/bin/curl /curl
+COPY --from=build /execsudo /execsudo

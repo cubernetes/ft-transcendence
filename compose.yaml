@@ -113,10 +113,9 @@ services:
                   action: rebuild
                   target: "/backend/esbuild.config.js"
 
-    curl_base:
-        profiles: [elk]
-        build: "./elk/curl_base/"
-        container_name: curl_base
+    util-image:
+        build: "./elk/util-image/"
+        container_name: util-image
         entrypoint: ["/curl", "--version"]
 
     elasticsearch:
@@ -133,7 +132,7 @@ services:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
         depends_on:
-            curl_base:
+            util-image:
                 condition: service_started
             vault:
                 restart: true
@@ -153,7 +152,7 @@ services:
             ft-transcendence-net:
                 ipv4_address: &logstash-ip 10.42.42.4
         depends_on:
-            curl_base:
+            util-image:
                 condition: service_started
             elasticsearch:
                 condition: service_healthy
@@ -176,7 +175,7 @@ services:
                 ipv4_address: &kibana-ip 10.42.42.5
         environment: *env-common
         depends_on:
-            curl_base:
+            util-image:
                 condition: service_started
             elasticsearch:
                 condition: service_healthy

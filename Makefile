@@ -47,7 +47,7 @@ dev: clean-frontend-volume ensure-secret-files
 		$(ARGS))
 
 .PHONY: dev-elk
-dev-elk: clean-frontend-volume ensure-secret-files build-curl-base
+dev-elk: clean-frontend-volume ensure-secret-files build-util-image
 	@$(call dev-env,     \
 		--profile elk    \
 		up               \
@@ -58,7 +58,7 @@ dev-elk: clean-frontend-volume ensure-secret-files build-curl-base
 
 # Don't depend on (endless waiting), rather fail
 .PHONY: actual-prod
-actual-prod: clean-frontend-volume ensure-secret-files build-curl-base
+actual-prod: clean-frontend-volume ensure-secret-files build-util-image
 	@$(call prod-env,    \
 		--profile elk	 \
 		up               \
@@ -69,7 +69,7 @@ actual-prod: clean-frontend-volume ensure-secret-files build-curl-base
 
 # Temporary fix, so it deploys. No ELK, etc.
 .PHONY: prod
-prod: clean-frontend-volume ensure-secret-files build-curl-base
+prod: clean-frontend-volume ensure-secret-files build-util-image
 	@$(call dev-env,     \
 		up               \
 		--remove-orphans \

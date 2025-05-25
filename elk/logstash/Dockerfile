@@ -2,7 +2,7 @@
 FROM docker.elastic.co/logstash/logstash:8.17.3
 USER 0
 
-COPY --from=ft-transcendence-curl_base --chmod=755 /curl /usr/bin/curl
+COPY --from=ft-transcendence-util-image --chmod=755 /curl /usr/bin/curl
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt update -y && \
