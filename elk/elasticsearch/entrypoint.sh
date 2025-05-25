@@ -13,6 +13,9 @@ service=elasticsearch
 vault_token=$(cat "/run/secrets/${service}_vault_token")
 vault_addr=http://vault:${VAULT_API_PORT:-8200}
 
+# Truncate file for good measure
+: > "/run/secrets/${service}_vault_token"
+
 get_all_secrets_as_env_params () {
 	curl --no-progress-meter --header "X-Vault-Token: $vault_token" \
 		"$vault_addr/v1/secret/data/$service" | jq --raw-output '
@@ -21,19 +24,7 @@ get_all_secrets_as_env_params () {
 					"'\''"
 					+ .key
 					+ "="
-					+ (
-						if .value | type == "string" then
-							(
-								.value |
-									gsub(
-										"'\''";
-										"'\''\\'\'''\''"
-									)
-							)
-						else
-							.value
-						end
-					  )
+					+ ( if .value | type == "string" then ( .value | gsub( "'\''"; "'\''\\'\'''\''")) else .value end)
 					+ "'\''"
 			] | join(" ")
 		'
@@ -45,9 +36,6 @@ env_params=$(get_all_secrets_as_env_params)
 # printf "Environment start\n"
 # eval printf '"%s\n"' "$env_params"
 # printf "Environment end\n"
-
-# Truncate file for good measure
-: > "/run/secrets/${service}_vault_token"
 
 ### Customization Point 3 ###
 eval exec env -- "$env_params" /bin/tini -- '"$@"'
