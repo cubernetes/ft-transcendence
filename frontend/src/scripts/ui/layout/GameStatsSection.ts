@@ -1,0 +1,176 @@
+import { Chart, registerables } from "chart.js";
+import { PublicGame } from "@darrenkuro/pong-core";
+import { authStore } from "../../modules/auth/auth.store";
+import { localeStore } from "../../modules/locale/locale.store";
+import { createEl } from "../../utils/dom-helper";
+import { createButtonGroup } from "../components/ButtonGroup";
+import { createTable } from "../components/Table";
+
+Chart.register(...registerables);
+
+export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => {
+    const { STATS_CHART, MATCH_HISTORY, FRIENDS } = CONST.TEXT;
+    const chartSection = createGameStatsChart(games);
+    const historySection = createMatchHistoryList(games);
+    const friendSection = createFriendList();
+
+    const toggleContainer = createEl("div", "flex justify-center gap-4 mb-4 mt-4");
+    const contentContainer = createEl("div", "w-full min-h-[700px] transition-all");
+
+    const toggleGroup = createButtonGroup({
+        texts: [STATS_CHART, MATCH_HISTORY, FRIENDS],
+        cbs: [
+            () => showElement(chartSection),
+            () => showElement(historySection),
+            () => showElement(friendSection),
+        ],
+        twBtnSpecific: ["rounded-l-md", "rounded-r-md"],
+        twSelected: "bg-purple-600 text-white",
+        twBtn: "px-4 py-2 border rounded transition",
+        twCtn: "justify-center mb-4",
+        defaultSelected: 0,
+    });
+
+    const showElement = (element: UIComponent) => {
+        contentContainer.replaceChildren(...element);
+    };
+
+    toggleContainer.append(toggleGroup);
+    showElement(chartSection); // Default
+
+    return [toggleContainer, contentContainer];
+};
+
+const createFriendList = (): HTMLElement[] => {
+    const playerName = authStore.get().username;
+    //TODO: Use the below to check if player has friends.
+    if (playerName) {
+        return [
+            createEl("p", "text-gray-500 text-center", {
+                text: "No friends in your friend list. Add some!",
+            }),
+        ];
+    }
+    const headers = ["Friend Username", "Games Played", "Rank", "Status"];
+    const row = [
+        {
+            friendUsername: playerName,
+            gamesPlayed: 0,
+            rank: "N/A",
+            status: "Online",
+        },
+    ];
+    const table = createTable(headers, ["friendUsername", "gamesPlayed", "rank", "status"], row);
+
+    return [table];
+};
+
+const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
+    const playerName = authStore.get().username;
+
+    if (!games.length) {
+        return [
+            createEl("p", "text-gray-500 text-center", {
+                text: "No game data available. Play some games onlin games!",
+            }),
+        ];
+    }
+
+    const reversedGames = [...games].reverse();
+
+    const headers = ["Date", "Opponent", "Result", "Score"];
+    const rows = reversedGames.map((game) => {
+        const isPlayer1 = game.player1Username === playerName;
+        const opponent = isPlayer1 ? game.player2Username : game.player1Username;
+        const playerScore = isPlayer1 ? game.player1Score : game.player2Score;
+        const opponentScore = isPlayer1 ? game.player2Score : game.player1Score;
+        const result = playerScore > opponentScore ? "Won" : "Lost";
+
+        return {
+            date: new Date(game.finishedAt).toLocaleString(localeStore.get().locale, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            }),
+            opponent,
+            result,
+            score: `${playerScore} - ${opponentScore}`,
+        };
+    });
+
+    const table = createTable(headers, ["date", "opponent", "result", "score"], rows);
+
+    return [table];
+};
+
+const mapGame = (game: PublicGame) => {
+    const { username } = authStore.get();
+    const { player1Username, player2Username } = game;
+    if (username !== player1Username && username !== player2Username) return;
+    const index = username === player1Username ? 0 : 1;
+
+    return {
+        hits: index === 0 ? game.player1Hits : game.player2Hits,
+        misses: index === 0 ? game.player2Score : game.player1Score,
+    };
+};
+
+export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
+    if (!games.length) {
+        return [
+            createEl("p", "text-gray-500 text-center", {
+                text: "No game data. Play some games on 'Online' mode!",
+            }),
+        ];
+    }
+    const data = [...games].reverse().map((game, index) => {
+        const mapped = mapGame(game);
+        if (!mapped) return null;
+        return { gameId: index + 1, ...mapped };
+    });
+    const chartEl = createEl("canvas", "w-full max-h-[700px] mx-auto", {
+        attributes: { id: "game-stats-chart" },
+    });
+
+    setTimeout(() => {
+        const ctx = document.getElementById("game-stats-chart") as HTMLCanvasElement | null;
+        if (!ctx) return;
+
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: data.map((d) => `Game ${d?.gameId}`),
+                datasets: [
+                    {
+                        label: "Hits",
+                        data: data.map((d) => d?.hits),
+                        borderColor: "rgb(75, 192, 192)",
+                        tension: 0.1,
+                    },
+                    {
+                        label: "Misses",
+                        data: data.map((d) => d?.misses),
+                        borderColor: "rgb(255, 99, 132)",
+                        tension: 0.1,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                events: ["mousemove", "mouseout", "click", "touchstart", "touchmove"],
+                plugins: {
+                    tooltip: {
+                        enabled: true,
+                        mode: "nearest",
+                        intersect: false,
+                    },
+                },
+            },
+        });
+    }, 0);
+
+    return [chartEl];
+};

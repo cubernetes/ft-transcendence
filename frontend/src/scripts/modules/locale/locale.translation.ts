@@ -263,13 +263,24 @@ export const TEXT_MAP = {
         fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
-    CHART_PERFROMANCE: {
-        en: "Pong Game Performance",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
+    STATS_CHART: {
+        en: "Stats Chart",
+        de: "Statistiken", // TRANSLATION_NEEDED
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
-
+    MATCH_HISTORY: {
+        en: "Match History",
+        de: "Statistiken", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    FRIENDS: {
+        en: "Your friends",
+        de: "Deine Freunde",
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
     // Game options
     SHADOWS: {
         en: "Shadows",
@@ -439,6 +450,18 @@ export const TEXT_MAP = {
     },
     GET_TOURNAMENT_ERROR: {
         en: "Unable to get tournament history.",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    GAME_DATA_ERROR: {
+        en: "No game data available. Play some games onlin games!",
+        de: "Turnierbaum", // TRANSLATION_NEEDED
+        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
+        es: "Iniciar torneo", // TRANSLATION_NEEDED
+    },
+    FRIENDS_ERROR: {
+        en: "No friends in your friend list. Add some!",
         de: "Turnierbaum", // TRANSLATION_NEEDED
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED

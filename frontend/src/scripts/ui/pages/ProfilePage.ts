@@ -2,7 +2,7 @@ import { Result, err, ok } from "neverthrow";
 import { ErrorCode, GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
 import { sendApiRequest } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
-import { createGameStatsChart } from "../layout/GameStatsChart";
+import { createStatsToggleSection } from "../layout/GameStatsSection";
 import { createProfilePanel } from "../layout/ProfilePanel";
 
 const fetchPlayerData = async (): Promise<Result<GetMePayload, ErrorCode>> => {
@@ -17,7 +17,7 @@ export const createProfilePage = async (): Promise<UIComponent> => {
     if (playerData.isErr()) return []; // TODO: add fetch error component
 
     const profileSection = createProfilePanel(playerData.value);
-    const statsSection = createGameStatsChart(playerData.value.games);
+    const statsSection = createStatsToggleSection(playerData.value.games);
     const main = createEl("main", "container mx-auto p-4", {
         children: [...profileSection, ...statsSection],
     });
