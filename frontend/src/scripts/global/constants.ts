@@ -131,6 +131,38 @@ const CTRL = {
 const FUJI_ADDRESS = "66532bC8c0A4996Ae1BeB5e9b68A55f3014B28a2";
 const HOLESKY_ADDRESS = "feefE87429c5dAC98009D663f62F05499bDAD2AD";
 
+// Color palette constants in Tailwind classes
+const COLOR = {
+    PAGE_BG: "bg-gray-800",
+    HEADER_FOOTER_BG: "bg-gray-900",
+    TEXT_PRIMARY: "text-gray-50",
+    TEXT_SECONDARY: "text-gray-300",
+    DIVIDER_BORDER: "border-gray-700",
+    BTN_BASE_BG: "bg-gray-700",
+    BTN_HOVER_BG: "hover:bg-gray-600",
+    INPUT_BG: "bg-gray-700",
+    INPUT_TEXT: "text-gray-100",
+    ACCENT_BG: "bg-green-500",
+    ACCENT_HOVER_BG: "hover:bg-green-600",
+    LINK_TEXT: "text-blue-500",
+    LINK_HOVER_TEXT: "hover:text-blue-600",
+};
+
+const FONT = {
+    HERO: "text-6xl", // Very large hero/landing page titles
+    H1: "text-5xl", // Main page titles
+    H2: "text-4xl", // Section titles
+    H3: "text-3xl", // Subsection titles
+    H4: "text-2xl", // Headings in cards, modals, etc.
+    H5: "text-xl", // Small headings
+    H6: "text-lg", // Smallest headings
+    BODY: "text-base", // Main body text
+    BODY_SM: "text-sm", // Secondary body text, captions
+    BODY_XS: "text-xs", // Footnotes, legal, helper text
+    BODY_XXS: "text-[10px]", // Footnotes, legal, helper text
+    BODY_XXXS: "text-[8px]", // Footnotes, legal, helper text
+};
+
 /** Constants will be attached globally, can be accessed via `CONST` */
 export const CONSTANTS = {
     DIR,
@@ -145,4 +177,6 @@ export const CONSTANTS = {
     TEXT,
     FUJI_ADDRESS,
     HOLESKY_ADDRESS,
+    COLOR,
+    FONT,
 };
