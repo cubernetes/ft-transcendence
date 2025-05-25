@@ -26,7 +26,7 @@ export const createLobbyPage = (): UIComponent => {
     const { statusEl, showErr, showOk } = createStatus();
 
     const infoEl = createParagraph({
-        tw: "text-sm text-gray-700 font-medium mt-1",
+        tw: "text-gray-700 font-medium mt-1",
         text: "Share this ID with your friends to join your game.",
     });
 
@@ -35,7 +35,7 @@ export const createLobbyPage = (): UIComponent => {
 
     const lobbyIdValueEl = createEl(
         "code",
-        "text-blue-800 font-semibold text-md bg-white px-2 py-1 rounded shadow-sm",
+        "text-blue-800 font-semibold bg-white px-2 py-1 rounded shadow-sm",
         { text: lobbyId }
     );
 
@@ -51,13 +51,13 @@ export const createLobbyPage = (): UIComponent => {
     const player1P = createParagraph({
         text: lobbyHost ? authStore.get().displayName! : playerNames[0],
         id: CONST.ID.LOBBY_P1,
-        tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-white p-2 w-full mr-2",
+        tw: "text-gray-700 font-medium mt-2 shadow-md bg-white p-2 w-full mr-2",
     });
 
     const player2P = createParagraph({
         text: !playerNames[1] || playerNames[1] == "" ? "Waiting" : playerNames[1],
         id: CONST.ID.LOBBY_P2,
-        tw: "text-lg text-gray-700 font-medium mt-2 shadow-md bg-gray-200 p-2 w-full ml-2",
+        tw: "text-gray-700 font-medium mt-2 shadow-md bg-gray-200 p-2 w-full ml-2",
     });
 
     const playerCtn = createContainer({
@@ -112,7 +112,7 @@ export const createLobbyPage = (): UIComponent => {
     const ctaBtnGrp = createButtonGroup({
         texts: [UPDATE, START, LEAVE],
         cbs: [updateBtnCb, startBtnCb, leaveBtnCb],
-        twBtn: "text-xl p-2 shadow-md",
+        twBtn: "p-2 shadow-md",
         twCtn: "flex justify-evenly items-center mt-4",
         twBtnSpecific: ["bg-green-500", "bg-blue-300", "bg-red-300"],
     });
@@ -133,7 +133,7 @@ export const createLobbyPage = (): UIComponent => {
 
     const container = createContainer({
         tag: "main",
-        tw: "w-1/2 bg-gray-300 p-8 items-center relative",
+        tw: "w-full p-8 items-center relative border-2 border-white rounded-lg bg-black/50",
         children: [titleEl, lineHr, infoEl, lobbyIdCtn, playerCtn, configCtn, ctaBtnGrp, statusEl],
     });
 

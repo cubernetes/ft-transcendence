@@ -6,9 +6,9 @@ import { switchModePanel } from "../layout/SetupPanel";
 
 export const createSetupPage = (): UIComponent => {
     const { router } = layoutStore.get();
-    const paddles = createPaddles(router);
+    //const paddles = createPaddles(router);
     const setupCtn = createContainer({
-        tw: "w-1/2 bg-gray-300 p-8 items-center relative",
+        tw: "w-full p-8 items-center relative border-2 border-white rounded-lg bg-black/50",
         id: CONST.ID.SETUP_CTN, // Not using?
     });
 
