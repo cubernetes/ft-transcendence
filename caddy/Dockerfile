@@ -37,7 +37,7 @@ COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-USER caddy
+USER root
 
 ENV WATCH=0
 
