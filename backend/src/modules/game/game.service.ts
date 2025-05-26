@@ -126,11 +126,11 @@ export const createGameService = (app: FastifyInstance) => {
         try {
             const inserted = await db.insert(games).values(data).returning();
             const game = inserted[0];
-            if (!game) throw new Error("Game returned is empty");
+            if (!game) throw new Error("game returned is empty");
 
             return ok(game);
         } catch (error) {
-            app.log.debug({ error }, "Fail to create game");
+            app.log.debug({ error }, "fail to create game");
             return err("SERVER_ERROR");
         }
     };
@@ -160,7 +160,7 @@ export const createGameService = (app: FastifyInstance) => {
 
             return ok(result);
         } catch (error) {
-            app.log.debug({ error }, "Fail to get games by username");
+            app.log.debug({ error }, "fail to get games by username");
             return err("SERVER_ERROR");
         }
     };

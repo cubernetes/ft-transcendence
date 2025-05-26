@@ -349,14 +349,12 @@ export const createUserController = (app: FastifyInstance) => {
         const app = req.server;
 
         const data = await req.file();
-
-        if (!data) return; //TODO: fill in; this validation should be done with zod or something at a higher level?
+        if (!data) return reply.err("BAD_REQUEST");
 
         const tryUpload = await app.userService.upload(data, req.username);
         if (tryUpload.isErr()) return reply.err(tryUpload.error);
 
-        const avatarUrl = tryUpload.value.replace("frontend/dist/", ""); // TODO: clean up
-        app.log.debug(`avatar URL: ${tryUpload.value}`);
+        const avatarUrl = tryUpload.value;
         await app.userService.update(req.userId, { avatarUrl });
 
         reply.ok({ avatarUrl });

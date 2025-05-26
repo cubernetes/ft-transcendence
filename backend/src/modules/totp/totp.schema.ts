@@ -53,4 +53,4 @@ const disable = {
     },
 };
 
-export default { setup, verify, update, disable };
+export const routeSchema = { setup, verify, update, disable };

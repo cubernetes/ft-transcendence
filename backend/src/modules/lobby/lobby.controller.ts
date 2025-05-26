@@ -4,7 +4,7 @@ import { lobbySchemas } from "@darrenkuro/pong-core";
 import { ZodHandler } from "../../utils/zod-validate";
 
 export const createLobbyController = (app: FastifyInstance) => {
-    const create: RouteHandlerMethod = (req, reply) => {
+    const create: RouteHandlerMethod = async (req, reply) => {
         const { userId, userDisplayName } = req;
         const tryCreateLobby = app.lobbyService.create(userId, userDisplayName, defaultGameConfig);
         if (tryCreateLobby.isErr()) return reply.err(tryCreateLobby.error);
@@ -18,7 +18,7 @@ export const createLobbyController = (app: FastifyInstance) => {
     };
 
     type joinCb = ZodHandler<{ params: typeof lobbySchemas.joinParams }>;
-    const join: joinCb = ({ params }, req, reply) => {
+    const join: joinCb = async ({ params }, req, reply) => {
         const { userId, userDisplayName } = req;
         const { lobbyId } = params;
         const tryJoinLobby = app.lobbyService.join(userId, userDisplayName, lobbyId);
@@ -31,7 +31,7 @@ export const createLobbyController = (app: FastifyInstance) => {
     };
 
     type updateCb = ZodHandler<{ body: typeof lobbySchemas.updateBody }>;
-    const update: updateCb = ({ body }, req, reply) => {
+    const update: updateCb = async ({ body }, req, reply) => {
         const { userId } = req;
         const { playTo } = body;
         const tryUpdateLobby = app.lobbyService.update(userId, { playTo });
@@ -44,7 +44,7 @@ export const createLobbyController = (app: FastifyInstance) => {
         return reply.ok({});
     };
 
-    const leave: RouteHandlerMethod = (req, reply) => {
+    const leave: RouteHandlerMethod = async (req, reply) => {
         const { userId } = req;
         const app = req.server;
         const tryLeaveLobby = app.lobbyService.leave(userId);

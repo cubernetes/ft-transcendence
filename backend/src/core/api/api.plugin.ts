@@ -1,12 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { ErrorCode } from "@darrenkuro/pong-core";
-import swaggerPlugin from "./api.swagger.ts";
+import { swaggerPlugin } from "./api.swagger.ts";
 
 const STATUS = {
     BAD_REQUEST: 400,
     VALIDATION_ERROR: 400,
     UNAUTHORIZED: 401,
+    PAYLOAD_TOO_LARGE: 413,
 
     USER_NOT_FOUND: 404,
     USERNAME_REQUIRED: 400,
@@ -35,7 +36,7 @@ const STATUS = {
     UNKNOWN_ERROR: 500,
 } as const satisfies Record<ErrorCode, number>;
 
-const apiPlugin = async (app: FastifyInstance) => {
+const plugin = async (app: FastifyInstance) => {
     // Set up default falsy values for request
     app.decorateRequest("userId", 0);
     app.decorateRequest("username", "");
@@ -64,7 +65,7 @@ const apiPlugin = async (app: FastifyInstance) => {
     }
 };
 
-export default fp(apiPlugin, {
+export const apiPlugin = fp(plugin, {
     name: "api-plugin",
     dependencies: ["config-plugin", "@fastify/cookie"],
 });

@@ -31,7 +31,7 @@ export const configSchema = z.object({
         .transform((val) => (val ? val.split(/\s+/).filter(Boolean) : []))
         .refine(
             (arr) => arr.every(isValidDomain),
-            "Each domain must be a valid domain or 'localhost'"
+            "each domain must be a valid domain or 'localhost'"
         ),
 });
 

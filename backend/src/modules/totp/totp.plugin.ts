@@ -1,12 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
-import userRoutes from "./totp.routes.ts";
+import { totpRoutes } from "./totp.routes.ts";
 
-const totpPlugin = async (app: FastifyInstance) => {
-    await app.register(userRoutes, { prefix: "/totp" });
+const plugin = async (app: FastifyInstance) => {
+    await app.register(totpRoutes, { prefix: "/totp" });
 };
 
-export default fp(totpPlugin, {
+export const totpPlugin = fp(plugin, {
     name: "totp-plugin",
     dependencies: ["user-plugin"],
 });

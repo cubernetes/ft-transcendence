@@ -3,7 +3,7 @@ import fp from "fastify-plugin";
 import { createGameController } from "./game.controller.ts";
 import { createGameService } from "./game.service.ts";
 
-const gamePlugin = async (app: FastifyInstance) => {
+const plugin = async (app: FastifyInstance) => {
     app.decorate("gameService", createGameService(app));
 
     const controller = createGameController(app);
@@ -13,7 +13,7 @@ const gamePlugin = async (app: FastifyInstance) => {
     app.wsService.registerHandler("renderer-ready", controller.ready);
 };
 
-export default fp(gamePlugin, {
+export const gamePlugin = fp(plugin, {
     name: "game-plugin",
     dependencies: ["db-plugin", "ws-plugin"],
 });

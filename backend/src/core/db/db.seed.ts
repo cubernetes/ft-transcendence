@@ -8,13 +8,13 @@ const seedUsers = async (n: number, app: FastifyInstance) => {
         passwordHash: faker.internet.password(),
     }));
 
-    app.log.info(`Seeding ${n} faker users...`);
+    app.log.info(`seeding ${n} faker users...`);
 
     const seedOneUser = async (newUser: (typeof fakeUsers)[number]) => {
         const user = await app.userService.create(newUser);
 
         if (user.isErr()) {
-            return app.log.error({ err: user.error }, "Failed to create user");
+            return app.log.error({ err: user.error }, "failed to create user");
         }
 
         const stats = {
@@ -28,7 +28,7 @@ const seedUsers = async (n: number, app: FastifyInstance) => {
     await Promise.all(fakeUsers.map(seedOneUser));
 };
 
-const mockGame = (id: number, total: number) => {
+export const mockGame = (id: number, total: number) => {
     const player1Hits = faker.number.int({ min: 0, max: 100 });
     const player2Hits = faker.number.int({ min: 0, max: 100 });
     const winner = faker.number.int({ min: 0, max: 1 });
@@ -57,20 +57,11 @@ export const seed = async (app: FastifyInstance) => {
     const userCount = await app.userService.getCount();
 
     if (userCount.isErr()) {
-        return app.log.error({ err: userCount.error }, "Failed to get user count");
+        return app.log.error({ err: userCount.error }, "failed to get user count");
     }
 
     // Only seed users if there aren't a significant amount
     if (userCount.value <= 200) {
         await seedUsers(20, app);
-    }
-
-    // Test only, to have some games
-    const user = await app.userService.findByUsername("odon5ht");
-    if (user.isErr()) return;
-
-    for (let i = 0; i < 5; i++) {
-        const game = mockGame(user.value.id, userCount.value);
-        app.gameService.create(game);
     }
 };

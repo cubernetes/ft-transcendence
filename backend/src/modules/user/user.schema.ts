@@ -2,7 +2,7 @@ import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 import { apiError, apiSuccess, userSchemas } from "@darrenkuro/pong-core";
 
-const registerRouteSchema = {
+const register = {
     tags: ["User"],
     description: "Register a new user",
     body: zodToJsonSchema(userSchemas.registerBody),
@@ -14,7 +14,7 @@ const registerRouteSchema = {
     },
 };
 
-const loginRouteSchema = {
+const login = {
     tags: ["User"],
     description: "Login an user",
     body: zodToJsonSchema(userSchemas.loginBody),
@@ -27,7 +27,7 @@ const loginRouteSchema = {
     },
 };
 
-const logoutRouteSchema = {
+const logout = {
     tags: ["User"],
     description: "Logout an user (clear cookies)",
     security: [{ cookieAuth: [] }],
@@ -37,7 +37,7 @@ const logoutRouteSchema = {
     },
 };
 
-const getInfoRouteSchema = {
+const info = {
     tags: ["User"],
     description: "Get user info by username",
     response: {
@@ -46,7 +46,7 @@ const getInfoRouteSchema = {
     },
 };
 
-const getMeRouteSchema = {
+const me = {
     tags: ["User"],
     description: "Get current user info",
     security: [{ cookieAuth: [] }],
@@ -57,7 +57,7 @@ const getMeRouteSchema = {
     },
 };
 
-const getLeaderboardRouteSchema = {
+const leaderboard = {
     tags: ["User"],
     description: "Get top n users by wins",
     params: zodToJsonSchema(userSchemas.leaderboardParams),
@@ -68,11 +68,11 @@ const getLeaderboardRouteSchema = {
     },
 };
 
-export default {
-    register: registerRouteSchema,
-    login: loginRouteSchema,
-    logout: logoutRouteSchema,
-    getInfo: getInfoRouteSchema,
-    getMe: getMeRouteSchema,
-    getLeaderboard: getLeaderboardRouteSchema,
+export const routeSchema = {
+    register,
+    login,
+    logout,
+    info,
+    me,
+    leaderboard,
 };
