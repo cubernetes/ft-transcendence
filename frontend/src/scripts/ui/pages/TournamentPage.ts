@@ -30,7 +30,7 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
     const title = createHeading({ text: "🏆 Tournament Bracket", tw: "font-bold" });
     const tournamentIdEl = createParagraph({
         text: `Tournament ID: ${tournamentId || "Unknown"}`,
-        tw: `${CONST.FONT.BODY_XXS} text-gray-600 -mt-2`,
+        tw: `${CONST.FONT.BODY_XXS} text-gray-400 -mt-2`,
     });
 
     appendChildren(headerSection, [title, tournamentIdEl]);

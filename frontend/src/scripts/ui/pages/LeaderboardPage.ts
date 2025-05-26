@@ -45,7 +45,7 @@ export const createLeaderboardPage = async (): Promise<UIComponent> => {
     // Define how many players to be fetched
     const n = 10;
 
-    const main = createEl("main", "container mx-auto p-4");
+    const main = createEl("main", "container justify-items-center p-4");
     const section = createEl("section", "p-6");
     const title = createHeading({
         text: "Leaderboard",
@@ -67,7 +67,7 @@ export const createLeaderboardPage = async (): Promise<UIComponent> => {
 
     const tableWrapper = createEl(
         "div",
-        `w-full max-h-64 overflow-y-auto overflow-x-hidden ${CONST.STYLES.CONTAINER}`
+        `max-h-64 overflow-y-auto overflow-x-hidden flex justify-center ${CONST.STYLES.CONTAINER}`
     );
     tableWrapper.appendChild(table);
 

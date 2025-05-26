@@ -68,7 +68,7 @@ const createFriendList = (): HTMLElement[] => {
     const table = createTable(headers, ["friendUsername", "gamesPlayed", "rank", "status"], row);
     const tableWrapper = createEl(
         "div",
-        `w-full max-h-64 overflow-y-auto overflow-x-hidden ${CONST.STYLES.CONTAINER}`
+        `max-h-64 overflow-y-auto overflow-x-hidden flex justify-center ${CONST.STYLES.CONTAINER}`
     );
     tableWrapper.appendChild(table);
     return [tableWrapper];
@@ -112,7 +112,7 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
     const table = createTable(headers, ["date", "opponent", "result", "score"], rows);
     const tableWrapper = createEl(
         "div",
-        `${CONST.STYLES.CONTAINER} w-full max-h-64 overflow-y-auto overflow-x-hidden`
+        `max-h-64 overflow-y-auto overflow-x-hidden flex justify-center ${CONST.STYLES.CONTAINER}`
     );
     tableWrapper.appendChild(table);
     return [tableWrapper];

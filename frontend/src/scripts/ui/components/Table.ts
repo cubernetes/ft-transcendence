@@ -9,15 +9,14 @@ export const createTable = (
     columns: string[],
     data: Record<string, unknown>[]
 ): HTMLElement => {
-    //TODO: Why do we need min-w-full here?
-    const table = createEl("table", "divide-y divide-gray-200 ");
+    const table = createEl("table", "divide-y divide-gray-200");
     const thead = createEl("thead", "");
     const headerRow = createEl("tr");
 
     headers.forEach((h) => {
         const th = createEl(
             "th",
-            `${CONST.FONT.BODY_SM} px-3 py-3 text-left font-medium text-gray-200 uppercase tracking-wider`,
+            `${CONST.FONT.BODY_XS} px-3 py-3 text-left font-medium text-gray-200 uppercase tracking-wider`,
             { text: h }
         );
         headerRow.appendChild(th);
@@ -38,7 +37,7 @@ export const createTable = (
             }
             const cell = createEl(
                 "td",
-                `${CONST.FONT.BODY_XS} px-4 py-4 text-white whitespace-nowrap`,
+                `${CONST.FONT.BODY_XXS} px-2 py-2 text-white whitespace-nowrap`,
                 {
                     text: String(i[key]),
                 }

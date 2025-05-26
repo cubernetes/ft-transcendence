@@ -152,7 +152,7 @@ const createAiPanel = (ctn: UIContainer): UIComponent => {
     }
 
     // Difficulty button group
-    const labelEl = createParagraph({ text: DIFFICULTY });
+    const labelEl = createParagraph({ text: DIFFICULTY, tw: "text-left" });
     const btnGrp = createButtonGroup({
         texts: [EASY, MEDIUM, HARD],
         twSelected: "bg-gray-400",

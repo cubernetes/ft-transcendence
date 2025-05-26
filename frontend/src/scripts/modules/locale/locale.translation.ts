@@ -277,7 +277,7 @@ export const TEXT_MAP = {
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
     FRIENDS: {
-        en: "Your friends",
+        en: "Your Friends",
         de: "Deine Freunde",
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED

@@ -24,14 +24,12 @@ export const createLanguageButton = (tw = ""): UIContainer => {
     });
 
     const popoverCtn = createContainer({
-        tw: ["hidden absolute top-full right-0 bg-white rounded shadow", "w-40 text-gray-800"].join(
-            " "
-        ),
+        tw: ["hidden absolute top-full bg-white rounded shadow", "w-40 text-gray-800"].join(" "),
     });
 
     LANGS.forEach(([code, flag, label]) => {
         const langBtn = createButton({
-            tw: `${CONST.FONT.BODY_SM} lang-item flex items-center gap-2 py-2 px-4 w-full text-left hover:bg-gray-100`,
+            tw: `${CONST.FONT.BODY_XXS} lang-item flex items-center gap-2 py-2 px-4 w-full text-left hover:bg-gray-100`,
             text: `${flag} ${label}`,
             click: () => {
                 setLanguage(code);
@@ -43,7 +41,6 @@ export const createLanguageButton = (tw = ""): UIContainer => {
     });
 
     const ctn = createContainer({
-        tw: twMerge("absolute top-6 right-6", tw),
         children: [triggerBtn, popoverCtn],
     });
 
