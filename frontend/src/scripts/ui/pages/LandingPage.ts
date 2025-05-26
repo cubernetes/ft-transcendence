@@ -10,13 +10,12 @@ import { createButton } from "../components/Button";
 import { createContainer } from "../components/Container";
 import { createErrorModal } from "../layout/ErrorModal";
 import { createLanguageButton } from "../layout/LanguageButton";
-import { createLoginPage } from "./LoginPage";
 
 export const createLandingPage: PageRenderer = async (): Promise<UIComponent> => {
     // Create video element
     const videoEl = createEl("video", "w-full h-full object-cover", {
-        attributes: { src: `${CONST.DIR.VIDEO}/game.mp4` },
-        props: { autoplay: true, loop: false, muted: true },
+        attributes: { src: `${CONST.DIR.VIDEO}/landing.mp4` },
+        props: { autoplay: true, loop: true, muted: true },
     });
 
     // Create an overlay element
