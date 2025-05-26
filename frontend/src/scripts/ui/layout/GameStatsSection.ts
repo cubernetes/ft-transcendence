@@ -4,6 +4,7 @@ import { authStore } from "../../modules/auth/auth.store";
 import { localeStore } from "../../modules/locale/locale.store";
 import { createEl } from "../../utils/dom-helper";
 import { createButtonGroup } from "../components/ButtonGroup";
+import { createParagraph } from "../components/Paragraph";
 import { createTable } from "../components/Table";
 
 Chart.register(...registerables);
@@ -29,7 +30,7 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
         ],
         twBtnSpecific: ["rounded-l-md", "rounded-r-md"],
         twSelected: "bg-purple-600 text-white",
-        twBtn: "px-4 py-2 border rounded transition",
+        twBtn: "px-4 py-2 border border-gray-400 rounded transition m-1",
         twCtn: "justify-center mb-4",
         defaultSelected: 0,
     });
@@ -49,8 +50,9 @@ const createFriendList = (): HTMLElement[] => {
     //TODO: Use the below to check if player has friends.
     if (playerName) {
         return [
-            createEl("p", "text-gray-500 text-center", {
+            createParagraph({
                 text: "No friends in your friend list. Add some!",
+                tw: "text-gray-500 text-center",
             }),
         ];
     }
@@ -77,8 +79,9 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
 
     if (!games.length) {
         return [
-            createEl("p", "text-gray-500 text-center", {
+            createParagraph({
                 text: "No game data available. Play some games online games!",
+                tw: "text-gray-500 text-center",
             }),
         ];
     }
@@ -130,8 +133,9 @@ const mapGame = (game: PublicGame) => {
 export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
     if (!games.length) {
         return [
-            createEl("p", "text-gray-500 text-center", {
-                text: "No game data. Play some games on 'Online' mode!",
+            createParagraph({
+                text: "No game data available. Play some games online!",
+                tw: "text-gray-500 text-center",
             }),
         ];
     }
