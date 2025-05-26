@@ -1,5 +1,8 @@
 #!/bin/sh
 
+set -e
+set -u
+
 : "${ELASTIC_USER:?Missing ELASTIC_USER}"
 : "${ELASTIC_PASSWORD:?Missing ELASTIC_PASSWORD}"
 : "${ELASTICSEARCH_PORT:?Missing ELASTICSEARCH_PORT}"
