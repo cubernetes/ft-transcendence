@@ -34,5 +34,5 @@ RUN clang -static /execsudo.c -o /execsudo && \
 	{ ldd /execsudo && exit 1 || true; }
 
 FROM scratch
-COPY --from=build /usr/local/bin/curl /curl
-COPY --from=build /execsudo /execsudo
+COPY --from=build --chmod=555 /usr/local/bin/curl /curl
+COPY --from=build --chmod=555 /execsudo /execsudo
