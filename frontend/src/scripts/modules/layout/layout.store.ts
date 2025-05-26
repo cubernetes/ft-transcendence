@@ -1,5 +1,6 @@
 import { handlePopState, navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
+import { createStarfield } from "../../ui/layout/Background";
 import { hydrateMenu } from "../../ui/layout/Menu";
 import { sendApiRequest } from "../../utils/api";
 import { appendChildren, createEl } from "../../utils/dom-helper";
@@ -11,7 +12,7 @@ type LayoutState = {
     canvas: HTMLCanvasElement;
     router: HTMLDivElement;
     footer: HTMLElement;
-    videoEl: HTMLVideoElement;
+    backgroundEl: HTMLCanvasElement;
     arcadeImg: HTMLImageElement;
     initialized: boolean;
 };
@@ -43,10 +44,7 @@ export const initLayoutState = {
             },
         }
     ),
-    // Video as the very back layer
-    videoEl: createEl("video", "absolute inset-0 w-screen h-screen object-cover z-0", {
-        attributes: { src: "/assets/videos/darker.mov", autoplay: "", loop: "", muted: "" },
-    }),
+    backgroundEl: createStarfield(document.body),
     footer: createEl("footer", "bg-black/50 text-white p-4 text-center z-20", {
         attributes: { id: CONST.ID.FOOTER },
         children: [createEl("p", "", { text: "© 2025 ft-transcendence" })],
@@ -58,14 +56,14 @@ export const layoutStore = createStore<LayoutState>(initLayoutState);
 
 // Entry point of the app
 layoutStore.subscribe((state) => {
-    const { root, header, canvas, router, footer, videoEl, arcadeImg } = state;
+    const { root, header, canvas, router, footer, backgroundEl, arcadeImg } = state;
 
     if (!state.initialized) {
         state.initialized = true;
 
         // Attach elements in correct order for layering
         appendChildren(root, [
-            videoEl, // z-0
+            backgroundEl, // z-0
             arcadeImg, // z-10
             header, // z-20
             canvas, // z-20
@@ -73,10 +71,10 @@ layoutStore.subscribe((state) => {
             footer, // z-20
         ]);
 
-        videoEl.muted = true;
-        videoEl.autoplay = true;
-        videoEl.loop = true;
-        videoEl.playsInline = true;
+        // videoEl.muted = true;
+        // videoEl.autoplay = true;
+        // videoEl.loop = true;
+        // videoEl.playsInline = true;
 
         hydrateMenu(header);
         window.addEventListener("popstate", handlePopState);
