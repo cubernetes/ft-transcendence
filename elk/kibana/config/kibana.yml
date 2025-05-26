@@ -9,7 +9,6 @@ elasticsearch.hosts: ["https://elasticsearch:${ELASTICSEARCH_PORT}"]
 elasticsearch.requestTimeout: 30000
 elasticsearch.username: "${KIBANA_USER}"
 elasticsearch.password: "${KIBANA_PASSWORD}"
-elasticsearch.ssl.verificationMode: none
 
 # Monitoring
 monitoring.ui.container.elasticsearch.enabled: true
