@@ -10,13 +10,13 @@ export const createStarfield = (mainContainer: HTMLElement): HTMLCanvasElement =
     let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
     // 🎛️ Configurable Variables
-    const numStars = 400;
+    const numStars = 1500;
     const starMinSize = 1;
-    const starMaxSize = 5;
-    const starMinSpeed = 3;
-    const starMaxSpeed = 10;
+    const starMaxSize = 3;
+    const starMinSpeed = 0.1;
+    const starMaxSpeed = 3;
     const cursorImpactRadius = 200;
-    const cursorImpactStrength = 2;
+    const cursorImpactStrength = 6;
     const starTrailLength = 0.3; // the lower the value, the longer the trail
 
     type Star = {
