@@ -42,6 +42,7 @@ export const withZod =
                 // Only return the first issue
                 const msg = res.error.issues[0].message;
 
+                // Potential extra fields due to strict
                 return reply.err(isValidError(msg) ? msg : "VALIDATION_ERROR");
             }
 

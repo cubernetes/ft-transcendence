@@ -225,8 +225,9 @@ export const createUserController = (app: FastifyInstance) => {
     };
 
     type DisplayNameCb = ZodHandler<{ body: typeof userSchemas.displayNameBody }>;
-    const displayName: DisplayNameCb = async ({ body }, req, reply) => {
+    const displayname: DisplayNameCb = async ({ body }, req, reply) => {
         const { displayName } = body;
+        const { userId } = req;
 
         logger.info(
             {
@@ -240,7 +241,7 @@ export const createUserController = (app: FastifyInstance) => {
             `Display name update for ${req.username}`
         );
 
-        const tryUpdateUser = await app.userService.update(req.userId, { displayName });
+        const tryUpdateUser = await app.userService.update(userId, { displayName });
         if (tryUpdateUser.isErr()) {
             logger.error(
                 {
@@ -360,5 +361,5 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({ avatarUrl });
     };
 
-    return { register, login, logout, displayName, password, leaderboard, info, me, avatar };
+    return { register, login, logout, displayname, password, leaderboard, info, me, avatar };
 };

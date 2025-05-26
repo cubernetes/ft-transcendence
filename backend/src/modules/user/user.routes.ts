@@ -5,7 +5,7 @@ import { createUserController } from "./user.controller.ts";
 import { routeSchema } from "./user.schema.ts";
 
 export const userRoutes = async (app: FastifyInstance) => {
-    const { register, login, logout, displayName, password, leaderboard, info, me, avatar } =
+    const { register, login, logout, displayname, password, leaderboard, info, me, avatar } =
         createUserController(app);
 
     const { registerBody, loginBody, displayNameBody, passwordBody } = userSchemas;
@@ -25,12 +25,12 @@ export const userRoutes = async (app: FastifyInstance) => {
     app.post(
         "/displayname",
         { preHandler: [app.requireAuth] },
-        withZod({ body: displayNameBody }, displayName)
+        withZod({ body: displayNameBody, schema: routeSchema.displayname }, displayname)
     );
 
     app.post(
         "/password",
-        { preHandler: [app.requireAuth] },
+        { preHandler: [app.requireAuth], schema: routeSchema.password },
         withZod({ body: passwordBody }, password)
     );
 
@@ -44,5 +44,5 @@ export const userRoutes = async (app: FastifyInstance) => {
 
     app.get("/me", { preHandler: [app.requireAuth], schema: routeSchema.me }, me);
 
-    app.post("/avatar", { preHandler: [app.requireAuth] }, avatar);
+    app.post("/avatar", { preHandler: [app.requireAuth], schema: routeSchema.avatar }, avatar);
 };

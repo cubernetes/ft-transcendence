@@ -8,7 +8,18 @@ const register = {
     body: zodToJsonSchema(userSchemas.registerBody),
     response: {
         201: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
-        400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
+        400: zodToJsonSchema(
+            z.union([
+                apiError("VALIDATION_ERROR"),
+                apiError("USERNAME_REQUIRED"),
+                apiError("USERNAME_TOO_SHORT"),
+                apiError("DISPLAY_NAME_REQUIRED"),
+                apiError("DISPLAY_NAME_TOO_SHORT"),
+                apiError("PASSWORD_REQUIRED"),
+                apiError("PASSWORD_TOO_SHORT"),
+                apiError("PASSWORD_MATCH_ERROR"),
+            ])
+        ),
         409: zodToJsonSchema(apiError("USERNAME_TAKEN")),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
@@ -19,9 +30,16 @@ const login = {
     description: "Login an user",
     body: zodToJsonSchema(userSchemas.loginBody),
     response: {
-        201: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
-        400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
-        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        200: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
+        400: zodToJsonSchema(
+            z.union([
+                apiError("VALIDATION_ERROR"),
+                apiError("USERNAME_REQUIRED"),
+                apiError("PASSWORD_REQUIRED"),
+                apiError("TOKEN_LENGTH_ERROR"),
+            ])
+        ),
+        401: zodToJsonSchema(z.union([apiError("PASSWORD_INVALID"), apiError("TOKEN_INVALID")])),
         404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
@@ -37,11 +55,50 @@ const logout = {
     },
 };
 
+const displayname = {
+    tags: ["User"],
+    description: "Logout an user (clear cookies)",
+    security: [{ cookieAuth: [] }],
+    response: {
+        200: zodToJsonSchema(apiSuccess(z.object({}))),
+        400: zodToJsonSchema(
+            z.union([
+                apiError("VALIDATION_ERROR"),
+                apiError("DISPLAY_NAME_REQUIRED"),
+                apiError("DISPLAY_NAME_TOO_SHORT"),
+            ])
+        ),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
+    },
+};
+
+const password = {
+    tags: ["User"],
+    description: "Change password of a user",
+    security: [{ cookieAuth: [] }],
+    response: {
+        200: zodToJsonSchema(apiSuccess(z.object({}))),
+        400: zodToJsonSchema(
+            z.union([
+                apiError("VALIDATION_ERROR"),
+                apiError("PASSWORD_REQUIRED"),
+                apiError("PASSWORD_TOO_SHORT"),
+                apiError("PASSWORD_MATCH_ERROR"),
+            ])
+        ),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+    },
+};
+
 const info = {
     tags: ["User"],
     description: "Get user info by username",
     response: {
         200: zodToJsonSchema(apiSuccess(userSchemas.getInfoPayload)),
+        400: zodToJsonSchema(
+            z.union([apiError("VALIDATION_ERROR"), apiError("USERNAME_REQUIRED")])
+        ),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
@@ -68,11 +125,24 @@ const leaderboard = {
     },
 };
 
+const avatar = {
+    tags: ["User"],
+    description: "Upload user avatar",
+    response: {
+        200: zodToJsonSchema(apiSuccess(userSchemas.leaderboardPayload)),
+        400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
+        500: zodToJsonSchema(apiError("SERVER_ERROR")),
+    },
+};
+
 export const routeSchema = {
     register,
     login,
     logout,
+    displayname,
+    password,
+    leaderboard,
     info,
     me,
-    leaderboard,
+    avatar,
 };
