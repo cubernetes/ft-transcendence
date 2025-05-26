@@ -5,7 +5,7 @@ WORKDIR /backend/
 RUN apk add --no-cache curl
 
 COPY ./package*.json ./
-COPY ./healthcheck.sh /healthcheck.sh
+COPY --chmod=555 ./healthcheck.sh /healthcheck.sh
 
 RUN npm clean-install
 
