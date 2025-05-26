@@ -12,6 +12,7 @@ for env_var in "$@"; do
 	whitelisted_env="$whitelisted_env,$env_var"
 done
 whitelisted_env=${whitelisted_env#,}
+export PATH="/usr/share/elasticsearch/bin${PATH:+:$PATH}"
 
 # Healthcheck background service (because only this process has access to the environment
 # and an external healthcheck would need access to those, which is not intended)
@@ -25,9 +26,7 @@ TERM=linux setsid -f watch -xtcn5 curl \
 
 
 run_as_elastic () {
-	su  --whitelist-environment="${whitelisted_env}" \
-		--command="${*@Q}" \
-		--login \
+	su --command="export PATH=${PATH@Q}; ${*@Q}" \
 		elasticsearch
 }
 
