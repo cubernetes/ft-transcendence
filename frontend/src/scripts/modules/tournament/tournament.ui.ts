@@ -9,8 +9,9 @@ import {
 import { tournamentStore } from "../../modules/tournament/tournament.store";
 import { createButton } from "../../ui/components/Button";
 import { appendChildren, createEl } from "../../utils/dom-helper";
+import { replaceChildren } from "../../utils/dom-helper";
 
-export const connectBlockchain = async (): Promise<HTMLElement> => {
+export const connectBlockchain = async (visualizer: UIContainer): Promise<HTMLElement> => {
     const {
         WALLET_CONNECT_ERROR,
         WALLET_CONNECT,
@@ -82,9 +83,27 @@ export const connectBlockchain = async (): Promise<HTMLElement> => {
                     gameId,
                     tournamentData.matches
                 );
-                log.info("Transaction hash:", tx);
+                if (tx.isOk()) {
+                    const txHash = tx.value;
+                    const shortened = `${txHash.slice(0, 10)}...${txHash.slice(-5)}`;
+                    const explorerLink = `https://subnets-test.avax.network/c-chain/tx/${txHash}`;
+                    replaceChildren(visualizer, [
+                        createEl("a", `${CONST.FONT.BODY_XS} text-blue-600 underline`, {
+                            text: `Transaction Hash: ${shortened}`,
+                            attributes: {
+                                href: explorerLink,
+                                target: "_blank",
+                                rel: "noopener noreferrer",
+                            },
+                        }),
+                    ]);
+                }
             } catch (err) {
-                log.error("Failed to record game:", err);
+                replaceChildren(visualizer, [
+                    createEl("a", "text-red-500 font-semibold text-center", {
+                        text: "Failed to record game. Please try again.",
+                    }),
+                ]);
             }
         },
     });
