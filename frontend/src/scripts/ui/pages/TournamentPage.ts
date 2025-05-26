@@ -62,8 +62,9 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
         const winner = controller.getFinalWinner();
         if (winner) {
             const winnerEl = winnerVisualization(winner);
-            const blockchainControls = await connectBlockchain();
-            appendChildren(winnerSection, [winnerEl, blockchainControls]);
+            const responseContainer = createEl("div", "flex justify-center items-center mt-4");
+            const blockchainControls = await connectBlockchain(responseContainer);
+            appendChildren(winnerSection, [winnerEl, blockchainControls, responseContainer]);
             pageContainer.replaceChildren(headerSection, winnerSection, controlSection);
         }
     }
