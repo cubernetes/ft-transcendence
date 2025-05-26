@@ -210,7 +210,8 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
 
         status = "ongoing";
         if (config.aiMode && config.aiDifficulty) {
-            createAIPlayer({ onEvent, setInput }, config.aiDifficulty, 1);
+            const aiEngine = { onEvent, setInput, getConfig };
+            createAIPlayer(aiEngine, config.aiDifficulty, 1);
         }
 
         interval = setInterval(tick, tickRate);
