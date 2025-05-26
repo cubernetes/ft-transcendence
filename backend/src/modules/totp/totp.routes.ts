@@ -1,33 +1,28 @@
 import type { FastifyInstance } from "fastify";
 import { totpSchemas } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
-import handlers from "./totp.controller.ts";
-import routeSchemas from "./totp.schema.ts";
+import { createTotpController } from "./totp.controller.ts";
+import { routeSchema } from "./totp.schema.ts";
 
-const totpRoutes = async (app: FastifyInstance) => {
-    app.get(
-        "/setup",
-        { preHandler: [app.requireAuth], schema: routeSchemas.setup },
-        handlers.setup
-    );
+export const totpRoutes = async (app: FastifyInstance) => {
+    const { setup, verify, update, disable } = createTotpController(app);
+    app.get("/setup", { preHandler: [app.requireAuth], schema: routeSchema.setup }, setup);
 
     app.post(
         "/verify",
-        { preHandler: [app.requireAuth], schema: routeSchemas.verify },
-        withZod({ body: totpSchemas.totpBody }, handlers.verify)
+        { preHandler: [app.requireAuth], schema: routeSchema.verify },
+        withZod({ body: totpSchemas.totpBody }, verify)
     );
 
     app.post(
         "/update",
-        { preHandler: [app.requireAuth], schema: routeSchemas.update },
-        withZod({ body: totpSchemas.totpUpdateBody }, handlers.update)
+        { preHandler: [app.requireAuth], schema: routeSchema.update },
+        withZod({ body: totpSchemas.totpUpdateBody }, update)
     );
 
     app.post(
         "/disable",
-        { preHandler: [app.requireAuth], schema: routeSchemas.disable },
-        withZod({ body: totpSchemas.totpBody }, handlers.disable)
+        { preHandler: [app.requireAuth], schema: routeSchema.disable },
+        withZod({ body: totpSchemas.totpBody }, disable)
     );
 };
-
-export default totpRoutes;

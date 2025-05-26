@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { createAuthService } from "./auth.service.ts";
 
-const authPlugin = async (app: FastifyInstance) => {
+const plugin = async (app: FastifyInstance) => {
     app.decorate("authService", createAuthService(app));
 
     // Always verify cookie and attach userId on Request
@@ -24,7 +24,7 @@ const authPlugin = async (app: FastifyInstance) => {
     });
 };
 
-export default fp(authPlugin, {
+export const authPlugin = fp(plugin, {
     name: "auth-plugin",
     dependencies: ["@fastify/jwt"],
 });

@@ -3,7 +3,7 @@ import fp from "fastify-plugin";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 
-const swaggerPlugin = async (app: FastifyInstance) => {
+const plugin = async (app: FastifyInstance) => {
     const { apiPrefix, cookieName } = app.config;
 
     const info = {
@@ -49,4 +49,7 @@ const swaggerPlugin = async (app: FastifyInstance) => {
     });
 };
 
-export default fp(swaggerPlugin, { name: "swagger-plugin", dependencies: ["config-plugin"] });
+export const swaggerPlugin = fp(plugin, {
+    name: "swagger-plugin",
+    dependencies: ["config-plugin"],
+});

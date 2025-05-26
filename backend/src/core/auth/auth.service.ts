@@ -33,7 +33,7 @@ export const createAuthService = (app: FastifyInstance) => {
             userSchemas.jwtPayload.parse(payload);
             return ok(payload);
         } catch (error) {
-            return err("Invalid JWT token or payload");
+            return err("invalid JWT token or payload");
         }
     };
 

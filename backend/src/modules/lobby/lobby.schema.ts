@@ -45,4 +45,4 @@ const leave = {
     },
 };
 
-export default { create, join, update, leave };
+export const routeSchema = { create, join, update, leave };

@@ -18,13 +18,13 @@ export const createUserService = (app: FastifyInstance) => {
             const inserted = await db.insert(users).values(data).returning();
             const user = inserted[0];
 
-            if (!user) throw new Error("User returned is empty");
+            if (!user) throw new Error("user returned is empty");
 
             return ok(user);
         } catch (error) {
             if (errUniqueConstraintOn(error, "users.username")) return err("USERNAME_TAKEN");
 
-            app.log.debug({ error }, "Failed to create user");
+            app.log.debug({ error }, "failed to create user");
             return err("SERVER_ERROR");
         }
     };
@@ -38,7 +38,7 @@ export const createUserService = (app: FastifyInstance) => {
 
             return ok(user);
         } catch (error) {
-            app.log.debug({ error }, "Failed to find user by id");
+            app.log.debug({ error }, "failed to find user by id");
             return err("SERVER_ERROR");
         }
     };
@@ -52,7 +52,7 @@ export const createUserService = (app: FastifyInstance) => {
 
             return ok(user);
         } catch (error) {
-            app.log.debug({ error }, "Failed to find user by username");
+            app.log.debug({ error }, "failed to find user by username");
             return err("SERVER_ERROR");
         }
     };
@@ -66,7 +66,7 @@ export const createUserService = (app: FastifyInstance) => {
 
             return ok(user.username);
         } catch (error) {
-            app.log.debug({ error }, "Failed to get username by id");
+            app.log.debug({ error }, "failed to get username by id");
             return err("SERVER_ERROR");
         }
     };
@@ -76,7 +76,7 @@ export const createUserService = (app: FastifyInstance) => {
             const result = await db.select().from(users);
             return ok(result);
         } catch (error) {
-            app.log.debug({ error }, "Failed to find all users");
+            app.log.debug({ error }, "failed to find all users");
             return err("SERVER_ERROR");
         }
     };
@@ -95,7 +95,7 @@ export const createUserService = (app: FastifyInstance) => {
         } catch (error) {
             if (errUniqueConstraintOn(error, "users.username")) return err("USERNAME_TAKEN");
 
-            app.log.debug({ error }, "Failed to update user");
+            app.log.debug({ error }, "failed to update user");
             return err("SERVER_ERROR");
         }
     };
@@ -109,7 +109,7 @@ export const createUserService = (app: FastifyInstance) => {
 
             return ok(user);
         } catch (error) {
-            app.log.debug({ error }, "Failed to remove user");
+            app.log.debug({ error }, "failed to remove user");
             return err("SERVER_ERROR");
         }
     };
@@ -121,16 +121,15 @@ export const createUserService = (app: FastifyInstance) => {
         const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
         const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-        if (!ALLOWED_TYPES.includes(file.mimetype)) return err("UNKNOWN_ERROR"); // TODO: correct error type
+        if (!ALLOWED_TYPES.includes(file.mimetype)) return err("VALIDATION_ERROR");
 
         const ext = extname(file.filename);
         const filename = `${username}${ext}`; // Every user will have one, will overwrite
         const filepath = join(app.config.uploadDir, filename);
 
         const buffer = await file.toBuffer();
-        if (buffer.length > MAX_SIZE) return err("UNKNOWN_ERROR"); // TODO: correct error type
+        if (buffer.length > MAX_SIZE) return err("PAYLOAD_TOO_LARGE");
 
-        app.log.debug(`${filepath} type: ${ext}`);
         await writeFile(filepath, buffer);
         return ok(filepath);
     };
@@ -138,12 +137,12 @@ export const createUserService = (app: FastifyInstance) => {
     const getCount = async (): Promise<Result<number, ErrorCode>> => {
         try {
             const [result] = await db.select({ count: count() }).from(users);
-            if (!result) throw new Error("No result");
-            if (typeof result.count !== "number") throw new Error("Result type is not number");
+            if (!result) throw new Error("no result");
+            if (typeof result.count !== "number") throw new Error("result type is not number");
 
             return ok(result.count);
         } catch (error) {
-            app.log.debug({ error }, "Failed to get user count");
+            app.log.debug({ error }, "failed to get user count");
             return err("SERVER_ERROR");
         }
     };

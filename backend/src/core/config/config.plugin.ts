@@ -2,12 +2,12 @@ import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import fs from "fs";
 import path from "path";
-import constants from "./config.constants.ts";
+import { CONST } from "./config.constants.ts";
 import { configSchema } from "./config.schema.ts";
 import { AppConfig } from "./config.types.ts";
 
 /** NODE_ENV should be used as process.env.NODE_ENV to ensure dead code is removed by esbuild */
-const configPlugin = async (app: FastifyInstance): Promise<void> => {
+const plugin = async (app: FastifyInstance): Promise<void> => {
     // Validate config integrity with zod schema
     const parsedEnv = configSchema.parse(process.env);
 
@@ -21,7 +21,7 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
     // DB_DIR can be explicitly set, for testing purposes when DB_PATH is ":memory:"
     const dbDir = process.env.DB_DIR ?? path.dirname(parsedEnv.DB_PATH);
     if (!fs.existsSync(dbDir)) {
-        throw new Error("Directory for database does not exist");
+        throw new Error("directory for database does not exist");
     }
 
     const corsOrigin =
@@ -38,10 +38,10 @@ const configPlugin = async (app: FastifyInstance): Promise<void> => {
         host,
         domains,
         corsOrigin,
-        ...constants,
+        ...CONST,
     };
 
     app.decorate("config", config);
 };
 
-export default fp(configPlugin, { name: "config-plugin" });
+export const configPlugin = fp(plugin, { name: "config-plugin" });

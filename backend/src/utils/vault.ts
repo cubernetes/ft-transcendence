@@ -9,6 +9,7 @@ type Env = {
     HOST: string;
     API_PREFIX: string;
 };
+
 export const readVaultOnce = async (path: string): Promise<Result<Env, string>> => {
     const tokenFile = "/run/secrets/backend_vault_token";
     const vaultToken = fs.readFileSync(tokenFile, "utf8").trim();
