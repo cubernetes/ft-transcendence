@@ -3,10 +3,9 @@ import { authStore } from "../../modules/auth/auth.store";
 import { I18nKey } from "../../modules/locale/locale.translation";
 import { getText } from "../../modules/locale/locale.utils";
 import { appendChildren, createEl } from "../../utils/dom-helper";
-import { createHeading } from "../components/Heading";
 import { appendUserStatus } from "./UserStatus";
 
-export const hydrateMenu = (headerEl: HTMLElement): HTMLElement => {
+export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
     const navList = createEl("ul", `flex ${CONST.FONT.H5} space-x-4`);
     const navKeys: [I18nKey, Route][] = [
         [CONST.TEXT.PLAY, CONST.ROUTE.HOME],
