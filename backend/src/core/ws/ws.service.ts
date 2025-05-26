@@ -1,5 +1,4 @@
 import type { FastifyInstance, WebSocket } from "fastify";
-import { Result, err, ok } from "neverthrow";
 import {
     CLOSING_CODE,
     type IncomingMessageType as InType,
@@ -22,27 +21,19 @@ export const createWsService = (app: FastifyInstance) => {
         return handlers.get(type);
     };
 
-    const send = (id: number, message: OutgoingMessage<OutType>): Result<void, string> => {
+    const send = (id: number, message: OutgoingMessage<OutType>): void => {
         const conn = conns.get(id);
-        if (!conn) {
-            app.log.error(`can't find sockets by id ${id}`);
-            return err(`can't find sockets by id ${id}`);
-        }
+        if (!conn) return app.log.error(`fail to send: can't find socket by id ${id}`);
 
-        if (conn.readyState !== WebSocket.OPEN) {
-            app.log.error(`user socket ${id} ready state error`);
-            return err(`user socket ${id} ready state error`);
-        }
+        if (conn.readyState !== WebSocket.OPEN)
+            return app.log.error(`fail to send: user socket ${id} ready state error`);
 
         const { type } = message;
         const LOG_TYPE = ["game-start", "lobby-update", "lobby-remove", "game-end"];
 
-        if (LOG_TYPE.includes(type)) {
-            app.log.info({ type }, `send socket message to user ${id}`);
-        }
+        if (LOG_TYPE.includes(type)) app.log.info({ type }, `send socket message to user ${id}`);
 
         conn.send(JSON.stringify(message));
-        return ok();
     };
 
     const broadcast = (ids: number[], message: OutgoingMessage<OutType>) => {
@@ -62,6 +53,7 @@ export const createWsService = (app: FastifyInstance) => {
 
     const removeConnection = (conn: WebSocket) => {
         app.log.debug("removing socket connection...");
+
         conns.delete(conn.userId!);
         app.log.debug({ conns: Array.from(conns.keys()) }, "active connections");
     };

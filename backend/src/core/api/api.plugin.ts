@@ -42,7 +42,7 @@ const plugin = async (app: FastifyInstance) => {
     app.decorateRequest("username", "");
     app.decorateRequest("userDisplayName", "");
 
-    // Decorate api functions on reply
+    // Decorate API functions on reply
     app.decorateReply(
         "ok",
         function (data: unknown, statusCode = 200, cookies?: { token: string }) {

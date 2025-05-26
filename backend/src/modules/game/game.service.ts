@@ -178,10 +178,5 @@ export const createGameService = (app: FastifyInstance) => {
         return ok({ ...publicGame, player1Username, player2Username, winnerIndex });
     };
 
-    return {
-        create,
-        saveGame,
-        registerCbHandlers,
-        getGamesByUsername,
-    };
+    return { create, saveGame, registerCbHandlers, getGamesByUsername };
 };

@@ -20,7 +20,7 @@ const plugin = async (app: FastifyInstance) => {
     });
 
     app.decorate("requireAuth", async (req, reply) => {
-        if (!req.userId) reply.err("UNAUTHORIZED");
+        if (!req.userId) return reply.err("UNAUTHORIZED");
     });
 };
 

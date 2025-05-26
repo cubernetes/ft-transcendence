@@ -29,7 +29,7 @@ export const createTotpController = (app: FastifyInstance) => {
         const tryUpdate = await app.userService.update(req.userId, {
             temporaryTotpSecret: secret,
         });
-        if (tryUpdate.isErr()) return reply.send(tryUpdate.error);
+        if (tryUpdate.isErr()) return reply.err(tryUpdate.error);
 
         reply.ok({ qrCode, secret });
     };
@@ -43,7 +43,7 @@ export const createTotpController = (app: FastifyInstance) => {
         if (tryVerify.isErr()) return reply.err(tryVerify.error);
 
         const user = tryVerify.value;
-        const tryUpdate = await app.userService.update(user.id, {
+        const tryUpdate = await app.userService.update(userId, {
             totpEnabled: 1,
             totpSecret: user.temporaryTotpSecret,
             temporaryTotpSecret: null,
@@ -82,10 +82,10 @@ export const createTotpController = (app: FastifyInstance) => {
         const { userId } = req;
         const { token } = body;
 
-        const user = await verifyTotp(userId, token, false);
-        if (user.isErr()) return reply.err(user.error);
+        const tryVerify = await verifyTotp(userId, token, false);
+        if (tryVerify.isErr()) return reply.err(tryVerify.error);
 
-        const tryUpdate = await app.userService.update(user.value.id, {
+        const tryUpdate = await app.userService.update(userId, {
             totpEnabled: 0,
             totpSecret: null,
         });
