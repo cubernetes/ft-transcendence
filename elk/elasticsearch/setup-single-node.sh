@@ -5,12 +5,14 @@ set -e
 
 : "${ELASTIC_PASSWORD:?Missing ELASTIC_PASSWORD}"
 : "${ELASTICSEARCH_PORT:?Missing ELASTICSEARCH_PORT}"
-: "${ELASTICSEARCH_HOST:?Missing ELASTICSEARCH_HOST}"
 : "${KIBANA_USER:?Missing KIBANA_USER}"
 : "${KIBANA_PASSWORD:?Missing KIBANA_PASSWORD}"
 : "${LOGSTASH_USER:?Missing LOGSTASH_USER}"
 : "${LOGSTASH_PASSWORD:?Missing LOGSTASH_PASSWORD}"
 : "${ELASTIC_USER:?Missing ELASTIC_USER}" # MUST be "elastic"! https://discuss.elastic.co/t/how-to-change-the-username-by-own-instead-of-elastic/337552/2
+
+# Used in elasticsearch.yml, and the elasticsearch entrypoint is called below:
+: "${ELASTICSEARCH_HOST:?Missing ELASTICSEARCH_HOST}"
 
 # Start Elasticsearch in the background
 /usr/local/bin/docker-entrypoint.sh eswrapper &
