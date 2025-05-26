@@ -1,10 +1,8 @@
 import { handlePopState, navigateTo } from "../../global/router";
 import { createStore } from "../../global/store";
 import { createStarfield } from "../../ui/layout/Background";
-import { hydrateMenu } from "../../ui/layout/Menu";
-import { sendApiRequest } from "../../utils/api";
+import { hydrateHeader } from "../../ui/layout/Header";
 import { appendChildren, createEl } from "../../utils/dom-helper";
-import { gameStore } from "../game/game.store";
 
 type LayoutState = {
     root: HTMLElement;
@@ -61,22 +59,9 @@ layoutStore.subscribe((state) => {
     if (!state.initialized) {
         state.initialized = true;
 
-        // Attach elements in correct order for layering
-        appendChildren(root, [
-            backgroundEl, // z-0
-            arcadeImg, // z-10
-            header, // z-20
-            canvas, // z-20
-            router, // z-20
-            footer, // z-20
-        ]);
+        appendChildren(root, [backgroundEl, arcadeImg, header, canvas, router, footer]);
 
-        // videoEl.muted = true;
-        // videoEl.autoplay = true;
-        // videoEl.loop = true;
-        // videoEl.playsInline = true;
-
-        hydrateMenu(header);
+        hydrateHeader(header);
         window.addEventListener("popstate", handlePopState);
         navigateTo(CONST.ROUTE.DEFAULT, true);
     }

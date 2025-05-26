@@ -144,7 +144,7 @@ export const createLobbyPage = (): UIComponent => {
         playToInput.value = String(playTo);
     });
 
-    container.addEventListener("destory", () => {
+    container.addEventListener("destroy", () => {
         unsubscribeGameStore();
 
         // Always leave when route away from lobby page
