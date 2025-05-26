@@ -30,7 +30,6 @@ try {
     const { port, host } = app.config;
 
     await app.listen({ port, host });
-    app.log.info(`server running at ${host}:${port}!`);
 } catch (error) {
     app.log.error({ error }, "fatal error when running app");
     process.exit(1);

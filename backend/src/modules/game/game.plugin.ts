@@ -6,11 +6,11 @@ import { createGameService } from "./game.service.ts";
 const plugin = async (app: FastifyInstance) => {
     app.decorate("gameService", createGameService(app));
 
-    const controller = createGameController(app);
+    const { start, action, ready } = createGameController(app);
 
-    app.wsService.registerHandler("game-start", controller.start);
-    app.wsService.registerHandler("game-action", controller.action);
-    app.wsService.registerHandler("renderer-ready", controller.ready);
+    app.wsService.registerHandler("game-start", start);
+    app.wsService.registerHandler("game-action", action);
+    app.wsService.registerHandler("renderer-ready", ready);
 };
 
 export const gamePlugin = fp(plugin, {

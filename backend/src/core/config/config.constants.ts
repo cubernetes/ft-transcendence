@@ -1,4 +1,4 @@
-import { CookieConfig, TotpEncodingOption } from "./config.types.ts";
+import type { CookieConfig, TotpEncodingOption } from "./config.types.ts";
 
 const COOKIE_NAME = "token";
 const COOKIE_CONFIG: CookieConfig = {

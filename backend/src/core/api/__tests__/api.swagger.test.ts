@@ -1,5 +1,5 @@
 import { test } from "tap";
-import buildApp from "../../../utils/app.ts";
+import { buildApp } from "../../../utils/app.ts";
 
 test("GET /docs and /docs/ returns swagger docs", async (t) => {
     const tryBuild = await buildApp({ logger: false });
