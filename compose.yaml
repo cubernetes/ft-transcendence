@@ -113,10 +113,9 @@ services:
                   action: rebuild
                   target: "/backend/esbuild.config.js"
 
-    curl_base:
-        profiles: [elk]
-        build: "./elk/curl_base/"
-        container_name: curl_base
+    util-image:
+        build: "./util-image/"
+        container_name: util-image
         entrypoint: ["/curl", "--version"]
 
     elasticsearch:
@@ -133,7 +132,7 @@ services:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
         depends_on:
-            curl_base:
+            util-image:
                 condition: service_started
             vault:
                 restart: true
@@ -146,14 +145,14 @@ services:
         container_name: logstash
         volumes:
             - "logstash-data:/usr/share/logstash/data/"
-            - "elasticsearch-certs:/etc/logstash/config/certs/"
+            - "elasticsearch-certs:/etc/logstash/config/certs/:ro"
             - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
         environment: *env-common
         networks:
             ft-transcendence-net:
                 ipv4_address: &logstash-ip 10.42.42.4
         depends_on:
-            curl_base:
+            util-image:
                 condition: service_started
             elasticsearch:
                 condition: service_healthy
@@ -169,14 +168,14 @@ services:
         ports:
             - "${KIBANA_PORT:-5601}:${KIBANA_PORT:-5601}"
         volumes:
-            - "kibana-data:/usr/share/kibana/data"
+            - "kibana-data:/usr/share/kibana/data/"
             - "./.secrets/kibana_vault_token:/run/secrets/kibana_vault_token"
         networks:
             ft-transcendence-net:
                 ipv4_address: &kibana-ip 10.42.42.5
         environment: *env-common
         depends_on:
-            curl_base:
+            util-image:
                 condition: service_started
             elasticsearch:
                 condition: service_healthy

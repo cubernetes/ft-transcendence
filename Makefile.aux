@@ -57,9 +57,9 @@ endef
 .PHONY: ensure-secret-files
 ensure-secret-files: clean-secrets-folder
 	@mkdir -p ./.secrets/
-	@touch $(VAULT_TOKEN_EXCHANGE_FILES)
+	@touch -- $(VAULT_TOKEN_EXCHANGE_FILES)
 
-.PHONY: build-curl-base
-build-curl-base:
-	$(DC) build curl_base
-	@# Resultant image name must be ft-transcendence-curl_base
+.PHONY: build-util-image
+build-util-image:
+	$(DC) build util-image
+	@# Resultant image name must be ft-transcendence-util-image

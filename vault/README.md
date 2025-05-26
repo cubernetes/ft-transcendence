@@ -241,19 +241,7 @@ Let's say your service is called `foo`, then the steps would be the following:
     					"'\\''"
     					+ .key
     					+ "="
-    					+ (
-    						if .value | type == "string" then
-    							(
-    								.value |
-    									gsub(
-    										"'\\''";
-    										"'\\''\\\\'\\'''\\''"
-    									)
-    							)
-    						else
-    							.value
-    						end
-    					  )
+    					+ ( if .value | type == "string" then ( .value | gsub( "'\\''"; "'\\''\\\\'\\'''\\''")) else .value end)
     					+ "'\\''"
     			] | join(" ")
     		'
