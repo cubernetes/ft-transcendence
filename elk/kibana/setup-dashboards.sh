@@ -13,11 +13,16 @@ echo "Kibana is fully operational. Importing dashboards..."
 # Import dashboards
 for dashboard in /usr/share/kibana/dashboards/*.ndjson; do
   echo "Importing dashboard: $(basename -- "$dashboard")"
-  curl "http://kibana:${KIBANA_PORT}/api/saved_objects/_import" \
+  response=$(curl "http://kibana:${KIBANA_PORT}/api/saved_objects/_import?overwrite=true" \
     --user "${KIBANA_USER}:${KIBANA_PASSWORD}" \
     --header "kbn-xsrf: true" \
     --form "file=@$dashboard" \
-    --verbose
+    --verbose \
+    --write-out "\n%{http_code}")
+  
+  echo "Response for $(basename -- "$dashboard"):"
+  echo "$response"
+  echo "---"
 done
 
 echo "Dashboard import completed. Check Kibana UI to verify."

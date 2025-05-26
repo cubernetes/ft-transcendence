@@ -96,9 +96,8 @@ See [vault/README.md](./vault/README.md)
 |               |       Database        |                      SQLite                       |  0.5  |      100%       |
 |               |      Blockchain       |               Avalanche + Solidity                |   1   |       95%       |                  Only works with dummy data ATM                  |
 |     Game      |    Remote Players     |                                                   |   1   |      100%       |                      Not thoroughly tested                       |
-| Cybersecurity |   Secret Management   |         WAF/ModSecurity + HashiCorp Vault         |   1   |      100%       |
-|               |       2FA + JWT       |                                                   |   1   |      100%       |
-|    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |       90%       |              need to create more Kibana dashboards               |
+|               |       2FA + JWT       |                                                   |   1   |      100%       |                        Can't disable 2FA                         |
+|    Devops     |    Log Management     |       ELK (Elasticsearch, Logstash, Kibana)       |   1   |      100%       |                                                                  |
 |   Graphics    |     3D Techniques     |                    Babylon.js                     |   1   |      100%       |              Not INSANE, but would pass this module              |
 | Accessibility | Browser Compatibility |             Firefox Default + Chrome              |  0.5  |      100%       |                      Not tested thoroughly                       |
 |     Pong      |   Server-side Pong    |                                                   |   1   |      100%       |
