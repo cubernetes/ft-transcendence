@@ -1,4 +1,6 @@
 import { Result, err, ok } from "neverthrow";
+import { createTable } from "../../ui/components/Table";
+import { createEl } from "../../utils/dom-helper";
 import { MatchState, Round } from "./tournament.store";
 
 export const generateRoundMatches = (players: string[]): MatchState[] => {
@@ -52,4 +54,26 @@ export const findMatchById = (matches: MatchState[][], id: number): MatchState |
         }
     }
     return null;
+};
+
+export const generateResultTable = (data: Array<any>): UIComponent => {
+    const headers = ["Player1", "Player2", "Score"];
+    const columns = ["player1", "player2", "score"];
+
+    // Transform data to match the columns
+    const transformedData = data.map((item) => ({
+        player1: item._playerName1,
+        player2: item._playerName2,
+        score: `${item._playerScore1} - ${item._playerScore2}`, // Optional: format as a score string
+    }));
+
+    const table = createTable(headers, columns, transformedData);
+
+    const tableWrapper = createEl(
+        "div",
+        `max-h-64 overflow-y-auto overflow-x-hidden flex justify-center ${CONST.STYLES.CONTAINER}`
+    );
+    tableWrapper.appendChild(table);
+
+    return [tableWrapper];
 };

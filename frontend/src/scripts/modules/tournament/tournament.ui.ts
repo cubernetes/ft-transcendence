@@ -10,6 +10,7 @@ import { tournamentStore } from "../../modules/tournament/tournament.store";
 import { createButton } from "../../ui/components/Button";
 import { appendChildren, createEl } from "../../utils/dom-helper";
 import { replaceChildren } from "../../utils/dom-helper";
+import { generateResultTable } from "./tournament.utils";
 
 export const connectBlockchain = async (visualizer: UIContainer): Promise<HTMLElement> => {
     const {
@@ -59,6 +60,7 @@ export const connectBlockchain = async (visualizer: UIContainer): Promise<HTMLEl
             }
             const tournamentData = result.value;
             log.info("Tournament data:", tournamentData);
+            replaceChildren(visualizer, generateResultTable(tournamentData));
         },
     });
 
