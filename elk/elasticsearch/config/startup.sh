@@ -32,6 +32,7 @@ run_as_elastic () {
 	# Apparently, su resets PATH no matter if you specify --preserve-environment and or --login or not.
 	# We need to explicity pass the current value of PATH (which includes the elasticsearch bin directory)
 	# down, using bash's fancy quoting mechanism.
+	# The `${*@Q}` thing is just the arguments ($*) properly quoted (@Q). Bash is pretty cool eh?
 	su --command="export PATH=${PATH@Q}; ${*@Q}" \
 		elasticsearch
 }
