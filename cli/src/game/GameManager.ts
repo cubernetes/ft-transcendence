@@ -9,6 +9,7 @@ import audioManager from "../audio/AudioManager";
 import { GameController } from "../input/GameController";
 import { mainMenu } from "../menu/mainMenu";
 import { askLobbyLeave, promptRemotePlayMenu } from "../menu/remoteMenu";
+import { leaveLobby } from "../menu/remoteMenu";
 import { WebSocketManager } from "../net/WebSocketManager";
 import { CLIRenderer } from "../renderer/CLIRenderer";
 import {
@@ -23,7 +24,6 @@ import {
     WALL_SOUND,
 } from "../utils/config";
 import { userOptions } from "../utils/config";
-import { leaveLobby } from "../menu/remoteMenu"
 
 export class GameManager {
     private controller: GameController | null = null;
@@ -34,7 +34,7 @@ export class GameManager {
     private activeGame: string | null = null;
 
     // LOGIN-data:
-	private username: string | null = null;
+    private username: string | null = null;
     private displayName: string | null = null;
 
     private currentLobbyId: string | null = null;
@@ -59,7 +59,8 @@ export class GameManager {
         this.engine.reset(input);
         this.configEngine();
 
-        this.renderer.setPlayerNames(null);
+        const aiLevel = input.aiDifficulty ? input.aiDifficulty.toString() : "spoooky";
+        this.renderer.setPlayerNames(["YOU", `AI: ${aiLevel}`]);
         this.renderer.updateResolution();
 
         this.cleanupController();
@@ -185,7 +186,7 @@ export class GameManager {
         return this.displayName;
     }
 
-	setUsername(name: string) {
+    setUsername(name: string) {
         this.username = name;
     }
 
@@ -233,17 +234,16 @@ export class GameManager {
         return this.remoteConfig || this.default;
     }
 
-	setRenderBoardSize(width: number, depth: number) {
-		this.renderer.setBoardSize(width, depth);
-	}
+    setRenderBoardSize(width: number, depth: number) {
+        this.renderer.setBoardSize(width, depth);
+    }
 
     configEngine() {
         this.engine.onEvent("game-end", (evt) => {
-            // this.wsManager.active = false;
             audioManager.playSoundEffect(SCORE_SOUND);
             audioManager.startMusic(VICTORY_MUSIC);
             this.cleanupController();
-            this.renderer.showWinner(evt).then(() => {
+            this.renderer.showWinner(evt, this.renderer.getPlayerNames()).then(() => {
                 mainMenu();
             });
         });
@@ -263,10 +263,6 @@ export class GameManager {
         this.engine.onEvent("state-update", (evt) => {
             this.renderer.render(evt.state);
         });
-
-        this.engine.onEvent("ball-reset", (_) => {
-            // audioManager.playSoundEffect(SCORE_SOUND);
-        });
     }
 
     renderRemoteState(state: PongState) {
@@ -277,7 +273,7 @@ export class GameManager {
         audioManager.startMusic(VICTORY_MUSIC);
         this.cleanupController();
         this.renderer.showWinner(payload, this.playerNames, this.opponentId).then(() => {
-			leaveLobby()
+            leaveLobby();
             mainMenu();
         });
     }

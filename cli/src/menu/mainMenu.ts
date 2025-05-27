@@ -104,11 +104,8 @@ async function handleMenuSelection(mode: number): Promise<void> {
                         return await handleMenuSelection(1);
                     }
 
-                    const {
-                        winPoints: points1P,
-                        fieldWidth: width1P,
-                        fieldDepth: depth1P,
-                    } = await inquirer.prompt([
+                    // const { winPoints: winPoints1P, fieldWidth: fieldWidth1P, fieldHeight: fieldHeight1P } = await inquirer.prompt([
+                    const { winPoints: winPoints1P } = await inquirer.prompt([
                         {
                             type: "number",
                             name: "winPoints",
@@ -117,22 +114,22 @@ async function handleMenuSelection(mode: number): Promise<void> {
                             validate: (input: number) =>
                                 input > 0 && input < 22 ? true : "Enter a number between 1 and 21",
                         },
-                        {
-                            type: "number",
-                            name: "fieldWidth",
-                            message: "Field width (min 20):",
-                            default: 40,
-                            validate: (input: number) =>
-                                input >= 20 ? true : "Minimum width is 20",
-                        },
-                        {
-                            type: "number",
-                            name: "fieldDepth",
-                            message: "Field height (min 10):",
-                            default: 20,
-                            validate: (input: number) =>
-                                input >= 10 ? true : "Minimum height is 10",
-                        },
+                        // {
+                        //     type: "number",
+                        //     name: "fieldWidth",
+                        //     message: "Field width (min 20):",
+                        //     default: 40,
+                        //     validate: (input: number) =>
+                        //         input >= 20 ? true : "Minimum width is 20",
+                        // },
+                        // {
+                        //     type: "number",
+                        //     name: "fieldHeight",
+                        //     message: "Field height (min 10):",
+                        //     default: 20,
+                        //     validate: (input: number) =>
+                        //         input >= 10 ? true : "Minimum height is 10",
+                        // },
                     ]);
 
                     // TODO: Adapt renderer to show different field dimensions!
@@ -141,22 +138,19 @@ async function handleMenuSelection(mode: number): Promise<void> {
                     gameManager.start1PLocal({
                         aiMode: true,
                         aiDifficulty: difficulty,
-                        playTo: points1P,
+                        playTo: winPoints1P,
                         // board: {
                         // 	size: {
-                        // 		width: width1P,
+                        // 		width: fieldWidth1P,
                         // 		height: 1,
-                        // 		depth: depth1P
+                        // 		depth: fieldHeight1P
                         // 	} as Size3D,
                         // },
                     });
                     break;
                 case "2P":
-                    const {
-                        winPoints: points2P,
-                        fieldWidth: width2P,
-                        fieldHeight: depth2P,
-                    } = await inquirer.prompt([
+                    // const { winPoints: winPoints2P, fieldWidth: fieldWidth2P, fieldHeight: fieldHeight2P } = await inquirer.prompt([
+                    const { winPoints: winPoints2P } = await inquirer.prompt([
                         {
                             type: "number",
                             name: "winPoints",
@@ -165,32 +159,32 @@ async function handleMenuSelection(mode: number): Promise<void> {
                             validate: (input: number) =>
                                 input > 0 && input < 22 ? true : "Enter a number between 1 and 21",
                         },
-                        {
-                            type: "number",
-                            name: "fieldWidth",
-                            message: "Field width (min 20):",
-                            default: 40,
-                            validate: (input: number) =>
-                                input >= 20 ? true : "Minimum width is 20",
-                        },
-                        {
-                            type: "number",
-                            name: "fieldHeight",
-                            message: "Field height (min 10):",
-                            default: 20,
-                            validate: (input: number) =>
-                                input >= 10 ? true : "Minimum height is 10",
-                        },
+                        // {
+                        //     type: "number",
+                        //     name: "fieldWidth",
+                        //     message: "Field width (min 20):",
+                        //     default: 40,
+                        //     validate: (input: number) =>
+                        //         input >= 20 ? true : "Minimum width is 20",
+                        // },
+                        // {
+                        //     type: "number",
+                        //     name: "fieldHeight",
+                        //     message: "Field height (min 10):",
+                        //     default: 20,
+                        //     validate: (input: number) =>
+                        //         input >= 10 ? true : "Minimum height is 10",
+                        // },
                     ]);
 
                     gameManager.start2PLocal({
                         aiMode: false,
-                        playTo: points2P,
+                        playTo: winPoints2P,
                         // board: {
                         // 	size: {
-                        // 		width: width2P,
+                        // 		width: fieldWidth2P,
                         // 		height: 1,
-                        // 		depth: depth2P
+                        // 		depth: fieldHeight2P
                         // 	} as Size3D,
                         // },
                     });
@@ -211,50 +205,5 @@ async function handleMenuSelection(mode: number): Promise<void> {
             break;
         default:
             cleanup("Invalid mode option.");
-    }
-}
-
-// --- Server Flow ---
-async function fetchGameConfig(): Promise<PongConfig> {
-    try {
-        const res = await fetch(`${API_URL}/game/config`);
-        if (!res.ok) throw new Error(GAME_FETCH_ERROR_MSG);
-        const json = await res.json();
-        return json.data;
-    } catch (err) {
-        console.error(chalk.red(GAME_FETCH_ERROR_MSG), err);
-        cleanup("Error fetching game config.");
-        return Promise.reject(err);
-    }
-}
-
-async function promptLobbyMenu(): Promise<void> {
-    printTitle("LOBBY MENU");
-
-    const { action } = await inquirer.prompt([
-        {
-            type: "list",
-            name: "action",
-            message: "Lobby Actions:",
-            choices: [
-                new inquirer.Separator(),
-                { name: chalk.magenta("➕  Create Lobby"), value: "create" },
-                { name: chalk.magenta("🔗  Join Lobby"), value: "join" },
-                { name: chalk.red("🔙  Back"), value: "back" },
-            ],
-        },
-    ]);
-
-    switch (action) {
-        case "create":
-            await createLobby();
-            break;
-        case "join":
-            await joinLobby();
-            break;
-        case "back":
-        default:
-            console.log(chalk.green("Returning to main menu..."));
-            await mainMenu();
     }
 }
