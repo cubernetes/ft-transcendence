@@ -2,6 +2,11 @@
 network.host: ${ELASTICSEARCH_HOST}
 http.port: ${ELASTICSEARCH_PORT}
 
+# Transport settings to fix bootstrap error
+# https://stackoverflow.com/a/43207897
+transport.host: localhost
+#transport.tcp.port: 9300
+
 # Security settings
 xpack.security.enabled: true
 
