@@ -1,5 +1,4 @@
 import { createEl } from "../../utils/dom-helper";
-import { createParagraph } from "./Paragraph";
 import { createStatus } from "./Status";
 
 // TODO: This should not return a Result, if it's error still return HTMLElement with error inside

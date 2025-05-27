@@ -34,7 +34,7 @@ export const createLoginPage = async (): Promise<UIComponent> => {
     const submitBtn = createButton({
         type: "submit",
         text: mode === "login" ? LOGIN : REGISTER,
-        tw: `w-full ${CONST.FONT.BODY_SM} px-4 py-2 bg-red-500 text-white`,
+        tw: `w-full ${CONST.FONT.BODY_XS} px-4 py-2 bg-red-500 text-white`,
     });
 
     // Create status component
@@ -69,7 +69,7 @@ export const createLoginPage = async (): Promise<UIComponent> => {
         cbs: [() => changeMode("login"), () => changeMode("register")],
         twBtnSpecific: ["rounded-l-md", "rounded-r-md"],
         twSelected: "bg-red-500 text-white",
-        twBtn: `${CONST.FONT.BODY_SM} px-4 py-2 bg-gray-300 rounded-none`,
+        twBtn: `${CONST.FONT.BODY_XS} px-4 py-2 bg-gray-300 rounded-none`,
         twCtn: "justify-center mb-4",
         defaultSelected: 0,
     });
@@ -101,7 +101,7 @@ export const createLoginPage = async (): Promise<UIComponent> => {
 
     const quickplayBtn = createButton({
         text: CONST.TEXT.QUICKPLAY,
-        tw: `${CONST.FONT.BODY_SM} w-full px-4 py-2 bg-blue-500 text-white mt-4 rounded`,
+        tw: `${CONST.FONT.BODY_XS} w-full px-4 py-2 bg-blue-500 text-white mt-4 rounded`,
         click: () => navigateTo("quickplay"),
     });
 
