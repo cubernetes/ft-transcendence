@@ -13,6 +13,10 @@ for env_var in "$@"; do
 done
 whitelisted_env=${whitelisted_env#,}
 
+# Add elasticsearch bin directory to PATH. This is important for
+# the run_as_elastic function, see below.
+export PATH="/usr/share/elasticsearch/bin${PATH:+:$PATH}"
+
 # Healthcheck background service (because only this process has access to the environment
 # and an external healthcheck would need access to those, which is not intended)
 TERM=linux setsid -f watch -xtcn5 curl \
@@ -25,9 +29,11 @@ TERM=linux setsid -f watch -xtcn5 curl \
 
 
 run_as_elastic () {
-	su  --whitelist-environment="${whitelisted_env}" \
-		--command="${*@Q}" \
-		--login \
+	# Apparently, su resets PATH no matter if you specify --preserve-environment and or --login or not.
+	# We need to explicity pass the current value of PATH (which includes the elasticsearch bin directory)
+	# down, using bash's fancy quoting mechanism.
+	# The `${*@Q}` thing is just the arguments ($*) properly quoted (@Q). Bash is pretty cool eh?
+	su --command="export PATH=${PATH@Q}; ${*@Q}" \
 		elasticsearch
 }
 
