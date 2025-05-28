@@ -5,7 +5,7 @@ services:
     caddy:
         build: "./caddy/"
         container_name: caddy
-        restart: unless-stopped
+        restart: no # cannot restart because of expiring vault token
         ports:
             - "${HTTP_PORT:-8080}:8080"
             - "${HTTPS_PORT:-8443}:8443"
@@ -33,7 +33,7 @@ services:
             backend:
                 condition: service_started
             vault:
-                restart: true
+                restart: false # cannot restart because of expiring vault token
                 condition: service_healthy
         develop:
             watch:
@@ -74,7 +74,7 @@ services:
             backend:
                 condition: service_healthy
             vault:
-                restart: true
+                restart: false # cannot restart because of expiring vault token
                 condition: service_healthy
 
     backend:
@@ -95,10 +95,10 @@ services:
             - "./.secrets/backend_vault_token:/run/secrets/backend_vault_token"
         depends_on:
             vault:
-                restart: true
+                restart: false # cannot restart because of expiring vault token
                 condition: service_healthy
             logstash:
-                restart: true
+                restart: false # cannot restart because of expiring vault token
                 condition: service_healthy
                 required: false
         develop:
@@ -137,7 +137,7 @@ services:
             util-image:
                 condition: service_started
             vault:
-                restart: true
+                restart: false # cannot restart because of expiring vault token
                 condition: service_healthy
         restart: no # cannot restart because of expiring vault token
 
@@ -162,7 +162,7 @@ services:
             elasticsearch:
                 condition: service_healthy
             vault:
-                restart: true
+                restart: false # cannot restart because of expiring vault token
                 condition: service_healthy
         restart: no # cannot restart because of expiring vault token
 
@@ -186,7 +186,7 @@ services:
             elasticsearch:
                 condition: service_healthy
             vault:
-                restart: true
+                restart: false # cannot restart because of expiring vault token
                 condition: service_healthy
         restart: no # cannot restart because of expiring vault token
 
