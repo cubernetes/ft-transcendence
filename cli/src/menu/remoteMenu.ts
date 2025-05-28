@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import { clear, log } from "console";
 import inquirer from "inquirer";
 import readline from "readline";
 import gameManager from "../game/GameManager";
@@ -343,12 +342,12 @@ export async function joinLobby(): Promise<void> {
                     } else if (action === "join") {
                         return gameManager.join1PRemote();
                     } else {
-                        return;
+                        return promptRemotePlayMenu("Returned to Remote Menu.");
                     }
                 }
 
                 const retry = await promptRetryOrBack(errorMessage);
-                if (!retry) return;
+                if (!retry) return promptRemotePlayMenu("Returned to Remote Menu.");
                 continue;
             }
 
@@ -410,7 +409,7 @@ export async function joinLobby(): Promise<void> {
             }
         } catch (err) {
             const retry = await promptRetryOrBack(`Error joining lobby: ${err}`);
-            if (!retry) return;
+            if (!retry) return promptRemotePlayMenu("Returned to Remote Menu.");
         }
     }
 }
@@ -465,7 +464,6 @@ export async function handleServerLogin(): Promise<void> {
 export async function logout(): Promise<void> {
     clearToken();
     gameManager.setDisplayName?.(null);
-    // console.log(chalk.green("✅ Logged out successfully."));
     return promptRemotePlayMenu();
 }
 
@@ -480,30 +478,23 @@ async function loginToServer(username: string, password: string): Promise<boolea
         });
 
         if (!response.ok) {
-            let errorText: string;
-            try {
-                const errJson = await response.json();
-                errorText = errJson?.error?.message || JSON.stringify(errJson);
-            } catch {
-                errorText = await response.text();
-            }
             clearToken();
             return false;
         }
 
-		let result: any;
+        let result: any;
         try {
             result = await response.json();
         } catch {
             result = {};
         }
 
-		if (result?.data?.totpEnabled) {
+        if (result?.data?.totpEnabled) {
             const { totpToken } = await inquirer.prompt([
                 { type: "input", name: "totpToken", message: "Enter your 2FA code:" },
             ]);
 
-			loginPayload.totpToken = totpToken;
+            loginPayload.totpToken = totpToken;
             response = await fetch(`${API_URL}/user/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -511,23 +502,14 @@ async function loginToServer(username: string, password: string): Promise<boolea
             });
 
             if (!response.ok) {
-                let errorText: string;
-                try {
-                    const errJson = await response.json();
-                    errorText = errJson?.error?.message || JSON.stringify(errJson);
-                } catch {
-                    errorText = await response.text();
-                }
                 clearToken();
                 return false;
             }
         }
 
-		if (result?.data?.displayName)
-            gameManager.setDisplayName(result.data.displayName);
+        if (result?.data?.displayName) gameManager.setDisplayName(result.data.displayName);
 
-		if (result?.data?.username)
-            gameManager.setUsername(result.data.username);
+        if (result?.data?.username) gameManager.setUsername(result.data.username);
 
         const setCookieHeader = response.headers.get("set-cookie");
         if (!setCookieHeader) {
