@@ -2,7 +2,12 @@
 
 > A pong app with a heap of add-on features
 
-- Live demo: [https://ft-transcendence.app:8443](https://ft-transcendence.app:8443) (type `thisisunsafe` to bypass HSTS warning, ELK currently disabled)
+## Live Demo
+
+- Frontend: [https://ft-transcendence.app](https://ft-transcendence.app)
+- Backend API: [https://ft-transcendence.app/api/docs](https://ft-transcendence.app/api/docs) (not in production)
+- ELK: [https://ft-transcendence.app/kibana](https://ft-transcendence.app/kibana)
+- Vault: [https://ft-transcendence.app/vault](https://ft-transcendence.app/vault)
 
 ## Configure & Run
 
