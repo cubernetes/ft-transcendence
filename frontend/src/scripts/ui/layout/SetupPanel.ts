@@ -37,9 +37,6 @@ const createCtaBtn = (text: string, click: () => void, tw = "") =>
         click,
     });
 
-const createInputEl = (ph: string) =>
-    createInput({ ph, tw: "w-full p-2 bg-gray-100 text-black rounded text-xl" }); // TODO: Check tw
-
 // #endregion
 
 // #region: Panels
@@ -70,7 +67,6 @@ const createBasePanel = (ctn: UIContainer): UIComponent => {
     const basePanel: UIComponent = [titleEl, lineHr, baseBtnGrp];
 
     if (authStore.get().isAuthenticated) {
-        // TODO: Check: Any reason why log in is needed to play tournament?
         const tournamentBtn = createCtaBtn(CREATE_TOURNAMENT, () =>
             switchModePanel(ctn, "tournament")
         );
@@ -145,7 +141,7 @@ const createAiPanel = (ctn: UIContainer): UIComponent => {
     const lineHr = createLineHr();
     const { statusEl, showErr } = createStatus();
 
-    const aiP1 = createInput({ ph: NAME_PLAYER, i18nVars: { i: 1 } }); // TODO: should you be able to name yourself
+    const aiP1 = createInput({ ph: NAME_PLAYER, i18nVars: { i: 1 } });
     const { displayName } = authStore.get();
     if (displayName) {
         aiP1.value = displayName;
@@ -201,38 +197,29 @@ const createOnlinePanel = (ctn: UIContainer): UIComponent => {
         async () => {
             const res = await sendApiRequest.post<undefined, CreatePayload>(CONST.API.CREATE_LOBBY);
 
-            if (res.isErr()) {
-                showErr(res.error);
-                const devHack = createButton({
-                    text: "LEAVE (dev hack)",
-                    tw: "mt-2 p-2 bg-white hover:bg-gray-400",
-                    click: () => {
-                        sendApiRequest.post(CONST.API.LEAVE);
-                        switchModePanel(ctn, "online");
-                    },
-                });
-                return replaceChildren(ctn, [returnBtn, statusEl, devHack]);
-            } // TODO: handle error cleanly
+            if (res.isErr()) return showErr(res.error);
 
             const { lobbyId } = res.value;
             gameStore.update({ lobbyId, lobbyHost: true });
-            navigateTo(CONST.ROUTE.LOBBY);
+            navigateTo("lobby");
         },
         "mt-2"
     );
     const joinLobbyBtn = createCtaBtn(JOIN_LOBBY, () => switchModePanel(ctn, "join"));
-    const onlineBtnGrp = createEl("div", "flex flex-col space-y-4 items-center mt-4", {
-        children: [createLobbyBtn, joinLobbyBtn],
-    }); // TODO: refactor to use the correct function
 
-    return [returnBtn, titleEl, lineHr, onlineBtnGrp];
+    const buttonCtn = createContainer({
+        tw: "flex flex-col space-y-4 items-center mt-4",
+        children: [createLobbyBtn, joinLobbyBtn],
+    });
+
+    return [returnBtn, titleEl, lineHr, buttonCtn, statusEl];
 };
 
 const createTournamentPanel = (ctn: UIContainer): UIComponent => {
     const { round } = tournamentStore.get();
     if (round) {
         log.warn("Tournament already started. Cannot create a new tournament.");
-        navigateTo(CONST.ROUTE.TOURNAMENT);
+        navigateTo("tournament");
         return [];
     }
 
@@ -284,7 +271,6 @@ const createParticipantPanel = (ctn: UIContainer, length: number): UIComponent =
         children: playerInputs,
     });
 
-    // TODO: should be in tournament service or controller
     const tournamentStartBtn = createCtaBtn(START_TOURNAMENT, () => {
         const players = new Set<string>();
         for (let i = 0; i < length; i++) {
@@ -298,7 +284,7 @@ const createParticipantPanel = (ctn: UIContainer, length: number): UIComponent =
         const controller = createTournamentController([...players]);
         tournamentStore.update({ controller });
         controller.startTournament();
-        navigateTo(CONST.ROUTE.TOURNAMENT);
+        navigateTo("tournament");
     });
 
     return [returnBtn, title, line, inputsCtn, tournamentStartBtn, statusEl];
@@ -312,6 +298,7 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
     const titleEl = createHeading({ text: JOIN_LOBBY });
     const lineHr = createLineHr();
     const { statusEl, showErr } = createStatus();
+
     const lobbyIdInput = createInput({
         ph: ENTER_LOBBY_ID,
         tw: "p-2 bg-gray-100 text-black rounded",
@@ -331,7 +318,7 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
             if (tryJoin.isErr()) return showErr(tryJoin.error);
 
             gameStore.update({ lobbyId, lobbyHost: false });
-            navigateTo(CONST.ROUTE.LOBBY);
+            navigateTo("lobby");
         },
     });
 

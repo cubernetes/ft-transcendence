@@ -7,23 +7,15 @@ import { appendChildren, createEl } from "../../utils/dom-helper";
 import { appendUserStatus } from "./UserStatus";
 
 export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
-    // Title
-    const titleEl = createHeading({
-        text: CONST.TEXT.FT_TRANSCENDENCE,
-        tag: "h1",
-        tw: "text-3xl mb-0 text-left text-white",
-    });
-
     const { TEXT, ROUTE } = CONST;
 
     //
-    const navList = createEl("ul", "flex text-xl space-x-4");
+    const navList = createEl("ul", `flex ${CONST.FONT.H5} space-x-4`);
     const navKeys: [I18nKey, Route][] = [
-        [TEXT.HOME, ROUTE.HOME],
         [TEXT.PLAY, ROUTE.PLAY],
         [TEXT.LEADERBOARD, ROUTE.LEADERBOARD],
         [TEXT.PROFILE, ROUTE.PROFILE],
-        [TEXT.STATS_CHART, ROUTE.STATS],
+        [TEXT.STATS, ROUTE.STATS],
     ];
 
     for (const [key, route] of navKeys) {
