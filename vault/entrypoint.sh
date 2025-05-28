@@ -357,7 +357,7 @@ get_or_recover_vault_secrets () {
 	else
 		warn "Root token was not saved. Giving the user 2 minutes to provide it via TCP"
 		warn "at 0.0.0.0:${VAULT_ROOT_TOKEN_EXCHANGE_PORT} (trailing newline required, only first line is considered)"
-		warn "%s" 'Hint: With netcat-openbsd, you may do something along the lines of `printf '\''%s\n'\'' "$VAULT_ROOT_TOKEN" | nc -N localhost:'"${VAULT_ROOT_TOKEN_EXCHANGE_PORT}"'`'
+		warn "%s" 'Hint: With netcat-openbsd, you may do something along the lines of `printf '\''%s\n'\'' "$VAULT_ROOT_TOKEN" | nc -N localhost '"${VAULT_ROOT_TOKEN_EXCHANGE_PORT}"'`'
 		warn "Waiting for reply..."
 		VAULT_TOKEN=$(timeout "${VAULT_MANUAL_UNSEAL_TIMEOUT}" nc -q0 -lnvp "${VAULT_ROOT_TOKEN_EXCHANGE_PORT}" | head -n 1) || true
 		export VAULT_TOKEN
