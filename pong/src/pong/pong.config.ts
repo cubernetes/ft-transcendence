@@ -14,9 +14,9 @@ const boardSchema = z.object({
 
 const defaultBall = {
     pos: { x: 0, y: 0, z: 0 },
-    vec: { x: 0.2, y: 0, z: 0.2 },
-    r: 0.15,
-    speed: 0.3,
+    vec: { x: -0.2, y: 0, z: -0.2 },
+    r: 0.25,
+    speed: 0.2,
 };
 
 const paddleSchema = z.object({
