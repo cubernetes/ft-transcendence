@@ -104,7 +104,11 @@ async function handleMenuSelection(mode: number): Promise<void> {
                         return await handleMenuSelection(1);
                     }
 
-					const { winPoints: winPoints1P, fieldWidth: fieldWidth1P, fieldHeight: fieldHeight1P } = await inquirer.prompt([
+                    const {
+                        winPoints: points1P,
+                        fieldWidth: width1P,
+                        fieldDepth: depth1P,
+                    } = await inquirer.prompt([
                         {
                             type: "number",
                             name: "winPoints",
@@ -123,7 +127,7 @@ async function handleMenuSelection(mode: number): Promise<void> {
                         },
                         {
                             type: "number",
-                            name: "fieldHeight",
+                            name: "fieldDepth",
                             message: "Field height (min 10):",
                             default: 20,
                             validate: (input: number) =>
@@ -131,24 +135,28 @@ async function handleMenuSelection(mode: number): Promise<void> {
                         },
                     ]);
 
-					// TODO: Adapt renderer to show different field dimensions!
+                    // TODO: Adapt renderer to show different field dimensions!
 
-					// gameManager.setRenderBoardSize(50, 25);
+                    // gameManager.setRenderBoardSize(50, 25);
                     gameManager.start1PLocal({
                         aiMode: true,
-						aiDifficulty: difficulty,
-						playTo: winPoints1P,
-                        // board: { 
-						// 	size: {
-						// 		width: fieldWidth1P,
-						// 		height: 1,
-						// 		depth: fieldHeight1P
-						// 	} as Size3D,
-						// },
+                        aiDifficulty: difficulty,
+                        playTo: points1P,
+                        // board: {
+                        // 	size: {
+                        // 		width: width1P,
+                        // 		height: 1,
+                        // 		depth: depth1P
+                        // 	} as Size3D,
+                        // },
                     });
                     break;
                 case "2P":
-					const { winPoints: winPoints2P, fieldWidth: fieldWidth2P, fieldHeight: fieldHeight2P } = await inquirer.prompt([
+                    const {
+                        winPoints: points2P,
+                        fieldWidth: width2P,
+                        fieldHeight: depth2P,
+                    } = await inquirer.prompt([
                         {
                             type: "number",
                             name: "winPoints",
@@ -176,16 +184,16 @@ async function handleMenuSelection(mode: number): Promise<void> {
                     ]);
 
                     gameManager.start2PLocal({
-						aiMode: false,
-						playTo: winPoints2P,
+                        aiMode: false,
+                        playTo: points2P,
                         // board: {
-						// 	size: {
-						// 		width: fieldWidth2P,
-						// 		height: 1,
-						// 		depth: fieldHeight2P
-						// 	} as Size3D,
-						// },
-					});
+                        // 	size: {
+                        // 		width: width2P,
+                        // 		height: 1,
+                        // 		depth: depth2P
+                        // 	} as Size3D,
+                        // },
+                    });
                     break;
                 case "back":
                 default:
