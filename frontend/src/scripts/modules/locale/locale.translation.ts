@@ -22,6 +22,7 @@ export const TEXT_MAP = {
     HOME: { en: "Home", de: "Startseite", fr: "Accueil", es: "Inicio" },
     LEADERBOARD: { en: "Leaderboard", de: "Bestenliste", fr: "Classement", es: "Clasificación" },
     PROFILE: { en: "Profile", de: "Profil", fr: "Profil", es: "Perfil" },
+    STATS: { en: "Stats", de: "Statistiken", fr: "Profil", es: "Perfil" }, // TRANSLATION_NEEDED
     QUICKPLAY: { en: "Quickplay", de: "Schnelles Spiel", fr: "Jeu rapide", es: "Juego rápido" },
 
     // System
@@ -257,8 +258,8 @@ export const TEXT_MAP = {
         fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
     },
-    RESTART_TOURNAMENT: {
-        en: "{icon} Start Another Tournament",
+    RESTART: {
+        en: "{icon} Restart",
         de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
         fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
@@ -276,7 +277,7 @@ export const TEXT_MAP = {
         es: "Iniciar torneo", // TRANSLATION_NEEDED
     },
     FRIENDS: {
-        en: "Your friends",
+        en: "Your Friends",
         de: "Deine Freunde",
         fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
         es: "Iniciar torneo", // TRANSLATION_NEEDED

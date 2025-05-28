@@ -9,6 +9,7 @@ const DIR = {
     VIDEO: `${ASSETS_DIR}/videos`, // TODO: make consistent
     AUDIO: `${ASSETS_DIR}/audio`,
     FONTS: `${ASSETS_DIR}/fonts`,
+    IMAGES: `${ASSETS_DIR}/images`,
     TEXTURE: `${ASSETS_DIR}/textures`,
     TILE: `${ASSETS_DIR}/textures/tiles`,
 };
@@ -130,6 +131,18 @@ const CTRL = {
 const FUJI_ADDRESS = "66532bC8c0A4996Ae1BeB5e9b68A55f3014B28a2";
 const HOLESKY_ADDRESS = "feefE87429c5dAC98009D663f62F05499bDAD2AD";
 
+// Color palette constants in Tailwind classes
+const STYLES = {
+    CONTAINER: "border-2 border-white rounded-lg bg-black/50",
+};
+
+const FONT = {
+    H5: "text-xl", // Headings
+    BODY_SM: "text-sm", // Paragraphs
+    BODY_XS: "text-xs", // Sub tex Paragraphs
+    BODY_XXS: "text-[10px]", //Smallest body text
+};
+
 /** Constants will be attached globally, can be accessed via `CONST` */
 export const CONSTANTS = {
     DIR,
@@ -144,4 +157,6 @@ export const CONSTANTS = {
     TEXT,
     FUJI_ADDRESS,
     HOLESKY_ADDRESS,
+    STYLES,
+    FONT,
 };

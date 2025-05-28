@@ -35,7 +35,7 @@ export const createModal = ({ children, tw = "", exitable = true }: Opts) => {
     // TODO: refactor this
     const exitBtn = createEl(
         "button",
-        "absolute top-1 right-2 text-red-600 text-4xl font-bold cursor-pointer z-50",
+        "top-1 right-2 absolute text-red-600 text-4xl font-bold cursor-pointer z-50",
         {
             props: { innerHTML: "&times;" },
             events: { click: close },

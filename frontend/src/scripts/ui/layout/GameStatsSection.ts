@@ -4,6 +4,7 @@ import { authStore } from "../../modules/auth/auth.store";
 import { localeStore } from "../../modules/locale/locale.store";
 import { createEl } from "../../utils/dom-helper";
 import { createButtonGroup } from "../components/ButtonGroup";
+import { createParagraph } from "../components/Paragraph";
 import { createTable } from "../components/Table";
 
 Chart.register(...registerables);
@@ -14,8 +15,11 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
     const historySection = createMatchHistoryList(games);
     const friendSection = createFriendList();
 
-    const toggleContainer = createEl("div", "flex justify-center gap-4 mb-4 mt-4");
-    const contentContainer = createEl("div", "w-full min-h-[700px] transition-all");
+    const toggleContainer = createEl(
+        "div",
+        `flex justify-center ${CONST.FONT.BODY_SM} gap-4 mb-4 mt-4`
+    );
+    const contentContainer = createEl("div", "w-full transition-all");
 
     const toggleGroup = createButtonGroup({
         texts: [STATS_CHART, MATCH_HISTORY, FRIENDS],
@@ -26,7 +30,7 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
         ],
         twBtnSpecific: ["rounded-l-md", "rounded-r-md"],
         twSelected: "bg-purple-600 text-white",
-        twBtn: "px-4 py-2 border rounded transition",
+        twBtn: "px-4 py-2 border border-gray-400 rounded transition m-1",
         twCtn: "justify-center mb-4",
         defaultSelected: 0,
     });
@@ -46,8 +50,9 @@ const createFriendList = (): HTMLElement[] => {
     //TODO: Use the below to check if player has friends.
     if (playerName) {
         return [
-            createEl("p", "text-gray-500 text-center", {
+            createParagraph({
                 text: "No friends in your friend list. Add some!",
+                tw: "text-gray-500 text-center",
             }),
         ];
     }
@@ -61,8 +66,12 @@ const createFriendList = (): HTMLElement[] => {
         },
     ];
     const table = createTable(headers, ["friendUsername", "gamesPlayed", "rank", "status"], row);
-
-    return [table];
+    const tableWrapper = createEl(
+        "div",
+        `max-h-64 overflow-y-auto overflow-x-auto flex justify-center ${CONST.STYLES.CONTAINER}`
+    );
+    tableWrapper.appendChild(table);
+    return [tableWrapper];
 };
 
 const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
@@ -70,8 +79,9 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
 
     if (!games.length) {
         return [
-            createEl("p", "text-gray-500 text-center", {
-                text: "No game data available. Play some games onlin games!",
+            createParagraph({
+                text: "No game data available. Play some games online games!",
+                tw: "text-gray-500 text-center",
             }),
         ];
     }
@@ -91,8 +101,6 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
                 hour12: true,
             }),
             opponent,
@@ -102,8 +110,12 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
     });
 
     const table = createTable(headers, ["date", "opponent", "result", "score"], rows);
-
-    return [table];
+    const tableWrapper = createEl(
+        "div",
+        `max-h-64 overflow-y-auto overflow-x-auto flex justify-center ${CONST.STYLES.CONTAINER}`
+    );
+    tableWrapper.appendChild(table);
+    return [tableWrapper];
 };
 
 const mapGame = (game: PublicGame) => {
@@ -121,8 +133,9 @@ const mapGame = (game: PublicGame) => {
 export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
     if (!games.length) {
         return [
-            createEl("p", "text-gray-500 text-center", {
-                text: "No game data. Play some games on 'Online' mode!",
+            createParagraph({
+                text: "No game data available. Play some games online!",
+                tw: "text-gray-500 text-center",
             }),
         ];
     }
@@ -131,7 +144,7 @@ export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
         if (!mapped) return null;
         return { gameId: index + 1, ...mapped };
     });
-    const chartEl = createEl("canvas", "w-full max-h-[700px] mx-auto", {
+    const chartEl = createEl("canvas", "w-full max-h-[700px]", {
         attributes: { id: "game-stats-chart" },
     });
 

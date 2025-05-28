@@ -17,13 +17,13 @@ import { createParagraph } from "../components/Paragraph";
 import { createStatus } from "../components/Status";
 
 // #region: Styles
-const TW_BASE_BTN = "p-4 text-2xl bg-gray-100 hover:bg-gray-400";
+const TW_BASE_BTN = `p-2 ${CONST.FONT.BODY_SM} bg-gray-100 hover:bg-gray-400`;
 // #endregion
 
 // #region: Components
 const createReturnBtn = (ctn: UIContainer, src: UIComponent) =>
     createButton({
-        tw: "absolute top-8 left-8 p-2 bg-gray-400 text-black hover:bg-gray-600",
+        tw: "absolute top-8 left-4 pr-1 pl-1 bg-gray-400 text-black hover:bg-gray-600",
         innerHTML: "&#8617;",
         click: () => replaceChildren(ctn, src),
     });
@@ -33,7 +33,7 @@ const createLineHr = () => createEl("hr", "border-t-2 border-dotted border-white
 const createCtaBtn = (text: string, click: () => void, tw = "") =>
     createButton({
         text,
-        tw: twMerge(TW_BASE_BTN, "w-full mt-8 bg-red-500 text-white hover:bg-red-600", tw),
+        tw: twMerge(TW_BASE_BTN, "w-full mt-4 bg-red-500 text-white hover:bg-red-600", tw),
         click,
     });
 
@@ -152,11 +152,11 @@ const createAiPanel = (ctn: UIContainer): UIComponent => {
     }
 
     // Difficulty button group
-    const labelEl = createParagraph({ text: DIFFICULTY });
+    const labelEl = createParagraph({ text: DIFFICULTY, tw: "text-left" });
     const btnGrp = createButtonGroup({
         texts: [EASY, MEDIUM, HARD],
         twSelected: "bg-gray-400",
-        twBtn: twMerge(TW_BASE_BTN, "text-xl p-2"),
+        twBtn: twMerge(TW_BASE_BTN, "p-2"),
         twCtn: "space-x-4 mt-4",
     });
     const difficultyGrp = createEl("div", "flex flex-col w-full mt-6", {
@@ -247,7 +247,7 @@ const createTournamentPanel = (ctn: UIContainer): UIComponent => {
     const modeLabel = createParagraph({ text: NUMBER_OF_PLAYERS });
     const modeBtnGrp = createButtonGroup({
         texts: ["4P", "8P"],
-        twBtn: twMerge(TW_BASE_BTN, "text-xl p-2"),
+        twBtn: twMerge(TW_BASE_BTN, "p-2"),
         twSelected: "bg-gray-400",
         twCtn: "space-x-4 mt-4",
     });
@@ -312,14 +312,14 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
     const titleEl = createHeading({ text: JOIN_LOBBY });
     const lineHr = createLineHr();
     const { statusEl, showErr } = createStatus();
-
-    const lobbyIdInput = createEl("input", "p-2 bg-gray-100 text-black rounded text-xl", {
-        attributes: { placeholder: ENTER_LOBBY_ID },
+    const lobbyIdInput = createInput({
+        ph: ENTER_LOBBY_ID,
+        tw: "p-2 bg-gray-100 text-black rounded",
     });
 
     const joinBtn = createButton({
         text: JOIN,
-        tw: twMerge(TW_BASE_BTN, "ml-4 px-3 py-1 bg-white hover:bg-blue-600 transition-all"),
+        tw: twMerge(TW_BASE_BTN, "mt-4 px-3 py-1 bg-white hover:bg-blue-600 transition-all"),
         click: async () => {
             const lobbyId = lobbyIdInput.value.trim();
             if (!lobbyId) return showErr(LOBBY_ID_REQUIRED);
@@ -335,8 +335,9 @@ const createJoinPanel = (ctn: UIContainer): UIComponent => {
         },
     });
 
-    const infoEl = createEl("p", "text-lg text-gray-700 font-medium mt-4", {
+    const infoEl = createParagraph({
         text: "Enter the Game ID to join your friend's game.",
+        tw: "text-gray-700 mt-4",
     });
 
     return [returnBtn, titleEl, lineHr, lobbyIdInput, joinBtn, infoEl, statusEl];

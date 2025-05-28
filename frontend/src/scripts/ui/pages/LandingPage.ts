@@ -10,12 +10,11 @@ import { createButton } from "../components/Button";
 import { createContainer } from "../components/Container";
 import { createErrorModal } from "../layout/ErrorModal";
 import { createLanguageButton } from "../layout/LanguageButton";
-import { createLoginForm } from "../layout/LoginForm";
 
-export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> => {
+export const createLandingPage: PageRenderer = async (): Promise<UIComponent> => {
     // Create video element
     const videoEl = createEl("video", "w-full h-full object-cover", {
-        attributes: { src: `${CONST.DIR.VIDEO}/pong_simulation.webm` },
+        attributes: { src: `${CONST.DIR.VIDEO}/landing.mp4` },
         props: { autoplay: true, loop: true, muted: true },
     });
 
@@ -27,7 +26,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
 
     // Create a call-to-action button
     const ctaButtonEl = createButton({
-        text: CONST.TEXT.PLAY,
+        text: "Play",
         tw: [
             "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
             "rounded-full text-white p-0 border-2 border-red-600 hover:border-red-400",
@@ -50,8 +49,7 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
                     authStore.set(state);
                     if (state.isAuthenticated) return navigateTo(CONST.ROUTE.HOME);
 
-                    const loginFormEl = await createLoginForm(ctaButtonEl);
-                    replaceChildren(heroCtn, loginFormEl);
+                    navigateTo("login");
                 });
             });
         },
@@ -63,13 +61,10 @@ export const createLandingPage: PageRenderer = async (): Promise<HTMLElement[]> 
         children: [ctaButtonEl],
     });
 
-    // Create Language button
-    const langBtn = createLanguageButton();
-
     const mainCtn = createContainer({
         tag: "main",
         tw: "w-full h-screen relative",
-        children: [videoEl, overlayEl, heroCtn, langBtn],
+        children: [videoEl, overlayEl, heroCtn],
     });
 
     return [mainCtn];

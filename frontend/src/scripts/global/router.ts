@@ -5,8 +5,10 @@ import { layoutStore } from "../modules/layout/layout.store";
 import { createLandingPage } from "../ui/pages/LandingPage";
 import { createLeaderboardPage } from "../ui/pages/LeaderboardPage";
 import { createLobbyPage } from "../ui/pages/LobbyPage";
+import { createLoginPage } from "../ui/pages/LoginPage";
 import { createProfilePage } from "../ui/pages/ProfilePage";
 import { createSetupPage } from "../ui/pages/SetupPage";
+import { createStatsPage } from "../ui/pages/StatsPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
 import { dispatchEventDown, replaceChildren } from "../utils/dom-helper";
 
@@ -18,15 +20,24 @@ const ROUTES = {
     leaderboard: createLeaderboardPage,
     tournament: createTournamentPage,
     lobby: createLobbyPage,
+    login: createLoginPage,
+    stats: createStatsPage,
 } satisfies Record<string, PageRenderer>;
 
 export type Route = keyof typeof ROUTES;
 
 // Protected routes, i.e. only available after logging in
-const PROTECTED_ROUTES: Route[] = ["play", "profile", "leaderboard", "tournament", "lobby"];
+const PROTECTED_ROUTES: Route[] = [
+    "play",
+    "profile",
+    "leaderboard",
+    "tournament",
+    "lobby",
+    "stats",
+];
 
 // Routes that will have router container take up the whole screen, i.e. no header or footer
-const FULL_WINDOW_ROUTES: Route[] = ["landing", "quickplay"];
+const FULL_WINDOW_ROUTES: Route[] = ["landing", "login", "quickplay"];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route

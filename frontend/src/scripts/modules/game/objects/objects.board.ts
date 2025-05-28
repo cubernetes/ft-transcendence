@@ -29,7 +29,7 @@ const boardConfig = (scene: Scene, size: Size3D) => {
 
     return {
         name: "board",
-        src: `${CONST.DIR.ASSET}/height_map1.jpeg`,
+        src: `${CONST.DIR.IMAGES}/height_map.jpeg`,
         options: {
             width: size.width,
             height: size.depth,
