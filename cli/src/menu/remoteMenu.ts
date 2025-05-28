@@ -544,11 +544,11 @@ async function registerUser(): Promise<boolean> {
         }
 
         const answers = await inquirer.prompt([
-            { type: "input", name: "username", message: "New username: " },
+            { type: "input", name: "username", message: "New Username: " },
             {
                 type: "password",
                 name: "password",
-                message: "New password: ",
+                message: "New Password: ",
                 mask: "*",
                 validate: (input: string) =>
                     input.length >= 8 ? true : "Password must be at least 8 characters.",

@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import figlet from "figlet";
 import inquirer from "inquirer";
 import audioManager from "../audio/AudioManager";
 import { cleanup } from "../utils/cleanup";
