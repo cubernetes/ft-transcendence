@@ -21,6 +21,7 @@ services:
         environment:
             - WATCH
             - VAULT_API_PORT
+            - KIBANA_PORT
             - DOMAINS
             - HTTP_DOMAINS
             - HTTPS_DOMAINS
