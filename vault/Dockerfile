@@ -1,6 +1,6 @@
 FROM hashicorp/vault:1.19.0
 
-RUN apk add --no-cache jq python3 gettext
+RUN apk add --no-cache jq python3 gettext netcat-openbsd
 
 # Get build time environmental variable
 ARG VAULT_API_PORT

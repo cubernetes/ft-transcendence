@@ -191,7 +191,7 @@ services:
         container_name: vault
         restart: no # doesn't make sense to restart vault
         ports:
-            - VAULT_ROOT_TOKEN_EXCHANGE_PORT
+            - "${VAULT_ROOT_TOKEN_EXCHANGE_PORT:-1337}:${VAULT_ROOT_TOKEN_EXCHANGE_PORT:-1337}"
         networks:
             ft-transcendence-net:
                 ipv4_address: &vault_ip 10.42.42.42
@@ -224,6 +224,7 @@ services:
             - SAVE_UNSEAL_KEYS
             - SAVE_ROOT_TOKEN
             - VAULT_MANUAL_UNSEAL_TIMEOUT
+            - VAULT_ROOT_TOKEN_EXCHANGE_PORT
         tty: true
         develop:
             watch:
