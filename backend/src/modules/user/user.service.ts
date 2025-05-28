@@ -2,7 +2,7 @@ import type { UserInsert, UserRecord } from "../../core/db/db.types.ts";
 import type { FastifyInstance } from "fastify";
 import { MultipartFile } from "@fastify/multipart";
 import { Result, err, ok } from "neverthrow";
-import { count, desc, eq } from "drizzle-orm";
+import { asc, count, desc, eq } from "drizzle-orm";
 import { writeFile } from "fs/promises";
 import { extname, join } from "path";
 import { ErrorCode, PersonalUser, PublicUser } from "@darrenkuro/pong-core";
@@ -151,7 +151,12 @@ export const createUserService = (app: FastifyInstance) => {
         const orderedByWins = await db
             .select({ username: users.username, wins: users.wins })
             .from(users)
-            .orderBy(desc(users.wins));
+            .orderBy(
+                desc(users.wins),
+                asc(users.losses),
+                asc(users.createdAt),
+                asc(users.username)
+            );
 
         const rank = orderedByWins.findIndex((u) => u.username === username) + 1; // Zero indexed
         return ok(rank);
