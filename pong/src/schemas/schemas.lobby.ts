@@ -9,4 +9,4 @@ const joinParams = z.strictObject({ lobbyId: z.string().length(6) });
 export type UpdateBody = z.infer<typeof updateBody>;
 const updateBody = z.strictObject({ playTo: z.number().min(1).max(21) });
 
-export const lobbySchemas = { createPayload, joinParams, updateBody };
+export const lobbySchema = { createPayload, joinParams, updateBody };

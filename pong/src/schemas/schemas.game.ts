@@ -14,6 +14,6 @@ const publicGame = z.strictObject({
     finishedAt: z.string().datetime(),
 });
 
-export const gameSchemas = {
+export const gameSchema = {
     publicGame,
 };

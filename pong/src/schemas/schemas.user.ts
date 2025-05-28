@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ApiResponse } from "./schemas.api";
-import { gameSchemas } from "./schemas.game";
+import { gameSchema } from "./schemas.game";
 
 export type JwtPayload = z.infer<typeof jwtPayload>;
 const jwtPayload = z.strictObject({
@@ -85,7 +85,7 @@ const publicUser = z.strictObject({
     totalGames: z.number(),
     createdAt: z.string().datetime(),
     rank: z.number(),
-    games: gameSchemas.publicGame.array(),
+    games: gameSchema.publicGame.array(),
 });
 
 export type GetInfoPayload = z.infer<typeof getInfoPayload>;
@@ -103,7 +103,10 @@ export type LeaderboardPayload = z.infer<typeof leaderboardPayload>;
 export type leaderboardResponse = ApiResponse<typeof leaderboardPayload>;
 const leaderboardPayload = publicUser.array();
 
-export const userSchemas = {
+export type AvatarPayload = z.infer<typeof avatarPayload>;
+const avatarPayload = z.strictObject({ avatarUrl: z.string() });
+
+export const userSchema = {
     jwtPayload,
     registerBody,
     loginBody,
@@ -117,4 +120,5 @@ export const userSchemas = {
     getMePayload,
     loginPayload,
     leaderboardPayload,
+    avatarPayload,
 };

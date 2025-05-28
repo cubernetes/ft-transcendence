@@ -1,6 +1,6 @@
 import type { FastifyInstance, RouteHandlerMethod } from "fastify";
 import { defaultGameConfig } from "@darrenkuro/pong-core";
-import { lobbySchemas } from "@darrenkuro/pong-core";
+import { lobbySchema } from "@darrenkuro/pong-core";
 import { ZodHandler } from "../../utils/zod-validate";
 
 export const createLobbyController = (app: FastifyInstance) => {
