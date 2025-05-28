@@ -24,7 +24,9 @@ export const createLanguageButton = (tw = ""): UIContainer => {
     });
 
     const popoverCtn = createContainer({
-        tw: ["hidden absolute top-full bg-white rounded shadow", "w-40 text-gray-800"].join(" "),
+        tw: ["hidden absolute top-full bg-white rounded shadow righ-0", "w-40 text-gray-800"].join(
+            " "
+        ),
     });
 
     LANGS.forEach(([code, flag, label]) => {
@@ -42,6 +44,7 @@ export const createLanguageButton = (tw = ""): UIContainer => {
 
     const ctn = createContainer({
         children: [triggerBtn, popoverCtn],
+        tw,
     });
 
     return ctn;

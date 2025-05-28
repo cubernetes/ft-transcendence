@@ -105,9 +105,7 @@ export const createLoginPage = async (): Promise<UIComponent> => {
         click: () => navigateTo("quickplay"),
     });
 
-    const langBtn = createLanguageButton();
-
-    appendChildren(wrapper, [langBtn, modeBtnGrp, authForm, quickplayBtn]);
-
-    return createArcadeWrapper([wrapper]);
+    const langBtn = createLanguageButton("absolute top-6 right-0 z-50");
+    appendChildren(wrapper, [modeBtnGrp, authForm, quickplayBtn]);
+    return createArcadeWrapper([langBtn, wrapper]);
 };
