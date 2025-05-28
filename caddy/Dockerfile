@@ -34,13 +34,15 @@ VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/", "/frontend/uploads/"
 # Environment wrapper stuff for vault
 RUN apk add --no-cache jq curl bash
 
-COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 COPY --from=ft-transcendence-util-image --chmod=555 /execsudo /execsudo
+
+COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
+COPY --chmod=555 ./healthcheck.sh /healthcheck.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
 ENV WATCH=0
 
-HEALTHCHECK --interval=10s --timeout=2s --retries=3 --start-period=30s --start-interval=1s CMD ["sh", "-c", "wget --no-verbose --tries=1 --spider http://localhost:12345/caddy_health || exit 1"]
+HEALTHCHECK --interval=10s --timeout=2s --retries=3 --start-period=30s --start-interval=1s CMD ["/healthcheck.sh"]
 
 CMD ["sh", "-c", "/usr/bin/caddy run --watch=$WATCH --adapter caddyfile --config /etc/caddy/Caddyfile"]
