@@ -80,6 +80,7 @@ services:
         environment:
             - WATCH
             - VAULT_API_PORT
+            - NODE_ENV
             - DOMAINS
             - BACKEND_PORT
         volumes:
