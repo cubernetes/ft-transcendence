@@ -39,7 +39,17 @@
 		import waf
 		reverse_proxy backend:{$BACKEND_PORT}
 	}
+	handle_path /kibana/* {
+		reverse_proxy kibana:{$KIBANA_PORT}
+	}
 	handle /ws { # websocket route must not use coraza WAF, otherwise it breaks
 		reverse_proxy backend:{$BACKEND_PORT}
+	}
+}
+
+# Proper healthcheck
+http://localhost:12345 {
+	handle /caddy_health {
+		respond "OK" 200
 	}
 }

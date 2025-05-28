@@ -34,14 +34,14 @@ wait_for_service elasticsearch
 wait_for_service logstash
 wait_for_service kibana
 wait_for_service backend
+wait_for_service caddy
 wait_for_kibana_dashboards
 
 HTTP_PORT=$(docker port caddy | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
-KIBANA_PORT=$(docker port kibana | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
 
 echo "Frontend: http://localhost:${HTTP_PORT}"
 echo "OpenAPI:  http://localhost:${HTTP_PORT}/api/docs"
-echo "ELK       http://localhost:${KIBANA_PORT}"
+echo "ELK       http://localhost:${HTTP_PORT}/kibana/"
 echo "Run 'make get-env SERVICE=elasticsearch' to get credentials for kibana"
 
 now=$(date +%s)
