@@ -88,7 +88,7 @@ export const createLobbyPage = (): UIComponent => {
         });
         if (tryUpdate.isErr()) return showErr(tryUpdate.error);
 
-        showOk("Successfully updated"); // TODO: Translation
+        showOk("Successfully updated");
     };
 
     const startBtnCb = () => {

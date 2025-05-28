@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { lobbySchemas as schemas } from "@darrenkuro/pong-core";
+import { lobbySchema } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
 import { createLobbyController } from "./lobby.controller.ts";
 import { routeSchema } from "./lobby.schema.ts";
@@ -7,7 +7,7 @@ import { routeSchema } from "./lobby.schema.ts";
 export const lobbyRoutes = async (app: FastifyInstance) => {
     const { create, join, update, leave } = createLobbyController(app);
 
-    const { joinParams, updateBody } = schemas;
+    const { joinParams, updateBody } = lobbySchema;
 
     // Register routes
     app.post("/create", { preHandler: [app.requireAuth], schema: routeSchema.create }, create);

@@ -188,7 +188,6 @@ export const createLobbyService = (app: FastifyInstance) => {
 
         if (playerNames.some((n) => n === "")) {
             // Someone quit already
-            // TODO: refactor, duplicate code and horrible structure
             const winner: 0 | 1 = playerNames[0] === "" ? 1 : 0;
             const payload = { state: engine.getState(), hits: engine.getHits(), winner };
             app.wsService.send(players[winner], {

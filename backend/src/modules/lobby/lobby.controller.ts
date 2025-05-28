@@ -17,7 +17,7 @@ export const createLobbyController = (app: FastifyInstance) => {
         return reply.ok({ lobbyId });
     };
 
-    type joinCb = ZodHandler<{ params: typeof lobbySchemas.joinParams }>;
+    type joinCb = ZodHandler<{ params: typeof lobbySchema.joinParams }>;
     const join: joinCb = async ({ params }, req, reply) => {
         const { userId, userDisplayName } = req;
         const { lobbyId } = params;
@@ -30,7 +30,7 @@ export const createLobbyController = (app: FastifyInstance) => {
         return reply.ok({});
     };
 
-    type updateCb = ZodHandler<{ body: typeof lobbySchemas.updateBody }>;
+    type updateCb = ZodHandler<{ body: typeof lobbySchema.updateBody }>;
     const update: updateCb = async ({ body }, req, reply) => {
         const { userId } = req;
         const { playTo } = body;

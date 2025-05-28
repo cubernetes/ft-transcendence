@@ -8,7 +8,7 @@ import { createProfilePanel } from "../layout/ProfilePanel";
 
 export const createProfilePage = async (): Promise<UIComponent> => {
     const playerData = await fetchPlayerData();
-    if (playerData.isErr()) return []; // TODO: add fetch error component
+    if (playerData.isErr()) return [];
 
     const profileSection = createProfilePanel(playerData.value);
     const main = createEl("main", `flex p-4 ${CONST.STYLES.CONTAINER}`, {
