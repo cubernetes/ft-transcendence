@@ -71,7 +71,7 @@ export const generateResultTable = (data: Array<any>): UIComponent => {
 
     const tableWrapper = createEl(
         "div",
-        `max-h-64 overflow-y-auto overflow-x-hidden flex justify-center ${CONST.STYLES.CONTAINER}`
+        `max-h-64 overflow-y-auto overflow-x-auto flex justify-center ${CONST.STYLES.CONTAINER}`
     );
     tableWrapper.appendChild(table);
 
