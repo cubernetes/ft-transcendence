@@ -12,7 +12,7 @@ export const buildApp = async (
     // Disable ajv validation for request schema validation
     app.setValidatorCompiler(() => () => true);
     // Disable fast-json-stringify for response schema validation, leave it for now
-    app.setSerializerCompiler(() => JSON.stringify); // TODO: disable this
+    // app.setSerializerCompiler(() => JSON.stringify);
 
     try {
         await app.register(corePlugin);
