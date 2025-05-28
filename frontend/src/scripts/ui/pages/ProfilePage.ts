@@ -1,6 +1,3 @@
-import { Result, err, ok } from "neverthrow";
-import { ErrorCode, GetMePayload, GetMeResponse } from "@darrenkuro/pong-core";
-import { sendApiRequest } from "../../utils/api";
 import { fetchPlayerData } from "../../utils/api";
 import { createEl } from "../../utils/dom-helper";
 import { createArcadeWrapper } from "../components/ArcadeWrapper";
