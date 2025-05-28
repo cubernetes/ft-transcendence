@@ -338,11 +338,10 @@ revoke_all_client_tokens () {
 }
 
 get_or_recover_vault_secrets () {
-	if [ "$SAVE_ROOT_TOKEN" = "1" ]; then
-		VAULT_TOKEN=$(cat /vault/secret/root_token)
-		export VAULT_TOKEN
+	if [ "$SAVE_UNSEAL_KEYS" = "1" ]; then
+		unseal_keys=$(find /vault/secret/ -mindepth 1 -type f -name 'unseal_key_*' -exec sh -c 'cat "$1" && printf "\n"' sh {} \;)
 	else
-		warn "Root token was not saved. Giving the user 2 mintues to unseal vault via the UI"
+		warn "Unseal keys were not saved. Giving the user 2 mintues to unseal vault via the UI"
 		i=0
 		while vault status -format=json | jq --exit-status .sealed 1>/dev/null; do
 			debug "Vault is still sealed ($i seconds passed)"
@@ -352,13 +351,20 @@ get_or_recover_vault_secrets () {
 		done
 	fi
 
-	if [ "$SAVE_UNSEAL_KEYS" = "1" ]; then
-		unseal_keys=$(find /vault/secret/ -mindepth 1 -type f -name 'unseal_key_*' -exec sh -c 'cat "$1" && printf "\n"' sh {} \;)
+	if [ "$SAVE_ROOT_TOKEN" = "1" ]; then
+		VAULT_TOKEN=$(cat /vault/secret/root_token)
+		export VAULT_TOKEN
 	else
-		if vault status -format=json | jq --exit-status .sealed 1>/dev/null; then
-			die "Unseal keys were not saved and vault is sealed. No way to recover the data"
+		warn "Root token was not saved. Giving the user 2 minutes to provide it via TCP"
+		warn "at 0.0.0.0:${VAULT_ROOT_TOKEN_EXCHANGE_PORT} (trailing newline required, only first line is considered)"
+		warn "Waiting for reply..."
+		VAULT_TOKEN=$(timeout "${VAULT_MANUAL_UNSEAL_TIMEOUT}" nc -lnvp "${VAULT_ROOT_TOKEN_EXCHANGE_PORT}" | head -n 1) || true
+		export VAULT_TOKEN
+
+		if vault token lookup -format=json | jq --exit-status '.data.policies | index("root")' 1>/dev/null; then
+			info "User provided a valid root token, proceeding"
 		else
-			info "Unseal keys were not saved but vault was unsealed, so all good"
+			die "User provided token \033\133;93m%s\033\133m is not valid/not a root token" "$VAULT_TOKEN"
 		fi
 	fi
 }
