@@ -231,7 +231,7 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
                 text: CONST.TEXT.LEAVE,
                 tw: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl transition disabled:opacity-50",
                 click: () => {
-                    const dest = mode === "tournament" ? "tournament" : CONST.ROUTE.HOME;
+                    const dest = mode === "tournament" ? CONST.ROUTE.TOURNAMENT : CONST.ROUTE.HOME;
                     endGame();
                     closeModal();
                     navigateTo(dest, true);

@@ -1,3 +1,4 @@
+import type { Route } from "./constants";
 import { authStore } from "../modules/auth/auth.store";
 import { gameStore } from "../modules/game/game.store";
 import { hidePageElements, showPageElements, showRouter } from "../modules/layout/layout.service";
@@ -12,40 +13,34 @@ import { createStatsPage } from "../ui/pages/StatsPage";
 import { createTournamentPage } from "../ui/pages/TournamentPage";
 import { dispatchEventDown, replaceChildren } from "../utils/dom-helper";
 
+const { DEFAULT, LANDING, PLAY, QUICKPLAY, PROFILE, LEADERBOARD, TOURNAMENT, LOBBY, LOGIN, STATS } =
+    CONST.ROUTE;
+
 const ROUTES = {
-    landing: createLandingPage,
-    play: createSetupPage,
-    quickplay: createSetupPage,
-    profile: createProfilePage,
-    leaderboard: createLeaderboardPage,
-    tournament: createTournamentPage,
-    lobby: createLobbyPage,
-    login: createLoginPage,
-    stats: createStatsPage,
+    [LANDING]: createLandingPage,
+    [PLAY]: createSetupPage,
+    [QUICKPLAY]: createSetupPage,
+    [PROFILE]: createProfilePage,
+    [LEADERBOARD]: createLeaderboardPage,
+    [TOURNAMENT]: createTournamentPage,
+    [LOBBY]: createLobbyPage,
+    [LOGIN]: createLoginPage,
+    [STATS]: createStatsPage,
 } satisfies Record<string, PageRenderer>;
 
-export type Route = keyof typeof ROUTES;
-
 // Protected routes, i.e. only available after logging in
-const PROTECTED_ROUTES: Route[] = [
-    "play",
-    "profile",
-    "leaderboard",
-    "tournament",
-    "lobby",
-    "stats",
-];
+const PROTECTED_ROUTES: Route[] = [PLAY, PROFILE, LEADERBOARD, TOURNAMENT, LOBBY, STATS];
 
 // Routes that will have router container take up the whole screen, i.e. no header or footer
-const FULL_WINDOW_ROUTES: Route[] = ["landing", "login", "quickplay"];
+const FULL_WINDOW_ROUTES: Route[] = [LANDING, LOGIN, QUICKPLAY];
 
 const renderRoute = async (dest: string) => {
     // Go to default page upon invalid route
-    let route = (dest in ROUTES ? dest : CONST.ROUTE.DEFAULT) as Route;
+    let route = (dest in ROUTES ? dest : DEFAULT) as Route;
 
     // Check auth state for protected routes and go to default page if not logged in
     if (PROTECTED_ROUTES.includes(route) && !authStore.get().isAuthenticated) {
-        route = CONST.ROUTE.DEFAULT;
+        route = DEFAULT;
     }
 
     // Create the appropriate page as an array of HTMLElement

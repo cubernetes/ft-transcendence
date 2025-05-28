@@ -126,7 +126,7 @@ export const restartTournamentButton = (): HTMLButtonElement => {
         tw: `${CONST.FONT.BODY_XS} bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl transition`,
         click: () => {
             controller!.resetTournament(); // Safe due to the disabled check below
-            navigateTo("play");
+            navigateTo(CONST.ROUTE.PLAY);
         },
     });
 

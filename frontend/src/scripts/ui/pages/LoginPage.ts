@@ -102,7 +102,7 @@ export const createLoginPage = async (): Promise<UIComponent> => {
     const quickplayBtn = createButton({
         text: CONST.TEXT.QUICKPLAY,
         tw: `${CONST.FONT.BODY_XS} w-full px-4 py-2 bg-blue-500 text-white mt-4 rounded`,
-        click: () => navigateTo("quickplay"),
+        click: () => navigateTo(CONST.ROUTE.QUICKPLAY),
     });
 
     const langBtn = createLanguageButton("absolute top-6 right-0 z-50");

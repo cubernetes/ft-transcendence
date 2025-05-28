@@ -105,7 +105,7 @@ export const createLobbyPage = (): UIComponent => {
 
     const leaveBtnCb = () => {
         sendApiRequest.post(CONST.API.LEAVE);
-        navigateTo("play");
+        navigateTo(CONST.ROUTE.PLAY);
     };
 
     const { UPDATE, START, LEAVE } = CONST.TEXT;

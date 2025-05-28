@@ -1,4 +1,3 @@
-import type { Route } from "./router";
 import { TEXT } from "../modules/locale/locale.translation";
 
 // Directories
@@ -12,7 +11,7 @@ const DIR = {
     IMAGES: `${ASSETS_DIR}/images`,
     TEXTURE: `${ASSETS_DIR}/textures`,
     TILE: `${ASSETS_DIR}/textures/tiles`,
-};
+} as const;
 
 // API endpoints
 const BACKEND_API_URL = "/api";
@@ -42,13 +41,24 @@ const API = {
     USER: `${BACKEND_API_URL}/user`,
     TOTP: `${BACKEND_API_URL}/totp`,
     LOBBY: `${BACKEND_API_URL}/lobby`,
-};
+} as const;
 
 // Routes
 const ROUTE = {
-    HOME: "play" as Route, // Temporarily, should probably be profile?
-    DEFAULT: "landing" as Route, // For invalid route, de facto 404
-};
+    HOME: "play", // Temporarily, should probably be profile?
+    DEFAULT: "landing", // For invalid route, de facto 404
+    LANDING: "landing",
+    PLAY: "play",
+    QUICKPLAY: "quickplay",
+    PROFILE: "profile",
+    LEADERBOARD: "leaderboard",
+    TOURNAMENT: "tournament",
+    LOBBY: "lobby",
+    LOGIN: "login",
+    STATS: "stats",
+} as const;
+
+export type Route = (typeof ROUTE)[keyof typeof ROUTE];
 
 // Storage keys
 const KEY = {
@@ -56,12 +66,12 @@ const KEY = {
     BGM: "bgm",
     SFX: "sfx",
     SHADOWS: "shadows",
-};
+} as const;
 
 // Class for HTML elements
 const CLASS = {
     ACTIVE_BTN: "active-btn", // Class name for active (selected) button in the group
-};
+} as const;
 
 // IDs for HTML elements
 const ID = {
@@ -82,7 +92,7 @@ const ID = {
     CANVAS: "rendering-canvas",
     ROUTER: "router-ctn",
     FOOTER: "footer-ctn",
-};
+} as const;
 
 // Names for renderer objects
 const NAME = {
@@ -97,7 +107,7 @@ const NAME = {
     // Material
     MAT_BALL: "ball-material",
     MAT_TRAIL: "trail-material",
-};
+} as const;
 
 // Attribute keys for HTML elements
 const ATTR = {
@@ -106,7 +116,7 @@ const ATTR = {
     I18N_ALT: "data-i18n-attr-alt", // Key in props indicating alt prop needs translation (Image)
     I18N_VARS: "data-i18n-vars", // For dynamic translate variables
     PLAYER_STATUS: "data-player-status",
-};
+} as const;
 
 // TODO: Move to game controller? Make them customizable?
 // Controls
@@ -125,11 +135,7 @@ const CTRL = {
     LEFT: [...L_UP, ...L_DOWN], // Left player keys
     RIGHT: [...R_UP, ...R_DOWN], // Right player keys
     ALL: [...L_UP, ...L_DOWN, ...R_UP, ...R_DOWN], // All paddle control keys
-};
-
-// Contract address for the GameHistory contract deployed on Holesky testnet
-const FUJI_ADDRESS = "66532bC8c0A4996Ae1BeB5e9b68A55f3014B28a2";
-const HOLESKY_ADDRESS = "feefE87429c5dAC98009D663f62F05499bDAD2AD";
+} as const;
 
 // Color palette constants in Tailwind classes
 const STYLES = {
@@ -142,6 +148,11 @@ const FONT = {
     BODY_XS: "text-xs", // Sub tex Paragraphs
     BODY_XXS: "text-[10px]", //Smallest body text
 };
+// Contract address for the GameHistory contract deployed on Holesky testnet
+const ADDRESS = {
+    FUJI: "66532bC8c0A4996Ae1BeB5e9b68A55f3014B28a2",
+    HOLESKY: "feefE87429c5dAC98009D663f62F05499bDAD2AD",
+} as const;
 
 /** Constants will be attached globally, can be accessed via `CONST` */
 export const CONSTANTS = {
@@ -155,8 +166,7 @@ export const CONSTANTS = {
     ATTR,
     CTRL,
     TEXT,
-    FUJI_ADDRESS,
-    HOLESKY_ADDRESS,
+    ADDRESS,
     STYLES,
     FONT,
 };

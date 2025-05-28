@@ -18,7 +18,7 @@ export const readLocalContract = async (
 ): Promise<Result<any, Error>> => {
     try {
         const data = await publicClient.readContract({
-            address: `0x${CONST.FUJI_ADDRESS}`,
+            address: `0x${CONST.ADDRESS.FUJI}`,
             abi: CONTRACT_ABI,
             functionName,
             args,
@@ -51,7 +51,7 @@ export const writeLocalContract = async (
         }));
 
         const { request } = await publicClient.simulateContract({
-            address: `0x${CONST.FUJI_ADDRESS}`,
+            address: `0x${CONST.ADDRESS.FUJI}`,
             abi: CONTRACT_ABI,
             functionName,
             args: [gameId, gameResults],

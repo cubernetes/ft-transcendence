@@ -5,11 +5,10 @@ import { createGameController } from "../../modules/game/game.controller";
 import { createRenderer } from "../../modules/game/game.renderer";
 import { gameStore } from "../../modules/game/game.store";
 import { layoutStore } from "../../modules/layout/layout.store";
-import { createEl, replaceChildren } from "../../utils/dom-helper";
+import { createEl } from "../../utils/dom-helper";
 import { createButton } from "../components/Button";
 import { createContainer } from "../components/Container";
 import { createErrorModal } from "../layout/ErrorModal";
-import { createLanguageButton } from "../layout/LanguageButton";
 
 export const createLandingPage: PageRenderer = async (): Promise<UIComponent> => {
     // Create video element

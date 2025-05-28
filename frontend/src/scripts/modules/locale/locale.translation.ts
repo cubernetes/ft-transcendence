@@ -5,9 +5,6 @@ import {
 } from "@darrenkuro/pong-core";
 import { LanguageOpts } from "./locale.store";
 
-// TODO: Check if everything here should all be lower case and let component or translate to handle capitalization for different needs
-// Problem is that I am not sure if other languages have weird capitalization rules
-// All caps as code to not accidentally set up something as translatable
 export const TEXT_MAP = {
     // Header
     FT_TRANSCENDENCE: {
@@ -16,10 +13,7 @@ export const TEXT_MAP = {
         fr: "qd-transcendance",
         es: "cd-transcendencia",
     },
-    // Not sure if this makes sense to translate title
-    // especially when I am thinking in the context or potentially adding non-alphabetic languages such as Chinese or Japanese
     PLAY: { en: "Play", de: "Spielen", fr: "Jouer", es: "Jugar" },
-    HOME: { en: "Home", de: "Startseite", fr: "Accueil", es: "Inicio" },
     LEADERBOARD: { en: "Leaderboard", de: "Bestenliste", fr: "Classement", es: "Clasificación" },
     PROFILE: { en: "Profile", de: "Profil", fr: "Profil", es: "Perfil" },
     STATS: { en: "Stats", de: "Statistiken", fr: "Profil", es: "Perfil" }, // TRANSLATION_NEEDED
@@ -43,6 +37,12 @@ export const TEXT_MAP = {
         de: "Upload", // TRANSLATION_NEEDED
         fr: "Upload", // TRANSLATION_NEEDED
         es: "Upload", // TRANSLATION_NEEDED
+    },
+    SUCCESS: {
+        en: "Success",
+        de: "Success-de", // TRANSLATION_NEEDED
+        fr: "Success-fr", // TRANSLATION_NEEDED
+        es: "Success-es", // TRANSLATION_NEEDED
     },
 
     // User
@@ -206,9 +206,9 @@ export const TEXT_MAP = {
     },
     NUMBER_OF_PLAYERS: {
         en: "Number of players",
-        de: "Spieleranzahl", // TODO: Check if still correct
-        fr: "Nombre de joueurs", // TODO: Check if still correct
-        es: "Número de jugadores", // TODO: Check if stil correct
+        de: "Spieleranzahl", // TRANSLATION_NEEDED (check)
+        fr: "Nombre de joueurs", // TRANSLATION_NEEDED (check)
+        es: "Número de jugadores", // TRANSLATION_NEEDED (check)
     },
     COMPLETED: {
         en: "Completed",
