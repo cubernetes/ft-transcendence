@@ -7,7 +7,7 @@ export const isValidKey = (x: unknown): x is I18nKey => {
 
 export const setLanguage = (lang: LanguageOpts) => {
     localStorage.setItem(CONST.KEY.LANG, lang);
-    localeStore.update({ lang });
+    localeStore.update({ locale: new Intl.Locale(lang), lang });
 };
 
 export const getText = (key: I18nKey, vars?: Record<string, string | number>): string => {
