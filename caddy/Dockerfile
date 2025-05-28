@@ -31,17 +31,7 @@ EXPOSE 8443
 
 VOLUME ["/frontend/.local/share/caddy/", "/frontend/dist/", "/frontend/uploads/"]
 
-# Environment wrapper stuff for vault
-RUN apk add --no-cache jq curl bash
-
-COPY --from=ft-transcendence-util-image --chmod=555 /execsudo /execsudo
-
-COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 COPY --chmod=555 ./healthcheck.sh /healthcheck.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
-
-ENV WATCH=0
 
 HEALTHCHECK --interval=10s --timeout=2s --retries=3 --start-period=30s --start-interval=1s CMD ["/healthcheck.sh"]
 

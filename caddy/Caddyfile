@@ -18,6 +18,13 @@
 	}
 }
 
+(proxy_vault) {
+	reverse_proxy vault:{$VAULT_API_PORT} {
+		header_up Host              {host}
+		header_up X-Real-IP         {remote_host}
+	}
+}
+
 # Setting HTTP_DOMAINS? to null (empty string) will NOT trigger default replacement!
 # Unset the the variable instead if you want the default value.
 # https://caddyserver.com/docs/caddyfile/concepts#environment-variables
@@ -39,12 +46,29 @@
 		import waf
 		reverse_proxy backend:{$BACKEND_PORT}
 	}
-	handle_path /kibana/* {
+	handle_path /kibana* {
 		reverse_proxy kibana:{$KIBANA_PORT}
 	}
 	handle /ws { # websocket route must not use coraza WAF, otherwise it breaks
 		reverse_proxy backend:{$BACKEND_PORT}
 	}
+
+    handle_path /vault* {
+		import waf
+		import proxy_vault
+    }
+
+    handle_path /ui/* {
+		import waf
+        rewrite * /ui{path}
+		import proxy_vault
+    }
+
+    handle_path /v1/* {
+        rewrite * /v1{path}
+		import proxy_vault
+    }
+
 }
 
 # Proper healthcheck

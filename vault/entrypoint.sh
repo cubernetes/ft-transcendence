@@ -341,14 +341,32 @@ get_or_recover_vault_secrets () {
 	if [ "$SAVE_UNSEAL_KEYS" = "1" ]; then
 		unseal_keys=$(find /vault/secret/ -mindepth 1 -type f -name 'unseal_key_*' -exec sh -c 'cat "$1" && printf "\n"' sh {} \;)
 	else
-		die "Unseal keys were not saved and there's no functionality to supply it, cannot continue"
+		warn "Unseal keys were not saved. Giving the user 2 minutes to unseal vault via the UI"
+		i=0
+		while vault status -format=json | jq --exit-status .sealed 1>/dev/null; do
+			debug "Vault is still sealed ($i seconds passed)"
+			sleep 2
+			i=$((i + 2))
+			[ "$i" -le "${VAULT_MANUAL_UNSEAL_TIMEOUT}" ] || die "User didn't unseal vault in time ($VAULT_MANUAL_UNSEAL_TIMEOUT seconds)"
+		done
 	fi
 
 	if [ "$SAVE_ROOT_TOKEN" = "1" ]; then
 		VAULT_TOKEN=$(cat /vault/secret/root_token)
 		export VAULT_TOKEN
 	else
-		die "Root token was not saved and there's no functionality to supply it, cannot continue"
+		warn "Root token was not saved. Giving the user 2 minutes to provide it via TCP"
+		warn "at 0.0.0.0:${VAULT_ROOT_TOKEN_EXCHANGE_PORT} (trailing newline required, only first line is considered)"
+		warn "%s" 'Hint: With netcat-openbsd, you may do something along the lines of `printf '\''%s\n'\'' "$VAULT_ROOT_TOKEN" | nc -N localhost '"${VAULT_ROOT_TOKEN_EXCHANGE_PORT}"'`'
+		warn "Waiting for reply..."
+		VAULT_TOKEN=$(timeout "${VAULT_MANUAL_UNSEAL_TIMEOUT}" nc -q0 -lnvp "${VAULT_ROOT_TOKEN_EXCHANGE_PORT}" | head -n 1) || true
+		export VAULT_TOKEN
+
+		if vault token lookup -format=json | jq --exit-status '.data.policies | index("root")' 1>/dev/null; then
+			info "User provided a valid root token, proceeding"
+		else
+			die "User provided token \033\133;93m%s\033\133m is not valid/not a root token" "$VAULT_TOKEN"
+		fi
 	fi
 }
 

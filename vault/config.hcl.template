@@ -5,6 +5,7 @@ storage "file" {
   path = "/vault/file/"
 }
 
+ui = true
 listener "tcp" {
   address = "0.0.0.0:${VAULT_API_PORT}"
   tls_disable = true

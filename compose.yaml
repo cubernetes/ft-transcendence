@@ -22,19 +22,12 @@ services:
             - WATCH
             - VAULT_API_PORT
             - KIBANA_PORT
+            - BACKEND_PORT
             - DOMAINS
             - HTTP_DOMAINS
             - HTTPS_DOMAINS
             - CADDY_EXTRA_GLOBAL_DIRECTIVES
             - CADDY_EXTRA_SITE_DIRECTIVES
-        depends_on:
-            frontend:
-                condition: service_started
-            backend:
-                condition: service_started
-            vault:
-                restart: false # cannot restart because of expiring vault token
-                condition: service_healthy
         develop:
             watch:
                 - path: "./caddy/Caddyfile"
@@ -196,7 +189,9 @@ services:
             args:
                 VAULT_API_PORT: "${VAULT_API_PORT:-8200}"
         container_name: vault
-        restart: unless-stopped
+        restart: no # doesn't make sense to restart vault
+        ports:
+            - "${VAULT_ROOT_TOKEN_EXCHANGE_PORT:-1337}:${VAULT_ROOT_TOKEN_EXCHANGE_PORT:-1337}"
         networks:
             ft-transcendence-net:
                 ipv4_address: &vault_ip 10.42.42.42
@@ -228,6 +223,8 @@ services:
             - LOG_LEVEL
             - SAVE_UNSEAL_KEYS
             - SAVE_ROOT_TOKEN
+            - VAULT_MANUAL_UNSEAL_TIMEOUT
+            - VAULT_ROOT_TOKEN_EXCHANGE_PORT
         tty: true
         develop:
             watch:
