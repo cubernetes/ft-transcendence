@@ -1,7 +1,9 @@
 {
+    "name": "cli-transcendence",
+    "version": "1.0.5",
     "type": "module",
     "scripts": {
-        "start": "node --no-warnings --import tsx src/index.ts"
+        "start": "node --no-warnings --import tsx src/main.ts"
     },
     "devDependencies": {
         "@types/figlet": "^1.7.0",
@@ -12,6 +14,7 @@
         "typescript": "^5.8.2"
     },
     "dependencies": {
+        "@darrenkuro/pong-core": "^1.2.32",
         "@types/play-sound": "^1.1.2",
         "chalk": "^5.4.1",
         "figlet": "^1.8.0",
