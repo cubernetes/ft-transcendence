@@ -1,11 +1,6 @@
 ---
 name: ft-transcendence
 
-# https://github.com/docker/compose/pull/5140
-x-env-common: &env-common
-    WATCH: "${WATCH:-0}"
-    VAULT_API_PORT: "${VAULT_API_PORT:-8200}"
-
 services:
     caddy:
         build: "./caddy/"
@@ -24,12 +19,13 @@ services:
             - "frontend:/frontend/dist/:ro"
             - "user-upload:/frontend/uploads/:ro"
         environment:
-            <<: *env-common
-            DOMAINS: "${DOMAINS:-localhost}"
-            HTTP_DOMAINS: "${HTTP_DOMAINS:-http://localhost}"
-            HTTPS_DOMAINS: "${HTTPS_DOMAINS:-https://localhost}"
-            CADDY_EXTRA_GLOBAL_DIRECTIVES: "${CADDY_EXTRA_GLOBAL_DIRECTIVES:-}"
-            CADDY_EXTRA_SITE_DIRECTIVES: "${CADDY_EXTRA_SITE_DIRECTIVES:-}"
+            - WATCH
+            - VAULT_API_PORT
+            - DOMAINS
+            - HTTP_DOMAINS
+            - HTTPS_DOMAINS
+            - CADDY_EXTRA_GLOBAL_DIRECTIVES
+            - CADDY_EXTRA_SITE_DIRECTIVES
         depends_on:
             frontend:
                 condition: service_started
@@ -53,7 +49,9 @@ services:
         networks:
             ft-transcendence-net:
                 ipv4_address: &frontend-ip 10.42.42.6
-        environment: *env-common
+        environment:
+            - WATCH
+            - VAULT_API_PORT
         volumes:
             - "frontend:/frontend/dist/"
             - "./.secrets/frontend_vault_token:/run/secrets/frontend_vault_token"
@@ -86,9 +84,10 @@ services:
             ft-transcendence-net:
                 ipv4_address: &backend-ip 10.42.42.2
         environment:
-            <<: *env-common
-            DOMAINS: "${DOMAINS:-localhost}"
-            BACKEND_PORT: "${BACKEND_PORT:-3000}"
+            - WATCH
+            - VAULT_API_PORT
+            - DOMAINS
+            - BACKEND_PORT
         volumes:
             - "drizzle:/backend/drizzle/"
             - "user-upload:/backend/uploads/"
@@ -127,7 +126,9 @@ services:
             - "elasticsearch-certs:/usr/share/elasticsearch/config/certs/"
             - "./.secrets/elasticsearch_vault_token:/run/secrets/elasticsearch_vault_token"
         user: root # Run as root to ensure we can set permissions
-        environment: *env-common
+        environment:
+            - WATCH
+            - VAULT_API_PORT
         networks:
             ft-transcendence-net:
                 ipv4_address: &elasticsearch-ip 10.42.42.3
@@ -147,7 +148,10 @@ services:
             - "logstash-data:/usr/share/logstash/data/"
             - "elasticsearch-certs:/etc/logstash/config/certs/:ro"
             - "./.secrets/logstash_vault_token:/run/secrets/logstash_vault_token"
-        environment: *env-common
+        environment:
+            - WATCH
+            - VAULT_API_PORT
+            - LOGSTASH_API_PORT
         networks:
             ft-transcendence-net:
                 ipv4_address: &logstash-ip 10.42.42.4
@@ -173,7 +177,10 @@ services:
         networks:
             ft-transcendence-net:
                 ipv4_address: &kibana-ip 10.42.42.5
-        environment: *env-common
+        environment:
+            - WATCH
+            - VAULT_API_PORT
+            - KIBANA_PORT
         depends_on:
             util-image:
                 condition: service_started
@@ -217,10 +224,11 @@ services:
 
             - "./env.json:/vault/config/env.json:ro"
         environment:
-            <<: *env-common
-            LOG_LEVEL: "${VAULT_LOG_LEVEL:-info}"
-            SAVE_UNSEAL_KEYS: "${SAVE_UNSEAL_KEYS:-0}"
-            SAVE_ROOT_TOKEN: "${SAVE_ROOT_TOKEN:-0}"
+            - WATCH
+            - VAULT_API_PORT
+            - LOG_LEVEL
+            - SAVE_UNSEAL_KEYS
+            - SAVE_ROOT_TOKEN
         tty: true
         develop:
             watch:

@@ -1,15 +1,15 @@
-### Customization Point 1 ###
 FROM docker.elastic.co/elasticsearch/elasticsearch:8.17.3
 USER 0
 
 COPY --from=ft-transcendence-util-image --chmod=755 /curl /usr/bin/curl
+COPY --from=ft-transcendence-util-image --chmod=555 /execsudo /execsudo
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt update -y && \
 	apt install -y jq psmisc
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
-COPY --from=ft-transcendence-util-image --chmod=555 /execsudo /execsudo
+COPY --chmod=555 ./healthcheck.sh /healthcheck.sh
 
 COPY --chmod=555 ./config/generate-certs.sh /usr/share/elasticsearch/config/generate-certs.sh
 COPY --chmod=555 ./config/startup.sh        /usr/share/elasticsearch/config/startup.sh
@@ -28,12 +28,6 @@ VOLUME ["/usr/share/elasticsearch/data/", "/usr/share/elasticsearch/config/certs
 
 CMD ["/usr/share/elasticsearch/config/startup.sh"]
 
-# No need to set WORKDIR, will be inherited from base image
-# No need to set CMD, will be inherited from base image
-# No need to set any ENV, will be inherited from base image
-# No need to set USER, will be inherited from base image
-
-# Healthcheck defined in ${REPO_ROOT}/elk/elasticsearch/config/startup.sh
 HEALTHCHECK --interval=30s --timeout=10s --retries=5 --start-period=60s --start-interval=1s CMD ["grep", "-Fxq", "0", "/tmp/healthcheck"]
 
 ENTRYPOINT ["/entrypoint.sh"]

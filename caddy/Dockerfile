@@ -15,10 +15,10 @@ RUN adduser -h /frontend/ -S caddy -G caddy
 FROM alpine:3.21.3
 USER 0
 
-COPY --from=builder      /usr/bin/caddy /usr/bin/caddy
-COPY --from=builder      /etc/passwd /etc/passwd
-COPY --from=builder      /etc/group /etc/group
-COPY --chown=caddy:caddy ./Caddyfile /etc/caddy/Caddyfile
+COPY --from=builder --chmod=555 /usr/bin/caddy /usr/bin/caddy
+COPY --from=builder             /etc/passwd /etc/passwd
+COPY --from=builder             /etc/group /etc/group
+COPY --chown=caddy:caddy        ./Caddyfile /etc/caddy/Caddyfile
 
 RUN rm -rf /frontend/ && mkdir -p /frontend/.local/share/caddy/
 

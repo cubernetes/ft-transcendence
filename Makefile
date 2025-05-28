@@ -38,7 +38,7 @@ dev-old-compose: clean-frontend-volume ensure-secret-files
 	@$(call dev-env,watch --no-up)
 
 .PHONY: dev
-dev: clean-frontend-volume ensure-secret-files
+dev: clean-frontend-volume ensure-secret-files build-util-image
 	@$(call dev-env,     \
 		up               \
 		--remove-orphans \

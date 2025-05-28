@@ -5,6 +5,7 @@ WORKDIR /backend/
 RUN apk add --no-cache curl
 
 COPY ./package*.json ./
+COPY --chmod=555 ./healthcheck.sh /healthcheck.sh
 
 RUN npm clean-install
 
@@ -14,4 +15,4 @@ ENV WATCH=0
 
 CMD ["sh", "-c", "if [ \"$WATCH\" = \"0\" ]; then npm run build && npm start; else npm run start:dev; fi"]
 
-HEALTHCHECK --interval=10s --timeout=2s --start-period=75s --start-interval=1s --retries=3 CMD ["sh", "-c", "curl --fail \"http://localhost:${BACKEND_PORT}/healthcheck\""]
+HEALTHCHECK --interval=10s --timeout=2s --start-period=75s --start-interval=1s --retries=3 CMD ["/healthcheck.sh"]

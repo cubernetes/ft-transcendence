@@ -217,7 +217,7 @@ Let's say your service is called `foo`, then the steps would be the following:
     # weird environment variables
     RUN apk/apt add/install curl/wget jq bash
 
-    COPY --chmod=755 <<EOF /entrypoint.sh
+    COPY --chmod=555 <<EOF /entrypoint.sh
     #!/bin/bash
     #Must be bash since sh (specifically dash) sanitizes all environment variables which are not
     #valid identifiers (e.g. the case for "bootstrap.memory_lock=true" in elk). Bash passes them through, which

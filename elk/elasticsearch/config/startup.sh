@@ -17,16 +17,7 @@ whitelisted_env=${whitelisted_env#,}
 # the run_as_elastic function, see below.
 export PATH="/usr/share/elasticsearch/bin${PATH:+:$PATH}"
 
-# Healthcheck background service (because only this process has access to the environment
-# and an external healthcheck would need access to those, which is not intended)
-TERM=linux setsid -f watch -xtcn5 curl \
-		--no-progress-meter \
-		--insecure \
-		--user "${ELASTIC_USER}:${ELASTIC_PASSWORD}" \
-		--fail \
-		--write-out '%output{/tmp/healthcheck}%{exitcode}' \
-		"https://localhost:${ELASTICSEARCH_PORT}/_cluster/health" 1>/dev/null 2>&1
-
+/healthcheck.sh
 
 run_as_elastic () {
 	# Apparently, su resets PATH no matter if you specify --preserve-environment and or --login or not.
