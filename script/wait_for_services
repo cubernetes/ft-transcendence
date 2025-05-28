@@ -14,6 +14,19 @@ wait_for_service () {
 	echo
 }
 
+wait_for_kibana_dashboards () {
+	# Quits after first match
+	echo "Waiting for kibana to say that dashboards are imported (might take a minute)..."
+	tmpfile=$(mktemp -u)
+	mkfifo -- "$tmpfile"
+	docker compose logs -f kibana > "$tmpfile" &
+	sleep .5
+	<"$tmpfile" grep -Fqm1 'Dashboard import completed. Check Kibana UI to verify.'
+	kill $!
+	kill -9 $!
+	rm -f -- "$tmpfile"
+}
+
 start=$(date +%s)
 
 wait_for_service vault
@@ -21,9 +34,7 @@ wait_for_service elasticsearch
 wait_for_service logstash
 wait_for_service kibana
 wait_for_service backend
-
-echo "Waiting 15 more seconds because kibana healthcheck is currently not working quite right"
-sleep 15
+wait_for_kibana_dashboards
 
 HTTP_PORT=$(docker port caddy | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
 KIBANA_PORT=$(docker port kibana | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}')
