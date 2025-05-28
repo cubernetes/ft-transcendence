@@ -341,7 +341,7 @@ get_or_recover_vault_secrets () {
 	if [ "$SAVE_UNSEAL_KEYS" = "1" ]; then
 		unseal_keys=$(find /vault/secret/ -mindepth 1 -type f -name 'unseal_key_*' -exec sh -c 'cat "$1" && printf "\n"' sh {} \;)
 	else
-		warn "Unseal keys were not saved. Giving the user 2 mintues to unseal vault via the UI"
+		warn "Unseal keys were not saved. Giving the user 2 minutes to unseal vault via the UI"
 		i=0
 		while vault status -format=json | jq --exit-status .sealed 1>/dev/null; do
 			debug "Vault is still sealed ($i seconds passed)"
