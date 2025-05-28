@@ -15,7 +15,7 @@ type AuthMode = "login" | "register";
 export const createLoginPage = async (): Promise<UIComponent> => {
     let mode: AuthMode = "login"; // Default to login
 
-    const wrapper = createEl("div", "relative w-1/2 mx-auto p-6 rounded-lg", {
+    const wrapper = createEl("div", "relative mx-auto p-6 rounded-lg", {
         attributes: { id: CONST.ID.LOGIN_FORM },
     });
 

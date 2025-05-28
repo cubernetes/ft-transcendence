@@ -11,7 +11,7 @@ export const createProfilePage = async (): Promise<UIComponent> => {
     if (playerData.isErr()) return []; // TODO: add fetch error component
 
     const profileSection = createProfilePanel(playerData.value);
-    const main = createEl("main", `container mx-auto p-4 ${CONST.STYLES.CONTAINER}`, {
+    const main = createEl("main", `flex p-4 ${CONST.STYLES.CONTAINER}`, {
         children: [...profileSection],
     });
 

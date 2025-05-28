@@ -11,7 +11,7 @@ export const appendUserStatus = (container: HTMLElement, username: string) => {
     // User display name
     const usernameEl = createEl("span", `text-gray-700 ${CONST.FONT.BODY_XS}`, { text: username });
 
-    const langBtn = createLanguageButton("static");
+    const langBtn = createLanguageButton("mb-2 static");
 
     // Logout button
     const logoutBtn = createButton({

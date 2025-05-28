@@ -119,20 +119,20 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
 
     // Create left container to include infos and settings
     const leftCtn = createContainer({
-        tw: "w-3/5 flex-col",
+        tw: "flex-[3] flex-col",
         children: [titleEl, settingCtn],
     });
 
     // Create right container to include avartar
     const rightCtn = createContainer({
-        tw: "w-2/5 flex justify-center",
+        tw: "flex-[2] flex justify-center",
         children: [avatarEl],
     });
 
     // Create the root container for profile panel
     const container = createContainer({
         tag: "section",
-        tw: "flex bg-white rounded-lg shadow-md justify-evenly",
+        tw: "flex w-full bg-white rounded-lg shadow-md justify-evenly gap-x-4 flex-wrap",
         children: [leftCtn, rightCtn],
     });
 

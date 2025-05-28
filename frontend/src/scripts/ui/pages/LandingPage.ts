@@ -61,13 +61,10 @@ export const createLandingPage: PageRenderer = async (): Promise<UIComponent> =>
         children: [ctaButtonEl],
     });
 
-    // Create Language button
-    const langBtn = createLanguageButton();
-
     const mainCtn = createContainer({
         tag: "main",
         tw: "w-full h-screen relative",
-        children: [videoEl, overlayEl, heroCtn, langBtn],
+        children: [videoEl, overlayEl, heroCtn],
     });
 
     return [mainCtn];

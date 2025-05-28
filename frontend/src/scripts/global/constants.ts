@@ -134,7 +134,6 @@ const HOLESKY_ADDRESS = "feefE87429c5dAC98009D663f62F05499bDAD2AD";
 // Color palette constants in Tailwind classes
 const STYLES = {
     CONTAINER: "border-2 border-white rounded-lg bg-black/50",
-    // ERROR: "bg-red-600 text-white", //TODO: Use this for error messages
 };
 
 const FONT = {

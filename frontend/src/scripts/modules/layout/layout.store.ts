@@ -28,7 +28,7 @@ export const initLayoutState = {
     canvas: createEl("canvas", "w-screen h-screen hidden z-20", {
         attributes: { id: CONST.ID.CANVAS },
     }),
-    router: createEl("div", "flex-grow flex items-center justify-center w-full z-20", {
+    router: createEl("div", "flex-grow flex items-center justify-center w-full h-full z-20", {
         attributes: { id: CONST.ID.ROUTER },
     }),
     // Arcade image as an absolutely positioned overlay

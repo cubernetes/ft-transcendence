@@ -11,7 +11,7 @@ export const createStatsPage = async (): Promise<UIComponent> => {
     if (playerData.isErr()) return []; // TODO: add fetch error component
 
     const statsSection = createStatsToggleSection(playerData.value.games);
-    const main = createEl("main", "container mx-auto p-4", {
+    const main = createEl("main", "w-full h-full flex flex-col p-4", {
         children: [...statsSection],
     });
 
