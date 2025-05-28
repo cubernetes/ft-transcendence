@@ -2,30 +2,30 @@
 
 > A pong app with a heap of add-on features
 
-- Live demo: [https://ft-transcendence.app](https://ft-transcendence.app:8443) (type `thisisunsafe` to bypass HSTS warning)
+- Live demo: [https://ft-transcendence.app:8443](https://ft-transcendence.app:8443) (type `thisisunsafe` to bypass HSTS warning, ELK currently disabled)
 
 ## Configure & Run
 
 - Ensure docker, docker compose, and make are working
-- Configure environment settings in env.json
+- Optionally configure environment settings/ports in env.json
 - `make` (without ELK), `make dev-elk` or `make prod`
 
 ## Demo
 
 - [a gif showcasing the main feature (pong)]
-- [a gif showcasing the additional features (chat, accounts, etc.)]
-- [opt: alt text: a gif showcasing the administrative features]
+- [a gif showcasing the additional features (accounts, tournaments, stats, etc.)]
+- [opt: alt text: a gif showcasing the administrative features, ELK, Vault, etc.]
 
 ## Core Features
 
-- Interactive webapp to play 3D pong - Front-End (John) && Back-End (Ben & Darren)
-- Account management (TBD)
-- Join matches via the a CLI client (or maybe [SSH](https://github.com/charmbracelet/wish), let's see) (TBD)
-- Overkill security measures (ModSecurity, HashiCorp Vault, 2FA, JWT) (Timo)
-- AI opponent (TBD)
-- Some accessibility features (TBD)
-- Log management and observability (ELK + Grafana) (Sonia)
-- Game statistics also on Blockchain (John)
+- interactive webapp to play 3D pong - frontend & backend
+- account management
+- join matches via the a CLI client
+- overkill security measures (ModSecurity, HashiCorp Vault, 2FA, JWT)
+- AI opponent
+- log management and observability (ELK)
+- game statistics
+- blockchain persistence (for game statistics)
 
 ## Debugging / Development
 
@@ -54,20 +54,31 @@
     - `curl -vk https://localhost:8443/?exec=/bin/bash` should return `403 Forbidden`
 - Disabling it
     ```diff
+        log
         handle {
     -       import waf
-            root * /srv
+            root * /frontend/dist/
+            try_files {path} /index.html
+            file_server
+        }
+        handle_path /uploads/* {
+    -       import waf
+            root * /frontend/uploads
             file_server
         }
         handle_path /api/* {
     -       import waf
-            reverse_proxy http://backend:{$BACKEND_PORT:3000}
+            reverse_proxy backend:{$BACKEND_PORT}
         }
     ```
 
 ### Makefile
 
-- When running make (dev), arguments can be added to pass on additional flags for docker compose up. For instance `make dev ARGS="--no-attach caddy"` will silence any logs registered by the Caddy container, note that to silence more the flag needs to be repeated, i.e. `make dev ARGS="--no-attach caddy --no-attach backend"`. Similarly, you can also use `ARGS="--attach caddy"` for inclusive logging.
+When running make (dev), arguments can be added to pass on additional flags for
+docker compose up. For instance `make dev ARGS="--no-attach logstash"` will
+silence any logs registered by the Caddy container, note that to silence
+more the flag needs to be repeated, i.e. `make dev ARGS="--no-attach caddy --no-attach logstash"`.
+Similarly, you can also use `ARGS="--attach backend"` for inclusive logging.
 
 ### API endpoint
 
