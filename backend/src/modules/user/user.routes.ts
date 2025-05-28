@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { userSchemas } from "@darrenkuro/pong-core";
+import { userSchema } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
 import { createUserController } from "./user.controller.ts";
 import { routeSchema } from "./user.schema.ts";
@@ -8,8 +8,8 @@ export const userRoutes = async (app: FastifyInstance) => {
     const { register, login, logout, displayname, password, leaderboard, info, me, avatar } =
         createUserController(app);
 
-    const { registerBody, loginBody, displayNameBody, passwordBody } = userSchemas;
-    const { leaderboardParams, infoParams } = userSchemas;
+    const { registerBody, loginBody, displayNameBody, passwordBody } = userSchema;
+    const { leaderboardParams, infoParams } = userSchema;
 
     // Register routes
     app.post(

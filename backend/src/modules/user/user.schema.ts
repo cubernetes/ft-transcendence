@@ -1,13 +1,13 @@
 import { z } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
-import { apiError, apiSuccess, userSchemas } from "@darrenkuro/pong-core";
+import { apiError, apiSuccess, userSchema } from "@darrenkuro/pong-core";
 
 const register = {
     tags: ["User"],
     description: "Register a new user",
-    body: zodToJsonSchema(userSchemas.registerBody),
+    body: zodToJsonSchema(userSchema.registerBody),
     response: {
-        201: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
+        201: zodToJsonSchema(apiSuccess(userSchema.loginPayload)),
         400: zodToJsonSchema(
             z.union([
                 apiError("VALIDATION_ERROR"),
@@ -28,9 +28,9 @@ const register = {
 const login = {
     tags: ["User"],
     description: "Login an user",
-    body: zodToJsonSchema(userSchemas.loginBody),
+    body: zodToJsonSchema(userSchema.loginBody),
     response: {
-        200: zodToJsonSchema(apiSuccess(userSchemas.loginPayload)),
+        200: zodToJsonSchema(apiSuccess(userSchema.loginPayload)),
         400: zodToJsonSchema(
             z.union([
                 apiError("VALIDATION_ERROR"),
@@ -70,6 +70,7 @@ const displayname = {
         ),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
         404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
+        500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
 
@@ -88,6 +89,8 @@ const password = {
             ])
         ),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
+        500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
 
@@ -95,10 +98,11 @@ const info = {
     tags: ["User"],
     description: "Get user info by username",
     response: {
-        200: zodToJsonSchema(apiSuccess(userSchemas.getInfoPayload)),
+        200: zodToJsonSchema(apiSuccess(userSchema.getInfoPayload)),
         400: zodToJsonSchema(
             z.union([apiError("VALIDATION_ERROR"), apiError("USERNAME_REQUIRED")])
         ),
+        404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
@@ -108,8 +112,9 @@ const me = {
     description: "Get current user info",
     security: [{ cookieAuth: [] }],
     response: {
-        200: zodToJsonSchema(apiSuccess(userSchemas.getMePayload)),
+        200: zodToJsonSchema(apiSuccess(userSchema.getMePayload)),
         401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };
@@ -117,9 +122,9 @@ const me = {
 const leaderboard = {
     tags: ["User"],
     description: "Get top n users by wins",
-    params: zodToJsonSchema(userSchemas.leaderboardParams),
+    params: zodToJsonSchema(userSchema.leaderboardParams),
     response: {
-        200: zodToJsonSchema(apiSuccess(userSchemas.leaderboardPayload)),
+        200: zodToJsonSchema(apiSuccess(userSchema.leaderboardPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
@@ -128,9 +133,12 @@ const leaderboard = {
 const avatar = {
     tags: ["User"],
     description: "Upload user avatar",
+    security: [{ cookieAuth: [] }],
     response: {
-        200: zodToJsonSchema(apiSuccess(userSchemas.leaderboardPayload)),
+        200: zodToJsonSchema(apiSuccess(userSchema.avatarPayload)),
         400: zodToJsonSchema(apiError("VALIDATION_ERROR")),
+        401: zodToJsonSchema(apiError("UNAUTHORIZED")),
+        404: zodToJsonSchema(apiError("USER_NOT_FOUND")),
         500: zodToJsonSchema(apiError("SERVER_ERROR")),
     },
 };

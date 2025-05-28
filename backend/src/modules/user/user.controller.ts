@@ -1,13 +1,13 @@
 import type { PublicUser } from "@darrenkuro/pong-core";
 import type { FastifyInstance, RouteHandlerMethod } from "fastify";
-import { userSchemas } from "@darrenkuro/pong-core";
+import { userSchema } from "@darrenkuro/pong-core";
 import { createModuleLogger, createPerformanceLogger } from "../../utils/logger.ts";
 import { ZodHandler } from "../../utils/zod-validate.ts";
 
 export const createUserController = (app: FastifyInstance) => {
     const logger = createModuleLogger(app.log, "user");
 
-    type RegisterCb = ZodHandler<{ body: typeof userSchemas.registerBody }>;
+    type RegisterCb = ZodHandler<{ body: typeof userSchema.registerBody }>;
     const register: RegisterCb = async ({ body }, req, reply) => {
         const perfLogger = createPerformanceLogger(app.log, "user_registration");
         const ip = req.ip;
@@ -69,7 +69,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({ username, displayName }, 201, { token });
     };
 
-    type LoginCb = ZodHandler<{ body: typeof userSchemas.loginBody }>;
+    type LoginCb = ZodHandler<{ body: typeof userSchema.loginBody }>;
     const login: LoginCb = async ({ body }, req, reply) => {
         const perfLogger = createPerformanceLogger(app.log, "user_login");
         const { username, password, totpToken } = body;
@@ -224,7 +224,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type DisplayNameCb = ZodHandler<{ body: typeof userSchemas.displayNameBody }>;
+    type DisplayNameCb = ZodHandler<{ body: typeof userSchema.displayNameBody }>;
     const displayname: DisplayNameCb = async ({ body }, req, reply) => {
         const { displayName } = body;
         const { userId } = req;
@@ -261,7 +261,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type PasswordCb = ZodHandler<{ body: typeof userSchemas.passwordBody }>;
+    type PasswordCb = ZodHandler<{ body: typeof userSchema.passwordBody }>;
     const password: PasswordCb = async ({ body }, req, reply) => {
         logger.info(
             {
@@ -292,7 +292,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type LeaderboardCb = ZodHandler<{ params: typeof userSchemas.leaderboardParams }>;
+    type LeaderboardCb = ZodHandler<{ params: typeof userSchema.leaderboardParams }>;
     const leaderboard: LeaderboardCb = async ({ params }, _, reply) => {
         // Get number of users requested from params
         const { n } = params;
@@ -317,7 +317,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok(data);
     };
 
-    type InfoCb = ZodHandler<{ params: typeof userSchemas.infoParams }>;
+    type InfoCb = ZodHandler<{ params: typeof userSchema.infoParams }>;
     const info: InfoCb = async ({ params }, _, reply) => {
         const { username } = params;
 

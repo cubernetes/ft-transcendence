@@ -3,7 +3,7 @@ import { Result, err, ok } from "neverthrow";
 import bcryptjs from "bcryptjs";
 import QRCode from "qrcode";
 import * as speakeasy from "speakeasy";
-import { type JwtPayload, TotpSetupPayload, userSchemas } from "@darrenkuro/pong-core";
+import { type JwtPayload, TotpSetupPayload, userSchema } from "@darrenkuro/pong-core";
 import { UserRecord } from "../db/db.types.ts";
 
 export const createAuthService = (app: FastifyInstance) => {
@@ -30,7 +30,7 @@ export const createAuthService = (app: FastifyInstance) => {
         try {
             const payload = jwt.verify(token) as JwtPayload;
             // Runtime type check to ensure token is valid and has the correct fields
-            userSchemas.jwtPayload.parse(payload);
+            userSchema.jwtPayload.parse(payload);
             return ok(payload);
         } catch (error) {
             return err("invalid JWT token or payload");

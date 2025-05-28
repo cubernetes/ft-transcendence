@@ -1,4 +1,4 @@
-import type { ErrorCode, totpSchemas } from "@darrenkuro/pong-core";
+import type { ErrorCode, totpSchema } from "@darrenkuro/pong-core";
 import type { FastifyInstance, RouteHandlerMethod } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { UserRecord } from "../../core/db/db.types";
@@ -34,7 +34,7 @@ export const createTotpController = (app: FastifyInstance) => {
         reply.ok({ qrCode, secret });
     };
 
-    type VerifyCb = ZodHandler<{ body: typeof totpSchemas.totpBody }>;
+    type VerifyCb = ZodHandler<{ body: typeof totpSchema.totpBody }>;
     const verify: VerifyCb = async ({ body }, req, reply) => {
         const { userId } = req;
         const { token } = body;
@@ -53,7 +53,7 @@ export const createTotpController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type UpdateCb = ZodHandler<{ body: typeof totpSchemas.totpUpdateBody }>;
+    type UpdateCb = ZodHandler<{ body: typeof totpSchema.totpUpdateBody }>;
     const update: UpdateCb = async ({ body }, req, reply): Promise<void> => {
         const { userId } = req;
         const { token, newToken } = body;
@@ -77,7 +77,7 @@ export const createTotpController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type DisableCb = ZodHandler<{ body: typeof totpSchemas.totpBody }>;
+    type DisableCb = ZodHandler<{ body: typeof totpSchema.totpBody }>;
     const disable: DisableCb = async ({ body }, req, reply) => {
         const { userId } = req;
         const { token } = body;

@@ -19,7 +19,7 @@ const setupPayload = z.strictObject({
     secret: z.string(),
 });
 
-export const totpSchemas = {
+export const totpSchema = {
     totpBody,
     totpUpdateBody,
     setupPayload,
