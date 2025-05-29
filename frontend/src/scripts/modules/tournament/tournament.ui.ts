@@ -1,4 +1,5 @@
 import { Result, err, ok } from "neverthrow";
+import { avalancheFuji, holesky } from "viem/chains";
 import { navigateTo } from "../../global/router";
 import {
     connectWallet,
@@ -19,6 +20,7 @@ export const connectBlockchain = async (visualizer: UIContainer): Promise<HTMLEl
         GET_TOURNAMENT,
         RECORD_TOURNAMENT,
         GET_TOURNAMENT_ERROR,
+        CHAIN_ID_ERROR,
     } = CONST.TEXT;
     const setupResult = await setupWallet();
 
@@ -31,6 +33,13 @@ export const connectBlockchain = async (visualizer: UIContainer): Promise<HTMLEl
 
     const { publicClient, walletClient } = setupResult.value;
     let account: Result<`0x${string}`, Error> = err(new Error("Not connected yet"));
+
+    const chainId = await walletClient.getChainId();
+    if (chainId !== avalancheFuji.id) {
+        return createEl("div", "text-red-500 font-semibold text-center mt-4", {
+            text: CHAIN_ID_ERROR,
+        });
+    }
 
     const connectButton = createButton({
         text: WALLET_CONNECT,
