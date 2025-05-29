@@ -168,7 +168,7 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
     };
 
     const resetBall = () => {
-        ball.pos = { x: 0, y: 0, z: 0 };
+        ball.pos = { x: 0, y: 0.5, z: 0 };
         ball.vec = { x: 0, y: 0, z: 0 };
         setTimeout(randomizeDirection, RESET_DELAY);
     };
