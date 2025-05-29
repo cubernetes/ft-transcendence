@@ -168,12 +168,18 @@ export const createAIPlayer = (
 
         const difference = adjustedTarget - currentZ;
 
-        const threshold =
+        const baseThreshold =
             difficulty === "HARD"
-                ? paddle.speed * 0.1
+                ? paddle.speed * 0.15
                 : difficulty === "MEDIUM"
-                  ? paddle.speed * 0.3
-                  : paddle.speed * 0.8;
+                  ? paddle.speed * 0.4
+                  : paddle.speed * 1;
+
+        // Hysteresis
+        const startThreshold = baseThreshold;
+        const stopThreshold = baseThreshold * 0.5;
+
+        const threshold = currentInput === "stop" ? startThreshold : stopThreshold;
 
         if (difficulty === "EASY" && Math.random() < 0.01) {
             return "stop";
@@ -243,12 +249,17 @@ export const createAIPlayer = (
         const currentZ = gameSnapshot.paddle.pos.z;
         const difference = strategicTarget - currentZ;
 
-        const threshold =
+        const BaseThreshold =
             difficulty === "HARD"
-                ? gameSnapshot.paddle.speed * 0.05
+                ? gameSnapshot.paddle.speed * 0.08
                 : difficulty === "MEDIUM"
-                  ? gameSnapshot.paddle.speed * 0.1
-                  : gameSnapshot.paddle.speed * 0.2;
+                  ? gameSnapshot.paddle.speed * 0.15
+                  : gameSnapshot.paddle.speed * 0.3;
+
+        // Hysteresis
+        const startThreshold = BaseThreshold;
+        const stopThreshold = BaseThreshold * 0.5;
+        const threshold = currentInput === "stop" ? startThreshold : stopThreshold;
 
         let newInput: UserInput = "stop";
         if (Math.abs(difference) > threshold) {
