@@ -80,6 +80,7 @@ services:
         environment:
             - WATCH
             - VAULT_API_PORT
+            - NODE_ENV
             - DOMAINS
             - BACKEND_PORT
         volumes:
@@ -109,7 +110,7 @@ services:
     util-image:
         build: "./util-image/"
         container_name: util-image
-        entrypoint: ["/curl", "--version"]
+        entrypoint: ["/curl", "--stderr", "/curl_stderr_ignore"]
 
     elasticsearch:
         profiles: [elk]
