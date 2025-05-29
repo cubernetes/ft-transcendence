@@ -16,7 +16,7 @@ const defaultBall = {
     pos: { x: 0, y: 0, z: 0 },
     vec: { x: -0.2, y: 0, z: -0.1 },
     r: 0.21,
-    speed: 0.24,
+    speed: 0.3,
 };
 
 const paddleSchema = z.object({
