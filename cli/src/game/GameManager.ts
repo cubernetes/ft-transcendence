@@ -56,6 +56,7 @@ export class GameManager {
     }
 
     start1PLocal(input: Partial<PongConfig>) {
+        this.engine.reset(defaultGameConfig);
         this.engine.reset(input);
         this.configEngine();
 
@@ -77,6 +78,7 @@ export class GameManager {
     }
 
     start2PLocal(input: Partial<PongConfig>) {
+        this.engine.reset(defaultGameConfig);
         this.engine.reset(input);
         this.configEngine();
 
