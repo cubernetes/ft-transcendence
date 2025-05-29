@@ -91,24 +91,27 @@ export const shakeCamera = (camera: ArcRotateCamera, scene: Scene) => {
         // shakeAnim.enableBlending = true;
         camera.animations.push(shakeAnim);
     }
-    const start = camera.position.clone();
     const keys = [];
+	const shakeFrames = 10;
+    const shakeStrength = 0.2;
+    const start = camera.position.clone();
 
-    for (let i = 0; i <= 5; i++) {
+    for (let i = 0; i < shakeFrames; i++) {
+        const direction = new Vector3(
+            (Math.random() - 0.5) * shakeStrength,
+            (Math.random() - 0.5) * shakeStrength,
+            (Math.random() - 0.5) * shakeStrength
+        );
         keys.push({
             frame: i * 2,
-            value: start.addInPlace(
-                new Vector3(
-                    (Math.random() - 0.5) * 0.3,
-                    (Math.random() - 0.5) * 0.3,
-                    (Math.random() - 0.5) * 0.3
-                )
-            ),
+            value: start.add(direction),
         });
     }
-    keys.push({ frame: 12, value: start });
+    keys.push({ frame: shakeFrames * 2, value: start });
 
     shakeAnim.setKeys(keys);
 
-    scene.beginAnimation(camera, 0, 12, false, 3);
+    scene.beginAnimation(camera, 0, shakeFrames * 2, false, 3, () => {
+		camera.position.copyFrom(start);
+	});
 };
