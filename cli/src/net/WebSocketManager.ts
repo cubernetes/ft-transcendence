@@ -3,7 +3,6 @@ import { EventEmitter } from "events";
 import WebSocket from "ws";
 import audioManager from "../audio/AudioManager";
 import gameManager from "../game/GameManager";
-import { printTitle } from "../menu/mainMenu";
 import { getToken } from "../utils/auth";
 import { PADDLE_SOUND, SCORE_SOUND, WALL_SOUND } from "../utils/config";
 
@@ -41,7 +40,7 @@ export class WebSocketManager extends EventEmitter {
         this.#socket.on("message", this.onMessage.bind(this));
     }
 
-    async sendGameStart() {
+    async sendGameStart(host: boolean) {
         try {
             await this.#openPromise;
 
@@ -54,15 +53,17 @@ export class WebSocketManager extends EventEmitter {
             let message = JSON.stringify({
                 type: "game-start",
             });
-            this.#socket.send(message);
+			if (host) {
+				this.#socket.send(message);
+			}
             console.log("Game start sent!");
 
             message = JSON.stringify({
                 type: "renderer-ready",
             });
-			
 			this.#socket.send(message)
 			console.log("Renderer ready sent");
+
         } catch (error) {
             console.error("Error sending game start: ", error);
         }
@@ -95,14 +96,9 @@ export class WebSocketManager extends EventEmitter {
 
             switch (message.type) {
                 case "game-start":
-                    console.log("Starting game with payload:", message.payload);
-                    gameManager.setRemoteGame(
-                        message.payload.gameId,
-                        message.payload.opponentId,
-                        message.payload.index
-                    );
-
-                    this.emit("game-start");
+                    // console.log("Starting game with payload:", message.payload);
+			        // gameManager.updateRendererRes();
+					gameManager.startRemoteGame(false);
                     break;
                 case "game-end":
                     this.active = false;
