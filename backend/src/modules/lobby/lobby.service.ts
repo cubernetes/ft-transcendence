@@ -187,6 +187,12 @@ export const createLobbyService = (app: FastifyInstance) => {
         const readyCount = playerReady.filter(Boolean).length;
 
         const handleQuit = (winnerIdx: 0 | 1) => {
+            // Prevent duplicate invocation
+            if (session.timeoutHandler) {
+                clearTimeout(session.timeoutHandler);
+                session.timeoutHandler = undefined;
+            }
+
             const payload = {
                 state: engine.getState(),
                 hits: engine.getHits(),
@@ -203,13 +209,14 @@ export const createLobbyService = (app: FastifyInstance) => {
             sessionMap.delete(lobbyId);
         };
 
+        const READY_TIMEOUT_MS = 15_000;
         if (readyCount === 1 && !session.timeoutHandler) {
             session.timeoutHandler = setTimeout(() => {
                 const readyIdx = playerReady.findIndex((r) => r);
                 if (readyIdx !== 0 && readyIdx !== 1) return; // Sanity check
 
                 handleQuit(readyIdx as 0 | 1);
-            }, 15_000); // Wait 15 seconds to declare winner
+            }, READY_TIMEOUT_MS); // Wait certain ms to declare winner
         }
 
         if (playerReady.every((b) => b === true)) {
