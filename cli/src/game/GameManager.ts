@@ -103,6 +103,11 @@ export class GameManager {
         this.controller.start();
     }
 
+	updateRendererRes() {
+        this.setWSActive(true);
+        this.renderer.updateResolution();
+	}
+
     async join1PRemote() {
         if (!this.wsManager) {
             this.wsManager = new WebSocketManager(SERVER_URL);
@@ -122,10 +127,10 @@ export class GameManager {
         };
         const onGameStart = () => {
             this.wsManager.off("lobby-remove", onLobbyRemove);
-            this.startRemoteGame();
+            this.startRemoteGame(false);
         };
 
-        this.wsManager.once("game-start", onGameStart);
+        this.wsManager.on("game-start", onGameStart);
         this.wsManager.once("lobby-remove", onLobbyRemove);
 
         await askLobbyLeave(this.currentLobbyId);
@@ -138,7 +143,7 @@ export class GameManager {
         }
     }
 
-    async startRemoteGame() {
+    async startRemoteGame(host: boolean) {
         this.cleanupController();
         this.controller = new GameController([
             {
@@ -149,8 +154,8 @@ export class GameManager {
                         JSON.stringify({
                             type: "game-action",
                             payload: {
-                                gameId: this.remoteGameId,
-                                index: this.remotePlayerIndex,
+                                // gameId: this.remoteGameId,
+                                // index: this.remotePlayerIndex,
                                 action: dir,
                             },
                         })
@@ -159,7 +164,7 @@ export class GameManager {
         ]);
         this.controller.start();
 
-        await this.wsManager.sendGameStart();
+        await this.wsManager.sendGameStart(host);
     }
 
     async start1PRemote() {
@@ -169,7 +174,7 @@ export class GameManager {
         this.wsManager.active = true;
         this.renderer.updateResolution();
 
-        this.startRemoteGame();
+        this.startRemoteGame(true);
     }
 
     setCurrentLobbyId(lobbyId: string | null) {
