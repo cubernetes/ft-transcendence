@@ -26,7 +26,7 @@
         "viem": "^2.23.13"
     },
     "devDependencies": {
-        "@babylonjs/inspector": "^8.0.1",
+        "@babylonjs/inspector": "^8.10.0",
         "@metamask/providers": "^22.1.0",
         "@types/chart.js": "^2.9.41",
         "@types/jwt-decode": "^2.2.1",
