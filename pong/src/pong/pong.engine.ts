@@ -265,6 +265,11 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
         deepAssign(ball, config.ball);
         status = "waiting";
 
+        // Hard reset on ball and paddle position
+        ball.pos = { x: 0, y: 0.5, z: 0 };
+        paddles[0].pos = { x: -config.board.size.width / 2 + 0.5, y: 0.5, z: 0 };
+        paddles[1].pos = { x: config.board.size.width / 2 + 0.5, y: 0.5, z: 0 };
+
         if (interval) {
             clearInterval(interval);
             interval = null;
