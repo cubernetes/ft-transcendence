@@ -1,4 +1,4 @@
-import { Engine, Quaternion, Vector3 } from "@babylonjs/core";
+import { ArcRotateCamera, Engine, Quaternion, Vector3 } from "@babylonjs/core";
 import {
     Ball,
     GameMode,
@@ -202,9 +202,14 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
     };
 
     const handlePaddleCollision = () => {
+        const { scene } = renderer;
+        if (!scene) return;
+
         if (renderer.sfxEnabled) {
             renderer.audio.hitSound.play();
         }
+
+        const camera = scene.activeCamera as ArcRotateCamera;
     };
 
     const handleEndGame = async (mode: GameMode, winnerIdx: number, state: PongState) => {

@@ -5,8 +5,9 @@ import { PongConfig, Size3D } from "@darrenkuro/pong-core";
 const paddleConfig = (scene: Scene, size: Size3D) => {
     const material = new BABYLON.StandardMaterial("paddleMat", scene);
     material.diffuseColor = BABYLON.Color3.FromHexString("#e1b700");
+    material.diffuseColor = new BABYLON.Color3(0, 0.5, 0);
     material.specularPower = 64;
-    // material.emissiveColor = new Color3(0, 0, 1);
+    material.emissiveColor = new BABYLON.Color3(0, 0, 1);
     material.backFaceCulling = false;
 
     // const paddleMaterial3 = new StandardMaterial("paddleMat3", babylon.scene);
@@ -21,18 +22,28 @@ const paddleConfig = (scene: Scene, size: Size3D) => {
         options: { width, height, depth },
         //options: { diameterX: size.width, diameterY: size.height, diameterZ: size.depth },
         material,
-        //rotation: Math.PI,
+        rotation: Math.PI / 2,
     };
 };
 
 const createPaddle = (name: string, scene: Scene, pos: Vector3, size: Size3D): Mesh => {
     const config = paddleConfig(scene, size);
-    const { options, material } = config;
+    const { options, material, rotation } = config;
 
-    const paddle = BABYLON.MeshBuilder.CreateBox(name, options, scene);
+    // const paddle = BABYLON.MeshBuilder.CreateBox(name, options, scene);
+    const paddle = BABYLON.MeshBuilder.CreateCylinder(
+        name,
+        {
+            ...options,
+            height: size.depth,
+            diameter: size.height,
+        },
+        scene
+    );
 
     paddle.position = pos;
-    //paddle.rotation.x = rotation;
+    paddle.rotation.x = rotation;
+
     paddle.material = material;
     return paddle;
 };
