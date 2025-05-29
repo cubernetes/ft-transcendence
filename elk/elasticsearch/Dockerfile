@@ -6,7 +6,7 @@ COPY --from=ft-transcendence-util-image --chmod=555 /execsudo /execsudo
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt update -y && \
-	apt install -y jq psmisc
+	apt install -y jq
 
 COPY --chmod=555 ./entrypoint.sh /entrypoint.sh
 COPY --chmod=555 ./healthcheck.sh /healthcheck.sh
