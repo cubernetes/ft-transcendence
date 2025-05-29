@@ -355,10 +355,6 @@ export const TEXT_MAP = {
         de: "{icon} Turnierbaum",
         fr: "{icon} Arbre du tournoi",
         es: "{icon} Cuadro del torneo",
-        en: "Tournament Bracket",
-        de: "Turnierbaum",
-        fr: "Arbre du tournoi",
-        es: "Cuadro del torneo",
     },
     WALLET_CONNECT: {
         en: "{icon} Store Results on the Blockchain",
@@ -430,16 +426,16 @@ export const TEXT_MAP = {
         es: "Fin del juego",
     },
     STATUS: {
-    en: "Status",
-    de: "Status",
-    fr: "Statut",
-    es: "Estado",
+        en: "Status",
+        de: "Status",
+        fr: "Statut",
+        es: "Estado",
     },
     DATE: {
-    en: "Date",
-    de: "Datum",
-    fr: "Date",
-    es: "Fecha",
+        en: "Date",
+        de: "Datum",
+        fr: "Date",
+        es: "Fecha",
     },
 
     OPPONENT: {
@@ -455,17 +451,18 @@ export const TEXT_MAP = {
         fr: "Résultat",
         es: "Resultado",
     },
-
     SCORE: {
         en: "Score",
         de: "Punktestand",
         fr: "Score",
         es: "Puntuación",
-        de: "Spiel beendet",
-        fr: "Fin de la partie",
-        es: "Fin del juego",
     },
-
+    ID_INV: {
+        en: "Share this ID with your friends to join your game.",
+        de: "Teile diese ID mit deinen Freunden, damit sie deinem Spiel beitreten können.",
+        fr: "Partage cet identifiant avec tes amis pour qu'ils rejoignent ta partie.",
+        es: "Comparte este ID con tus amigos para que se unan a tu juego.",
+    },
     // Server error codes
     USER_NOT_FOUND: {
         en: "User not found",

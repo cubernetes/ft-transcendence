@@ -15,6 +15,7 @@ import { createParagraph } from "../components/Paragraph";
 import { createStatus } from "../components/Status";
 
 export const createLobbyPage = (): UIComponent => {
+    const { ID_INV } = CONST.TEXT;
     const { lobbyId, lobbyHost, playerNames, playTo } = gameStore.get();
 
     log.debug("Create lobby page???");
@@ -26,8 +27,8 @@ export const createLobbyPage = (): UIComponent => {
     const { statusEl, showErr, showOk } = createStatus();
 
     const infoEl = createParagraph({
-        tw: "text-gray-700 font-medium mt-1",
-        text: "Share this ID with your friends to join your game.",
+        tw: `${CONST.FONT.BODY_XS} text-gray-700 font-medium mt-1`,
+        text: ID_INV,
     });
 
     // Lobby Id
@@ -132,7 +133,7 @@ export const createLobbyPage = (): UIComponent => {
 
     const container = createContainer({
         tag: "main",
-        tw: `w-full p-8 items-center relative ${CONST.STYLES.CONTAINER}`,
+        tw: `${CONST.FONT.BODY_XS} w-full p-8 items-center relative ${CONST.STYLES.CONTAINER}`,
         children: [titleEl, lineHr, infoEl, lobbyIdCtn, playerCtn, configCtn, ctaBtnGrp, statusEl],
     });
 
