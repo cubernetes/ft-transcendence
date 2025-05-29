@@ -12,7 +12,7 @@
         "test": "BACKEND_PORT=3000 JWT_SECRET=1234567890abcdef1234567890abcdef DB_PATH=:memory: DB_DIR=drizzle npx tap --allow-incomplete-coverage"
     },
     "dependencies": {
-        "@darrenkuro/pong-core": "^1.0.18",
+        "@darrenkuro/pong-core": "^1.3.16",
         "@faker-js/faker": "^9.6.0",
         "@fastify/cookie": "^11.0.2",
         "@fastify/cors": "^11.0.0",
