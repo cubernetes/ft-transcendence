@@ -46,17 +46,18 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
 };
 
 const createFriendList = (): HTMLElement[] => {
+    const { RANK, STATUS, FRIENDS, GAMES_PLAYED, FRIENDS_ERROR } = CONST.TEXT;
     const playerName = authStore.get().username;
 
     if (playerName) {
         return [
             createParagraph({
-                text: "No friends in your friend list. Add some!",
+                text: FRIENDS_ERROR,
                 tw: "text-gray-500 text-center",
             }),
         ];
     }
-    const headers = ["Friend Username", "Games Played", "Rank", "Status"];
+    const headers = [FRIENDS, GAMES_PLAYED, RANK, STATUS];
     const row = [
         {
             friendUsername: playerName,
@@ -75,12 +76,13 @@ const createFriendList = (): HTMLElement[] => {
 };
 
 const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
+    const { DATE, OPPONENT, RESULT, SCORE, GAME_DATA_ERROR } = CONST.TEXT;
     const playerName = authStore.get().username;
 
     if (!games.length) {
         return [
             createParagraph({
-                text: "No game data available. Play some games online games!",
+                text: GAME_DATA_ERROR,
                 tw: "text-gray-500 text-center",
             }),
         ];
@@ -88,7 +90,7 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
 
     const reversedGames = [...games].reverse();
 
-    const headers = ["Date", "Opponent", "Result", "Score"];
+    const headers = [DATE, OPPONENT, RESULT, SCORE];
     const rows = reversedGames.map((game) => {
         const isPlayer1 = game.player1Username === playerName;
         const opponent = isPlayer1 ? game.player2Username : game.player1Username;
@@ -112,7 +114,7 @@ const createMatchHistoryList = (games: PublicGame[]): HTMLElement[] => {
     const table = createTable(headers, ["date", "opponent", "result", "score"], rows);
     const tableWrapper = createEl(
         "div",
-        `max-h-64 overflow-y-auto overflow-x-auto flex justify-center ${CONST.STYLES.CONTAINER}`
+        `max-h-64 overflow-y-auto overflow-x-auto flex justify-start ${CONST.STYLES.CONTAINER}`
     );
     tableWrapper.appendChild(table);
     return [tableWrapper];
@@ -131,10 +133,11 @@ const mapGame = (game: PublicGame) => {
 };
 
 export const createGameStatsChart = (games: PublicGame[]): UIComponent => {
+    const { GAME_DATA_ERROR } = CONST.TEXT;
     if (!games.length) {
         return [
             createParagraph({
-                text: "No game data available. Play some games online!",
+                text: GAME_DATA_ERROR,
                 tw: "text-gray-500 text-center",
             }),
         ];
