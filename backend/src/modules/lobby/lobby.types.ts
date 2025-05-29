@@ -8,4 +8,5 @@ export type GameSession = {
     players: number[];
     playerNames: string[];
     playerReady: boolean[];
+    timeoutHandler?: NodeJS.Timeout;
 };

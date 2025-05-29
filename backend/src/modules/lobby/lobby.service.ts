@@ -184,20 +184,53 @@ export const createLobbyService = (app: FastifyInstance) => {
         const idx = players.findIndex((p) => p === userId);
         playerReady[idx] = true;
 
-        if (playerReady.every((b) => b === true)) engine.start();
+        const readyCount = playerReady.filter(Boolean).length;
 
-        if (playerNames.some((n) => n === "")) {
-            // Someone quit already
-            const winner: 0 | 1 = playerNames[0] === "" ? 1 : 0;
-            const payload = { state: engine.getState(), hits: engine.getHits(), winner };
-            app.wsService.send(players[winner], {
+        const handleQuit = (winnerIdx: 0 | 1) => {
+            // Prevent duplicate invocation
+            if (session.timeoutHandler) {
+                clearTimeout(session.timeoutHandler);
+                session.timeoutHandler = undefined;
+            }
+
+            const payload = {
+                state: engine.getState(),
+                hits: engine.getHits(),
+                winner: winnerIdx,
+            };
+
+            app.wsService.send(players[winnerIdx], {
                 type: "game-end",
                 payload,
             });
-            app.gameService.saveGame(session, payload);
 
-            lobbyMap.delete(userId);
+            app.gameService.saveGame(session, payload);
+            players.forEach((id) => lobbyMap.delete(id));
             sessionMap.delete(lobbyId);
+        };
+
+        const READY_TIMEOUT_MS = 15_000;
+        if (readyCount === 1 && !session.timeoutHandler) {
+            session.timeoutHandler = setTimeout(() => {
+                const readyIdx = playerReady.findIndex((r) => r);
+                if (readyIdx !== 0 && readyIdx !== 1) return; // Sanity check
+
+                handleQuit(readyIdx as 0 | 1);
+            }, READY_TIMEOUT_MS); // Wait certain ms to declare winner
+        }
+
+        if (playerReady.every((b) => b === true)) {
+            if (session.timeoutHandler) {
+                clearTimeout(session.timeoutHandler);
+                session.timeoutHandler = undefined;
+            }
+            engine.start();
+        }
+
+        if (playerNames.some((n) => n === "")) {
+            // Someone quit already
+            const winnerIdx: 0 | 1 = playerNames[0] === "" ? 1 : 0;
+            handleQuit(winnerIdx);
         }
         return ok();
     };
