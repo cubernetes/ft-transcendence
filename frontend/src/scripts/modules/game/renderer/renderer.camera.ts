@@ -1,7 +1,6 @@
 import { Animation, ArcRotateCamera, type Scene, Vector3 } from "@babylonjs/core";
 
 export const createCamera = (scene: Scene): ArcRotateCamera => {
-    //TODO: check if Class TargetCamera makes more sense.
     const camera = new ArcRotateCamera(
         CONST.NAME.CAMERA,
         -Math.PI / 2, // alpha - side view (fixed)

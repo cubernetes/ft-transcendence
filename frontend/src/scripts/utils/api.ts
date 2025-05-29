@@ -1,11 +1,5 @@
 import { Result, err, ok } from "neverthrow";
-import {
-    ApiResponse,
-    ErrorCode,
-    GetMePayload,
-    defaultGameConfig,
-    safeJsonParse,
-} from "@darrenkuro/pong-core";
+import { ApiResponse, ErrorCode, GetMePayload, safeJsonParse } from "@darrenkuro/pong-core";
 
 export const fetchPlayerData = async (): Promise<Result<GetMePayload, ErrorCode>> => {
     const tryFetch = await sendApiRequest.get<GetMePayload>(CONST.API.ME);

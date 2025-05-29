@@ -1,6 +1,6 @@
 import { test } from "tap";
 import { faker } from "@faker-js/faker";
-import buildApp from "../../../utils/app.ts";
+import { buildApp } from "../../../utils/app.ts";
 
 test("Create user", async (t) => {
     const tryBuild = await buildApp({ logger: false });

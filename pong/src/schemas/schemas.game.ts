@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export type PublicGame = z.infer<typeof publicGame>;
-const publicGame = z.object({
+const publicGame = z.strictObject({
     id: z.number(),
     player1Username: z.string(),
     player2Username: z.string(),
@@ -14,6 +14,6 @@ const publicGame = z.object({
     finishedAt: z.string().datetime(),
 });
 
-export const gameSchemas = {
+export const gameSchema = {
     publicGame,
 };

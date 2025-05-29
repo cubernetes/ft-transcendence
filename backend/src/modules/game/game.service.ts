@@ -1,8 +1,8 @@
 import type { GameInsert, GameRecord } from "../../core/db/db.types.ts";
+import type { ErrorCode, PublicGame } from "@darrenkuro/pong-core";
 import type { FastifyInstance } from "fastify";
 import { Result, err, ok } from "neverthrow";
 import { desc, eq, or } from "drizzle-orm";
-import { ErrorCode, PublicGame } from "@darrenkuro/pong-core";
 import { OutgoingMessagePayloads as Payloads } from "@darrenkuro/pong-core";
 import { games } from "../../core/db/db.schema.ts";
 import { createModuleLogger } from "../../utils/logger.ts";
@@ -126,11 +126,11 @@ export const createGameService = (app: FastifyInstance) => {
         try {
             const inserted = await db.insert(games).values(data).returning();
             const game = inserted[0];
-            if (!game) throw new Error("Game returned is empty");
+            if (!game) throw new Error("game returned is empty");
 
             return ok(game);
         } catch (error) {
-            app.log.debug({ error }, "Fail to create game");
+            app.log.debug({ error }, "fail to create game");
             return err("SERVER_ERROR");
         }
     };
@@ -160,7 +160,7 @@ export const createGameService = (app: FastifyInstance) => {
 
             return ok(result);
         } catch (error) {
-            app.log.debug({ error }, "Fail to get games by username");
+            app.log.debug({ error }, "fail to get games by username");
             return err("SERVER_ERROR");
         }
     };
@@ -178,10 +178,5 @@ export const createGameService = (app: FastifyInstance) => {
         return ok({ ...publicGame, player1Username, player2Username, winnerIndex });
     };
 
-    return {
-        create,
-        saveGame,
-        registerCbHandlers,
-        getGamesByUsername,
-    };
+    return { create, saveGame, registerCbHandlers, getGamesByUsername };
 };

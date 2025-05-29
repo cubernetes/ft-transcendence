@@ -5,7 +5,6 @@ import type { createPongService } from "./core/pong/pong.service.ts";
 import type { createWsService } from "./core/ws/ws.service.ts";
 import type { createGameService } from "./modules/game/game.service.ts";
 import type { createLobbyService } from "./modules/lobby/lobby.service.ts";
-// import type { createFriendService } from "./friend/friend.service";
 import type { createUserService } from "./modules/user/user.service.ts";
 import type { ErrorCode } from "@darrenkuro/pong-core";
 import type { WebSocket as WsWebSocket } from "ws";
@@ -20,7 +19,6 @@ declare module "fastify" {
         userService: ReturnType<typeof createUserService>;
         gameService: ReturnType<typeof createGameService>;
         lobbyService: ReturnType<typeof createLobbyService>;
-        //friendService: ReturnType<typeof createFriendService>;
         requireAuth: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
     }
 

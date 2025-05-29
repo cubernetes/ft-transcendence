@@ -11,13 +11,13 @@ export const handleConnection = async (conn: WebSocket, req: FastifyRequest) => 
     conn.username = req.username;
     conn.userDisplayName = req.userDisplayName;
 
-    app.log.info(`handle WebSocket connection for player ${conn.userId}`);
+    app.log.info(`handle socket connection for player ${conn.userId}`);
     app.wsService.addConnection(conn);
 
     conn.on("message", async (raw: string) => {
         // Try to parse message payload into JSON object
         const msg = await safeJsonParse<IncomingMessage<IncomingMessageType>>(raw.toString());
-        if (msg.isErr()) return app.log.error("websocket on message failed to parse JSON");
+        if (msg.isErr()) return app.log.error("socket on message failed to parse JSON");
 
         const { type, payload } = msg.value;
         app.log.debug({ type, payload }, `incoming socket message by user ${conn.userId}`);

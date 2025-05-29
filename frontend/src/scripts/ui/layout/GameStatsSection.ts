@@ -47,7 +47,7 @@ export const createStatsToggleSection = (games: PublicGame[]): HTMLElement[] => 
 
 const createFriendList = (): HTMLElement[] => {
     const playerName = authStore.get().username;
-    //TODO: Use the below to check if player has friends.
+
     if (playerName) {
         return [
             createParagraph({

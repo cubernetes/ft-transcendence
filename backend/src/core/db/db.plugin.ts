@@ -7,20 +7,21 @@ import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import path from "path";
 import * as schema from "./db.schema.ts";
 
-const dbPlugin = async (app: FastifyInstance) => {
+const plugin = async (app: FastifyInstance) => {
     try {
         const { dbPath, dbDir } = app.config;
         const sqlite = new Database(dbPath);
 
         // Ensure to close sqlite connection on shutdown
         const onCloseHook = async (app: FastifyInstance) => {
-            app.log.info("On close hook triggered: Closing SQLite connection...");
+            app.log.debug("on close hook triggered");
             try {
+                app.log.info("closing database...");
                 sqlite.close();
                 app.log.info("SQLite closed");
             } catch (error) {
                 // Log error but no need to rethrow
-                app.log.error({ error }, "Error closing SQLite");
+                app.log.error({ error }, "error closing SQLite");
             }
         };
         app.addHook("onClose", onCloseHook);
@@ -32,9 +33,9 @@ const dbPlugin = async (app: FastifyInstance) => {
 
         app.decorate("db", db);
     } catch (error) {
-        app.log.error({ error }, "Fail to initialize database");
+        app.log.error({ error }, "fail to initialize database");
         throw error;
     }
 };
 
-export default fp(dbPlugin, { name: "db-plugin", dependencies: ["config-plugin"] });
+export const dbPlugin = fp(plugin, { name: "db-plugin", dependencies: ["config-plugin"] });

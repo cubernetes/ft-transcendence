@@ -47,7 +47,6 @@ export const createLobbyPage = (): UIComponent => {
     });
 
     // Players
-    // TODO: add avatar maybe
     const player1P = createParagraph({
         text: lobbyHost ? authStore.get().displayName! : playerNames[0],
         id: CONST.ID.LOBBY_P1,
@@ -89,7 +88,7 @@ export const createLobbyPage = (): UIComponent => {
         });
         if (tryUpdate.isErr()) return showErr(tryUpdate.error);
 
-        showOk("Successfully updated"); // TODO: Translation
+        showOk("Successfully updated");
     };
 
     const startBtnCb = () => {

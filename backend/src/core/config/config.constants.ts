@@ -1,4 +1,4 @@
-import { CookieConfig, TotpEncodingOption } from "./config.types.ts";
+import type { CookieConfig, TotpEncodingOption } from "./config.types.ts";
 
 const COOKIE_NAME = "token";
 const COOKIE_CONFIG: CookieConfig = {
@@ -16,7 +16,7 @@ const UPLOAD_DIR = "./uploads/";
 
 const UPLOAD_MAX_SIZE = 10 * 1024 * 1024; // 10MB; reject abnormally large file upload for protection
 
-export default {
+export const CONST = {
     cookieName: COOKIE_NAME,
     cookieConfig: COOKIE_CONFIG,
     totpEncoding: TOTP_ENCODING,

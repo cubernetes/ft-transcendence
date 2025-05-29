@@ -15,6 +15,13 @@
       "when": 1746122073414,
       "tag": "0001_fantastic_cerebro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1748279385718,
+      "tag": "0002_fat_sumo",
+      "breakpoints": true
     }
   ]
 }

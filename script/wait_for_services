@@ -41,7 +41,8 @@ HTTP_PORT=$(docker port caddy | grep -Fv '[::]' | head -1 | awk -F/ '{print $1}'
 
 echo "Frontend: http://localhost:${HTTP_PORT}"
 echo "OpenAPI:  http://localhost:${HTTP_PORT}/api/docs"
-echo "ELK       http://localhost:${HTTP_PORT}/kibana/"
+echo "ELK       http://localhost:${HTTP_PORT}/kibana"
+echo "Vault     http://localhost:${HTTP_PORT}/vault"
 echo "Run 'make get-env SERVICE=elasticsearch' to get credentials for kibana"
 
 now=$(date +%s)

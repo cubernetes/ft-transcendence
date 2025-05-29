@@ -139,7 +139,6 @@ export const createGameController = (renderer: Engine, engine: PongEngine) => {
         );
     };
 
-    // TODO: move chunk of this to objects.ball
     const updateBall = (newBall: Ball) => {
         const { scene } = renderer;
         if (!scene) return log.warn("Fail to update ball: no active scene");

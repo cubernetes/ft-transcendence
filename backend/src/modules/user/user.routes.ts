@@ -1,68 +1,48 @@
 import type { FastifyInstance } from "fastify";
-import { userSchemas as schemas } from "@darrenkuro/pong-core";
+import { userSchema } from "@darrenkuro/pong-core";
 import { withZod } from "../../utils/zod-validate.ts";
 import { createUserController } from "./user.controller.ts";
-import route from "./user.schema.ts";
+import { routeSchema } from "./user.schema.ts";
 
 export const userRoutes = async (app: FastifyInstance) => {
-    const controller = createUserController(app);
+    const { register, login, logout, displayname, password, leaderboard, info, me, avatar } =
+        createUserController(app);
 
-    // Deconstruct to get shorten variable names
-    const {
-        registerBody,
-        loginBody,
-        displayNameBody,
-        passwordBody,
-        leaderboardParams,
-        infoParams,
-    } = schemas;
-    const { register, login, logout, displayName, password, leaderboard, info, me, avatar } =
-        controller;
-
-    // Register
-    const registerOpts = { schema: route.register }; // Schema for swagger UI
-    const registerHandler = withZod({ body: registerBody }, register);
-
-    // Login
-    const loginOpts = { schema: route.login };
-    const loginHandler = withZod({ body: loginBody }, login);
-
-    // Logout
-    const logoutOpts = { preHandler: [app.requireAuth], schema: route.logout };
-    const logoutHandler = logout;
-
-    // Display name
-    const displayNameOpts = { preHandler: [app.requireAuth] }; // TODO: schema
-    const displayNameHandler = withZod({ body: displayNameBody }, displayName);
-
-    // Password
-    const passwordOpts = { preHandler: [app.requireAuth] }; // TODO: schema
-    const passwordHandler = withZod({ body: passwordBody }, password);
-
-    // Leaderboard
-    const leaderboardOpts = { schema: route.getLeaderboard };
-    const leaderboardHandler = withZod({ params: leaderboardParams }, leaderboard);
-
-    // Info
-    const infoOpts = { schema: route.getInfo };
-    const infoHandler = withZod({ params: infoParams }, info);
-
-    // Me
-    const meOpts = { preHandler: [app.requireAuth], schema: route.getMe };
-    const meHandler = me;
-
-    // Avatar
-    const avatarOpts = { preHandler: [app.requireAuth] };
-    const avatarHandler = avatar;
+    const { registerBody, loginBody, displayNameBody, passwordBody } = userSchema;
+    const { leaderboardParams, infoParams } = userSchema;
 
     // Register routes
-    app.post("/register", registerOpts, registerHandler);
-    app.post("/login", loginOpts, loginHandler);
-    app.post("/logout", logoutOpts, logoutHandler);
-    app.post("/displayname", displayNameOpts, displayNameHandler);
-    app.post("/password", passwordOpts, passwordHandler);
-    app.get("/leaderboard/:n", leaderboardOpts, leaderboardHandler);
-    app.get("/info/:username", infoOpts, infoHandler);
-    app.get("/me", meOpts, meHandler);
-    app.post("/avatar", avatarOpts, avatarHandler);
+    app.post(
+        "/register",
+        { schema: routeSchema.register },
+        withZod({ body: registerBody }, register)
+    );
+
+    app.post("/login", { schema: routeSchema.login }, withZod({ body: loginBody }, login));
+
+    app.post("/logout", { preHandler: [app.requireAuth], schema: routeSchema.logout }, logout);
+
+    app.post(
+        "/displayname",
+        { preHandler: [app.requireAuth] },
+        withZod({ body: displayNameBody, schema: routeSchema.displayname }, displayname)
+    );
+
+    app.post(
+        "/password",
+        { preHandler: [app.requireAuth], schema: routeSchema.password },
+        withZod({ body: passwordBody }, password)
+    );
+
+    app.get(
+        "/leaderboard/:n",
+        { schema: routeSchema.leaderboard },
+        withZod({ params: leaderboardParams }, leaderboard)
+    );
+
+    app.get("/info/:username", { schema: routeSchema.info }, withZod({ params: infoParams }, info));
+
+    app.get("/me", { preHandler: [app.requireAuth], schema: routeSchema.me }, me);
+
+    app.post("/avatar", { preHandler: [app.requireAuth], schema: routeSchema.avatar }, avatar);
 };

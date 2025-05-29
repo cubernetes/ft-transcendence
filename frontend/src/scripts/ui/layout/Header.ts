@@ -20,9 +20,8 @@ export const hydrateHeader = (headerEl: HTMLElement): HTMLElement => {
 
     for (const [key, route] of navKeys) {
         const link = createEl("a", "hover:underline cursor-pointer", {
-            text: getText(key),
+            text: key,
             events: { click: () => navigateTo(route) },
-            attributes: { [CONST.ATTR.I18N_TEXT]: key },
         });
         const li = createEl("li", "", { children: [link] });
         navList.appendChild(li);

@@ -5,7 +5,6 @@ import { createButton } from "../components/Button";
 import { createParagraph } from "../components/Paragraph";
 
 export const buildTournamentTree = (matches: MatchState[][]): HTMLElement => {
-    //TODO: Correctly implement translations for all elements.
     const { NO_TOURNAMENT, START } = CONST.TEXT;
     const bracketContainer = createEl(
         "div",

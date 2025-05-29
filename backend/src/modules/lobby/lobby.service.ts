@@ -8,7 +8,7 @@ export const createLobbyService = (app: FastifyInstance) => {
     const sessionMap: Map<LobbyId, GameSession> = new Map();
 
     const generateUniqueId = (length: number = 6): string => {
-        const CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // Exclude O 0 I 1
+        const CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // Excluding O 0 I 1
         const generateId = () =>
             Array.from({ length }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join("");
 
@@ -74,7 +74,7 @@ export const createLobbyService = (app: FastifyInstance) => {
     const leave = (userId: number): Result<void, ErrorCode> => {
         app.log.debug(
             { lobbyMap: Array.from(lobbyMap), sessionMap: Array.from(sessionMap) },
-            `uesr ${userId} trying to leave...`
+            `user ${userId} trying to leave...`
         );
 
         const lobbyId = lobbyMap.get(userId);
@@ -131,9 +131,10 @@ export const createLobbyService = (app: FastifyInstance) => {
                 sessionMap.delete(lobbyId);
             }
         }
+
         app.log.debug(
             { lobbyMap: Array.from(lobbyMap), sessionMap: Array.from(sessionMap) },
-            `after leaving...`
+            `user ${userId} successfully left`
         );
         return ok();
     };
@@ -183,12 +184,10 @@ export const createLobbyService = (app: FastifyInstance) => {
         const idx = players.findIndex((p) => p === userId);
         playerReady[idx] = true;
 
-        // TODO: handle timeout?
         if (playerReady.every((b) => b === true)) engine.start();
 
         if (playerNames.some((n) => n === "")) {
             // Someone quit already
-            // TODO: refactor, duplicate code and horrible structure
             const winner: 0 | 1 = playerNames[0] === "" ? 1 : 0;
             const payload = { state: engine.getState(), hits: engine.getHits(), winner };
             app.wsService.send(players[winner], {

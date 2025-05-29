@@ -4,6 +4,7 @@ export const errorCodeEnum = z.enum([
     "BAD_REQUEST",
     "VALIDATION_ERROR",
     "UNAUTHORIZED",
+    "PAYLOAD_TOO_LARGE",
 
     "USER_NOT_FOUND",
     "USERNAME_REQUIRED",

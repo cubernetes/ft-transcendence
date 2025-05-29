@@ -1,13 +1,13 @@
 import type { PublicUser } from "@darrenkuro/pong-core";
 import type { FastifyInstance, RouteHandlerMethod } from "fastify";
-import { userSchemas } from "@darrenkuro/pong-core";
+import { userSchema } from "@darrenkuro/pong-core";
 import { createModuleLogger, createPerformanceLogger } from "../../utils/logger.ts";
 import { ZodHandler } from "../../utils/zod-validate.ts";
 
 export const createUserController = (app: FastifyInstance) => {
     const logger = createModuleLogger(app.log, "user");
 
-    type RegisterCb = ZodHandler<{ body: typeof userSchemas.registerBody }>;
+    type RegisterCb = ZodHandler<{ body: typeof userSchema.registerBody }>;
     const register: RegisterCb = async ({ body }, req, reply) => {
         const perfLogger = createPerformanceLogger(app.log, "user_registration");
         const ip = req.ip;
@@ -69,7 +69,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({ username, displayName }, 201, { token });
     };
 
-    type LoginCb = ZodHandler<{ body: typeof userSchemas.loginBody }>;
+    type LoginCb = ZodHandler<{ body: typeof userSchema.loginBody }>;
     const login: LoginCb = async ({ body }, req, reply) => {
         const perfLogger = createPerformanceLogger(app.log, "user_login");
         const { username, password, totpToken } = body;
@@ -224,9 +224,10 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type DisplayNameCb = ZodHandler<{ body: typeof userSchemas.displayNameBody }>;
-    const displayName: DisplayNameCb = async ({ body }, req, reply) => {
+    type DisplayNameCb = ZodHandler<{ body: typeof userSchema.displayNameBody }>;
+    const displayname: DisplayNameCb = async ({ body }, req, reply) => {
         const { displayName } = body;
+        const { userId } = req;
 
         logger.info(
             {
@@ -240,7 +241,7 @@ export const createUserController = (app: FastifyInstance) => {
             `Display name update for ${req.username}`
         );
 
-        const tryUpdateUser = await app.userService.update(req.userId, { displayName });
+        const tryUpdateUser = await app.userService.update(userId, { displayName });
         if (tryUpdateUser.isErr()) {
             logger.error(
                 {
@@ -260,7 +261,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type PasswordCb = ZodHandler<{ body: typeof userSchemas.passwordBody }>;
+    type PasswordCb = ZodHandler<{ body: typeof userSchema.passwordBody }>;
     const password: PasswordCb = async ({ body }, req, reply) => {
         logger.info(
             {
@@ -291,7 +292,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok({});
     };
 
-    type LeaderboardCb = ZodHandler<{ params: typeof userSchemas.leaderboardParams }>;
+    type LeaderboardCb = ZodHandler<{ params: typeof userSchema.leaderboardParams }>;
     const leaderboard: LeaderboardCb = async ({ params }, _, reply) => {
         // Get number of users requested from params
         const { n } = params;
@@ -316,7 +317,7 @@ export const createUserController = (app: FastifyInstance) => {
         reply.ok(data);
     };
 
-    type InfoCb = ZodHandler<{ params: typeof userSchemas.infoParams }>;
+    type InfoCb = ZodHandler<{ params: typeof userSchema.infoParams }>;
     const info: InfoCb = async ({ params }, _, reply) => {
         const { username } = params;
 
@@ -349,18 +350,16 @@ export const createUserController = (app: FastifyInstance) => {
         const app = req.server;
 
         const data = await req.file();
-
-        if (!data) return; //TODO: fill in; this validation should be done with zod or something at a higher level?
+        if (!data) return reply.err("BAD_REQUEST");
 
         const tryUpload = await app.userService.upload(data, req.username);
         if (tryUpload.isErr()) return reply.err(tryUpload.error);
 
-        const avatarUrl = tryUpload.value.replace("frontend/dist/", ""); // TODO: clean up
-        app.log.debug(`avatar URL: ${tryUpload.value}`);
+        const avatarUrl = tryUpload.value;
         await app.userService.update(req.userId, { avatarUrl });
 
         reply.ok({ avatarUrl });
     };
 
-    return { register, login, logout, displayName, password, leaderboard, info, me, avatar };
+    return { register, login, logout, displayname, password, leaderboard, info, me, avatar };
 };

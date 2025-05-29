@@ -1,6 +1,6 @@
 import { test } from "tap";
 import { faker } from "@faker-js/faker";
-import buildApp from "../app.ts";
+import { buildApp } from "../app.ts";
 
 const testEnv = (name: string, env: Partial<typeof process.env>, shouldResolve: boolean) => {
     test(name, async (t) => {
@@ -33,7 +33,7 @@ test("Required env variables are not present", async (t) => {
     t.ok(result.isErr(), "expected result to be an error");
     result.match(
         () => t.fail("expected error"),
-        (error) => t.match(error.message, "BACKEND_PORT is required")
+        (error) => t.match(error, "BACKEND_PORT is required")
     );
     process.env.BACKEND_PORT = "3000";
 
@@ -42,7 +42,7 @@ test("Required env variables are not present", async (t) => {
     t.ok(result.isErr());
     result.match(
         () => t.fail("expected error"),
-        (error) => t.match(error.message, "JWT_SECRET is required")
+        (error) => t.match(error, "JWT_SECRET is required")
     );
     process.env.JWT_SECRET = faker.string.alphanumeric(32);
 
@@ -51,7 +51,7 @@ test("Required env variables are not present", async (t) => {
     t.ok(result.isErr());
     result.match(
         () => t.fail("expected error"),
-        (error) => t.match(error.message, "DB_PATH is required")
+        (error) => t.match(error, "DB_PATH is required")
     );
 
     delete process.env.BACKEND_PORT;
@@ -59,7 +59,7 @@ test("Required env variables are not present", async (t) => {
     t.ok(result.isErr());
     result.match(
         () => t.fail("expected error"),
-        (error) => t.match(error.message, "BACKEND_PORT is required; DB_PATH is required")
+        (error) => t.match(error, "BACKEND_PORT is required; DB_PATH is required")
     );
     process.env.BACKEND_PORT = "3000";
     process.env.DB_PATH = ":memory:";
