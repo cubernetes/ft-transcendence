@@ -163,7 +163,7 @@ const totalDelay = baseDelay + variableDelay;
 
 The AI uses different precision levels for when to stop moving:
 
-- **HARD**: 0.1× paddle speed (kina precise)
+- **HARD**: 0.1× paddle speed (kinda precise)
 - **MEDIUM**: 0.3× paddle speed (okayish precise)
 - **EASY**: 0.8× paddle speed (not precise)
 
