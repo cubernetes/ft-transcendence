@@ -604,6 +604,12 @@ export const TEXT_MAP = {
         fr: "{icon} Portefeuille non détecté. Veuillez installer un portefeuille comme MetaMask.",
         es: "{icon} Monedero no detectado. Por favor, instala un monedero como MetaMask.",
     },
+    CHAIN_ID_ERROR: {
+        en: "Connected to the wrong chain network. Please change to Avalanche Fuji.",
+        de: "Mit dem falschen Chain-Netzwerk verbunden. Bitte wechsle zu Avalanche Fuji.",
+        fr: "Connecté au mauvais réseau de chaîne. Veuillez changer pour Avalanche Fuji.",
+        es: "Conectado a la red de cadena incorrecta. Por favor, cambia a Avalanche Fuji.",
+    },
     GET_TOURNAMENT_ERROR: {
         en: "Unable to get tournament history.",
         de: "Turnierverlauf konnte nicht abgerufen werden.",
