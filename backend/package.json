@@ -20,7 +20,7 @@
         "@fastify/multipart": "^9.0.3",
         "@fastify/swagger": "^9.4.2",
         "@fastify/swagger-ui": "^5.2.2",
-        "@fastify/websocket": "^11.0.2",
+        "@fastify/websocket": "^11.1.0",
         "bcryptjs": "^3.0.2",
         "better-sqlite3": "^11.8.1",
         "drizzle-orm": "^0.44.0",
