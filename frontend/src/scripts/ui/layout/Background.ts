@@ -10,13 +10,13 @@ export const createStarfield = (mainContainer: HTMLElement): HTMLCanvasElement =
     let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
     // 🎛️ Configurable Variables
-    const numStars = 1500;
+    const numStars = 3000;
     const starMinSize = 1;
     const starMaxSize = 3;
     const starMinSpeed = 0.1;
     const starMaxSpeed = 3;
     const cursorImpactRadius = 200;
-    const cursorImpactStrength = 6;
+    const cursorImpactStrength = 20;
     const starTrailLength = 0.3; // the lower the value, the longer the trail
 
     type Star = {
@@ -42,7 +42,7 @@ export const createStarfield = (mainContainer: HTMLElement): HTMLCanvasElement =
                 y: Math.random() * canvas.height,
                 size: Math.random() * (starMaxSize - starMinSize) + starMinSize,
                 speed: Math.random() * (starMaxSpeed - starMinSpeed) + starMinSpeed,
-                color: `hsl(${Math.random() * 360}, 100%, 80%)`,
+                color: `hsl(${Math.random() * 360}, 10%, 95%)`,
                 direction: Math.random() < 0.5 ? 1 : -1,
             });
         }
