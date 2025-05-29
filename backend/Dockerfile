@@ -15,4 +15,4 @@ ENV WATCH=0
 
 CMD ["sh", "-c", "if [ \"$WATCH\" = \"0\" ]; then npm run build && npm start; else npm run start:dev; fi"]
 
-HEALTHCHECK --interval=10s --timeout=2s --start-period=75s --start-interval=1s --retries=3 CMD ["/healthcheck.sh"]
+HEALTHCHECK --interval=20s --timeout=4s --start-period=180s --start-interval=2s --retries=5 CMD ["/healthcheck.sh"]
