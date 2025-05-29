@@ -45,9 +45,9 @@ export const createAIPlayer = (
     let lastTacticalTime = 0;
     let strategicTarget = 0;
     let lastPredictedPosition = 0;
-
     let missedPredictions = 0;
     let totalPredictions = 0;
+    let hasInitialSnapshot = false;
 
     const aiPlayer: AIPlayer = {
         playerIndex,
@@ -72,6 +72,10 @@ export const createAIPlayer = (
             timestamp: Date.now(),
         };
 
+        if (!hasInitialSnapshot) {
+            hasInitialSnapshot = true;
+        }
+
         // Tactical updates - more frequent adjustments following the strategic plan
         const now = Date.now();
         if (now - lastTacticalTime >= TACTICAL_UPDATE_INTERVAL && strategicTarget !== 0) {
@@ -95,6 +99,11 @@ export const createAIPlayer = (
     const makeDecision = (): void => {
         if (!aiPlayer.isActive || !gameSnapshot) {
             setTimeout(makeDecision, AI_UPDATE_INTERVAL);
+            return;
+        }
+
+        if (!hasInitialSnapshot || !gameSnapshot) {
+            setTimeout(makeDecision, 10);
             return;
         }
 
