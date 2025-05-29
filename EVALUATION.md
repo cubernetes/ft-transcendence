@@ -85,3 +85,12 @@
 - get creds from vault UI
 - go to dashboards, check Application Dashboard and Online Game
 - check elasticsearch indices
+
+## CLI
+
+- do all the things from the frontend in the CLI
+
+## Misc
+
+- check coraza WAF
+- check JWT
