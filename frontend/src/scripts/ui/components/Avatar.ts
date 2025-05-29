@@ -31,7 +31,7 @@ type Opts = {
 export const createAvatar = ({ src, tw = "" }: Opts): HTMLElement => {
     const imgEl = createEl(
         "img",
-        "w-3/4 h-3/4 object-cover self-center mx-auto rounded-full cursor-pointer ring-2 ring-transparent hover:ring-blue-400 transition",
+        "w-1/2 h-1/2 object-cover self-center mx-auto rounded-full cursor-pointer ring-2 ring-transparent hover:ring-blue-400 transition",
         { attributes: { src, alt: getText("USER_AVATAR"), [CONST.ATTR.I18N_ALT]: "USER_AVATAR" } }
     );
 
@@ -42,10 +42,11 @@ export const createAvatar = ({ src, tw = "" }: Opts): HTMLElement => {
     const overlayEl = createEl(
         "div",
         [
-            "absolute inset-0 w-3/4 h-3/4 self-center mx-auto rounded-full bg-black/80",
+            "absolute inset-0 w-1/2 h-1/2 self-center mx-auto rounded-full bg-black/80",
             "flex items-center justify-center text-white text-lg",
             "opacity-0 transition-opacity duration-150",
             "group-hover:opacity-100 pointer-events-none",
+            `${CONST.FONT.BODY_XS}`,
         ].join(" "),
         { text: CONST.TEXT.UPLOAD }
     );

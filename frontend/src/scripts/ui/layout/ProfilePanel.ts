@@ -31,7 +31,7 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     // User avatar element
     const avatarEl = createAvatar({ src: user.avatarUrl });
 
-    const LABEL_TW = "whitespace-nowrap text-left ml-2";
+    const LABEL_TW = ` ${CONST.FONT.BODY_XS} whitespace-nowrap text-left ml-2 mb-1`;
     // Username
     const usernameLabel = createParagraph({ text: USERNAME, tw: LABEL_TW });
     const usernameEl = createParagraph({ text: user.username });
@@ -132,7 +132,7 @@ export const createProfilePanel = (user: PersonalUser): UIComponent => {
     // Create the root container for profile panel
     const container = createContainer({
         tag: "section",
-        tw: "flex w-full bg-white rounded-lg shadow-md justify-evenly gap-x-4 flex-wrap",
+        tw: "flex w-full bg-white rounded-lg shadow-md justify-evenly flex-wrap",
         children: [leftCtn, rightCtn],
     });
 

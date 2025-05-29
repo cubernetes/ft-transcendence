@@ -23,7 +23,7 @@ export const connectBlockchain = async (visualizer: UIContainer): Promise<HTMLEl
     const setupResult = await setupWallet();
 
     if (setupResult.isErr()) {
-        return createEl("div", "text-red-500 font-semibold text-center", {
+        return createEl("div", "text-red-500 font-semibold text-center mt-4", {
             text: WALLET_CONNECT_ERROR,
             i18nVars: { icon: "❌" },
         });
@@ -91,7 +91,7 @@ export const connectBlockchain = async (visualizer: UIContainer): Promise<HTMLEl
                     const explorerLink = `https://subnets-test.avax.network/c-chain/tx/${txHash}`;
                     replaceChildren(visualizer, [
                         createEl("a", `${CONST.FONT.BODY_XS} text-blue-600 underline`, {
-                            text: `Transaction Hash: ${shortened}`,
+                            text: `TX: ${shortened}`,
                             attributes: {
                                 href: explorerLink,
                                 target: "_blank",
@@ -132,18 +132,18 @@ export const restartTournamentButton = (): HTMLButtonElement => {
 
     if (!controller) {
         restartButton.disabled = true;
-        restartButton.title = "Controller not available";
-        restartButton.classList.add("opacity-50", "cursor-not-allowed");
     }
 
     return restartButton;
 };
 
 export const winnerVisualization = (winnerName: string): HTMLElement => {
+    const { WINNER_NAME } = CONST.TEXT;
     const winnerContainer = createEl("div", "flex flex-col items-center gap-2 mt-6");
 
     const winnerText = createEl("h1", `${CONST.FONT.H5} font-bold text-center text-green-700`, {
-        text: `🥇 Winner: ${winnerName}`,
+        text: WINNER_NAME,
+        i18nVars: { icon: "🥇", name: winnerName },
     });
 
     appendChildren(winnerContainer, [winnerText]);

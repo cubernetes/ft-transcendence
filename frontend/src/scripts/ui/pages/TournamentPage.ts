@@ -12,6 +12,7 @@ import { createParagraph } from "../components/Paragraph";
 import { createStatus } from "../components/Status";
 
 export const createTournamentPage = async (): Promise<UIComponent> => {
+    const { TOURNAMENT_ID, TOURNAMENT_BRACKET, INIT_ERROR, NO_TOURNAMENT } = CONST.TEXT;
     const { controller, round, tournamentId } = tournamentStore.get();
     const { statusEl, showErr } = createStatus();
     const pageContainer = createEl("div", "w-full h-full p-6 flex flex-col items-center gap-8");
@@ -27,17 +28,22 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
     // Header Section
     const headerSection = createEl("div", "w-full text-center -mt-2");
 
-    const title = createHeading({ text: "🏆 Tournament Bracket", tw: "font-bold" });
+    const title = createHeading({
+        text: TOURNAMENT_BRACKET,
+        tw: "font-bold",
+        i18nVars: { icon: "🏆" },
+    });
     const tournamentIdEl = createParagraph({
-        text: `Tournament ID: ${tournamentId || "Unknown"}`,
+        text: TOURNAMENT_ID,
         tw: `${CONST.FONT.BODY_XXS} text-gray-400 -mt-2`,
+        i18nVars: { id: tournamentId },
     });
 
     appendChildren(headerSection, [title, tournamentIdEl]);
 
     // Error Handling
     if (!controller) {
-        showErr("Unable to launch the tournament. Please try again later.");
+        showErr(INIT_ERROR);
         return [statusEl];
     }
 
@@ -46,7 +52,7 @@ export const createTournamentPage = async (): Promise<UIComponent> => {
     const bracketSection = createEl("section", "w-full flex justify-center -mt-4");
     if (!tree) {
         const fallback = createParagraph({
-            text: "Tournament tree could not be loaded.",
+            text: NO_TOURNAMENT,
             tw: "text-center text-gray-500",
         });
         bracketSection.appendChild(fallback);
