@@ -13,36 +13,61 @@ export const TEXT_MAP = {
         fr: "qd-transcendance",
         es: "cd-transcendencia",
     },
-    PLAY: { en: "Play", de: "Spielen", fr: "Jouer", es: "Jugar" },
-    LEADERBOARD: { en: "Leaderboard", de: "Bestenliste", fr: "Classement", es: "Clasificación" },
-    PROFILE: { en: "Profile", de: "Profil", fr: "Profil", es: "Perfil" },
-    STATS: { en: "Stats", de: "Statistiken", fr: "Profil", es: "Perfil" }, // TRANSLATION_NEEDED
-    QUICKPLAY: { en: "Quickplay", de: "Schnelles Spiel", fr: "Jeu rapide", es: "Juego rápido" },
+    PLAY: {
+        en: "Play",
+        de: "Spielen",
+        fr: "Jouer",
+        es: "Jugar",
+    },
+    LEADERBOARD: {
+        en: "Leaderboard",
+        de: "Bestenliste",
+        fr: "Classement",
+        es: "Clasificación",
+    },
+    PROFILE: {
+        en: "Profile",
+        de: "Profil",
+        fr: "Profil",
+        es: "Perfil",
+    },
+    STATS: {
+        en: "Stats",
+        de: "Statistiken",
+        fr: "Statistiques",
+        es: "Estadísticas",
+    },
+    QUICKPLAY: {
+        en: "Quickplay",
+        de: "Schnelles Spiel",
+        fr: "Jeu rapide",
+        es: "Juego rápido",
+    },
 
     // System
     COPY: {
         en: "Copy",
-        de: "Copy", // TRANSLATION_NEEDED
-        fr: "Copy", // TRANSLATION_NEEDED
-        es: "Copy", // TRANSLATION_NEEDED
+        de: "Kopieren",
+        fr: "Copier",
+        es: "Copiar",
     },
     COPIED: {
         en: "Copied",
-        de: "Copied", // TRANSLATION_NEEDED
-        fr: "Copied", // TRANSLATION_NEEDED
-        es: "Copied", // TRANSLATION_NEEDED
+        de: "Kopiert",
+        fr: "Copié",
+        es: "Copiado",
     },
     UPLOAD: {
         en: "Upload",
-        de: "Upload", // TRANSLATION_NEEDED
-        fr: "Upload", // TRANSLATION_NEEDED
-        es: "Upload", // TRANSLATION_NEEDED
+        de: "Hochladen",
+        fr: "Téléverser",
+        es: "Subir",
     },
     SUCCESS: {
         en: "Success",
-        de: "Success-de", // TRANSLATION_NEEDED
-        fr: "Success-fr", // TRANSLATION_NEEDED
-        es: "Success-es", // TRANSLATION_NEEDED
+        de: "Erfolg",
+        fr: "Succès",
+        es: "Éxito",
     },
 
     // User
@@ -58,68 +83,113 @@ export const TEXT_MAP = {
         fr: "Nom d'affichage",
         es: "Nombre para mostrar",
     },
-    PASSWORD: { en: "Password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" },
-    OLD_PASSWORD: { en: "Old password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" }, // TRANSLATION_NEEDED
-    NEW_PASSWORD: { en: "New password", de: "Passwort", fr: "Mot de passe", es: "Contraseña" }, // TRANSLATION_NEEDED
+    PASSWORD: {
+        en: "Password",
+        de: "Passwort",
+        fr: "Mot de passe",
+        es: "Contraseña",
+    },
+    OLD_PASSWORD: {
+        en: "Old password",
+        de: "Altes Passwort",
+        fr: "Ancien mot de passe",
+        es: "Contraseña anterior",
+    },
+    NEW_PASSWORD: {
+        en: "New password",
+        de: "Neues Passwort",
+        fr: "Nouveau mot de passe",
+        es: "Nueva contraseña",
+    },
     CONFIRM_PASSWORD: {
         en: "Confirm password",
         de: "Passwort bestätigen",
         fr: "Confirmer le mot de passe",
         es: "Confirmar contraseña",
     },
-    LOGIN: { en: "Login", de: "Einloggen", fr: "Connexion", es: "Iniciar sesión" },
-    LOGOUT: { en: "Logout", de: "Abmelden", fr: "Déconnexion", es: "Cerrar sesión" },
-    REGISTER: { en: "Register", de: "Registrieren", fr: "S'inscrire", es: "Registrarse" },
+    LOGIN: {
+        en: "Login",
+        de: "Einloggen",
+        fr: "Connexion",
+        es: "Iniciar sesión",
+    },
+    LOGOUT: {
+        en: "Logout",
+        de: "Abmelden",
+        fr: "Déconnexion",
+        es: "Cerrar sesión",
+    },
+    REGISTER: {
+        en: "Register",
+        de: "Registrieren",
+        fr: "S'inscrire",
+        es: "Registrarse",
+    },
     USER_AVATAR: {
         en: "User avatar",
-        de: "User avatar", // TRANSLATION_NEEDED
-        fr: "User avatar", // TRANSLATION_NEEDED
-        es: "User avatar", // TRANSLATION_NEEDED
+        de: "Benutzeravatar",
+        fr: "Avatar utilisateur",
+        es: "Avatar de usuario",
     },
     GAMES_PLAYED: {
         en: "Played Games",
         de: "Gespielte Spiele",
-        fr: "Played Games",
-        es: "Played Games",
-    }, // TRANSLATION_NEEDED
-    RANK: { en: "Rank", de: "Rang", fr: "Rang", es: "Rango" },
-    WINS: { en: "Wins", de: "Siege", fr: "Victoires", es: "Victorias" },
-    LOSSES: { en: "Losses", de: "Niederlagen", fr: "Victoires", es: "Victorias" }, // TRANSLATION_NEEDED
+        fr: "Parties jouées",
+        es: "Juegos jugados",
+    },
+    RANK: {
+        en: "Rank",
+        de: "Rang",
+        fr: "Rang",
+        es: "Rango",
+    },
+    WINS: {
+        en: "Wins",
+        de: "Siege",
+        fr: "Victoires",
+        es: "Victorias",
+    },
+    LOSSES: {
+        en: "Losses",
+        de: "Niederlagen",
+        fr: "Défaites",
+        es: "Derrotas",
+    },
     UPDATE: {
         en: "Update",
-        de: "Update", // TRANSLATION_NEEDED
-        fr: "Update", // TRANSLATION_NEEDED
-        es: "Update", // TRANSLATION_NEEDED
+        de: "Aktualisieren",
+        fr: "Mettre à jour",
+        es: "Actualizar",
     },
     ENABLE: {
         en: "Enable",
-        de: "Enable", // TRANSLATION_NEEDED
-        fr: "Enable", // TRANSLATION_NEEDED
-        es: "Enable", // TRANSLATION_NEEDED
+        de: "Aktivieren",
+        fr: "Activer",
+        es: "Habilitar",
     },
     DISABLE: {
         en: "Disable",
-        de: "Disable", //TRANSLATION_NEEDED
-        fr: "Disable", //TRANSLATION_NEEDED
-        es: "Disable", //TRANSLATION_NEEDED
+        de: "Deaktivieren",
+        fr: "Désactiver",
+        es: "Deshabilitar",
     },
     SUBMIT: {
         en: "Submit",
-        de: "Submit", //TRANSLATION_NEEDED
-        fr: "Submit", //TRANSLATION_NEEDED
-        es: "Submit", //TRANSLATION_NEEDED
+        de: "Absenden",
+        fr: "Soumettre",
+        es: "Enviar",
     },
     ENTER_TOTP_CODE: {
         en: "Enter TOTP code",
-        de: "Enter TOTP code", //TRANSLATION_NEEDED
-        fr: "Enter TOTP code", //TRANSLATION_NEEDED
-        es: "Enter TOTP code", //TRANSLATION_NEEDED
+        de: "TOTP-Code eingeben",
+        fr: "Entrer le code TOTP",
+        es: "Introduzca el código TOTP",
     },
     ENTER_TOTP_CODE_NEW: {
         en: "Enter TOTP code for new secret",
-        de: "Enter TOTP code for new secret", //TRANSLATION_NEEDED
-        fr: "Enter TOTP code for new secret", //TRANSLATION_NEEDED
-        es: "Enter TOTP code for new secret", //TRANSLATION_NEEDED
+        de: "TOTP-Code für neues Geheimnis eingeben",
+        fr: "Entrer le code TOTP pour le nouveau secret",
+        es: "Introduzca el código TOTP para el nuevo secreto",
     },
 
     // Game setup
@@ -129,7 +199,12 @@ export const TEXT_MAP = {
         fr: "Choisir le mode de jeu",
         es: "Elegir modo de juego",
     },
-    LOCAL: { en: "Local", de: "Lokal", fr: "Local", es: "Local" },
+    LOCAL: {
+        en: "Local",
+        de: "Lokal",
+        fr: "Local",
+        es: "Local",
+    },
     ENTER_PLAYER_NAMES: {
         en: "Enter player names:",
         de: "Spielernamen eingeben:",
@@ -142,30 +217,60 @@ export const TEXT_MAP = {
         fr: "Nom du joueur {i}",
         es: "Nombre del jugador {i}",
     },
-    AI: { en: "AI", de: "KI", fr: "IA", es: "IA" },
-    DIFFICULTY: { en: "Difficulty", de: "Schwierigkeit", fr: "Difficulté", es: "Dificultad" },
-    EASY: { en: "Easy", de: "Einfach", fr: "Facile", es: "Fácil" },
-    MEDIUM: { en: "Medium", de: "Mittel", fr: "Moyen", es: "Medio" },
-    HARD: { en: "Hard", de: "Schwer", fr: "Difficile", es: "Difícil" },
+    AI: {
+        en: "AI",
+        de: "KI",
+        fr: "IA",
+        es: "IA",
+    },
+    DIFFICULTY: {
+        en: "Difficulty",
+        de: "Schwierigkeit",
+        fr: "Difficulté",
+        es: "Dificultad",
+    },
+    EASY: {
+        en: "Easy",
+        de: "Einfach",
+        fr: "Facile",
+        es: "Fácil",
+    },
+    MEDIUM: {
+        en: "Medium",
+        de: "Mittel",
+        fr: "Moyen",
+        es: "Medio",
+    },
+    HARD: {
+        en: "Hard",
+        de: "Schwer",
+        fr: "Difficile",
+        es: "Difícil",
+    },
 
-    ONLINE: { en: "Online", de: " Online", fr: "En ligne", es: "En línea" },
+    ONLINE: {
+        en: "Online",
+        de: " Online",
+        fr: "En ligne",
+        es: "En línea",
+    },
     LOBBY: {
         en: "Lobby",
-        de: "Lobby", // TRANSLATION_NEEDED?
-        fr: "Lobby", // TRANSLATION_NEEDED
-        es: "Lobby", // TRANSLATION_NEEDED
+        de: "Lobby",
+        fr: "Salon",
+        es: "Sala",
     },
     ENTER_LOBBY_ID: {
         en: "Enter lobby ID",
-        de: "Enter lobby ID", // TRANSLATION_NEEDED
-        fr: "Enter lobby ID", // TRANSLATION_NEEDED
-        es: "Enter lobby ID", // TRANSLATION_NEEDED
+        de: "Lobby-ID eingeben",
+        fr: "Entrer l'identifiant du salon",
+        es: "Ingrese el ID de la sala",
     },
     JOIN: {
         en: "Join",
-        de: "Join", // TRANSLATION_NEEDED
-        fr: "Join", // TRANSLATION_NEEDED
-        es: "Join", // TRANSLATION_NEEDED
+        de: "Beitreten",
+        fr: "Rejoindre",
+        es: "Unirse",
     },
     CREATE_LOBBY: {
         en: "Create Lobby",
@@ -181,16 +286,16 @@ export const TEXT_MAP = {
     },
     LEAVE: {
         en: "Leave",
-        de: "Leave-de", // TRANSLATION_NEEDED
-        fr: "Leave-fr", // TRANSLATION_NEEDED
-        es: "Leave-es", // TRANSLATION_NEEDED
+        de: "Verlassen",
+        fr: "Quitter",
+        es: "Salir",
     },
 
     TOURNAMENT: {
         en: "Tournament",
-        de: "Tournament", // TRANSLATION_NEEDED
-        fr: "Tournament", // TRANSLATION_NEEDED
-        es: "Tournament", // TRANSLATION_NEEDED
+        de: "Turnier",
+        fr: "Tournoi",
+        es: "Torneo",
     },
     CREATE_TOURNAMENT: {
         en: "Create Tournament",
@@ -206,156 +311,156 @@ export const TEXT_MAP = {
     },
     NUMBER_OF_PLAYERS: {
         en: "Number of players",
-        de: "Spieleranzahl", // TRANSLATION_NEEDED (check)
-        fr: "Nombre de joueurs", // TRANSLATION_NEEDED (check)
-        es: "Número de jugadores", // TRANSLATION_NEEDED (check)
+        de: "Spieleranzahl",
+        fr: "Nombre de joueurs",
+        es: "Número de jugadores",
     },
     COMPLETED: {
         en: "Completed",
-        de: "Turnier starten", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        de: "Abgeschlossen",
+        fr: "Terminé",
+        es: "Completado",
     },
     PENDING: {
         en: "Pending",
-        de: "Turnier starten", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        de: "Ausstehend",
+        fr: "En attente",
+        es: "Pendiente",
     },
     WINNER: {
         en: "Winner",
         de: "Gewinner",
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        fr: "Vainqueur",
+        es: "Ganador",
     },
     START: {
         en: "Start",
         de: "Starten",
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        fr: "Démarrer",
+        es: "Iniciar",
     },
     TOURNAMENT_BRACKET: {
         en: "Tournament Bracket",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        de: "Turnierbaum",
+        fr: "Arbre du tournoi",
+        es: "Cuadro del torneo",
     },
     WALLET_CONNECT: {
         en: "{icon} Store Results on the Blockchain",
-        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
-        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
+        de: "{icon} Ergebnisse auf der Blockchain speichern",
+        fr: "{icon} Stocker les résultats sur la blockchain",
+        es: "{icon} Guardar resultados en la blockchain",
     },
     GET_TOURNAMENT: {
         en: "{icon} Get Tournament History",
-        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
-        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
+        de: "{icon} Turnierverlauf abrufen",
+        fr: "{icon} Obtenir l'historique du tournoi",
+        es: "{icon} Obtener historial del torneo",
     },
     RECORD_TOURNAMENT: {
         en: "{icon} Record Game",
-        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
-        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
+        de: "{icon} Spiel aufzeichnen",
+        fr: "{icon} Enregistrer la partie",
+        es: "{icon} Registrar partida",
     },
     RESTART: {
         en: "{icon} Restart",
-        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
-        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
+        de: "{icon} Neustarten",
+        fr: "{icon} Redémarrer",
+        es: "{icon} Reiniciar",
     },
     STATS_CHART: {
         en: "Stats Chart",
-        de: "Statistiken", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        de: "Statistikdiagramm",
+        fr: "Graphique des statistiques",
+        es: "Gráfico de estadísticas",
     },
     MATCH_HISTORY: {
         en: "Match History",
-        de: "Statistiken", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        de: "Spielverlauf",
+        fr: "Historique des matchs",
+        es: "Historial de partidas",
     },
     FRIENDS: {
         en: "Your Friends",
         de: "Deine Freunde",
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        fr: "Vos amis",
+        es: "Tus amigos",
     },
     // Game options
     SHADOWS: {
         en: "Shadows",
-        de: "Shadows-de", // TRANSLATION_NEEDED
-        fr: "Shadows-fr", // TRANSLATION_NEEDED
-        es: "Shadows-es", // TRANSLATION_NEEDED
+        de: "Schatten",
+        fr: "Ombres",
+        es: "Sombras",
     },
     MUSIC: {
         en: "Music",
-        de: "Music-de", // TRANSLATION_NEEDED
-        fr: "Music-fr", // TRANSLATION_NEEDED
-        es: "Music-es", // TRANSLATION_NEEDED
+        de: "Musik",
+        fr: "Musique",
+        es: "Música",
     },
     VOLUME: {
         en: "Volume",
-        de: "Volume-de", // TRANSLATION_NEEDED
-        fr: "Volume-fr", // TRANSLATION_NEEDED
-        es: "Volume-es", // TRANSLATION_NEEDED
+        de: "Lautstärke",
+        fr: "Volume",
+        es: "Volumen",
     },
     GAME_OVER: {
         en: "Game over",
-        de: "Game over-de", // TRANSLATION_NEEDED
-        fr: "Game over-fr", // TRANSLATION_NEEDED
-        es: "Game over-es", // TRANSLATION_NEEDED
+        de: "Spiel beendet",
+        fr: "Fin de la partie",
+        es: "Fin del juego",
     },
 
     // Server error codes
     USER_NOT_FOUND: {
         en: "User not found",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "Benutzer nicht gefunden",
+        fr: "Utilisateur non trouvé",
+        es: "Usuario no encontrado",
     },
     USERNAME_REQUIRED: {
         en: "Username is required",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "Benutzername ist erforderlich",
+        fr: "Le nom d'utilisateur est requis",
+        es: "Se requiere nombre de usuario",
     },
     USERNAME_TAKEN: {
         en: "Username taken",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "Benutzername bereits vergeben",
+        fr: "Nom d'utilisateur déjà pris",
+        es: "Nombre de usuario ya en uso",
     },
     USERNAME_TOO_SHORT: {
         en: `Username needs to be at least ${USERNAME_MIN_LENGTH} characters long`,
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: `Der Benutzername muss mindestens ${USERNAME_MIN_LENGTH} Zeichen lang sein`,
+        fr: `Le nom d'utilisateur doit comporter au moins ${USERNAME_MIN_LENGTH} caractères`,
+        es: `El nombre de usuario debe tener al menos ${USERNAME_MIN_LENGTH} caracteres`,
     },
     DISPLAY_NAME_TOO_SHORT: {
         en: `Display name needs to be at least ${DISPLAY_NAME_MIN_LENGTH} characters long`,
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: `Der Anzeigename muss mindestens ${DISPLAY_NAME_MIN_LENGTH} Zeichen lang sein`,
+        fr: `Le nom d'affichage doit comporter au moins ${DISPLAY_NAME_MIN_LENGTH} caractères`,
+        es: `El nombre para mostrar debe tener al menos ${DISPLAY_NAME_MIN_LENGTH} caracteres`,
     },
     PASSWORD_REQUIRED: {
         en: "Password is required",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "Passwort ist erforderlich",
+        fr: "Le mot de passe est requis",
+        es: "Se requiere contraseña",
     },
     PASSWORD_INVALID: {
         en: "Invalid password",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "Ungültiges Passwort",
+        fr: "Mot de passe invalide",
+        es: "Contraseña inválida",
     },
     PASSWORD_TOO_SHORT: {
         en: `Password needs to be at least ${PASSWORD_MIN_LENGTH} characters long`,
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: `Das Passwort muss mindestens ${PASSWORD_MIN_LENGTH} Zeichen lang sein`,
+        fr: `Le mot de passe doit comporter au moins ${PASSWORD_MIN_LENGTH} caractères`,
+        es: `La contraseña debe tener al menos ${PASSWORD_MIN_LENGTH} caracteres`,
     },
     PASSWORD_MATCH_ERROR: {
         en: "Passwords do not match",
@@ -365,47 +470,47 @@ export const TEXT_MAP = {
     },
     TOKEN_REQUIRED: {
         en: "TOTP token is required",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "TOTP-Token ist erforderlich",
+        fr: "Le jeton TOTP est requis",
+        es: "Se requiere el token TOTP",
     },
     TOKEN_LENGTH_ERROR: {
         en: "TOTP token must be 6 characters",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "TOTP-Token muss 6 Zeichen lang sein",
+        fr: "Le jeton TOTP doit comporter 6 caractères",
+        es: "El token TOTP debe tener 6 caracteres",
     },
     TOKEN_INVALID: {
         en: "TOTP token is invalid",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "TOTP-Token ist ungültig",
+        fr: "Le jeton TOTP est invalide",
+        es: "El token TOTP no es válido",
     },
     LOBBY_NOT_FOUND: {
         en: "Lobby not found",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "Lobby nicht gefunden",
+        fr: "Salon introuvable",
+        es: "Sala no encontrada",
     },
     LOBBY_FULL: {
         en: "Lobby is full",
-        de: "Username taken", // TRANSLATION_NEEDED
-        fr: "Username taken", // TRANSLATION_NEEDED
-        es: "Username taken", // TRANSLATION_NEEDED
+        de: "Lobby ist voll",
+        fr: "Le salon est plein",
+        es: "La sala está llena",
     },
 
     // Error CODE map to msg, probaly need refactor, do not need to be one to one with english
     FETCH_ERROR: {
         en: "Fail to fetch {URL}",
-        de: "Fail to fetch {URL}", // TRANSLATION_NEEDED
-        fr: "Fail to fetch {URL}", // TRANSLATION_NEEDED
-        es: "Fail to fetch {URL}", // TRANSLATION_NEEDED
+        de: "Fehler beim Abrufen von {URL}",
+        fr: "Échec de la récupération de {URL}",
+        es: "Error al obtener {URL}",
     },
     INIT_ERROR: {
         en: "Initialization error",
-        de: "Initialization error", // TRANSLATION_NEEDED
-        fr: "Initialization error", // TRANSLATION_NEEDED
-        es: "Initialization error", // TRANSLATION_NEEDED
+        de: "Initialisierungsfehler",
+        fr: "Erreur d'initialisation",
+        es: "Error de inicialización",
     },
     LOGIN_ERROR: {
         en: "Login failed. Please check your credentials.",
@@ -420,10 +525,10 @@ export const TEXT_MAP = {
         es: "Por favor, ingrese los nombres de todos los jugadores.",
     },
     PLAYER_NAMES_DUPLICATE: {
-        en: "Player names must to be unique.",
-        de: "Player names must to be unique.", // TRANSLATION_NEEDED
-        fr: "Player names must to be unique.", // TRANSLATION_NEEDED
-        es: "Player names must to be unique.", // TRANSLATION_NEEDED
+        en: "Player names must be unique.",
+        de: "Spielernamen dürfen nicht mehrfach gewählt werden.",
+        fr: "Les noms des joueurs doivent être uniques.",
+        es: "Los nombres de los jugadores no pueden estar repetidos.",
     },
     DIFFICULTY_REQUIRED: {
         en: "Please select a difficulty.",
@@ -439,33 +544,33 @@ export const TEXT_MAP = {
     },
     NO_TOURNAMENT: {
         en: "No tournament started.",
-        de: "Kein Tournament wurde gestarted.",
-        fr: "No tournament started.", // TRANSLATION_NEEDED
-        es: "No tournament started.", // TRANSLATION_NEEDED
+        de: "Kein Turnier gestartet.",
+        fr: "Aucun tournoi démarré.",
+        es: "Ningún torneo iniciado.",
     },
     WALLET_CONNECT_ERROR: {
         en: "{icon} Wallet not detected. Please install a wallet like MetaMask.",
-        de: "{icon} Turnierbaum", // TRANSLATION_NEEDED
-        fr: "{icon} Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "{icon} Iniciar torneo", // TRANSLATION_NEEDED
+        de: "{icon} Wallet nicht erkannt. Bitte installiere ein Wallet wie MetaMask.",
+        fr: "{icon} Portefeuille non détecté. Veuillez installer un portefeuille comme MetaMask.",
+        es: "{icon} Monedero no detectado. Por favor, instala un monedero como MetaMask.",
     },
     GET_TOURNAMENT_ERROR: {
         en: "Unable to get tournament history.",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        de: "Turnierverlauf konnte nicht abgerufen werden.",
+        fr: "Impossible d'obtenir l'historique du tournoi.",
+        es: "No se pudo obtener el historial del torneo.",
     },
     GAME_DATA_ERROR: {
-        en: "No game data available. Play some games onlin games!",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        en: "No game data available. Play some games online!",
+        de: "Keine Spieldaten verfügbar. Spiele ein paar Online-Spiele!",
+        fr: "Aucune donnée de jeu disponible. Jouez quelques parties en ligne !",
+        es: "No hay datos de juego disponibles. ¡Juega algunas partidas en línea!",
     },
     FRIENDS_ERROR: {
         en: "No friends in your friend list. Add some!",
-        de: "Turnierbaum", // TRANSLATION_NEEDED
-        fr: "Démarrer le tournoi", // TRANSLATION_NEEDED
-        es: "Iniciar torneo", // TRANSLATION_NEEDED
+        de: "Keine Freunde in deiner Freundesliste. Füge welche hinzu!",
+        fr: "Aucun ami dans votre liste d'amis. Ajoutez-en !",
+        es: "No tienes amigos en tu lista. ¡Agrega algunos!",
     },
 } as const satisfies Record<string, Record<LanguageOpts, string>>;
 
