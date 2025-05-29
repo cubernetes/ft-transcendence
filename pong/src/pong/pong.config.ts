@@ -13,7 +13,7 @@ const boardSchema = z.object({
 });
 
 const defaultBall = {
-    pos: { x: 0, y: 0, z: 0 },
+    pos: { x: 0, y: 0.5, z: 0 },
     vec: { x: -0.2, y: 0, z: -0.2 },
     r: 0.21,
     speed: 0.3,
@@ -56,8 +56,6 @@ export const defaultGameConfig: PongConfig = {
 export const configSchema = z.object({
     board: boardSchema,
     paddles: paddleSchema.array().length(2),
-    //fps: z.number().min(1).max(60), // For dev only
-    //resetDelay: z.number().min(100).max(10000),
     aiMode: z.boolean(),
     aiDifficulty: z.string().optional(),
     playTo: z.number().min(1, "Must play to great than 1").max(21, "Must play to less than 21"),

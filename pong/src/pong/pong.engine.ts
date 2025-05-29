@@ -168,7 +168,7 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
     };
 
     const resetBall = () => {
-        ball.pos = { x: 0, y: 0, z: 0 };
+        ball.pos = { x: 0, y: 0.5, z: 0 };
         ball.vec = { x: 0, y: 0, z: 0 };
         setTimeout(randomizeDirection, RESET_DELAY);
     };
@@ -264,6 +264,11 @@ export const createPongEngine = (cfg: Partial<PongConfig> = {}) => {
         paddles.forEach((p, i) => deepAssign(p, config.paddles[i]));
         deepAssign(ball, config.ball);
         status = "waiting";
+
+        // Hard reset on ball and paddle position
+        ball.pos = { x: 0, y: 0.5, z: 0 };
+        paddles[0].pos = { x: -config.board.size.width / 2 + 0.5, y: 0.5, z: 0 };
+        paddles[1].pos = { x: config.board.size.width / 2 + 0.5, y: 0.5, z: 0 };
 
         if (interval) {
             clearInterval(interval);
