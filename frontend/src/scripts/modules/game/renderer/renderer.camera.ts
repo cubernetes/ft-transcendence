@@ -75,7 +75,7 @@ export const slideInCamera = async (scene: Scene) => {
 
 export const shakeCamera = (camera: ArcRotateCamera, scene: Scene) => {
     if (!camera.animations) {
-        camera.animations = []; // Initialize
+        camera.animations = [];
     }
 
     let shakeAnim = camera.animations.find((anim) => anim.name === "shake");
@@ -91,27 +91,34 @@ export const shakeCamera = (camera: ArcRotateCamera, scene: Scene) => {
         // shakeAnim.enableBlending = true;
         camera.animations.push(shakeAnim);
     }
-    const keys = [];
-	const shakeFrames = 10;
-    const shakeStrength = 0.2;
+
     const start = camera.position.clone();
+	const changer = new Vector3(start._x, start._y, start._z)
+    const keys = [];
+    const shakeFrames = 12;
+    const shakeStrength = 0.2;
 
     for (let i = 0; i < shakeFrames; i++) {
-        const direction = new Vector3(
+        const offset = new Vector3(
             (Math.random() - 0.5) * shakeStrength,
             (Math.random() - 0.5) * shakeStrength,
             (Math.random() - 0.5) * shakeStrength
         );
+		start.addToRef(offset, changer)
         keys.push({
-            frame: i * 2,
-            value: start.add(direction),
+            frame: i,
+            value: start.addInPlace(offset)
+        });
+		keys.push({
+            frame: i,
+            value: start.addInPlace(offset)
         });
     }
-    keys.push({ frame: shakeFrames * 2, value: start });
+    keys.push({ frame: shakeFrames * 2 + 1, value: changer });
 
     shakeAnim.setKeys(keys);
 
-    scene.beginAnimation(camera, 0, shakeFrames * 2, false, 3, () => {
-		camera.position.copyFrom(start);
-	});
+    scene.beginAnimation(camera, 0, shakeFrames, false, 1, () => {
+        camera.position.copyFrom(changer);
+    });
 };
