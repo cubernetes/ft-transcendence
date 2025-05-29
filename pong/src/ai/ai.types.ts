@@ -2,7 +2,7 @@ import type { PongEngine } from "../pong/pong.types";
 
 export type AIDifficulty = "EASY" | "MEDIUM" | "HARD";
 
-export type AIPongEngine = Pick<PongEngine, "onEvent" | "setInput">;
+export type AIPongEngine = Pick<PongEngine, "onEvent" | "setInput" | "getConfig">;
 
 export type AIConfig = {
     maxDepth: number;
@@ -19,7 +19,9 @@ export type AIPlayer = {
 };
 
 export type AIService = {
-    createAIPlayer: (engine: AIPongEngine, playerIndex: number, difficulty?: AIDifficulty) => void;
-    removeAIPlayer: (playerIndex: number) => void;
-    processAI: (player: AIPlayer) => void;
+    createAIPlayer: (
+        engine: AIPongEngine,
+        playerIndex: number,
+        difficulty?: AIDifficulty
+    ) => AIPlayer;
 };
