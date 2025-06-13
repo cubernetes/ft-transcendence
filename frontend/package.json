@@ -13,7 +13,7 @@
     },
     "dependencies": {
         "@babylonjs/core": "^8.10.0",
-        "@babylonjs/gui": "^8.10.0",
+        "@babylonjs/gui": "^8.12.1",
         "@darrenkuro/pong-core": "^1.3.16",
         "@types/earcut": "^3.0.0",
         "chart.js": "^4.4.9",
