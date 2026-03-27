@@ -19,11 +19,11 @@
         "@fastify/jwt": "^9.0.4",
         "@fastify/multipart": "^9.0.3",
         "@fastify/swagger": "^9.4.2",
-        "@fastify/swagger-ui": "^5.2.2",
+        "@fastify/swagger-ui": "^5.2.3",
         "@fastify/websocket": "^11.1.0",
         "bcryptjs": "^3.0.2",
         "better-sqlite3": "^11.8.1",
-        "drizzle-orm": "^0.44.0",
+        "drizzle-orm": "^0.44.2",
         "fastify": "^5.2.1",
         "fastify-plugin": "^5.0.1",
         "neverthrow": "^8.2.0",
@@ -32,13 +32,13 @@
         "pino-socket": "^7.4.0",
         "qrcode": "^1.5.4",
         "speakeasy": "^2.0.0",
-        "zod": "^3.25.36"
+        "zod": "^3.25.64"
     },
     "devDependencies": {
         "@trivago/prettier-plugin-sort-imports": "^5.2.2",
         "@types/bcrypt": "^5.0.2",
         "@types/better-sqlite3": "^7.6.12",
-        "@types/node": "^22.15.24",
+        "@types/node": "^24.0.1",
         "@types/qrcode": "^1.5.5",
         "@types/speakeasy": "^2.0.10",
         "@types/tap": "^15.0.12",
@@ -49,9 +49,9 @@
         "nodemon": "^3.1.9",
         "prettier": "^3.5.3",
         "tap": "^21.1.0",
-        "tsx": "^4.19.3",
+        "tsx": "^4.20.3",
         "typescript": "^5.3.3",
-        "zod-to-json-schema": "^3.24.4"
+        "zod-to-json-schema": "^3.24.6"
     },
     "overrides": {
         "esbuild": "^0.25.2"
